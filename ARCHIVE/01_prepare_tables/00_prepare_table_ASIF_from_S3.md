@@ -105,12 +105,12 @@ import sidetable
 
 
 path = os.getcwd()
-parent_path = str(Path(path).parent.parent.parent)
+parent_path = str(Path(path).parent.parent)
 
 
-name_credential = 'XXX.csv'
-region = ''
-bucket = ''
+name_credential = 'financial_dep_SO2_accessKeys.csv'
+region = 'eu-west-3'
+bucket = 'chinese-data'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 ```
 
@@ -148,11 +148,11 @@ Basically, the life of a query is:
 First of all, load the data locally. Use the function `list_all_files_with_prefix` to parse all the files in a given folder. Change the prefix to the name of the folder in which the data are located.
 
 ```python
-prefix = 'DATA/RAW_DATA'
-LOCAL_PATH_CATALOGUE= os.path.join(str(Path(path).parent),
+prefix = 'DATA/FIRMS/RAW_DATA'
+LOCAL_PATH_CATALOGUE= os.path.join(str(Path(path).parent.parent),
                                           '00_data_catalogue'
                                      )
-LOCAL_PATH_CONFIG_FILE = os.path.join(str(Path(path).parent),
+LOCAL_PATH_CONFIG_FILE = os.path.join(str(Path(path).parent.parent),
                                           '00_data_catalogue',
                                           'temporary_local_data'
                                      )
@@ -174,12 +174,144 @@ if to_download:
 # Steps 
 
 
-# Table `XX`
+# Table `Raw Asif Dataset`
 
 - Table name: `XX`
 
-```python
 
+Variables:
+
+From [Brandt paper- Challenges of working with the Chinese NBS firm-level data](https://docs.google.com/file/d/16agSbxO7cYuEn1v2bvw16ZRAx9gg7-Zm/edit)
+
+Online files are availble [here](https://feb.kuleuven.be/public/u0044468//CHINA/appendix/)
+
+![](https://camo.githubusercontent.com/7ae30cf56f052176f0dab3c2ff75969fd5b2690f354532ef960577b59194f0cc/68747470733a2f2f64796e616c6973742e696f2f752f674e346d35584f6e30566a6f744659706975576b724a5f64)
+
+## Original data
+
+The original paper has the following obs before cleaning
+
+![](https://camo.githubusercontent.com/19e7bb249cce6c5d91739691845bc887017c79779169b778d4c0d416f7486a23/68747470733a2f2f64796e616c6973742e696f2f752f5956364a644d7146754a44786c673174793265774b695f2d)
+
+We compare the raw data we have with the raw data from the paper
+
+1998-2007
+
+```python
+from tqdm.notebook import tqdm
+```
+
+```python
+df_raw = pd.DataFrame()
+for year in tqdm(range(1998, 2008, 1)):
+    #print(year)
+    path = os.path.join(LOCAL_PATH_CONFIG_FILE, 'stata_year_{0}.csv'.format(year))
+    df_ = pd.read_csv(
+        path
+        ,
+        usecols = ['id'],
+        )
+    df_['year'] = year
+    
+    df_raw = df_raw.append(df_, sort = False)
+```
+
+2008-2009
+
+2008 does not have firm's ID
+
+```python
+df_2008 = pd.read_csv(
+       os.path.join(LOCAL_PATH_CONFIG_FILE, 'stata_year_2008.csv'),
+        )
+df_2008['id'] = df_2008.index
+df_2008['year'] = '2008'
+df_2008 = df_2008[['year', 'id']]
+df_raw = df_raw.append(df_2008, sort = False)
+```
+
+```python
+df_2009 = pd.read_csv(
+         os.path.join(LOCAL_PATH_CONFIG_FILE, 'stata_year_2009.csv'),
+    usecols = ['法人代码'],
+        )
+df_2009['year'] = '2009'
+df_2009 = df_2009.rename(columns={'法人代码': "id"})
+df_raw = df_raw.append(df_2009, sort = False)
+```
+
+```python
+def compare_raw_Brandt(raw):
+    """
+    function to compare the raw count
+    from Brandt paper
+    """
+
+    df_raw = raw.dropna(subset=["id"])
+    df_raw_count = df_raw.groupby("year")["id"].count()
+    
+    if len(df_raw_count.index) == 10:
+        s = [165118,162033,162883,169030,
+             181557,196222,279092,271835,
+             301961,336768,#327853,np.nan,
+                    ]
+    elif len(df_raw_count.index) == 11:
+        s = [165118,162033,162883,169030,
+             181557,196222,279092,271835,
+             301961,336768,327853#,np.nan,
+                    ]
+    else:
+        s = [165118,162033,162883,169030,
+             181557,196222,279092,271835,
+             301961,336768,327853,np.nan,
+                    ]
+
+    temp = (
+        pd.concat(
+            [
+                pd.Series(
+                    s
+                    ,
+                    index=df_raw_count.index,
+                    name="Brandt",
+                ),
+                df_raw_count,
+            ],
+            axis=1,
+        )
+        # .reset_index()
+        # .apply(lambda x: x['Brandt'] - x['id'], axis = 1)
+    )
+    
+    temp['diff'] = temp['Brandt'] - temp['id']
+    
+    #temp.iloc[:,[2]].plot(kind='bar')
+    
+    return temp.iloc[:,:2].plot(kind='bar',  figsize=(10,8))
+```
+
+```python
+compare_raw_Brandt(raw= df_raw)
+```
+
+## Prepare Data
+
+### 1998 - 2007
+
+We specify the type for each variable so that we avoid the warning DtypeWarning: Columns (X) have mixed types.
+
+We load equity share, output, employement, export, fa_original, fa_net, profit a_dep, c_dep, wage, input as object because so observations have formating issue (infinity, NaN, especially for year 2005, 2006, 2007). We tackle it in the prepareData function.
+
+The program runs for about 12 minutes to clean up the data
+
+```python
+test = pd.read_csv(
+       os.path.join(LOCAL_PATH_CONFIG_FILE, 'stata_year_1998.csv', low_memory=False),
+        )
+```
+
+```python
+test.head()
 ```
 
 Check for duplicates
