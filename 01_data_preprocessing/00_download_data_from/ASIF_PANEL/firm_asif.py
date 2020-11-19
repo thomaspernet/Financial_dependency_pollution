@@ -1,5 +1,6 @@
 import pandas as pd
 from awsPy.aws_s3 import service_s3
+from awsPy.aws_glue import service_glue
 from awsPy.aws_authorization import aws_connector
 from GoogleDrivePy.google_drive import connect_drive
 from GoogleDrivePy.google_authorization import authorization_service
@@ -83,3 +84,20 @@ for i in chunk.columns:
     schema.append(dic)
 
 ### Craw the table
+glue = service_glue.connect_glue(client = client)
+target_S3URI = "s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_CSV/"
+name_crawler = "crawl-ASIF"
+Role = 'arn:aws:iam::468786073381:role/AWSGlueServiceRole-crawler-datalake'
+DatabaseName= "firms_survey"
+TablePrefix  = 'asif_'
+
+
+glue.create_table_glue(
+    target_S3URI,
+    name_crawler,
+    Role,
+    DatabaseName,
+    TablePrefix,
+    from_athena=False,
+    update_schema=schema,
+)
