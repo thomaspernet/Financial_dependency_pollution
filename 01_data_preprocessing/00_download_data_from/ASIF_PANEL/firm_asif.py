@@ -25,6 +25,9 @@ s3 = service_s3.connect_S3(client=client,
 s3.download_file("DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_STATA",
                  path_local=os.path.join(parent_path, "00_data_catalogue/temporary_local_data"))
 
+## Remove previous files in folder if exist
+s3.remove_all_bucket(path_remove = 'DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_CSV')                 
+
 # read file in chunk -> Take about 10 minutes
 
 filename = os.path.join(
