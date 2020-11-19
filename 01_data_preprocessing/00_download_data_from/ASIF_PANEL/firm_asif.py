@@ -5,7 +5,8 @@ from awsPy.aws_authorization import aws_connector
 from GoogleDrivePy.google_drive import connect_drive
 from GoogleDrivePy.google_authorization import authorization_service
 from pathlib import Path
-import os, json
+import os
+import json
 from tqdm import tqdm
 # Download stata file
 path = os.getcwd()
@@ -26,61 +27,71 @@ s3 = service_s3.connect_S3(client=client,
 s3.download_file("DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_STATA",
                  path_local=os.path.join(parent_path, "00_data_catalogue/temporary_local_data"))
 
-## Remove previous files in folder if exist
-s3.remove_all_bucket(path_remove = 'DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_CSV')
+# Remove previous files in folder if exist
+s3.remove_all_bucket(
+    path_remove='DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_CSV')
 
 # read file in chunk -> Take about 10 minutes
 
 filename = os.path.join(
     parent_path, "00_data_catalogue/temporary_local_data/all9807finalruiliyong14.dta")
 
-### List to remove
+# List to remove
 list_to_remove = [
 
-"vaaddtax",
-"vanew",
-"dq1",
-#"citycode",
-#"prov",
-"age",
-"region",
-"ownership_new",
-"cic_adj",
-"cpi",
-"ippi",
-"rawmppi",
-"fassetpi",
-"ind_two",
-"OutputDefl",
-"InputDefl",
-"merge_ind",
-"inputdefl",
-"outputdefl",
-"BR_deflator",
-"citycode_asifad",
-"citycodenew",
-"_merge",
-"lenth",
-"indus2",
-"exportdum"
+    "vaaddtax",
+    "vanew",
+    "dq1",
+    # "citycode",
+    # "prov",
+    "age",
+    "region",
+    "ownership_new",
+    "cic_adj",
+    "cpi",
+    "ippi",
+    "rawmppi",
+    "fassetpi",
+    "ind_two",
+    "OutputDefl",
+    "InputDefl",
+    "merge_ind",
+    "inputdefl",
+    "outputdefl",
+    "BR_deflator",
+    "citycode_asifad",
+    "citycodenew",
+    "_merge",
+    "lenth",
+    "indus2",
+    "exportdum"
 ]
 
 
-itr = pd.read_stata(filename, chunksize=25000)
+itr = pd.read_stata(filename, chunksize=25000, )
 i = 0
 for chunk in tqdm(itr):
     # Upload to S3
-    chunk = chunk.drop(columns = list_to_remove)
-    chunk.to_csv('ASIF_9807_chunk_{}.csv'.format(i), index = False)
+    chunk = (
+        chunk
+        .drop(columns=list_to_remove)
+        .assign(
+
+            firm=lambda x: x['firm'].astype('str').str.split('.').str[0],
+            year=lambda x: x['year'].astype('str').str.split('.').str[0]
+        )
+    )
+
+    chunk.to_csv('ASIF_9807_chunk_{}.csv'.format(i), index=False)
     s3.upload_file('ASIF_9807_chunk_{}.csv'.format(
         i), "DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_CSV")
     os.remove('ASIF_9807_chunk_{}.csv'.format(i))
     i += 1
 
 
-### Create schema
-### Load schema from
-#https://docs.google.com/spreadsheets/d/1gfdmBKzZ1h93atSMFcj_6YgLxC7xX62BCxOngJwf7qE
+# Create schema
+# Load schema from
+# https://docs.google.com/spreadsheets/d/1gfdmBKzZ1h93atSMFcj_6YgLxC7xX62BCxOngJwf7qE
 project = 'valid-pagoda-132423'
 auth = authorization_service.get_authorization(
     path_credential_gcp="{}/creds/service.json".format(parent_path),
@@ -97,20 +108,24 @@ var = (
         sheetID=spreadsheet_id,
         sheetName="var_name02-07.csv",
         to_dataframe=True)
+    .loc[lambda x:  ~x['Var_name'].isin(list_to_remove)]
 )
+
+var = var.loc[lambda x: x['Var_name'].isin(list_to_remove)]
 
 schema = []
 for i in chunk.columns:
 
     temp = var.loc[lambda x: x['Var_name'].isin([i])]
+    temp
 
     type = temp['type'].values[0]
     comment = temp['comments'].values[0]
 
-    if type== None:
+    if type == None:
         type = ''
 
-    if comment== None:
+    if comment == None:
         comment = ''
 
     dic = {
@@ -121,13 +136,13 @@ for i in chunk.columns:
 
     schema.append(dic)
 
-### Craw the table
-glue = service_glue.connect_glue(client = client)
+# Craw the table
+glue = service_glue.connect_glue(client=client)
 target_S3URI = "s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_CSV"
 name_crawler = "crawl-ASIF"
 Role = 'arn:aws:iam::468786073381:role/AWSGlueServiceRole-crawler-datalake'
-DatabaseName= "firms_survey"
-TablePrefix  = 'asif_'
+DatabaseName = "firms_survey"
+TablePrefix = 'asif_'
 
 
 glue.create_table_glue(
@@ -140,20 +155,21 @@ glue.create_table_glue(
     update_schema=None,
 )
 
-### Add tp ETL parameter files
+# Add tp ETL parameter files
 json_etl = {
-    'description':'Create Firms survey ASIF panel data from STATA',
+    'description': 'Create Firms survey ASIF panel data from STATA',
     'schema': schema,
-    'partition_keys':[],
-    'metadata':{
-    'DatabaseName' : DatabaseName,
-    'TablePrefix' : TablePrefix,
-    'target_S3URI' : target_S3URI,
-    'from_athena': 'False'
+    'partition_keys': [],
+    'metadata': {
+        'DatabaseName': DatabaseName,
+        'TablePrefix': TablePrefix,
+        'target_S3URI': target_S3URI,
+        'from_athena': 'False'
     }
 }
 
-path_to_etl = os.path.join(str(Path(path).parent.parent), 'parameters_ETL_Financial_dependency_pollution.json')
+path_to_etl = os.path.join(str(Path(path).parent.parent),
+                           'parameters_ETL_Financial_dependency_pollution.json')
 with open(path_to_etl) as json_file:
     parameters = json.load(json_file)
 
