@@ -5,7 +5,7 @@ from awsPy.aws_authorization import aws_connector
 from GoogleDrivePy.google_drive import connect_drive
 from GoogleDrivePy.google_authorization import authorization_service
 from pathlib import Path
-import os
+import os, json
 from tqdm import tqdm
 # Download stata file
 path = os.getcwd()
@@ -26,7 +26,7 @@ s3.download_file("DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_STATA",
                  path_local=os.path.join(parent_path, "00_data_catalogue/temporary_local_data"))
 
 ## Remove previous files in folder if exist
-s3.remove_all_bucket(path_remove = 'DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_CSV')                 
+s3.remove_all_bucket(path_remove = 'DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_CSV')
 
 # read file in chunk -> Take about 10 minutes
 
@@ -104,3 +104,25 @@ glue.create_table_glue(
     from_athena=False,
     update_schema=schema,
 )
+
+### Add tp ETL parameter files
+json_etl = {
+    'description':'Create Firms survey ASIF panel data from STATA',
+    'schema': schema,
+    'partition_keys':[],
+    'metadata':{
+    'DatabaseName' : DatabaseName,
+    'TablePrefix' : TablePrefix,
+    'target_S3URI' : target_S3URI,
+    'from_athena': 'False'
+    }
+}
+
+path_to_etl = os.path.join(str(Path(path).parent.parent), 'parameters_ETL_Financial_dependency_pollution.json')
+with open(path_to_etl) as json_file:
+    parameters = json.load(json_file)
+
+parameters['TABLES']['CREATION']['ALL_SCHEMA'].append(json_etl)
+
+with open(path_to_etl, "w")as outfile:
+    json.dump(parameters, outfile)
