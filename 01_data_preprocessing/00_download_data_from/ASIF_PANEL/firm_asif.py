@@ -15,6 +15,7 @@ region = 'eu-west-3'
 bucket = 'datalake-datascience'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 
+
 con = aws_connector.aws_instantiate(credential=path_cred,
                                     region=region)
 client = con.client_boto()
@@ -33,15 +34,49 @@ s3.remove_all_bucket(path_remove = 'DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_
 filename = os.path.join(
     parent_path, "00_data_catalogue/temporary_local_data/all9807finalruiliyong14.dta")
 
+### List to remove
+list_to_remove = [
+
+"vaaddtax",
+"vanew",
+"dq1",
+#"citycode",
+#"prov",
+"age",
+"region",
+"ownership_new",
+"cic_adj",
+"cpi",
+"ippi",
+"rawmppi",
+"fassetpi",
+"ind_two",
+"OutputDefl",
+"InputDefl",
+"merge_ind",
+"inputdefl",
+"outputdefl",
+"BR_deflator",
+"citycode_asifad",
+"citycodenew",
+"_merge",
+"lenth",
+"indus2",
+"exportdum"
+]
+
+
 itr = pd.read_stata(filename, chunksize=25000)
 i = 0
 for chunk in tqdm(itr):
     # Upload to S3
+    chunk = chunk.drop(columns = list_to_remove)
     chunk.to_csv('ASIF_9807_chunk_{}.csv'.format(i), index = False)
     s3.upload_file('ASIF_9807_chunk_{}.csv'.format(
         i), "DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_CSV")
     os.remove('ASIF_9807_chunk_{}.csv'.format(i))
     i += 1
+
 
 ### Create schema
 ### Load schema from
@@ -102,7 +137,7 @@ glue.create_table_glue(
     DatabaseName,
     TablePrefix,
     from_athena=False,
-    update_schema=schema,
+    update_schema=None,
 )
 
 ### Add tp ETL parameter files
