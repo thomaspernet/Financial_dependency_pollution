@@ -34,7 +34,7 @@ itr = pd.read_stata(filename, chunksize=25000)
 i = 0
 for chunk in tqdm(itr):
     # Upload to S3
-    chunk.to_csv('ASIF_9807_chunk_{}.csv'.format(i))
+    chunk.to_csv('ASIF_9807_chunk_{}.csv'.format(i), index = False)
     s3.upload_file('ASIF_9807_chunk_{}.csv'.format(
         i), "DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_CSV")
     os.remove('ASIF_9807_chunk_{}.csv'.format(i))
