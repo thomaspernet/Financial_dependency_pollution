@@ -68,7 +68,7 @@ list_to_remove = [
 ]
 
 
-itr = pd.read_stata(filename, chunksize=25000, )
+itr = pd.read_stata(filename, chunksize=25000)
 i = 0
 for chunk in tqdm(itr):
     # Upload to S3
@@ -78,7 +78,8 @@ for chunk in tqdm(itr):
         .assign(
 
             firm=lambda x: x['firm'].astype('str').str.split('.').str[0],
-            year=lambda x: x['year'].astype('str').str.split('.').str[0]
+            year=lambda x: x['year'].astype('str').str.split('.').str[0],
+            type=lambda x: x['type'].astype('str').str.split('.').str[0]
         )
     )
 
@@ -110,8 +111,6 @@ var = (
         to_dataframe=True)
     .loc[lambda x:  ~x['Var_name'].isin(list_to_remove)]
 )
-
-var = var.loc[lambda x: x['Var_name'].isin(list_to_remove)]
 
 schema = []
 for i in chunk.columns:
@@ -152,7 +151,7 @@ glue.create_table_glue(
     DatabaseName,
     TablePrefix,
     from_athena=False,
-    update_schema=None,
+    update_schema=schema,
 )
 
 # Add tp ETL parameter files
