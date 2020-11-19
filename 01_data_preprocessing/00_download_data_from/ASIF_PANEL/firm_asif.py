@@ -85,7 +85,7 @@ for i in chunk.columns:
 
 ### Craw the table
 glue = service_glue.connect_glue(client = client)
-target_S3URI = "s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_CSV/"
+target_S3URI = "s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_CSV"
 name_crawler = "crawl-ASIF"
 Role = 'arn:aws:iam::468786073381:role/AWSGlueServiceRole-crawler-datalake'
 DatabaseName= "firms_survey"
