@@ -24,7 +24,7 @@ s3 = service_s3.connect_S3(client=client,
                            bucket=bucket, verbose=True)
 
 # DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_STATA
-s3.download_file("DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_STATA",
+s3.download_file("DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_STATA/all9807finalruiliyong14.dta",
                  path_local=os.path.join(parent_path, "00_data_catalogue/temporary_local_data"))
 
 # Remove previous files in folder if exist
@@ -79,7 +79,8 @@ for chunk in tqdm(itr):
 
             firm=lambda x: x['firm'].astype('str').str.split('.').str[0],
             year=lambda x: x['year'].astype('str').str.split('.').str[0],
-            type=lambda x: x['type'].astype('str').str.split('.').str[0]
+            type=lambda x: x['type'].astype('str').str.split('.').str[0],
+            setup=lambda x: x['setup'].astype('str').str.split('.').str[0]
         )
     )
 
@@ -171,6 +172,8 @@ path_to_etl = os.path.join(str(Path(path).parent.parent),
                            'parameters_ETL_Financial_dependency_pollution.json')
 with open(path_to_etl) as json_file:
     parameters = json.load(json_file)
+
+#parameters['TABLES']['CREATION']['ALL_SCHEMA'].pop(0)
 
 parameters['TABLES']['CREATION']['ALL_SCHEMA'].append(json_etl)
 
