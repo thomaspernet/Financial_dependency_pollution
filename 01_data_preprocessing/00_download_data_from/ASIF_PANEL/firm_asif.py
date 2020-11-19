@@ -1,6 +1,8 @@
 import pandas as pd
 from awsPy.aws_s3 import service_s3
 from awsPy.aws_authorization import aws_connector
+from GoogleDrivePy.google_drive import connect_drive
+from GoogleDrivePy.google_authorization import authorization_service
 from pathlib import Path
 import os
 from tqdm import tqdm
@@ -36,3 +38,48 @@ for chunk in tqdm(itr):
         i), "DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_CSV")
     os.remove('ASIF_9807_chunk_{}.csv'.format(i))
     i += 1
+
+### Create schema
+### Load schema from
+#https://docs.google.com/spreadsheets/d/1gfdmBKzZ1h93atSMFcj_6YgLxC7xX62BCxOngJwf7qE
+project = 'valid-pagoda-132423'
+auth = authorization_service.get_authorization(
+    path_credential_gcp="{}/creds/service.json".format(parent_path),
+    path_credential_drive="{}/creds".format(parent_path),
+    verbose=False
+)
+
+gd_auth = auth.authorization_drive()
+drive = connect_drive.drive_operations(gd_auth)
+
+spreadsheet_id = drive.find_file_id('var_name02-07', to_print=False)
+var = (
+    drive.upload_data_from_spreadsheet(
+        sheetID=spreadsheet_id,
+        sheetName="var_name02-07.csv",
+        to_dataframe=True)
+)
+
+schema = []
+for i in chunk.columns:
+
+    temp = var.loc[lambda x: x['Var_name'].isin([i])]
+
+    type = temp['type'].values[0]
+    comment = temp['comments'].values[0]
+
+    if type== None:
+        type = ''
+
+    if comment== None:
+        comment = ''
+
+    dic = {
+        "Name": i,
+        "Type": type,
+        "Comment": comment
+    }
+
+    schema.append(dic)
+
+### Craw the table
