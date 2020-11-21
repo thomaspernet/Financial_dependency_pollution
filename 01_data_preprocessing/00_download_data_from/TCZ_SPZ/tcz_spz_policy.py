@@ -84,7 +84,7 @@ target_S3URI = "s3://datalake-datascience/DATA/ECON/POLICY/CHINA/STRUCTURAL_TRAN
 name_crawler = "crawl-pollution"
 Role = 'arn:aws:iam::468786073381:role/AWSGlueServiceRole-crawler-datalake'
 DatabaseName = "policy"
-TablePrefix = 'china_city'
+TablePrefix = 'china_city_'
 
 
 glue.create_table_glue(
