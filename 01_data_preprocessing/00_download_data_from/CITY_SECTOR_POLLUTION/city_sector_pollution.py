@@ -178,7 +178,7 @@ glue.create_table_glue(
 
 # Add tp ETL parameter files
 json_etl = {
-    'description': 'Create Firms survey ASIF panel data from STATA',
+    'description': 'Create China city sector pollution',
     'schema': schema,
     'partition_keys': [],
     'metadata': {
