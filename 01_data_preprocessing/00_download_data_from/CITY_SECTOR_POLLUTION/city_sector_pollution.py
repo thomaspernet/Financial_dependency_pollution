@@ -64,7 +64,7 @@ schema = [
     "Comment": "Province name in Chinese"
 },
 {
-    "Name": "Provinces",
+    "Name": "provinces",
     "Type": "string",
     "Comment": "Province name in English"
 },
@@ -104,12 +104,12 @@ schema = [
     "Comment": "Total waste water city sector"
 },
 {
-    "Name": "tCOD",
+    "Name": "tcod",
     "Type": "float",
     "Comment": "Total COD city sector"
 },
 {
-    "Name": "tAmmonia_Nitrogen",
+    "Name": "tammonia_nitrogen",
     "Type": "float",
     "Comment": "Total Ammonia Nitrogen city sector"
 },
@@ -124,7 +124,7 @@ schema = [
     "Comment": "Total so2 city sector"
 },
 {
-    "Name": "tNOx",
+    "Name": "tnox",
     "Type": "int",
     "Comment": "Total NOx city sector"
 },
@@ -139,17 +139,17 @@ schema = [
     "Comment": "Total soot city sector"
 },
 {
-    "Name": "Lower_location",
+    "Name": "lower_location",
     "Type": "string",
     "Comment": "Location city. one of Coastal, Central, Northwest, Northeast, Southwest"
 },
 {
-    "Name": "Larger_location",
+    "Name": "larger_location",
     "Type": "string",
     "Comment": "Location city. one of Eastern, Central, Western"
 },
 {
-    "Name": "Coastal",
+    "Name": "coastal",
     "Type": "string",
     "Comment": "City is bordered by sea or not"
 },
