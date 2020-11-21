@@ -43,3 +43,5 @@ var = (
         sheetName="TCZ",
         to_dataframe=True)
 )
+
+var.to_csv('TCZ_list_china.csv', index = False)
