@@ -48,4 +48,93 @@ var.to_csv('China_cities_target_so2.csv', index = False)
 
 s3.upload_file('China_cities_target_so2.csv',
 "DATA/ENVIRONMENT/CHINA/FYP/CITY_REDUCTION_MANDATE")
-os.remove('TCZ_list_china')
+os.remove('China_cities_target_so2.csv')
+
+schema = [
+{
+    "Name": "citycn",
+    "Type": "string",
+    "Comment": "City name in Chinese"
+},
+{
+    "Name": "cityen",
+    "Type": "string",
+    "Comment": "City name in English"
+},{
+    "Name": "prov2013",
+    "Type": "string",
+    "Comment": "Province name in Chinese"
+},{
+    "Name": "province",
+    "Type": "string",
+    "Comment": "Province name in English"
+},{
+    "Name": "so2_05_city_reconstructed",
+    "Type": "float",
+    "Comment": "SO2 emission in 2005"
+},{
+    "Name": "so2_obj_2010",
+    "Type": "float",
+    "Comment": "SO2 emission in 2010, objective"
+},{
+    "Name": "tso2_mandate_c",
+    "Type": "float",
+    "Comment": "city reduction mandate in tonnes"
+},{
+    "Name": "so2_perc_reduction_c",
+    "Type": "float",
+    "Comment": "city reduction mandate in percentage"
+},{
+    "Name": "ttoutput",
+    "Type": "float",
+    "Comment": "total output by city"
+}
+,{
+    "Name": "in_10_000_tonnes",
+    "Type": "float",
+    "Comment": "city reduction mandate in 10k tonnes"
+}
+]
+
+glue = service_glue.connect_glue(client=client)
+target_S3URI = "s3://datalake-datascience/DATA/ENVIRONMENT/CHINA/FYP/CITY_REDUCTION_MANDATE"
+name_crawler = "crawl-pollution"
+Role = 'arn:aws:iam::468786073381:role/AWSGlueServiceRole-crawler-datalake'
+DatabaseName = "policy"
+TablePrefix = 'china_'
+
+
+glue.create_table_glue(
+    target_S3URI,
+    name_crawler,
+    Role,
+    DatabaseName,
+    TablePrefix,
+    from_athena=False,
+    update_schema=schema,
+)
+
+# Add tp ETL parameter files
+json_etl = {
+    'description': 'Create Control zone policy city',
+    'schema': schema,
+    'partition_keys': [],
+    'metadata': {
+        'DatabaseName': DatabaseName,
+        'TablePrefix': TablePrefix,
+        'target_S3URI': target_S3URI,
+        'from_athena': 'False'
+    }
+}
+
+path_to_etl = os.path.join(str(Path(path).parent.parent),
+                           'parameters_ETL_Financial_dependency_pollution.json')
+with open(path_to_etl) as json_file:
+    parameters = json.load(json_file)
+
+#parameters['TABLES']['CREATION']['ALL_SCHEMA'].pop(0)
+
+parameters['TABLES']['CREATION']['ALL_SCHEMA'].append(json_etl)
+
+with open(path_to_etl, "w")as outfile:
+    json.dump(parameters, outfile)
