@@ -45,3 +45,79 @@ var = (
 )
 
 var.to_csv('TCZ_list_china.csv', index = False)
+
+s3.upload_file('TCZ_list_china.csv',
+"DATA/ECON/POLICY/CHINA/STRUCTURAL_TRANSFORMATION/CITY_TARGET/TCZ_SPZ")
+os.remove('TCZ_list_china')
+
+schema = [
+{
+    "Name": "province",
+    "Type": "string",
+    "Comment": "Province name"
+},
+{
+    "Name": "city",
+    "Type": "string",
+    "Comment": "City name"
+},
+{
+    "Name": "geocode4_corr",
+    "Type": "string",
+    "Comment": "City code"
+},
+{
+    "Name": "tcz",
+    "Type": "string",
+    "Comment": "Two control zone policy city"
+},
+{
+    "Name": "spz",
+    "Type": "string",
+    "Comment": "Special policy zone policy city"
+}
+]
+
+
+glue = service_glue.connect_glue(client=client)
+target_S3URI = "s3://datalake-datascience/DATA/ECON/POLICY/CHINA/STRUCTURAL_TRANSFORMATION/CITY_TARGET/TCZ_SPZ"
+name_crawler = "crawl-pollution"
+Role = 'arn:aws:iam::468786073381:role/AWSGlueServiceRole-crawler-datalake'
+DatabaseName = "policy"
+TablePrefix = 'china_city'
+
+
+glue.create_table_glue(
+    target_S3URI,
+    name_crawler,
+    Role,
+    DatabaseName,
+    TablePrefix,
+    from_athena=False,
+    update_schema=schema,
+)
+
+# Add tp ETL parameter files
+json_etl = {
+    'description': 'Create Control zone policy city',
+    'schema': schema,
+    'partition_keys': [],
+    'metadata': {
+        'DatabaseName': DatabaseName,
+        'TablePrefix': TablePrefix,
+        'target_S3URI': target_S3URI,
+        'from_athena': 'False'
+    }
+}
+
+path_to_etl = os.path.join(str(Path(path).parent.parent),
+                           'parameters_ETL_Financial_dependency_pollution.json')
+with open(path_to_etl) as json_file:
+    parameters = json.load(json_file)
+
+#parameters['TABLES']['CREATION']['ALL_SCHEMA'].pop(0)
+
+parameters['TABLES']['CREATION']['ALL_SCHEMA'].append(json_etl)
+
+with open(path_to_etl, "w")as outfile:
+    json.dump(parameters, outfile)
