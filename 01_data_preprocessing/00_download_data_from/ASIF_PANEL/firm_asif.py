@@ -80,10 +80,10 @@ for chunk in tqdm(itr):
             firm=lambda x: x['firm'].astype('str').str.split('.').str[0],
             year=lambda x: x['year'].astype('str').str.split('.').str[0],
             type=lambda x: x['type'].astype('str').str.split('.').str[0],
-            setup=lambda x: x['setup'].astype('str').str.split('.').str[0]
+            setup=lambda x: x['setup'].astype('str').str.split('.').str[0],
+            cic=lambda x: x['cic'].astype('str')
         )
     )
-
     chunk.to_csv('ASIF_9807_chunk_{}.csv'.format(i), index=False)
     s3.upload_file('ASIF_9807_chunk_{}.csv'.format(
         i), "DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_CSV")
