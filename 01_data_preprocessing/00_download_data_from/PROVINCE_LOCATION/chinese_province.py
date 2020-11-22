@@ -49,7 +49,7 @@ var.to_csv('provinces_location.csv', index = False)
 s3.upload_file('provinces_location.csv',
 "DATA/ECON/LOOKUP_DATA/CHINESE_PROVINCE_LOCATION")
 os.remove('provinces_location.csv')
-var.head()
+
 schema = [
 {
     "Name": "prov2013",
