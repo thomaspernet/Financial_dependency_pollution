@@ -49,7 +49,7 @@ var.to_csv('provinces_location.csv', index = False)
 s3.upload_file('provinces_location.csv',
 "DATA/ECON/LOOKUP_DATA/CHINESE_PROVINCE_LOCATION")
 os.remove('provinces_location.csv')
-
+var.head()
 schema = [
 {
     "Name": "prov2013",
@@ -81,7 +81,7 @@ schema = [
 
 glue = service_glue.connect_glue(client=client)
 target_S3URI = "s3://datalake-datascience/DATA/ECON/LOOKUP_DATA/CHINESE_PROVINCE_LOCATION"
-name_crawler = "crawl-pollution"
+name_crawler = "crawl-province"
 Role = 'arn:aws:iam::468786073381:role/AWSGlueServiceRole-crawler-datalake'
 DatabaseName = "chinese_lookup"
 TablePrefix = 'geo_'
