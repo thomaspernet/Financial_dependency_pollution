@@ -95,7 +95,7 @@ schema = [
 
 glue = service_glue.connect_glue(client=client)
 target_S3URI = "s3://datalake-datascience/DATA/ECON/LOOKUP_DATA/CITY_CODE_NORMALISED"
-name_crawler = "crawl-pollution"
+name_crawler = "crawl-city-code"
 Role = 'arn:aws:iam::468786073381:role/AWSGlueServiceRole-crawler-datalake'
 DatabaseName = "chinese_lookup"
 TablePrefix = 'china_'
