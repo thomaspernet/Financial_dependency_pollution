@@ -40,7 +40,7 @@ spreadsheet_id = drive.find_file_id('CIC_industry_name', to_print=False)
 var = (
     drive.upload_data_from_spreadsheet(
         sheetID=spreadsheet_id,
-        sheetName="CIC_industry_name.csv",
+        sheetName="industry_name",
         to_dataframe=True)
 )
 
@@ -49,3 +49,22 @@ var.to_csv('CIC_industry_name.csv', index = False)
 s3.upload_file('CIC_industry_name.csv',
 "DATA/ECON/LOOKUP_DATA/CIC_2_NAME")
 os.remove('CIC_industry_name.csv')
+
+schema = [
+{
+    "Name": "cic",
+    "Type": "string",
+    "Comment": "2 digits industry code"
+},
+{
+    "Name": "industry_name",
+    "Type": "string",
+    "Comment": "2 digits industry name"
+},
+{
+    "Name": "short",
+    "Type": "string",
+    "Comment": "2 digits industry short name"
+},
+
+]
