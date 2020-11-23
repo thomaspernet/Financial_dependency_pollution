@@ -135,8 +135,8 @@ We will clean the table by doing the following steps:
 
 ## List of candidates
 
-* Variables definition ASIF data
-* 
+* [List of financial ratios that can be computed with ASIF panel data](https://roamresearch.com/#/app/thomas_db/page/PS3o9Z3VA)
+
 ```python inputHidden=false outputHidden=false jupyter={"outputs_hidden": false}
 from awsPy.aws_authorization import aws_connector
 from awsPy.aws_s3 import service_s3
@@ -178,19 +178,352 @@ if pandas_setting:
 
 Write query and save the CSV back in the S3 bucket `datalake-datascience` 
 
-
+<!-- #region -->
 # Steps
 
+Detail computation:
+
+1. `working capital`:
+    - Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)]
+2. `Asset Tangibility: 
+    - Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)]
+3. `Current Ratio`:
+    - Current asset [cuasset] / Current liabilities [c95]
+4. `Cash/Assets`:
+    - non-cash assets -  total current assets / non-cash assets
+        - Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)]
+5. `Liabilities/Assets` (Total-Debt-to-Total-Assets)
+    - (Total current liabilities + Total long-term liabilities)/ Total assets
+        - Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)]
+        - Total Liabilities [负债合计 (c98)]  /  Total assets [资产总计318 (c93)]
+6. `Sales/Assets`:
+    - Total annual revenue [全年营业收入合计 (c64) ] / ($\Delta$ Total assets 318 [$\Delta$ 资产总计318 (c98)]/2)
+7. `Return on Asset`
+    - (Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)]
+    
+    
+**pct missing**
+
+![](https://drive.google.com/uc?export=view&id=1LPNhZIPkJgx0-ZsM6NLNAB6dGH9h7ELo)
+<!-- #endregion -->
+
+## Example step by step
+
+1. Computation ratio by city-industry-year
+
+```python
+DatabaseName = 'firms_survey'
+s3_output_example = 'SQL_OUTPUT_ATHENA'
+```
+
+```python
+query = """
+
+SELECT 
+  year, 
+  citycode, 
+  cic, 
+  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, 
+  SUM(c85) - SUM(c91) AS asset_tangibility_cit, 
+  CAST(
+    SUM(cuasset) AS DECIMAL(16, 5)
+  ) / NULLIF(
+    CAST(
+      SUM(c95) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS current_ratio_cit, 
+  CAST(
+    (
+      SUM(c79) + SUM(c80) + SUM(c81)
+    ) - SUM(cuasset) AS DECIMAL(16, 5)
+  ) / NULLIF(CAST(
+    SUM(c79) + SUM(c80) + SUM(c81) AS DECIMAL(16, 5)
+  ), 
+    0
+  ) AS cash_assets_cit, 
+  CAST(
+    SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      SUM(c93) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS liabilities_assets_cit, 
+  CAST(
+    SUM(c64) - SUM(c134) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      SUM(c98) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS return_on_asset_cit, 
+  CAST(
+    SUM(cuasset) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      (
+        SUM(c98) - lag(
+          SUM(c98), 
+          1
+        ) over(
+          partition by citycode, 
+          cic 
+          order by 
+            citycode, 
+            cic, 
+            year
+        )
+      )/ 2 AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS sales_assets_cit 
+FROM 
+  firms_survey.asif_firms_prepared 
+GROUP BY 
+  citycode, 
+  cic, 
+  year 
+LIMIT 
+  10
+
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_1'
+                )
+output
+```
+
+2. Computation ratio by city-industry
+
+As an average over year 2002 to 2005
+
+```python
+query = """
+WITH ratio AS (
+SELECT 
+  year, 
+  citycode, 
+  cic, 
+  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, 
+  SUM(c85) - SUM(c91) AS asset_tangibility_cit, 
+  CAST(
+    SUM(cuasset) AS DECIMAL(16, 5)
+  ) / NULLIF(
+    CAST(
+      SUM(c95) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS current_ratio_cit, 
+  CAST(
+    (
+      SUM(c79) + SUM(c80) + SUM(c81)
+    ) - SUM(cuasset) AS DECIMAL(16, 5)
+  ) / NULLIF(CAST(
+    SUM(c79) + SUM(c80) + SUM(c81) AS DECIMAL(16, 5)
+  ), 
+    0
+  ) AS cash_assets_cit, 
+  CAST(
+    SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      SUM(c93) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS liabilities_assets_cit, 
+  CAST(
+    SUM(c64) - SUM(c134) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      SUM(c98) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS return_on_asset_cit, 
+  CAST(
+    SUM(cuasset) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      (
+        SUM(c98) - lag(
+          SUM(c98), 
+          1
+        ) over(
+          partition by citycode, 
+          cic 
+          order by 
+            citycode, 
+            cic, 
+            year
+        )
+      )/ 2 AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS sales_assets_cit 
+FROM 
+  firms_survey.asif_firms_prepared 
+WHERE year in ('2000', '2001', '2002', '2003', '2004', '2005')  
+GROUP BY 
+  citycode, 
+  cic, 
+  year 
+
+
+  )
+  SELECT
+  citycode, 
+  cic,
+  AVG(working_capital_cit) AS working_capital_ci,
+  AVG(asset_tangibility_cit) AS asset_tangibility_ci,
+  AVG(current_ratio_cit) AS current_ratio_ci,
+  AVG(cash_assets_cit) AS cash_assets_ci,
+  AVG(liabilities_assets_cit) AS liabilities_assets_ci,
+  AVG(return_on_asset_cit) AS return_on_asset_ci,
+  AVG(sales_assets_cit) AS sales_assets_ci
+  FROM ratio
+  GROUP BY citycode, cic
+  LIMIT 10
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_2'
+                )
+output
+```
+
+3. Computation ratio by industry
+
+As an average over year 2002 to 2005
+
+```python
+query = """
+WITH ratio AS (
+SELECT 
+  year, 
+  citycode, 
+  cic, 
+  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, 
+  SUM(c85) - SUM(c91) AS asset_tangibility_cit, 
+  CAST(
+    SUM(cuasset) AS DECIMAL(16, 5)
+  ) / NULLIF(
+    CAST(
+      SUM(c95) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS current_ratio_cit, 
+  CAST(
+    (
+      SUM(c79) + SUM(c80) + SUM(c81)
+    ) - SUM(cuasset) AS DECIMAL(16, 5)
+  ) / NULLIF(CAST(
+    SUM(c79) + SUM(c80) + SUM(c81) AS DECIMAL(16, 5)
+  ), 
+    0
+  ) AS cash_assets_cit, 
+  CAST(
+    SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      SUM(c93) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS liabilities_assets_cit, 
+  CAST(
+    SUM(c64) - SUM(c134) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      SUM(c98) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS return_on_asset_cit, 
+  CAST(
+    SUM(cuasset) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      (
+        SUM(c98) - lag(
+          SUM(c98), 
+          1
+        ) over(
+          partition by citycode, 
+          cic 
+          order by 
+            citycode, 
+            cic, 
+            year
+        )
+      )/ 2 AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS sales_assets_cit 
+FROM 
+  firms_survey.asif_firms_prepared 
+WHERE year in ('2000', '2001', '2002', '2003', '2004', '2005')  
+GROUP BY 
+  citycode, 
+  cic, 
+  year 
+
+
+  )
+  SELECT
+  cic,
+  AVG(working_capital_cit) AS working_capital_i,
+  AVG(asset_tangibility_cit) AS asset_tangibility_i,
+  AVG(current_ratio_cit) AS current_ratio_i,
+  AVG(cash_assets_cit) AS cash_assets_i,
+  AVG(liabilities_assets_cit) AS liabilities_assets_i,
+  AVG(return_on_asset_cit) AS return_on_asset_i,
+  AVG(sales_assets_cit) AS sales_assets_it
+  FROM ratio
+  GROUP BY cic
+  LIMIT 10
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_3'
+                )
+output
+```
 
 # Table `asif_city_industry_financial_ratio`
 
 
+<!-- #region -->
+Since the table to create has missing value, please use the following at the top of the query
+
+```
+CREATE TABLE database.table_name WITH (format = 'PARQUET') AS
+```
+
 
 Choose a location in S3 to save the CSV. It is recommended to save in it the `datalake-datascience` bucket. Locate an appropriate folder in the bucket, and make sure all output have the same format
+<!-- #endregion -->
+
+First, we need to delete the table (if exist)
 
 ```python
-db = ''
-s3_output = ''
+table_name = 'asif_city_industry_financial_ratio'
+s3_output = 'DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO'
+```
+
+```python
+try:
+    response = glue.delete_table(
+        database=DatabaseName,
+        table=table_name
+    )
+    print(response)
+except Exception as e:
+    print(e)
 ```
 
 Clean up the folder with the previous csv file. Be careful, it will erase all files inside the folder
@@ -200,23 +533,154 @@ s3.remove_all_bucket(path_remove = s3_output)
 ```
 
 ```python
+%%time
 query = """
+CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS
 
-"""
-```
-
-```python
+WITH ratio AS (
+  SELECT 
+    year, 
+    citycode, 
+    cic, 
+    SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, 
+    SUM(c85) - SUM(c91) AS asset_tangibility_cit, 
+    CAST(
+      SUM(cuasset) AS DECIMAL(16, 5)
+    ) / NULLIF(
+      CAST(
+        SUM(c95) AS DECIMAL(16, 5)
+      ), 
+      0
+    ) AS current_ratio_cit, 
+    CAST(
+      (
+        SUM(c79) + SUM(c80) + SUM(c81)
+      ) - SUM(cuasset) AS DECIMAL(16, 5)
+    ) / NULLIF(CAST(
+      SUM(c79) + SUM(c80) + SUM(c81) AS DECIMAL(16, 5)
+    ), 
+      0
+    ) AS cash_assets_cit, 
+    CAST(
+      SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
+    )/ NULLIF(
+      CAST(
+        SUM(c93) AS DECIMAL(16, 5)
+      ), 
+      0
+    ) AS liabilities_assets_cit, 
+    CAST(
+      SUM(c64) - SUM(c134) AS DECIMAL(16, 5)
+    )/ NULLIF(
+      CAST(
+        SUM(c98) AS DECIMAL(16, 5)
+      ), 
+      0
+    ) AS return_on_asset_cit, 
+    CAST(
+      SUM(cuasset) AS DECIMAL(16, 5)
+    )/ NULLIF(
+      CAST(
+        (
+          SUM(c98) - lag(
+            SUM(c98), 
+            1
+          ) over(
+            partition by citycode, 
+            cic 
+            order by 
+              citycode, 
+              cic, 
+              year
+          )
+        )/ 2 AS DECIMAL(16, 5)
+      ), 
+      0
+    ) AS sales_assets_cit 
+  FROM 
+    firms_survey.asif_firms_prepared 
+  GROUP BY 
+    citycode, 
+    cic, 
+    year
+) 
+SELECT 
+  ratio.citycode, 
+  ratio.cic, 
+  ratio.year,
+  working_capital_cit, 
+  working_capital_ci, 
+  working_capital_i, 
+  asset_tangibility_cit, 
+  asset_tangibility_ci, 
+  asset_tangibility_i, 
+  current_ratio_cit, 
+  current_ratio_ci, 
+  current_ratio_i, 
+  cash_assets_cit, 
+  cash_assets_ci, 
+  cash_assets_i, 
+  liabilities_assets_cit,
+  liabilities_assets_ci, 
+  liabilities_assets_i, 
+  return_on_asset_cit, 
+  return_on_asset_ci, 
+  return_on_asset_i, 
+  sales_assets_cit,
+  sales_assets_ci,
+  sales_assets_i
+  FROM ratio
+  LEFT JOIN (
+    SELECT
+  citycode, 
+  cic,
+  AVG(working_capital_cit) AS working_capital_ci,
+  AVG(asset_tangibility_cit) AS asset_tangibility_ci,
+  AVG(current_ratio_cit) AS current_ratio_ci,
+  AVG(cash_assets_cit) AS cash_assets_ci,
+  AVG(liabilities_assets_cit) AS liabilities_assets_ci,
+  AVG(return_on_asset_cit) AS return_on_asset_ci,
+  AVG(sales_assets_cit) AS sales_assets_ci
+  FROM ratio
+  GROUP BY citycode, cic
+    ) as ratio_ci
+    ON ratio.citycode = ratio_ci.citycode AND
+    ratio.cic = ratio_ci.cic
+  LEFT JOIN (
+    SELECT
+  cic,
+  AVG(working_capital_cit) AS working_capital_i,
+  AVG(asset_tangibility_cit) AS asset_tangibility_i,
+  AVG(current_ratio_cit) AS current_ratio_i,
+  AVG(cash_assets_cit) AS cash_assets_i,
+  AVG(liabilities_assets_cit) AS liabilities_assets_i,
+  AVG(return_on_asset_cit) AS return_on_asset_i,
+  AVG(sales_assets_cit) AS sales_assets_i
+  FROM ratio
+  GROUP BY cic
+    ) as ratio_i
+    ON ratio.cic = ratio_i.cic    
+""".format(DatabaseName, table_name)
 output = s3.run_query(
                     query=query,
-                    database=db,
+                    database=DatabaseName,
                     s3_output=s3_output,
                 )
+output
 ```
 
-Need to remove the metadata generated by Athena. We remove it to avoid parsing incorrect value with the crawler
-
 ```python
-s3.remove_file(key = os.path.join(s3_output, output['QueryID'] + ".csv.metadata"))
+query = """
+SELECT COUNT(*) AS CNT
+FROM {}.{} 
+""".format(DatabaseName, table_name)
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'count_{}'.format(table_name)
+                )
+output
 ```
 
 # Validate query
@@ -236,7 +700,7 @@ To validate the query, please fillin the json below. Don't forget to change the 
 1. Add a partition key
 
 ```python
-partition_keys = []
+partition_keys = ["citycode", "cic", "year"]
 ```
 
 2. Add the steps number
@@ -250,25 +714,50 @@ step = 0
 Bear in mind that CSV SerDe (OpenCSVSerDe) does not support empty fields in columns defined as a numeric data type. All columns with missing values should be saved as string. 
 
 ```python
-schema = [
-    {
-        "Name": "VAR1",
-        "Type": "",
-        "Comment": ""
-    },
-    {
-        "Name": "VAR2",
-        "Type": "",
-        "Comment": ""
-    }
-]
+glue.get_table_information(
+    database=DatabaseName,
+    table=table_name)['Table']['StorageDescriptor']['Columns']
+```
+
+```python
+schema = [{'Name': 'citycode', 'Type': 'string', 'Comment': ''},
+          {'Name': 'cic', 'Type': 'string', 'Comment': ''},
+          {'Name': 'year', 'Type': 'string', 'Comment': ''},
+          {'Name': 'working_capital_cit', 'Type': 'bigint', 'Comment': 'Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year'},
+          {'Name': 'working_capital_ci', 'Type': 'double', 'Comment': 'Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry'},
+          {'Name': 'working_capital_i', 'Type': 'double', 'Comment': 'Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] industry'},
+          {'Name': 'asset_tangibility_cit', 'Type': 'bigint', 'Comment': 'Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry year'},
+          {'Name': 'asset_tangibility_ci', 'Type': 'double', 'Comment': 'Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry'},
+          {'Name': 'asset_tangibility_i', 'Type': 'double', 'Comment': 'Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] industry'},
+          {'Name': 'current_ratio_cit',
+              'Type': 'decimal(21,5)', 'Comment': 'Current asset [cuasset] / Current liabilities [c95]  city industry year'},
+          {'Name': 'current_ratio_ci', 'Type': 'decimal(21,5)', 'Comment': 'Current asset [cuasset] / Current liabilities [c95] city industry'},
+          {'Name': 'current_ratio_i', 'Type': 'decimal(21,5)', 'Comment': 'Current asset [cuasset] / Current liabilities [c95] industry'},
+          {'Name': 'cash_assets_cit', 'Type': 'decimal(21,5)', 'Comment': 'Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)]  city industry year'},
+          {'Name': 'cash_assets_ci', 'Type': 'decimal(21,5)', 'Comment': 'Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)] city industry'},
+          {'Name': 'cash_assets_i', 'Type': 'decimal(21,5)', 'Comment': 'Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)] industry'},
+          {'Name': 'liabilities_assets_cit',
+              'Type': 'decimal(21,5)', 'Comment': 'Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)]  city industry year'},
+          {'Name': 'liabilities_assets_ci',
+              'Type': 'decimal(21,5)', 'Comment': 'Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)] city industry'},
+          {'Name': 'liabilities_assets_i',
+              'Type': 'decimal(21,5)', 'Comment': 'Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)] industry'},
+          {'Name': 'return_on_asset_cit',
+              'Type': 'decimal(21,5)', 'Comment': 'Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\Delta$ 资产总计318 (c98)]/2)  city industry year'},
+          {'Name': 'return_on_asset_ci',
+              'Type': 'decimal(21,5)', 'Comment': 'Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\Delta$ 资产总计318 (c98)]/2) city industry'},
+          {'Name': 'return_on_asset_i',
+              'Type': 'decimal(21,5)', 'Comment': 'Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\Delta$ 资产总计318 (c98)]/2) industry'},
+          {'Name': 'sales_assets_cit', 'Type': 'decimal(21,5)', 'Comment': '(Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)]  city industry year'},
+          {'Name': 'sales_assets_ci', 'Type': 'decimal(21,5)', 'Comment': '(Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)] city industry'},
+          {'Name': 'sales_assets_i', 'Type': 'decimal(21,5)', 'Comment': '(Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)] industry'}]
 ```
 
 4. Provide a description
 
 ```python
 description = """
-
+Compute the financial ratio by city industry year, city industry and industry
 """
 ```
 
@@ -279,8 +768,7 @@ description = """
 - 
 
 ```python
-DatabaseName = ''
-TablePrefix = ''
+DatabaseName = 'firms_survey'
 ```
 
 ```python
@@ -292,7 +780,7 @@ json_etl = {
     'partition_keys':partition_keys,
     'metadata':{
     'DatabaseName' : DatabaseName,
-    'TablePrefix' : TablePrefix,
+    'TableName' : table_name,
     'target_S3URI' : os.path.join('s3://',bucket, s3_output),
     'from_athena': 'True'    
     }
@@ -301,7 +789,7 @@ json_etl
 ```
 
 ```python
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_TEMPLATE.json')) as json_file:
+with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
 
@@ -311,23 +799,23 @@ Remove the step number from the current file (if exist)
 index_to_remove = next(
                 (
                     index
-                    for (index, d) in enumerate(parameters['TABLES']['PREPARATION']['STEPS'])
+                    for (index, d) in enumerate(parameters['TABLES']['TRANSFORMATION']['STEPS'])
                     if d["step"] == step
                 ),
                 None,
             )
 if index_to_remove != None:
-    parameters['TABLES']['PREPARATION']['STEPS'].pop(index_to_remove)
+    parameters['TABLES']['TRANSFORMATION']['STEPS'].pop(index_to_remove)
 ```
 
 ```python
-parameters['TABLES']['PREPARATION']['STEPS'].append(json_etl)
+parameters['TABLES']['TRANSFORMATION']['STEPS'].append(json_etl)
 ```
 
 Save JSON
 
 ```python
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_TEMPLATE.json'), "w")as outfile:
+with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json'), "w")as outfile:
     json.dump(parameters, outfile)
 ```
 
@@ -360,29 +848,10 @@ schema = [
 ```
 
 ```python
-name_crawler = 'table-test-parser'
-Role = ''
-DatabaseName = ''
-TablePrefix = 'table_test_'
-```
-
-```python
-target_S3URI = os.path.join('s3://',bucket, s3_output)
-table_name = '{}{}'.format(TablePrefix, os.path.basename(target_S3URI).lower())
-
-
-```
-
-```python
-glue.create_table_glue(
-    target_S3URI,
-    name_crawler,
-    Role,
-    DatabaseName,
-    TablePrefix,
-    from_athena=True,
-    update_schema=schema,
-)
+glue.update_schema_table(
+    database = DatabaseName,
+    table = table_name,
+    schema= schema)
 ```
 
 ## Check Duplicates
@@ -392,9 +861,9 @@ One of the most important step when creating a table is to check if the table co
 You are required to define the group(s) that Athena will use to compute the duplicate. For instance, your table can be grouped by COL1 and COL2 (need to be string or varchar), then pass the list ['COL1', 'COL2'] 
 
 ```python
-partition_keys = []
+partition_keys = ["citycode", "cic", "year"]
 
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_TEMPLATE.json')) as json_file:
+with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
 
@@ -432,8 +901,8 @@ Use the function as follow:
 - `DatabaseName`: Name of the database
 - `table_name`: Name of the table
 - `group`: variables name to group to count the duplicates
-- `primary_key`: Variable name to perform the grouping -> Only one variable for now
-- `secondary_key`: Variable name to perform the secondary grouping -> Only one variable for now
+- `keys`: Variable name to perform the grouping -> Only one variable for now, Variable name to perform the secondary grouping -> Only one variable for now
+    - format: 'A,B'
 - `proba`: Chi-square analysis probabilitity
 - `y_var`: Continuous target variables
 
@@ -469,13 +938,13 @@ client_lambda = boto3.client(
 
 ```python
 primary_key = 'year'
-secondary_key = 'citycode'
-y_var = 'output'
+secondary_key = 'cic'
+y_var = 'working_capital_cit'
 ```
 
 ```python
 payload = {
-    "input_path": "s3://datalake-datascience/ANALYTICS/TEMPLATE_NOTEBOOKS/Template_analysis_from_lambda.ipynb",
+    "input_path": "s3://datalake-datascience/ANALYTICS/TEMPLATE_NOTEBOOKS/template_analysis_from_lambda.ipynb",
     "output_prefix": "s3://datalake-datascience/ANALYTICS/OUTPUT/{}/".format(table_name.upper()),
     "parameters": {
         "region": "{}".format(region),
@@ -483,11 +952,12 @@ payload = {
         "DatabaseName": "{}".format(DatabaseName),
         "table_name": "{}".format(table_name),
         "group": "{}".format(','.join(partition_keys)),
-        "primary_key": "{}".format(primary_key),
-        "secondary_key": "{}".format(secondary_key),
+        "keys": "{},{}".format(primary_key,secondary_key),
         "y_var": "{}".format(y_var),
+        "threshold":0.5
     },
 }
+payload
 ```
 
 ```python
@@ -498,181 +968,6 @@ response = client_lambda.invoke(
     Payload=json.dumps(payload),
 )
 response
-```
-
-For a partial analysis, run the cells below
-
-```python
-#table = 'XX'
-schema = glue.get_table_information(
-    database = DatabaseName,
-    table = table_name
-)['Table']
-schema
-```
-
-## Count missing values
-
-```python
-from datetime import date
-today = date.today().strftime('%Y%M%d')
-```
-
-```python
-table_top = parameters["ANALYSIS"]["COUNT_MISSING"]["top"]
-table_middle = ""
-table_bottom = parameters["ANALYSIS"]["COUNT_MISSING"]["bottom"].format(
-    DatabaseName, table_name
-)
-
-for key, value in enumerate(schema["StorageDescriptor"]["Columns"]):
-    if key == len(schema["StorageDescriptor"]["Columns"]) - 1:
-
-        table_middle += "{} ".format(
-            parameters["ANALYSIS"]["COUNT_MISSING"]["middle"].format(value["Name"])
-        )
-    else:
-        table_middle += "{} ,".format(
-            parameters["ANALYSIS"]["COUNT_MISSING"]["middle"].format(value["Name"])
-        )
-query = table_top + table_middle + table_bottom
-output = s3.run_query(
-    query=query,
-    database=DatabaseName,
-    s3_output="SQL_OUTPUT_ATHENA",
-    filename="count_missing",  ## Add filename to print dataframe
-    destination_key=None,  ### Add destination key if need to copy output
-)
-display(
-    output.T.rename(columns={0: "total_missing"})
-    .assign(total_missing_pct=lambda x: x["total_missing"] / x.iloc[0, 0])
-    .sort_values(by=["total_missing"], ascending=False)
-    .style.format("{0:,.2%}", subset=["total_missing_pct"])
-    .bar(subset="total_missing_pct", color=["#d65f5f"])
-)
-```
-
-# Brief description table
-
-In this part, we provide a brief summary statistic from the lattest jobs. For the continuous analysis with a primary/secondary key, please add the relevant variables you want to know the count and distribution
-
-
-## Categorical Description
-
-During the categorical analysis, we wil count the number of observations for a given group and for a pair.
-
-### Count obs by group
-
-- Index: primary group
-- nb_obs: Number of observations per primary group value
-- percentage: Percentage of observation per primary group value over the total number of observations
-
-Returns the top 10 only
-
-```python
-for field in schema["StorageDescriptor"]["Columns"]:
-    if field["Type"] in ["string", "object", "varchar(12)"]:
-
-        print("Nb of obs for {}".format(field["Name"]))
-
-        query = parameters["ANALYSIS"]["CATEGORICAL"]["PAIR"].format(
-            DatabaseName, table_name, field["Name"]
-        )
-        output = s3.run_query(
-            query=query,
-            database=DatabaseName,
-            s3_output="SQL_OUTPUT_ATHENA",
-            filename="count_categorical_{}".format(
-                field["Name"]
-            ),  ## Add filename to print dataframe
-            destination_key=None,  ### Add destination key if need to copy output
-        )
-
-        ### Print top 10
-
-        display(
-            (
-                output.set_index([field["Name"]])
-                .assign(percentage=lambda x: x["nb_obs"] / x["nb_obs"].sum())
-                .sort_values("percentage", ascending=False)
-                .head(10)
-                .style.format("{0:.2%}", subset=["percentage"])
-                .bar(subset=["percentage"], color="#d65f5f")
-            )
-        )
-```
-
-## Continuous description
-
-There are three possibilities to show the ditribution of a continuous variables:
-
-1. Display the percentile
-2. Display the percentile, with one primary key
-3. Display the percentile, with one primary key, and a secondary key
-
-
-### 1. Display the percentile
-
-- pct: Percentile [.25, .50, .75, .95, .90]
-
-```python
-table_top = ""
-table_top_var = ""
-table_middle = ""
-table_bottom = ""
-
-var_index = 0
-size_continuous = len([len(x) for x in schema["StorageDescriptor"]["Columns"] if 
-                       x['Type'] in ["float", "double", "bigint", 'int']])
-cont = 0
-for key, value in enumerate(schema["StorageDescriptor"]["Columns"]):
-    if value["Type"] in ["float", "double", "bigint", 'int']:
-        cont +=1
-
-        if var_index == 0:
-            table_top_var += "{} ,".format(value["Name"])
-            table_top = parameters["ANALYSIS"]["CONTINUOUS"]["DISTRIBUTION"][
-                "bottom"
-            ].format(DatabaseName, table_name, value["Name"], key)
-        else:
-            temp_middle_1 = "{} {}".format(
-                parameters["ANALYSIS"]["CONTINUOUS"]["DISTRIBUTION"]["middle_1"],
-                parameters["ANALYSIS"]["CONTINUOUS"]["DISTRIBUTION"]["bottom"].format(
-                    DatabaseName, table_name, value["Name"], key
-                ),
-            )
-            temp_middle_2 = parameters["ANALYSIS"]["CONTINUOUS"]["DISTRIBUTION"][
-                "middle_2"
-            ].format(value["Name"])
-
-            if cont == size_continuous:
-
-                table_top_var += "{} {}".format(
-                    value["Name"],
-                    parameters["ANALYSIS"]["CONTINUOUS"]["DISTRIBUTION"]["top_3"],
-                )
-                table_bottom += "{} {})".format(temp_middle_1, temp_middle_2)
-            else:
-                table_top_var += "{} ,".format(value["Name"])
-                table_bottom += "{} {}".format(temp_middle_1, temp_middle_2)
-        var_index += 1
-
-query = (
-    parameters["ANALYSIS"]["CONTINUOUS"]["DISTRIBUTION"]["top_1"]
-    + table_top
-    + parameters["ANALYSIS"]["CONTINUOUS"]["DISTRIBUTION"]["top_2"]
-    + table_top_var
-    + table_bottom
-)
-output = s3.run_query(
-    query=query,
-    database=DatabaseName,
-    s3_output="SQL_OUTPUT_ATHENA",
-    filename="count_distribution",  ## Add filename to print dataframe
-    destination_key=None,  ### Add destination key if need to copy output
-)
-
-display(output.sort_values(by="pct").set_index(["pct"]).style.format("{0:.2f}"))
 ```
 
 # Generation report
@@ -744,5 +1039,5 @@ def create_report(extension = "html", keep_code = False):
 ```
 
 ```python
-create_report(extension = "html")
+create_report(extension = "html", keep_code = True)
 ```
