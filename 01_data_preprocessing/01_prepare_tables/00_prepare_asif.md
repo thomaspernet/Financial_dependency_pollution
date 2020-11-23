@@ -188,7 +188,10 @@ except Exception as e:
     print(e)
 ```
 
+<!-- #region -->
 ### Brief analysis
+
+
 
 - Count size of:
     - `year` in 1998 to 2007
@@ -196,6 +199,23 @@ except Exception as e:
     - `citycode` 
     - `cic`
     - `setup`
+    - `type` 
+    
+**Type**
+
+use "type" variable, classify ownership into five types:
+
+- 1=state -> 110 141 143 151
+- 2=collective -> 120 130 142 149
+- 3=private -171 172 173 174 190
+- 4=foreign- 210 220 230 240
+- 5=Hong Kong, Macau and Taiwan (4 and 5 can be combined into a single "foreign" category - 310 320 330 340
+
+There are two labels "159" and "160", which are joint stock and stock shareholding, that cannot be assigned straight away. We identify these firms' ownership using the information of other variables about firm equity structure. The firm's ownership for "159" and "160" is the group with the largest share (or value)
+    
+- Count nb of observations when `type`is broken down:
+    
+<!-- #endregion -->
 
 ```python
 query = """
@@ -225,7 +245,7 @@ WHERE year in ('1998', '1999', '2000', '2001', '2002', '2003', '2004', '2005', '
 )
 GROUP BY digit
 )
-SELECT CNT, COUNT(CNT)
+SELECT CNT, COUNT(CNT) AS CNT_DIGIT
 FROM test
 GROUP BY CNT
 
@@ -296,21 +316,9 @@ output = s3.run_query(
 output
 ```
 
-Clean up the folder with the previous csv file. Be careful, it will erase all files inside the folder
-
 ```python
-s3_output = 'DATA/ECON/FIRM_SURVEY/ASIF_CHINA/PREPARED'
-```
-
-```python
-s3.remove_all_bucket(path_remove = s3_output)
-```
-
-```python
-%%time
 query = """
-CREATE TABLE firms_survey.asif_firms_prepared WITH (format = 'PARQUET') AS
-SELECT *
+SELECT type, COUNT(*) as CNT
 FROM "firms_survey"."asif_unzip_data_csv"
 WHERE 
  (
@@ -325,7 +333,278 @@ WHERE
   LENGTH(cic) <= 4
   AND 
   regexp_like(firm, '\d+') = TRUE
-    )  
+  )
+  GROUP BY type
+  ORDER BY type
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output,
+    filename = 'count_type'
+                )
+output
+```
+
+```python
+query = """
+WITH own AS(
+SELECT CASE 
+WHEN type in ('110','141','143','151') THEN 'SOE' 
+WHEN type in ('120','130','142','149') THEN 'COLLECTIVE' 
+WHEN type in ('171','172','173','174','190') THEN 'PRIVATE' 
+WHEN type in ('210','220','230','240') THEN 'FOREIGN' 
+WHEN type in ( '310','320','330','340') THEN 'HTM'
+ELSE 'NOT_ASSIGNED' END AS ownership
+FROM "firms_survey"."asif_unzip_data_csv"
+WHERE 
+ (
+  year in ('1998', '1999', '2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007')
+  )
+  AND 
+  (
+  LENGTH(citycode) = 4
+  AND 
+  LENGTH(setup) = 4
+  AND 
+  LENGTH(cic) <= 4
+  AND 
+  regexp_like(firm, '\d+') = TRUE
+  )
+  )
+  SELECT ownership, COUNT(*) AS CNT
+  FROM own
+  GROUP BY ownership
+  ORDER BY CNT
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output,
+    filename = 'count_ownership'
+                )
+output
+```
+
+In the cell below, we show how we retrive the ownership when type is equal to 159 or 160.  The rule is:
+
+If the maximum equity is :
+
+- 'e_collective': 'Collective',
+- 'e_state': 'SOE',
+- 'e_individual': 'Private',
+- 'e_legal_person': 'Private',
+- 'e_HMT': 'HTM',
+- 'e_foreign': 'Foreign'
+
+The strategy consists to get the maximum key of the array containing the columns `e_state`, `e_collective`, `e_legal_person`, `e_individual`, `e_hmt`, `e_foreign`. Then assigned an ownership knowing the key, i.e. 1 is `COLLECTIVE`, 2 is `SOE` and so on.
+
+If the maximum of the array is equal to zero, we leave it blank and remove it in the final table. It can happens when there is no known value for any of the equity columns or when one of the equity is negative and all the other equals to 0.
+
+```python
+query = """
+WITH arrays AS (
+SELECT 
+  type, 
+  ARRAY[e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign] AS array_equity, 
+  array_max(
+    ARRAY[e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign]
+    ) AS max_array_equity,
+  MAP(
+    ARRAY[1,2,3,4,5, 6],
+    ARRAY[e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign]
+    ) AS map_array_equity,
+  map_filter(
+  map(
+  ARRAY[1,2,3,4,5, 6],
+  ARRAY[e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign]
+  ),
+  (k, v) -> v = array_max(
+  ARRAY[e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign]
+  )) AS max_map_array_equity,
+  map_keys(
+  map_filter(
+  map(
+  ARRAY[1,2,3,4,5, 6],
+  ARRAY[e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign]
+  ),
+  (k, v) -> v = array_max(
+  ARRAY[e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign]
+  )
+  )
+  ) AS max_key_array_equity
+FROM asif_unzip_data_csv 
+
+  )
+  SELECT *,
+  CASE 
+ 
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[1] THEN 'COLLECTIVE'
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[2] THEN 'SOE'
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[3] THEN 'PRIVATE'
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[4] THEN 'PRIVATE'
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[5] THEN 'HTM'
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[6] THEN 'FOREIGN'
+  WHEN type in ('110','141','143','151') THEN 'SOE' 
+  WHEN type in ('120','130','142','149') THEN 'COLLECTIVE' 
+  WHEN type in ('171','172','173','174','190') THEN 'PRIVATE' 
+  WHEN type in ('210','220','230','240') THEN 'FOREIGN' 
+  WHEN type in ( '310','320','330','340') THEN 'HTM'
+  END AS ownership
+  FROM arrays
+  WHERE type in ('159', '160') OR max_array_equity = 0 
+  LIMIT 10
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output,
+    filename = 'ex_ownership'
+                )
+output
+```
+
+Count the ownership with the new rule. Not that, we exclude the `NULL` from `ownership`
+
+```python
+query = """
+WITH own AS(
+SELECT 
+type,
+array_max(
+    ARRAY[e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign]
+    ) AS max_array_equity,
+map_keys(
+  map_filter(
+  map(
+  ARRAY[1,2,3,4,5, 6],
+  ARRAY[e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign]
+  ),
+  (k, v) -> v = array_max(
+  ARRAY[e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign]
+  )
+  )
+  ) AS max_key_array_equity
+FROM "firms_survey"."asif_unzip_data_csv"
+WHERE 
+ (
+  year in ('1998', '1999', '2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007')
+  )
+  AND 
+  (
+  LENGTH(citycode) = 4
+  AND 
+  LENGTH(setup) = 4
+  AND 
+  LENGTH(cic) <= 4
+  AND 
+  regexp_like(firm, '\d+') = TRUE
+  )
+  )
+  SELECT ownership, COUNT(*) AS CNT
+  FROM (
+  SELECT 
+  CASE 
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[1] THEN 'COLLECTIVE'
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[2] THEN 'SOE'
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[3] THEN 'PRIVATE'
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[4] THEN 'PRIVATE'
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[5] THEN 'HTM'
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[6] THEN 'FOREIGN'
+  WHEN type in ('110','141','143','151') THEN 'SOE' 
+  WHEN type in ('120','130','142','149') THEN 'COLLECTIVE' 
+  WHEN type in ('171','172','173','174','190') THEN 'PRIVATE' 
+  WHEN type in ('210','220','230','240') THEN 'FOREIGN' 
+  WHEN type in ( '310','320','330','340') THEN 'HTM'
+  END AS ownership
+  FROM own
+  )
+  WHERE ownership in ('COLLECTIVE', 'SOE', 'PRIVATE', 'HTM', 'FOREIGN')
+  GROUP BY ownership
+  ORDER BY CNT
+  
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output,
+    filename = 'count_ownership'
+                )
+output
+```
+
+Clean up the folder with the previous csv file. Be careful, it will erase all files inside the folder
+
+```python
+s3_output = 'DATA/ECON/FIRM_SURVEY/ASIF_CHINA/PREPARED'
+```
+
+```python
+s3.remove_all_bucket(path_remove = s3_output)
+```
+
+Just for the record, it took 17 seconds to manipulate 1.7gib of data
+
+```python
+%%time
+query = """
+CREATE TABLE firms_survey.asif_firms_prepared WITH (format = 'PARQUET') AS
+WITH own AS(
+SELECT *,
+array_max(
+    ARRAY[e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign]
+    ) AS max_array_equity,
+map_keys(
+  map_filter(
+  map(
+  ARRAY[1,2,3,4,5, 6],
+  ARRAY[e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign]
+  ),
+  (k, v) -> v = array_max(
+  ARRAY[e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign]
+  )
+  )
+  ) AS max_key_array_equity
+FROM "firms_survey"."asif_unzip_data_csv"
+WHERE 
+ (
+  year in ('1998', '1999', '2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007')
+  )
+  AND 
+  (
+  LENGTH(citycode) = 4
+  AND 
+  LENGTH(setup) = 4
+  AND 
+  LENGTH(cic) <= 4
+  AND 
+  regexp_like(firm, '\d+') = TRUE
+    )
+    )
+     SELECT 
+     
+     firm, year, export, dq, name, town, village, street, c15, zip, product1_, c26, c27, cic, type, c44, c45, setup, c47, c60, c61, employ, c69, output, new_product, c74, addval, cuasset, c80, c81, c82, c83, c84, c85, tofixed, c87, todepre, cudepre, netfixed, c91, c92, toasset, c95, c97, c98, c99, captal, e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign, sales, c108, c113, c110, c111, c114, c115, c116, c118, c124, c125, profit, c128, c131, c132, c133, c134, c136, wage, c140, c141, c142, c143, c144, c145, midput, c62, c147, c64, c65, c93, c16, c9, c10, c11, c17, c29, c167, c168, v90, c79, c96, c117, c119, c121, trainfee,c123, c127, c135, c120, c138, c148, c149, c150, c151, rdfee, c156, c157, citycode, prov, ownership 
+     
+     FROM (
+       SELECT
+     *,
+  CASE 
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[1] THEN 'COLLECTIVE'
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[2] THEN 'SOE'
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[3] THEN 'PRIVATE'
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[4] THEN 'PRIVATE'
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[5] THEN 'HTM'
+  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[6] THEN 'FOREIGN'
+  WHEN type in ('110','141','143','151') THEN 'SOE' 
+  WHEN type in ('120','130','142','149') THEN 'COLLECTIVE' 
+  WHEN type in ('171','172','173','174','190') THEN 'PRIVATE' 
+  WHEN type in ('210','220','230','240') THEN 'FOREIGN' 
+  WHEN type in ( '310','320','330','340') THEN 'HTM'
+  END AS ownership
+       FROM own
+  
+       )
+       WHERE ownership in ('COLLECTIVE', 'SOE', 'PRIVATE', 'HTM', 'FOREIGN')    
 """
 output = s3.run_query(
                     query=query,
@@ -414,8 +693,19 @@ with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_depende
     parameters = json.load(json_file)
 ```
 
+Remove the step number from the current file (if exist)
+
 ```python
-parameters['TABLES']['PREPARATION']['STEPS'].pop(0)
+index_to_remove = next(
+                (
+                    index
+                    for (index, d) in enumerate(parameters['TABLES']['PREPARATION']['STEPS'])
+                    if d["step"] == step
+                ),
+                None,
+            )
+if index_to_remove != None:
+    parameters['TABLES']['PREPARATION']['STEPS'].pop(index_to_remove)
 ```
 
 ```python
@@ -455,6 +745,18 @@ schema = [
         "Comment": ""
     }
 ]
+```
+
+```python
+to_add = {
+        "Name": "ownership",
+        "Type": "string",
+        "Comment": "One of COLLECTIVE, SOE, PRIVATE, HTM, FOREIGN. Cf https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/01_prepare_tables/00_prepare_asif.md"
+    }
+```
+
+```python
+schema.append(to_add)
 ```
 
 ```python
@@ -548,7 +850,7 @@ client_lambda = boto3.client(
 
 ```python
 primary_key = 'year'
-secondary_key = 'citycode'
+secondary_key = 'ownership'
 y_var = 'output'
 ```
 
@@ -652,5 +954,5 @@ def create_report(extension = "html", keep_code = False):
 ```
 
 ```python
-create_report(extension = "html")
+create_report(extension = "html", keep_code = True)
 ```
