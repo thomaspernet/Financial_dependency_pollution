@@ -956,7 +956,8 @@ CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS
 WITH aggregate_pol AS (
   SELECT 
     year, 
-    geocode4_corr, 
+    geocode4_corr,
+    provinces,
     cityen, 
     indus_code, 
     ind2, 
@@ -968,6 +969,7 @@ WITH aggregate_pol AS (
     (
       SELECT 
         year, 
+        provinces,
         citycode, 
         geocode4_corr, 
         china_city_sector_pollution.cityen, 
@@ -992,6 +994,7 @@ WITH aggregate_pol AS (
     ) 
   GROUP BY 
     year, 
+    provinces,
     geocode4_corr, 
     cityen, 
     indus_code, 
@@ -1005,14 +1008,14 @@ SELECT
   CASE WHEN aggregate_pol.year in (
     '2001', '2002', '2003', '2004', '2005'
   ) THEN 'FALSE' WHEN aggregate_pol.year in ('2006', '2007') THEN 'TRUE' END AS period, 
-  province, 
-  city, 
+  provinces, 
+  cityen, 
   asif_city_industry_financial_ratio.geocode4_corr, 
-  tcz, 
-  spz, 
+  CASE WHEN tcz IS NULL THEN '0' ELSE tcz END AS tcz,
+  CASE WHEN spz IS NULL THEN '0' ELSE spz END AS spz,
   asif_city_industry_financial_ratio.cic, 
   ind2, 
-  short, 
+  CASE WHEN short IS NULL THEN 'Unknown' ELSE short END AS short,
   tso2, 
   tso2_mandate_c, 
   in_10_000_tonnes, 
@@ -1139,7 +1142,7 @@ glue.get_table_information(
 
 ```python
 schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'},
- {'Name': 'period', 'Type': 'varchar(5)', 'Comment': 'False if year before 2005 included, True if year 2006 and 2007'},
+ {'Name': 'period', 'Type': 'string', 'Comment': 'False if year before 2005 included, True if year 2006 and 2007'},
  {'Name': 'province', 'Type': 'string', 'Comment': ''},
  {'Name': 'city', 'Type': 'string', 'Comment': ''},
  {'Name': 'geocode4_corr', 'Type': 'string', 'Comment': ''},
@@ -1259,9 +1262,9 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
     {'Name': 'lower_location', 'Type': 'string', 'Comment': 'Location city. one of Coastal, Central, Northwest, Northeast, Southwest'},
     {'Name': 'larger_location', 'Type': 'string', 'Comment': 'Location city. one of Eastern, Central, Western'},
     {'Name': 'coastal', 'Type': 'string', 'Comment': 'City is bordered by sea or not'},
-    {'Name': 'fe_c_i', 'Type': 'bigint', 'Comment': 'City industry fixed effect'},
-    {'Name': 'fe_t_i', 'Type': 'bigint', 'Comment': 'year industry fixed effect'},
-    {'Name': 'fe_c_t', 'Type': 'bigint', 'Comment': 'city industry fixed effect'}]
+    {'Name': 'fe_c_i', 'Type': 'string', 'Comment': 'City industry fixed effect'},
+    {'Name': 'fe_t_i', 'Type': 'string', 'Comment': 'year industry fixed effect'},
+    {'Name': 'fe_c_t', 'Type': 'string', 'Comment': 'city industry fixed effect'}]
 ```
 
 4. Provide a description
