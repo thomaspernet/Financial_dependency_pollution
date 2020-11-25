@@ -136,7 +136,6 @@ We will clean the table by doing the following steps:
 ## List of candidates
 
 * [List of financial ratios that can be computed with ASIF panel data](https://roamresearch.com/#/app/thomas_db/page/PS3o9Z3VA)
-
 ```python inputHidden=false outputHidden=false jupyter={"outputs_hidden": false}
 from awsPy.aws_authorization import aws_connector
 from awsPy.aws_s3 import service_s3
@@ -209,20 +208,73 @@ Detail computation:
 
 ## Example step by step
 
-1. Computation ratio by city-industry-year
+
 
 ```python
 DatabaseName = 'firms_survey'
 s3_output_example = 'SQL_OUTPUT_ATHENA'
 ```
 
+1. Add consistent city code
+
+
+There is a need to remove the duplicates in `china_city_code_normalised` because it is possible to have the same code but different Chinese name link Chongqing
+
 ```python
 query = """
+SELECT *
+FROM chinese_lookup.china_city_code_normalised 
+WHERE extra_code = '5001'
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_1'
+                )
+output
+```
 
+```python
+query = """
+WITH test AS (
+SELECT firm, year, citycode, geocode4_corr, cic
+  FROM firms_survey.asif_firms_prepared 
+INNER JOIN 
+  (
+  SELECT extra_code, geocode4_corr
+  FROM chinese_lookup.china_city_code_normalised 
+  GROUP BY extra_code, geocode4_corr
+  ) as no_dup_citycode
+ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+  )
+  SELECT CNT, COUNT(*) 
+  FROM(
+  SELECT firm, year, geocode4_corr, cic, COUNT(*) AS CNT
+  FROM test
+  GROUP BY firm, year, geocode4_corr, cic
+    )
+    GROUP BY CNT
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_1'
+                )
+output
+```
+
+Make sure the output is the same before and after the use of city consistent code
+
+```python
+query = """
+WITH test AS (
 SELECT 
   year, 
-  citycode, 
+  geocode4_corr,
   cic, 
+  SUM(output) as sum_output,
   SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, 
   SUM(c85) - SUM(c91) AS asset_tangibility_cit, 
   CAST(
@@ -234,11 +286,9 @@ SELECT
     0
   ) AS current_ratio_cit, 
   CAST(
-    (
-      SUM(c79) + SUM(c80) + SUM(c81)
-    ) - SUM(cuasset) AS DECIMAL(16, 5)
+    (SUM(c79) + SUM(c80) + SUM(c81)) - SUM(cuasset) AS DECIMAL(16, 5)
   ) / NULLIF(CAST(
-    SUM(c79) + SUM(c80) + SUM(c81) AS DECIMAL(16, 5)
+    SUM(c93) AS DECIMAL(16, 5)
   ), 
     0
   ) AS cash_assets_cit, 
@@ -267,10 +317,10 @@ SELECT
           SUM(c98), 
           1
         ) over(
-          partition by citycode, 
+          partition by geocode4_corr, 
           cic 
           order by 
-            citycode, 
+            geocode4_corr, 
             cic, 
             year
         )
@@ -278,10 +328,126 @@ SELECT
     ), 
     0
   ) AS sales_assets_cit 
-FROM 
-  firms_survey.asif_firms_prepared 
+FROM firms_survey.asif_firms_prepared 
+INNER JOIN 
+  (
+  SELECT extra_code, geocode4_corr
+  FROM chinese_lookup.china_city_code_normalised 
+  GROUP BY extra_code, geocode4_corr
+  ) as no_dup_citycode
+  
+ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
 GROUP BY 
-  citycode, 
+  geocode4_corr, 
+  cic, 
+  year 
+)
+SELECT SUM(sum_output) as sum_output
+FROM test
+
+"""
+output_1 = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_1'
+                )
+output_1
+```
+
+```python
+query = """
+SELECT SUM(output) as sum_output
+FROM firms_survey.asif_firms_prepared 
+
+"""
+output_2 = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_1'
+                )
+output_2
+```
+
+```python
+output_1 > output_2
+```
+
+2. Computation ratio by city-industry-year
+
+```python
+query = """
+
+SELECT 
+  year, 
+  geocode4_corr,
+  cic, 
+  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, 
+  SUM(c85) - SUM(c91) AS asset_tangibility_cit, 
+  CAST(
+    SUM(cuasset) AS DECIMAL(16, 5)
+  ) / NULLIF(
+    CAST(
+      SUM(c95) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS current_ratio_cit, 
+  CAST(
+    (SUM(c79) + SUM(c80) + SUM(c81)) - SUM(cuasset) AS DECIMAL(16, 5)
+  ) / NULLIF(CAST(
+    SUM(c93) AS DECIMAL(16, 5)
+  ), 
+    0
+  ) AS cash_assets_cit, 
+  CAST(
+    SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      SUM(c93) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS liabilities_assets_cit, 
+  CAST(
+    SUM(c64) - SUM(c134) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      SUM(c98) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS return_on_asset_cit, 
+  CAST(
+    SUM(cuasset) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      (
+        SUM(c98) - lag(
+          SUM(c98), 
+          1
+        ) over(
+          partition by geocode4_corr, 
+          cic 
+          order by 
+            geocode4_corr, 
+            cic, 
+            year
+        )
+      )/ 2 AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS sales_assets_cit 
+FROM firms_survey.asif_firms_prepared 
+INNER JOIN 
+  (
+  SELECT extra_code, geocode4_corr
+  FROM chinese_lookup.china_city_code_normalised 
+  GROUP BY extra_code, geocode4_corr
+  ) as no_dup_citycode
+  
+ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+WHERE year in ('2001', '2002', '2003', '2004', '2005', '2006', '2007') 
+GROUP BY 
+  geocode4_corr, 
   cic, 
   year 
 LIMIT 
@@ -306,7 +472,7 @@ query = """
 WITH ratio AS (
 SELECT 
   year, 
-  citycode, 
+  geocode4_corr,
   cic, 
   SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, 
   SUM(c85) - SUM(c91) AS asset_tangibility_cit, 
@@ -319,11 +485,9 @@ SELECT
     0
   ) AS current_ratio_cit, 
   CAST(
-    (
-      SUM(c79) + SUM(c80) + SUM(c81)
-    ) - SUM(cuasset) AS DECIMAL(16, 5)
+    (SUM(c79) + SUM(c80) + SUM(c81)) - SUM(cuasset) AS DECIMAL(16, 5)
   ) / NULLIF(CAST(
-    SUM(c79) + SUM(c80) + SUM(c81) AS DECIMAL(16, 5)
+    SUM(c93) AS DECIMAL(16, 5)
   ), 
     0
   ) AS cash_assets_cit, 
@@ -352,10 +516,10 @@ SELECT
           SUM(c98), 
           1
         ) over(
-          partition by citycode, 
+          partition by geocode4_corr, 
           cic 
           order by 
-            citycode, 
+            geocode4_corr, 
             cic, 
             year
         )
@@ -363,18 +527,23 @@ SELECT
     ), 
     0
   ) AS sales_assets_cit 
-FROM 
-  firms_survey.asif_firms_prepared 
-WHERE year in ('2000', '2001', '2002', '2003', '2004', '2005')  
+FROM firms_survey.asif_firms_prepared 
+INNER JOIN 
+  (
+  SELECT extra_code, geocode4_corr
+  FROM chinese_lookup.china_city_code_normalised 
+  GROUP BY extra_code, geocode4_corr
+  ) as no_dup_citycode
+  
+ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+WHERE year in ('2001', '2002', '2003', '2004', '2005') 
 GROUP BY 
-  citycode, 
+  geocode4_corr, 
   cic, 
   year 
-
-
   )
   SELECT
-  citycode, 
+  geocode4_corr, 
   cic,
   AVG(working_capital_cit) AS working_capital_ci,
   AVG(asset_tangibility_cit) AS asset_tangibility_ci,
@@ -384,7 +553,7 @@ GROUP BY
   AVG(return_on_asset_cit) AS return_on_asset_ci,
   AVG(sales_assets_cit) AS sales_assets_ci
   FROM ratio
-  GROUP BY citycode, cic
+  GROUP BY geocode4_corr, cic
   LIMIT 10
 """
 output = s3.run_query(
@@ -405,7 +574,7 @@ query = """
 WITH ratio AS (
 SELECT 
   year, 
-  citycode, 
+  geocode4_corr,
   cic, 
   SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, 
   SUM(c85) - SUM(c91) AS asset_tangibility_cit, 
@@ -418,11 +587,9 @@ SELECT
     0
   ) AS current_ratio_cit, 
   CAST(
-    (
-      SUM(c79) + SUM(c80) + SUM(c81)
-    ) - SUM(cuasset) AS DECIMAL(16, 5)
+    (SUM(c79) + SUM(c80) + SUM(c81)) - SUM(cuasset) AS DECIMAL(16, 5)
   ) / NULLIF(CAST(
-    SUM(c79) + SUM(c80) + SUM(c81) AS DECIMAL(16, 5)
+    SUM(c93) AS DECIMAL(16, 5)
   ), 
     0
   ) AS cash_assets_cit, 
@@ -451,10 +618,10 @@ SELECT
           SUM(c98), 
           1
         ) over(
-          partition by citycode, 
+          partition by geocode4_corr, 
           cic 
           order by 
-            citycode, 
+            geocode4_corr, 
             cic, 
             year
         )
@@ -462,15 +629,20 @@ SELECT
     ), 
     0
   ) AS sales_assets_cit 
-FROM 
-  firms_survey.asif_firms_prepared 
-WHERE year in ('2000', '2001', '2002', '2003', '2004', '2005')  
+FROM firms_survey.asif_firms_prepared 
+INNER JOIN 
+  (
+  SELECT extra_code, geocode4_corr
+  FROM chinese_lookup.china_city_code_normalised 
+  GROUP BY extra_code, geocode4_corr
+  ) as no_dup_citycode
+  
+ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+WHERE year in ('2001', '2002', '2003', '2004', '2005') 
 GROUP BY 
-  citycode, 
+  geocode4_corr, 
   cic, 
   year 
-
-
   )
   SELECT
   cic,
@@ -538,74 +710,80 @@ query = """
 CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS
 
 WITH ratio AS (
-  SELECT 
-    year, 
-    citycode, 
-    cic, 
-    SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, 
-    SUM(c85) - SUM(c91) AS asset_tangibility_cit, 
+SELECT 
+  year, 
+  geocode4_corr,
+  cic, 
+  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, 
+  SUM(c85) - SUM(c91) AS asset_tangibility_cit, 
+  CAST(
+    SUM(cuasset) AS DECIMAL(16, 5)
+  ) / NULLIF(
     CAST(
-      SUM(cuasset) AS DECIMAL(16, 5)
-    ) / NULLIF(
-      CAST(
-        SUM(c95) AS DECIMAL(16, 5)
-      ), 
-      0
-    ) AS current_ratio_cit, 
+      SUM(c95) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS current_ratio_cit, 
+  CAST(
+    (SUM(c79) + SUM(c80) + SUM(c81)) - SUM(cuasset) AS DECIMAL(16, 5)
+  ) / NULLIF(CAST(
+    SUM(c93) AS DECIMAL(16, 5)
+  ), 
+    0
+  ) AS cash_assets_cit, 
+  CAST(
+    SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      SUM(c93) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS liabilities_assets_cit, 
+  CAST(
+    SUM(c64) - SUM(c134) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      SUM(c98) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS return_on_asset_cit, 
+  CAST(
+    SUM(cuasset) AS DECIMAL(16, 5)
+  )/ NULLIF(
     CAST(
       (
-        SUM(c79) + SUM(c80) + SUM(c81)
-      ) - SUM(cuasset) AS DECIMAL(16, 5)
-    ) / NULLIF(CAST(
-      SUM(c79) + SUM(c80) + SUM(c81) AS DECIMAL(16, 5)
+        SUM(c98) - lag(
+          SUM(c98), 
+          1
+        ) over(
+          partition by geocode4_corr, 
+          cic 
+          order by 
+            geocode4_corr, 
+            cic, 
+            year
+        )
+      )/ 2 AS DECIMAL(16, 5)
     ), 
-      0
-    ) AS cash_assets_cit, 
-    CAST(
-      SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
-    )/ NULLIF(
-      CAST(
-        SUM(c93) AS DECIMAL(16, 5)
-      ), 
-      0
-    ) AS liabilities_assets_cit, 
-    CAST(
-      SUM(c64) - SUM(c134) AS DECIMAL(16, 5)
-    )/ NULLIF(
-      CAST(
-        SUM(c98) AS DECIMAL(16, 5)
-      ), 
-      0
-    ) AS return_on_asset_cit, 
-    CAST(
-      SUM(cuasset) AS DECIMAL(16, 5)
-    )/ NULLIF(
-      CAST(
-        (
-          SUM(c98) - lag(
-            SUM(c98), 
-            1
-          ) over(
-            partition by citycode, 
-            cic 
-            order by 
-              citycode, 
-              cic, 
-              year
-          )
-        )/ 2 AS DECIMAL(16, 5)
-      ), 
-      0
-    ) AS sales_assets_cit 
-  FROM 
-    firms_survey.asif_firms_prepared 
-  GROUP BY 
-    citycode, 
-    cic, 
-    year
+    0
+  ) AS sales_assets_cit 
+FROM firms_survey.asif_firms_prepared 
+INNER JOIN 
+  (
+  SELECT extra_code, geocode4_corr
+  FROM chinese_lookup.china_city_code_normalised 
+  GROUP BY extra_code, geocode4_corr
+  ) as no_dup_citycode
+  
+ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+WHERE year in ('2001', '2002', '2003', '2004', '2005', '2006', '2007') 
+GROUP BY 
+  geocode4_corr, 
+  cic, 
+  year 
 ) 
 SELECT 
-  ratio.citycode, 
+  ratio.geocode4_corr, 
   ratio.cic, 
   ratio.year,
   working_capital_cit, 
@@ -632,7 +810,7 @@ SELECT
   FROM ratio
   LEFT JOIN (
     SELECT
-  citycode, 
+  geocode4_corr, 
   cic,
   AVG(working_capital_cit) AS working_capital_ci,
   AVG(asset_tangibility_cit) AS asset_tangibility_ci,
@@ -642,9 +820,11 @@ SELECT
   AVG(return_on_asset_cit) AS return_on_asset_ci,
   AVG(sales_assets_cit) AS sales_assets_ci
   FROM ratio
-  GROUP BY citycode, cic
+  WHERE year in ('2001', '2002', '2003', '2004', '2005') 
+  GROUP BY geocode4_corr, cic
+  
     ) as ratio_ci
-    ON ratio.citycode = ratio_ci.citycode AND
+    ON ratio.geocode4_corr = ratio_ci.geocode4_corr AND
     ratio.cic = ratio_ci.cic
   LEFT JOIN (
     SELECT
@@ -657,6 +837,7 @@ SELECT
   AVG(return_on_asset_cit) AS return_on_asset_i,
   AVG(sales_assets_cit) AS sales_assets_i
   FROM ratio
+  WHERE year in ('2001', '2002', '2003', '2004', '2005') 
   GROUP BY cic
     ) as ratio_i
     ON ratio.cic = ratio_i.cic    
@@ -700,7 +881,7 @@ To validate the query, please fillin the json below. Don't forget to change the 
 1. Add a partition key
 
 ```python
-partition_keys = ["citycode", "cic", "year"]
+partition_keys = ["geocode4_corr", "cic", "year"]
 ```
 
 2. Add the steps number
@@ -720,7 +901,7 @@ glue.get_table_information(
 ```
 
 ```python
-schema = [{'Name': 'citycode', 'Type': 'string', 'Comment': ''},
+schema = [{'Name': 'geocode4_corr', 'Type': 'string', 'Comment': ''},
           {'Name': 'cic', 'Type': 'string', 'Comment': ''},
           {'Name': 'year', 'Type': 'string', 'Comment': ''},
           {'Name': 'working_capital_cit', 'Type': 'bigint', 'Comment': 'Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year'},
@@ -773,7 +954,7 @@ DatabaseName = 'firms_survey'
 
 ```python
 json_etl = {
-    'step': 1,
+    'step': step,
     'description':description,
     'query':query,
     'schema': schema,
@@ -861,7 +1042,7 @@ One of the most important step when creating a table is to check if the table co
 You are required to define the group(s) that Athena will use to compute the duplicate. For instance, your table can be grouped by COL1 and COL2 (need to be string or varchar), then pass the list ['COL1', 'COL2'] 
 
 ```python
-partition_keys = ["citycode", "cic", "year"]
+partition_keys = ["geocode4_corr", "cic", "year"]
 
 with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
