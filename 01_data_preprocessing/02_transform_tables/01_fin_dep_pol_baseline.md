@@ -53,6 +53,8 @@ We will clean the table by doing the following steps:
 
 * Make sure there is no duplicates
 
+![](https://drive.google.com/uc?export=view&id=1QyMI8wkI7SNGbQ-aHR-Ci_rrKwE9bGit)
+
 
 Target
 * The file is saved in S3: 
@@ -221,6 +223,112 @@ output = s3.run_query(
 output
 ```
 
+Need to tackle duplicates in the table
+
+![](https://drive.google.com/uc?export=view&id=1QyMI8wkI7SNGbQ-aHR-Ci_rrKwE9bGit)
+
+```python
+query = """
+SELECT year, citycode, geocode4_corr, china_city_sector_pollution.cityen, indus_code, ind2, tso2, lower_location, larger_location, coastal
+FROM environment.china_city_sector_pollution 
+INNER JOIN (
+  SELECT extra_code, geocode4_corr
+  FROM chinese_lookup.china_city_code_normalised 
+  GROUP BY extra_code, geocode4_corr
+  ) as no_dup_citycode
+ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code
+WHERE citycode in ('1101', '1102') and year = '2001' and indus_code = '3123'
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'count_1'
+                )
+output
+```
+
+We can group by `geocode4_corr` 
+
+```python
+query = """
+SELECT year, geocode4_corr, cityen, indus_code, ind2, SUM(tso2), lower_location, larger_location, coastal
+
+FROM (
+  SELECT 
+year, citycode, geocode4_corr, china_city_sector_pollution.cityen, indus_code, ind2, tso2, lower_location, larger_location, coastal
+FROM environment.china_city_sector_pollution 
+INNER JOIN (
+  SELECT extra_code, geocode4_corr
+  FROM chinese_lookup.china_city_code_normalised 
+  GROUP BY extra_code, geocode4_corr
+  ) as no_dup_citycode
+ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code
+WHERE citycode in ('1101', '1102') and year = '2001' and indus_code = '3123'
+  )
+  GROUP BY year, geocode4_corr, cityen, indus_code, ind2, lower_location, larger_location, coastal
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'count_1'
+                )
+output
+```
+
+Make sure the total amount of `tso2` is the same before and after, or at least lower because of no match with the city
+
+```python
+query = """
+WITH test AS (
+SELECT year, geocode4_corr, cityen, indus_code, ind2, SUM(tso2) as tso2, lower_location, larger_location, coastal
+
+FROM (
+  SELECT 
+year, citycode, geocode4_corr, china_city_sector_pollution.cityen, indus_code, ind2, tso2, lower_location, larger_location, coastal
+FROM environment.china_city_sector_pollution 
+INNER JOIN (
+  SELECT extra_code, geocode4_corr
+  FROM chinese_lookup.china_city_code_normalised 
+  GROUP BY extra_code, geocode4_corr
+  ) as no_dup_citycode
+ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code
+  )
+  GROUP BY year, geocode4_corr, cityen, indus_code, ind2, lower_location, larger_location, coastal
+  )
+  SELECT SUM(tso2) as total_so2
+  FROM test
+"""
+output_1 = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'count_1'
+                )
+output_1
+```
+
+```python
+query = """
+SELECT SUM(tso2) as total_so2
+  FROM environment.china_city_sector_pollution
+"""
+output_2 = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'count_1'
+                )
+output_2
+```
+
+After grouping, the total amount of SO2 is lower, indicating that some cities are not matched with our list. 
+
+```python
+output_1 == output_2
+```
+
 ```python
 query= """
 SELECT *
@@ -241,6 +349,79 @@ query= """
 SELECT *
 FROM policy.china_city_reduction_mandate
 LIMIT 10
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_3'
+                )
+output
+```
+
+Check if duplicated in `china_city_reduction_mandate` with `citycn` or `cityen`
+
+```python
+query ="""
+SELECT CNT, COUNT(*)
+FROM (
+SELECT citycn, COUNT(*) AS CNT
+FROM policy.china_city_reduction_mandate
+GROUP BY citycn
+  ) 
+  GROUP BY CNT
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_3'
+                )
+output
+```
+
+```python
+query ="""
+SELECT CNT, COUNT(*)
+FROM (
+SELECT cityen, COUNT(*) AS CNT
+FROM policy.china_city_reduction_mandate
+GROUP BY cityen
+  ) 
+  GROUP BY CNT
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_3'
+                )
+output
+```
+
+```python
+query = """
+SELECT cityen, COUNT(*) AS CNT
+FROM policy.china_city_reduction_mandate
+GROUP BY cityen
+HAVING COUNT(*) > 1
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_3'
+                )
+output
+```
+
+In this case, we should ignore the english, because same spelling in English but different in Chinese
+
+```python
+query ="""
+SELECT *
+FROM policy.china_city_reduction_mandate
+WHERE cityen = 'Suzhou'
 """
 output = s3.run_query(
                     query=query,
@@ -314,14 +495,15 @@ output
 
 Test merge on `china_city_reduction_mandate` and `china_city_code_normalised`
 
-Shanghai for instance has more than 3 codes
+Shanghai for instance has more than 3 codes.  Note that, in the final merge, we keep when `extra_code` is equal to `geocode4_corr` because we have already matched the other table on `geocode4_corr` 
 
 ```python
 query = """
-SELECT china_city_code_normalised.citycn, china_city_code_normalised.cityen, extra_code, geocode4_corr, tso2_mandate_c, in_10_000_tonnes
+SELECT china_city_code_normalised.citycn, extra_code, geocode4_corr, tso2_mandate_c, in_10_000_tonnes
 FROM policy.china_city_reduction_mandate
 INNER JOIN chinese_lookup.china_city_code_normalised 
 ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn
+-- WHERE extra_code = geocode4_corr
 LIMIT 10
 """
 output = s3.run_query(
@@ -363,9 +545,9 @@ The table `asif_city_industry_financial_ratio` needs to be matched using `extra_
 
 ```python
 query = """
-SELECT DISTINCT(citycode)
+SELECT DISTINCT(geocode4_corr)
 FROM firms_survey.asif_city_industry_financial_ratio
-WHERE citycode in ('3100','3101','3102')
+WHERE geocode4_corr in ('3100','3101','3102')
 """
 output = s3.run_query(
                     query=query,
@@ -397,33 +579,102 @@ output
 
 ### Test merge
 
-Let's test the merge with the tables on `citycode` :
+Let's test the merge with the tables on `citycode` with  `china_city_code_normalised` to be sure there is no duplicates
 
-- china_city_sector_pollution
-    - asif_city_industry_financial_ratio
 
-to be sure there is no duplicates
+Test by adding the aggregated pollution table with the financial ratio
+
 
 ```python
 query = """
-WITH merge AS (
-SELECT asif_city_industry_financial_ratio.year, asif_city_industry_financial_ratio.citycode, cic, ind2, tso2, lower_location, larger_location, coastal
-FROM environment.china_city_sector_pollution
-INNER JOIN firms_survey.asif_city_industry_financial_ratio
-ON 
-china_city_sector_pollution.citycode  = asif_city_industry_financial_ratio.citycode AND
-china_city_sector_pollution.year  = asif_city_industry_financial_ratio.year AND
-china_city_sector_pollution.indus_code  = asif_city_industry_financial_ratio.cic 
-WHERE year in ('2001','2002', '2003', '2004', '2005', '2006', '2007')
-)
-
-SELECT CNT, COUNT(CNT) AS dup
-FROM (
-  SELECT citycode, year, cic, COUNT(*) AS CNT
-  FROM merge
-GROUP BY citycode, year, cic
-  ) AS count_dup
-GROUP BY CNT
+WITH aggregate_pol AS (
+  SELECT 
+    year, 
+    geocode4_corr, 
+    cityen, 
+    indus_code, 
+    ind2, 
+    SUM(tso2) as tso2, 
+    lower_location, 
+    larger_location, 
+    coastal 
+  FROM 
+    (
+      SELECT 
+        year, 
+        citycode, 
+        geocode4_corr, 
+        china_city_sector_pollution.cityen, 
+        indus_code, 
+        ind2, 
+        tso2, 
+        lower_location, 
+        larger_location, 
+        coastal 
+      FROM 
+        environment.china_city_sector_pollution 
+        INNER JOIN (
+          SELECT 
+            extra_code, 
+            geocode4_corr 
+          FROM 
+            chinese_lookup.china_city_code_normalised 
+          GROUP BY 
+            extra_code, 
+            geocode4_corr
+        ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code
+    ) 
+  GROUP BY 
+    year, 
+    geocode4_corr, 
+    cityen, 
+    indus_code, 
+    ind2, 
+    lower_location, 
+    larger_location, 
+    coastal
+) 
+SELECT 
+  * 
+FROM 
+  (
+    WITH merge_asif AS (
+      SELECT 
+        asif_city_industry_financial_ratio.year, 
+        asif_city_industry_financial_ratio.geocode4_corr, 
+        cityen, 
+        cic, 
+        ind2, 
+        tso2, 
+        lower_location, 
+        larger_location, 
+        coastal 
+      FROM 
+        aggregate_pol 
+        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr 
+        AND aggregate_pol.year = asif_city_industry_financial_ratio.year 
+        AND aggregate_pol.indus_code = asif_city_industry_financial_ratio.cic
+    ) 
+    SELECT 
+      CNT, 
+      COUNT(CNT) AS dup 
+    FROM 
+      (
+        SELECT 
+          geocode4_corr, 
+          year, 
+          cic, 
+          COUNT(*) AS CNT 
+        FROM 
+          merge_asif 
+        GROUP BY 
+          geocode4_corr, 
+          year, 
+          cic
+      ) AS count_dup 
+    GROUP BY 
+      CNT
+  )
 """
 output = s3.run_query(
                     query=query,
@@ -434,37 +685,109 @@ output = s3.run_query(
 output
 ```
 
-Test by adding the  `china_city_reduction_mandate` and `china_city_code_normalised`
+Test by adding the aggregated pollution table with the financial ratio and reduction mandate
 
 ```python
 query = """
-WITH merge AS (
-SELECT asif_city_industry_financial_ratio.year, asif_city_industry_financial_ratio.citycode, cic, ind2, tso2,tso2_mandate_c,in_10_000_tonnes,lower_location, larger_location, coastal
-FROM environment.china_city_sector_pollution
-INNER JOIN firms_survey.asif_city_industry_financial_ratio
-ON 
-china_city_sector_pollution.citycode  = asif_city_industry_financial_ratio.citycode AND
-china_city_sector_pollution.year  = asif_city_industry_financial_ratio.year AND
-china_city_sector_pollution.indus_code  = asif_city_industry_financial_ratio.cic 
-INNER JOIN (
-  
-  SELECT china_city_code_normalised.citycn, china_city_code_normalised.cityen, extra_code, geocode4_corr, tso2_mandate_c, in_10_000_tonnes
-FROM policy.china_city_reduction_mandate
-INNER JOIN chinese_lookup.china_city_code_normalised 
-ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn
-) as city_mandate
-  ON china_city_sector_pollution.citycode  = city_mandate.extra_code
-
-WHERE year in ('2001','2002', '2003', '2004', '2005', '2006', '2007')
-)
-
-SELECT CNT, COUNT(CNT) AS dup
-FROM (
-  SELECT citycode, year, cic, COUNT(*) AS CNT
-  FROM merge
-GROUP BY citycode, year, cic
-  ) AS count_dup
-GROUP BY CNT
+WITH aggregate_pol AS (
+  SELECT 
+    year, 
+    geocode4_corr, 
+    cityen, 
+    indus_code, 
+    ind2, 
+    SUM(tso2) as tso2, 
+    lower_location, 
+    larger_location, 
+    coastal 
+  FROM 
+    (
+      SELECT 
+        year, 
+        citycode, 
+        geocode4_corr, 
+        china_city_sector_pollution.cityen, 
+        indus_code, 
+        ind2, 
+        tso2, 
+        lower_location, 
+        larger_location, 
+        coastal 
+      FROM 
+        environment.china_city_sector_pollution 
+        INNER JOIN (
+          SELECT 
+            extra_code, 
+            geocode4_corr 
+          FROM 
+            chinese_lookup.china_city_code_normalised 
+          GROUP BY 
+            extra_code, 
+            geocode4_corr
+        ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code
+    ) 
+  GROUP BY 
+    year, 
+    geocode4_corr, 
+    cityen, 
+    indus_code, 
+    ind2, 
+    lower_location, 
+    larger_location, 
+    coastal
+) 
+SELECT 
+  * 
+FROM 
+  (
+    WITH merge_asif AS (
+      SELECT 
+        asif_city_industry_financial_ratio.year, 
+        asif_city_industry_financial_ratio.geocode4_corr, 
+        cityen, 
+        cic, 
+        ind2, 
+        tso2, 
+        tso2_mandate_c,
+        in_10_000_tonnes
+        lower_location, 
+        larger_location, 
+        coastal 
+      FROM 
+        aggregate_pol 
+        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr 
+        AND aggregate_pol.year = asif_city_industry_financial_ratio.year 
+        AND aggregate_pol.indus_code = asif_city_industry_financial_ratio.cic
+        INNER JOIN (
+        
+        SELECT geocode4_corr, tso2_mandate_c, in_10_000_tonnes
+        FROM policy.china_city_reduction_mandate
+        INNER JOIN chinese_lookup.china_city_code_normalised 
+        ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn
+        WHERE extra_code = geocode4_corr
+        ) as city_mandate
+        ON aggregate_pol.geocode4_corr = city_mandate.geocode4_corr
+    ) 
+    SELECT 
+      CNT, 
+      COUNT(CNT) AS dup 
+    FROM 
+      (
+        SELECT 
+          geocode4_corr, 
+          year, 
+          cic, 
+          COUNT(*) AS CNT 
+        FROM 
+          merge_asif 
+        GROUP BY 
+          geocode4_corr, 
+          year, 
+          cic
+      ) AS count_dup 
+    GROUP BY 
+      CNT
+  )
 """
 output = s3.run_query(
                     query=query,
@@ -475,39 +798,111 @@ output = s3.run_query(
 output
 ```
 
-Test by adding `china_city_tcz_spz` on `geocode4_corr`
+Test by adding the aggregated pollution table with the financial ratio, reduction mandate and TCZ policy
 
 ```python
 query = """
-WITH merge AS (
-SELECT asif_city_industry_financial_ratio.year, asif_city_industry_financial_ratio.citycode,tcz, spz, cic, ind2, tso2,tso2_mandate_c,in_10_000_tonnes,lower_location, larger_location, coastal
-FROM environment.china_city_sector_pollution
-INNER JOIN firms_survey.asif_city_industry_financial_ratio
-ON 
-china_city_sector_pollution.citycode  = asif_city_industry_financial_ratio.citycode AND
-china_city_sector_pollution.year  = asif_city_industry_financial_ratio.year AND
-china_city_sector_pollution.indus_code  = asif_city_industry_financial_ratio.cic 
-INNER JOIN (
-  
-  SELECT china_city_code_normalised.citycn, china_city_code_normalised.cityen, extra_code, geocode4_corr, tso2_mandate_c, in_10_000_tonnes
-FROM policy.china_city_reduction_mandate
-INNER JOIN chinese_lookup.china_city_code_normalised 
-ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn
-) as city_mandate
-  ON china_city_sector_pollution.citycode  = city_mandate.extra_code
-
-LEFT JOIN policy.china_city_tcz_spz
-  ON china_city_sector_pollution.citycode  = china_city_tcz_spz.geocode4_corr
-WHERE year in ('2001','2002', '2003', '2004', '2005', '2006', '2007')
-)
-
-SELECT CNT, COUNT(CNT) AS dup
-FROM (
-  SELECT citycode, year, cic, COUNT(*) AS CNT
-  FROM merge
-GROUP BY citycode, year, cic
-  ) AS count_dup
-GROUP BY CNT
+WITH aggregate_pol AS (
+  SELECT 
+    year, 
+    geocode4_corr, 
+    cityen, 
+    indus_code, 
+    ind2, 
+    SUM(tso2) as tso2, 
+    lower_location, 
+    larger_location, 
+    coastal 
+  FROM 
+    (
+      SELECT 
+        year, 
+        citycode, 
+        geocode4_corr, 
+        china_city_sector_pollution.cityen, 
+        indus_code, 
+        ind2, 
+        tso2, 
+        lower_location, 
+        larger_location, 
+        coastal 
+      FROM 
+        environment.china_city_sector_pollution 
+        INNER JOIN (
+          SELECT 
+            extra_code, 
+            geocode4_corr 
+          FROM 
+            chinese_lookup.china_city_code_normalised 
+          GROUP BY 
+            extra_code, 
+            geocode4_corr
+        ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code
+    ) 
+  GROUP BY 
+    year, 
+    geocode4_corr, 
+    cityen, 
+    indus_code, 
+    ind2, 
+    lower_location, 
+    larger_location, 
+    coastal
+) 
+SELECT 
+  * 
+FROM 
+  (
+    WITH merge_asif AS (
+      SELECT 
+        asif_city_industry_financial_ratio.year, 
+        asif_city_industry_financial_ratio.geocode4_corr, 
+        cityen, 
+        cic, 
+        ind2, 
+        tso2, 
+        tso2_mandate_c,
+        in_10_000_tonnes
+        lower_location, 
+        larger_location, 
+        coastal 
+      FROM 
+        aggregate_pol 
+        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr 
+        AND aggregate_pol.year = asif_city_industry_financial_ratio.year 
+        AND aggregate_pol.indus_code = asif_city_industry_financial_ratio.cic
+        INNER JOIN (
+        
+        SELECT geocode4_corr, tso2_mandate_c, in_10_000_tonnes
+        FROM policy.china_city_reduction_mandate
+        INNER JOIN chinese_lookup.china_city_code_normalised 
+        ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn
+        WHERE extra_code = geocode4_corr
+        ) as city_mandate
+        ON aggregate_pol.geocode4_corr = city_mandate.geocode4_corr
+        LEFT JOIN policy.china_city_tcz_spz
+        ON aggregate_pol.geocode4_corr = china_city_tcz_spz.geocode4_corr
+    ) 
+    SELECT 
+      CNT, 
+      COUNT(CNT) AS dup 
+    FROM 
+      (
+        SELECT 
+          geocode4_corr, 
+          year, 
+          cic, 
+          COUNT(*) AS CNT 
+        FROM 
+          merge_asif 
+        GROUP BY 
+          geocode4_corr, 
+          year, 
+          cic
+      ) AS count_dup 
+    GROUP BY 
+      CNT
+  )
 """
 output = s3.run_query(
                     query=query,
@@ -557,14 +952,62 @@ s3.remove_all_bucket(path_remove = s3_output)
 %%time
 query = """
 CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS 
+
+WITH aggregate_pol AS (
+  SELECT 
+    year, 
+    geocode4_corr, 
+    cityen, 
+    indus_code, 
+    ind2, 
+    SUM(tso2) as tso2, 
+    lower_location, 
+    larger_location, 
+    coastal 
+  FROM 
+    (
+      SELECT 
+        year, 
+        citycode, 
+        geocode4_corr, 
+        china_city_sector_pollution.cityen, 
+        indus_code, 
+        ind2, 
+        tso2, 
+        lower_location, 
+        larger_location, 
+        coastal 
+      FROM 
+        environment.china_city_sector_pollution 
+        INNER JOIN (
+          SELECT 
+            extra_code, 
+            geocode4_corr 
+          FROM 
+            chinese_lookup.china_city_code_normalised 
+          GROUP BY 
+            extra_code, 
+            geocode4_corr
+        ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code
+    ) 
+  GROUP BY 
+    year, 
+    geocode4_corr, 
+    cityen, 
+    indus_code, 
+    ind2, 
+    lower_location, 
+    larger_location, 
+    coastal
+) 
 SELECT 
   asif_city_industry_financial_ratio.year, 
-  CASE WHEN asif_city_industry_financial_ratio.year in (
+  CASE WHEN aggregate_pol.year in (
     '2001', '2002', '2003', '2004', '2005'
-  ) THEN 'FALSE' WHEN asif_city_industry_financial_ratio.year in ('2006', '2007') THEN 'TRUE' END AS period, 
-  provinces, 
-  china_city_sector_pollution.cityen, 
-  city_mandate.geocode4_corr, 
+  ) THEN 'FALSE' WHEN aggregate_pol.year in ('2006', '2007') THEN 'TRUE' END AS period, 
+  province, 
+  city, 
+  asif_city_industry_financial_ratio.geocode4_corr, 
   tcz, 
   spz, 
   asif_city_industry_financial_ratio.cic, 
@@ -612,31 +1055,29 @@ SELECT
       city_mandate.geocode4_corr, 
       asif_city_industry_financial_ratio.year
   ) AS fe_c_t 
-FROM 
-  environment.china_city_sector_pollution 
-  INNER JOIN firms_survey.asif_city_industry_financial_ratio ON china_city_sector_pollution.citycode = asif_city_industry_financial_ratio.citycode 
-  AND china_city_sector_pollution.year = asif_city_industry_financial_ratio.year 
-  AND china_city_sector_pollution.indus_code = asif_city_industry_financial_ratio.cic 
-  INNER JOIN (
-    SELECT 
-      china_city_code_normalised.citycn, 
-      china_city_code_normalised.cityen, 
-      extra_code, 
-      geocode4_corr, 
-      tso2_mandate_c, 
-      in_10_000_tonnes 
-    FROM 
-      policy.china_city_reduction_mandate 
-      INNER JOIN chinese_lookup.china_city_code_normalised ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn
-  ) as city_mandate ON china_city_sector_pollution.citycode = city_mandate.extra_code 
-  LEFT JOIN policy.china_city_tcz_spz ON city_mandate.geocode4_corr = china_city_tcz_spz.geocode4_corr 
-  LEFT JOIN chinese_lookup.ind_cic_2_name ON china_city_sector_pollution.ind2 = ind_cic_2_name.cic 
+      FROM 
+        aggregate_pol 
+        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr 
+        AND aggregate_pol.year = asif_city_industry_financial_ratio.year 
+        AND aggregate_pol.indus_code = asif_city_industry_financial_ratio.cic
+        INNER JOIN (
+        
+        SELECT geocode4_corr, tso2_mandate_c, in_10_000_tonnes
+        FROM policy.china_city_reduction_mandate
+        INNER JOIN chinese_lookup.china_city_code_normalised 
+        ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn
+        WHERE extra_code = geocode4_corr
+        ) as city_mandate
+        ON aggregate_pol.geocode4_corr = city_mandate.geocode4_corr
+        LEFT JOIN policy.china_city_tcz_spz
+        ON aggregate_pol.geocode4_corr = china_city_tcz_spz.geocode4_corr
+        LEFT JOIN chinese_lookup.ind_cic_2_name ON aggregate_pol.ind2 = ind_cic_2_name.cic 
+
 WHERE 
   asif_city_industry_financial_ratio.year in (
     '2001', '2002', '2003', '2004', '2005', 
     '2006', '2007'
   )
-
 """.format(DatabaseName, table_name)
 output = s3.run_query(
                     query=query,
@@ -699,8 +1140,8 @@ glue.get_table_information(
 ```python
 schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'},
  {'Name': 'period', 'Type': 'varchar(5)', 'Comment': 'False if year before 2005 included, True if year 2006 and 2007'},
- {'Name': 'provinces', 'Type': 'string', 'Comment': ''},
- {'Name': 'cityen', 'Type': 'string', 'Comment': ''},
+ {'Name': 'province', 'Type': 'string', 'Comment': ''},
+ {'Name': 'city', 'Type': 'string', 'Comment': ''},
  {'Name': 'geocode4_corr', 'Type': 'string', 'Comment': ''},
  {'Name': 'tcz', 'Type': 'string', 'Comment': 'Two control zone policy city'},
  {'Name': 'spz', 'Type': 'string', 'Comment': 'Special policy zone policy city'},
@@ -881,7 +1322,7 @@ parameters['TABLES']['PREPARATION']['STEPS'].append(json_etl)
 Save JSON
 
 ```python
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_TEMPLATE.json'), "w")as outfile:
+with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json'), "w")as outfile:
     json.dump(parameters, outfile)
 ```
 
@@ -929,7 +1370,7 @@ You are required to define the group(s) that Athena will use to compute the dupl
 ```python
 partition_keys = ["geocode4_corr", "year", "cic"]
 
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_TEMPLATE.json')) as json_file:
+with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
 
@@ -1003,9 +1444,9 @@ client_lambda = boto3.client(
 ```
 
 ```python
-primary_key = ''
-secondary_key = ''
-y_var = ''
+primary_key = 'year'
+secondary_key = 'period'
+y_var = 'tso2'
 ```
 
 ```python
@@ -1020,7 +1461,7 @@ payload = {
         "group": "{}".format(','.join(partition_keys)),
         "keys": "{},{}".format(primary_key,secondary_key),
         "y_var": "{}".format(y_var),
-        "threshold":0
+        "threshold":.5
     },
 }
 payload
@@ -1034,17 +1475,6 @@ response = client_lambda.invoke(
     Payload=json.dumps(payload),
 )
 response
-```
-
-For a partial analysis, run the cells below
-
-```python
-#table = 'XX'
-schema = glue.get_table_information(
-    database = DatabaseName,
-    table = table_name
-)['Table']
-schema
 ```
 
 # Generation report
