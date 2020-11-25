@@ -13326,16 +13326,13 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Example-step-by-step">Example step by step<a class="anchor-link" href="#Example-step-by-step">&#182;</a></h2><ol>
-<li>Computation ratio by city-industry-year</li>
-</ol>
-
+<h2 id="Example-step-by-step">Example step by step<a class="anchor-link" href="#Example-step-by-step">&#182;</a></h2>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">DatabaseName</span> <span class="o">=</span> <span class="s1">&#39;firms_survey&#39;</span>
@@ -13347,285 +13344,20 @@ div#notebook {
 </div>
 
 </div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-
-<span class="s2">SELECT </span>
-<span class="s2">  year, </span>
-<span class="s2">  citycode, </span>
-<span class="s2">  cic, </span>
-<span class="s2">  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, </span>
-<span class="s2">  SUM(c85) - SUM(c91) AS asset_tangibility_cit, </span>
-<span class="s2">  CAST(</span>
-<span class="s2">    SUM(cuasset) AS DECIMAL(16, 5)</span>
-<span class="s2">  ) / NULLIF(</span>
-<span class="s2">    CAST(</span>
-<span class="s2">      SUM(c95) AS DECIMAL(16, 5)</span>
-<span class="s2">    ), </span>
-<span class="s2">    0</span>
-<span class="s2">  ) AS current_ratio_cit, </span>
-<span class="s2">  CAST(</span>
-<span class="s2">    (</span>
-<span class="s2">      SUM(c79) + SUM(c80) + SUM(c81)</span>
-<span class="s2">    ) - SUM(cuasset) AS DECIMAL(16, 5)</span>
-<span class="s2">  ) / NULLIF(CAST(</span>
-<span class="s2">    SUM(c79) + SUM(c80) + SUM(c81) AS DECIMAL(16, 5)</span>
-<span class="s2">  ), </span>
-<span class="s2">    0</span>
-<span class="s2">  ) AS cash_assets_cit, </span>
-<span class="s2">  CAST(</span>
-<span class="s2">    SUM(c95) + SUM(c97) AS DECIMAL(16, 5)</span>
-<span class="s2">  )/ NULLIF(</span>
-<span class="s2">    CAST(</span>
-<span class="s2">      SUM(c93) AS DECIMAL(16, 5)</span>
-<span class="s2">    ), </span>
-<span class="s2">    0</span>
-<span class="s2">  ) AS liabilities_assets_cit, </span>
-<span class="s2">  CAST(</span>
-<span class="s2">    SUM(c64) - SUM(c134) AS DECIMAL(16, 5)</span>
-<span class="s2">  )/ NULLIF(</span>
-<span class="s2">    CAST(</span>
-<span class="s2">      SUM(c98) AS DECIMAL(16, 5)</span>
-<span class="s2">    ), </span>
-<span class="s2">    0</span>
-<span class="s2">  ) AS return_on_asset_cit, </span>
-<span class="s2">  CAST(</span>
-<span class="s2">    SUM(cuasset) AS DECIMAL(16, 5)</span>
-<span class="s2">  )/ NULLIF(</span>
-<span class="s2">    CAST(</span>
-<span class="s2">      (</span>
-<span class="s2">        SUM(c98) - lag(</span>
-<span class="s2">          SUM(c98), </span>
-<span class="s2">          1</span>
-<span class="s2">        ) over(</span>
-<span class="s2">          partition by citycode, </span>
-<span class="s2">          cic </span>
-<span class="s2">          order by </span>
-<span class="s2">            citycode, </span>
-<span class="s2">            cic, </span>
-<span class="s2">            year</span>
-<span class="s2">        )</span>
-<span class="s2">      )/ 2 AS DECIMAL(16, 5)</span>
-<span class="s2">    ), </span>
-<span class="s2">    0</span>
-<span class="s2">  ) AS sales_assets_cit </span>
-<span class="s2">FROM </span>
-<span class="s2">  firms_survey.asif_firms_prepared </span>
-<span class="s2">GROUP BY </span>
-<span class="s2">  citycode, </span>
-<span class="s2">  cic, </span>
-<span class="s2">  year </span>
-<span class="s2">LIMIT </span>
-<span class="s2">  10</span>
-
-<span class="s2">&quot;&quot;&quot;</span>
-<span class="n">output</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span>
-                    <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
-                    <span class="n">database</span><span class="o">=</span><span class="n">DatabaseName</span><span class="p">,</span>
-                    <span class="n">s3_output</span><span class="o">=</span><span class="n">s3_output_example</span><span class="p">,</span>
-    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;example_1&#39;</span>
-                <span class="p">)</span>
-<span class="n">output</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[5]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>year</th>
-      <th>citycode</th>
-      <th>cic</th>
-      <th>working_capital_cit</th>
-      <th>asset_tangibility_cit</th>
-      <th>current_ratio_cit</th>
-      <th>cash_assets_cit</th>
-      <th>liabilities_assets_cit</th>
-      <th>return_on_asset_cit</th>
-      <th>sales_assets_cit</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>2000</td>
-      <td>1100</td>
-      <td>3131</td>
-      <td>NaN</td>
-      <td>22144.0</td>
-      <td>0.91587</td>
-      <td>NaN</td>
-      <td>0.58348</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1999</td>
-      <td>1100</td>
-      <td>3410</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2000</td>
-      <td>1100</td>
-      <td>3410</td>
-      <td>NaN</td>
-      <td>17560.0</td>
-      <td>0.90497</td>
-      <td>NaN</td>
-      <td>0.49270</td>
-      <td>NaN</td>
-      <td>1.78688</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>2000</td>
-      <td>1100</td>
-      <td>3435</td>
-      <td>NaN</td>
-      <td>32.0</td>
-      <td>2.76119</td>
-      <td>NaN</td>
-      <td>0.44700</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>2000</td>
-      <td>1100</td>
-      <td>4012</td>
-      <td>NaN</td>
-      <td>19562.0</td>
-      <td>0.68359</td>
-      <td>NaN</td>
-      <td>0.93824</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>2003</td>
-      <td>1100</td>
-      <td>4012</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>2.02422</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>8.81414</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>2000</td>
-      <td>1100</td>
-      <td>4027</td>
-      <td>NaN</td>
-      <td>-4861.0</td>
-      <td>0.90697</td>
-      <td>NaN</td>
-      <td>0.70468</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>1998</td>
-      <td>1101</td>
-      <td>1419</td>
-      <td>NaN</td>
-      <td>38039.0</td>
-      <td>0.86775</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>1999</td>
-      <td>1101</td>
-      <td>1419</td>
-      <td>NaN</td>
-      <td>35938.0</td>
-      <td>0.79206</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>-2.69211</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>2001</td>
-      <td>1101</td>
-      <td>1419</td>
-      <td>NaN</td>
-      <td>18960.0</td>
-      <td>1.38532</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>-0.61451</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <ol>
-<li>Computation ratio by city-industry</li>
+<li>Add consistent city code</li>
 </ol>
-<p>As an average over year 2002 to 2005</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>There is a need to remove the duplicates in <code>china_city_code_normalised</code> because it is possible to have the same code but different Chinese name link Chongqing</p>
 
 </div>
 </div>
@@ -13636,95 +13368,15 @@ div#notebook {
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">WITH ratio AS (</span>
-<span class="s2">SELECT </span>
-<span class="s2">  year, </span>
-<span class="s2">  citycode, </span>
-<span class="s2">  cic, </span>
-<span class="s2">  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, </span>
-<span class="s2">  SUM(c85) - SUM(c91) AS asset_tangibility_cit, </span>
-<span class="s2">  CAST(</span>
-<span class="s2">    SUM(cuasset) AS DECIMAL(16, 5)</span>
-<span class="s2">  ) / NULLIF(</span>
-<span class="s2">    CAST(</span>
-<span class="s2">      SUM(c95) AS DECIMAL(16, 5)</span>
-<span class="s2">    ), </span>
-<span class="s2">    0</span>
-<span class="s2">  ) AS current_ratio_cit, </span>
-<span class="s2">  CAST(</span>
-<span class="s2">    (</span>
-<span class="s2">      SUM(c79) + SUM(c80) + SUM(c81)</span>
-<span class="s2">    ) - SUM(cuasset) AS DECIMAL(16, 5)</span>
-<span class="s2">  ) / NULLIF(CAST(</span>
-<span class="s2">    SUM(c79) + SUM(c80) + SUM(c81) AS DECIMAL(16, 5)</span>
-<span class="s2">  ), </span>
-<span class="s2">    0</span>
-<span class="s2">  ) AS cash_assets_cit, </span>
-<span class="s2">  CAST(</span>
-<span class="s2">    SUM(c95) + SUM(c97) AS DECIMAL(16, 5)</span>
-<span class="s2">  )/ NULLIF(</span>
-<span class="s2">    CAST(</span>
-<span class="s2">      SUM(c93) AS DECIMAL(16, 5)</span>
-<span class="s2">    ), </span>
-<span class="s2">    0</span>
-<span class="s2">  ) AS liabilities_assets_cit, </span>
-<span class="s2">  CAST(</span>
-<span class="s2">    SUM(c64) - SUM(c134) AS DECIMAL(16, 5)</span>
-<span class="s2">  )/ NULLIF(</span>
-<span class="s2">    CAST(</span>
-<span class="s2">      SUM(c98) AS DECIMAL(16, 5)</span>
-<span class="s2">    ), </span>
-<span class="s2">    0</span>
-<span class="s2">  ) AS return_on_asset_cit, </span>
-<span class="s2">  CAST(</span>
-<span class="s2">    SUM(cuasset) AS DECIMAL(16, 5)</span>
-<span class="s2">  )/ NULLIF(</span>
-<span class="s2">    CAST(</span>
-<span class="s2">      (</span>
-<span class="s2">        SUM(c98) - lag(</span>
-<span class="s2">          SUM(c98), </span>
-<span class="s2">          1</span>
-<span class="s2">        ) over(</span>
-<span class="s2">          partition by citycode, </span>
-<span class="s2">          cic </span>
-<span class="s2">          order by </span>
-<span class="s2">            citycode, </span>
-<span class="s2">            cic, </span>
-<span class="s2">            year</span>
-<span class="s2">        )</span>
-<span class="s2">      )/ 2 AS DECIMAL(16, 5)</span>
-<span class="s2">    ), </span>
-<span class="s2">    0</span>
-<span class="s2">  ) AS sales_assets_cit </span>
-<span class="s2">FROM </span>
-<span class="s2">  firms_survey.asif_firms_prepared </span>
-<span class="s2">WHERE year in (&#39;2000&#39;, &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;)  </span>
-<span class="s2">GROUP BY </span>
-<span class="s2">  citycode, </span>
-<span class="s2">  cic, </span>
-<span class="s2">  year </span>
-
-
-<span class="s2">  )</span>
-<span class="s2">  SELECT</span>
-<span class="s2">  citycode, </span>
-<span class="s2">  cic,</span>
-<span class="s2">  AVG(working_capital_cit) AS working_capital_ci,</span>
-<span class="s2">  AVG(asset_tangibility_cit) AS asset_tangibility_ci,</span>
-<span class="s2">  AVG(current_ratio_cit) AS current_ratio_ci,</span>
-<span class="s2">  AVG(cash_assets_cit) AS cash_assets_ci,</span>
-<span class="s2">  AVG(liabilities_assets_cit) AS liabilities_assets_ci,</span>
-<span class="s2">  AVG(return_on_asset_cit) AS return_on_asset_ci,</span>
-<span class="s2">  AVG(sales_assets_cit) AS sales_assets_ci</span>
-<span class="s2">  FROM ratio</span>
-<span class="s2">  GROUP BY citycode, cic</span>
-<span class="s2">  LIMIT 10</span>
+<span class="s2">SELECT *</span>
+<span class="s2">FROM chinese_lookup.china_city_code_normalised </span>
+<span class="s2">WHERE extra_code = &#39;5001&#39;</span>
 <span class="s2">&quot;&quot;&quot;</span>
 <span class="n">output</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span>
                     <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
                     <span class="n">database</span><span class="o">=</span><span class="n">DatabaseName</span><span class="p">,</span>
                     <span class="n">s3_output</span><span class="o">=</span><span class="n">s3_output_example</span><span class="p">,</span>
-    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;example_2&#39;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;example_1&#39;</span>
                 <span class="p">)</span>
 <span class="n">output</span>
 </pre></div>
@@ -13762,137 +13414,38 @@ div#notebook {
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>citycode</th>
-      <th>cic</th>
-      <th>working_capital_ci</th>
-      <th>asset_tangibility_ci</th>
-      <th>current_ratio_ci</th>
-      <th>cash_assets_ci</th>
-      <th>liabilities_assets_ci</th>
-      <th>return_on_asset_ci</th>
-      <th>sales_assets_ci</th>
+      <th>extra_code</th>
+      <th>geocode4_corr</th>
+      <th>citycn</th>
+      <th>cityen</th>
+      <th>citycn_correct</th>
+      <th>cityen_correct</th>
+      <th>province_cn</th>
+      <th>province_en</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>1100</td>
-      <td>1451</td>
-      <td>NaN</td>
-      <td>6563.000000</td>
-      <td>0.99111</td>
-      <td>NaN</td>
-      <td>0.57940</td>
-      <td>NaN</td>
-      <td>NaN</td>
+      <td>5001</td>
+      <td>5001</td>
+      <td>重庆市</td>
+      <td>Chongqing</td>
+      <td>重庆</td>
+      <td>Chongqing</td>
+      <td>重庆市</td>
+      <td>Chongqing</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>1100</td>
-      <td>2419</td>
-      <td>NaN</td>
-      <td>4.000000</td>
-      <td>2.11739</td>
-      <td>NaN</td>
-      <td>0.63747</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>1100</td>
-      <td>3465</td>
-      <td>NaN</td>
-      <td>2769.000000</td>
-      <td>0.84519</td>
-      <td>NaN</td>
-      <td>0.87834</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>1100</td>
-      <td>3717</td>
-      <td>NaN</td>
-      <td>64357.000000</td>
-      <td>2.09503</td>
-      <td>NaN</td>
-      <td>0.33377</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>1100</td>
-      <td>3782</td>
-      <td>NaN</td>
-      <td>40157.000000</td>
-      <td>0.70016</td>
-      <td>NaN</td>
-      <td>0.72687</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>1100</td>
-      <td>4011</td>
-      <td>NaN</td>
-      <td>85.000000</td>
-      <td>0.93369</td>
-      <td>NaN</td>
-      <td>0.97599</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>1100</td>
-      <td>4041</td>
-      <td>NaN</td>
-      <td>64096.000000</td>
-      <td>1.74355</td>
-      <td>NaN</td>
-      <td>0.41133</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>1101</td>
-      <td>1499</td>
-      <td>43494.0</td>
-      <td>43037.666667</td>
-      <td>1.17526</td>
-      <td>-1.40438</td>
-      <td>0.85650</td>
-      <td>0.89019</td>
-      <td>4.76198</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>1101</td>
-      <td>1942</td>
-      <td>881.0</td>
-      <td>NaN</td>
-      <td>0.64505</td>
-      <td>-0.22835</td>
-      <td>NaN</td>
-      <td>0.00351</td>
-      <td>-0.15568</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>1101</td>
-      <td>2312</td>
-      <td>71563.5</td>
-      <td>409593.333333</td>
-      <td>1.22502</td>
-      <td>-1.65135</td>
-      <td>0.52588</td>
-      <td>1.19786</td>
-      <td>145.93934</td>
+      <td>5001</td>
+      <td>5001</td>
+      <td>重庆</td>
+      <td>Chongqing</td>
+      <td>重庆</td>
+      <td>Chongqing</td>
+      <td>重庆市</td>
+      <td>Chongqing</td>
     </tr>
   </tbody>
 </table>
@@ -13905,111 +13458,36 @@ div#notebook {
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<ol>
-<li>Computation ratio by industry</li>
-</ol>
-<p>As an average over year 2002 to 2005</p>
-
-</div>
-</div>
-</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">WITH ratio AS (</span>
-<span class="s2">SELECT </span>
-<span class="s2">  year, </span>
-<span class="s2">  citycode, </span>
-<span class="s2">  cic, </span>
-<span class="s2">  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, </span>
-<span class="s2">  SUM(c85) - SUM(c91) AS asset_tangibility_cit, </span>
-<span class="s2">  CAST(</span>
-<span class="s2">    SUM(cuasset) AS DECIMAL(16, 5)</span>
-<span class="s2">  ) / NULLIF(</span>
-<span class="s2">    CAST(</span>
-<span class="s2">      SUM(c95) AS DECIMAL(16, 5)</span>
-<span class="s2">    ), </span>
-<span class="s2">    0</span>
-<span class="s2">  ) AS current_ratio_cit, </span>
-<span class="s2">  CAST(</span>
-<span class="s2">    (</span>
-<span class="s2">      SUM(c79) + SUM(c80) + SUM(c81)</span>
-<span class="s2">    ) - SUM(cuasset) AS DECIMAL(16, 5)</span>
-<span class="s2">  ) / NULLIF(CAST(</span>
-<span class="s2">    SUM(c79) + SUM(c80) + SUM(c81) AS DECIMAL(16, 5)</span>
-<span class="s2">  ), </span>
-<span class="s2">    0</span>
-<span class="s2">  ) AS cash_assets_cit, </span>
-<span class="s2">  CAST(</span>
-<span class="s2">    SUM(c95) + SUM(c97) AS DECIMAL(16, 5)</span>
-<span class="s2">  )/ NULLIF(</span>
-<span class="s2">    CAST(</span>
-<span class="s2">      SUM(c93) AS DECIMAL(16, 5)</span>
-<span class="s2">    ), </span>
-<span class="s2">    0</span>
-<span class="s2">  ) AS liabilities_assets_cit, </span>
-<span class="s2">  CAST(</span>
-<span class="s2">    SUM(c64) - SUM(c134) AS DECIMAL(16, 5)</span>
-<span class="s2">  )/ NULLIF(</span>
-<span class="s2">    CAST(</span>
-<span class="s2">      SUM(c98) AS DECIMAL(16, 5)</span>
-<span class="s2">    ), </span>
-<span class="s2">    0</span>
-<span class="s2">  ) AS return_on_asset_cit, </span>
-<span class="s2">  CAST(</span>
-<span class="s2">    SUM(cuasset) AS DECIMAL(16, 5)</span>
-<span class="s2">  )/ NULLIF(</span>
-<span class="s2">    CAST(</span>
-<span class="s2">      (</span>
-<span class="s2">        SUM(c98) - lag(</span>
-<span class="s2">          SUM(c98), </span>
-<span class="s2">          1</span>
-<span class="s2">        ) over(</span>
-<span class="s2">          partition by citycode, </span>
-<span class="s2">          cic </span>
-<span class="s2">          order by </span>
-<span class="s2">            citycode, </span>
-<span class="s2">            cic, </span>
-<span class="s2">            year</span>
-<span class="s2">        )</span>
-<span class="s2">      )/ 2 AS DECIMAL(16, 5)</span>
-<span class="s2">    ), </span>
-<span class="s2">    0</span>
-<span class="s2">  ) AS sales_assets_cit </span>
-<span class="s2">FROM </span>
-<span class="s2">  firms_survey.asif_firms_prepared </span>
-<span class="s2">WHERE year in (&#39;2000&#39;, &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;)  </span>
-<span class="s2">GROUP BY </span>
-<span class="s2">  citycode, </span>
-<span class="s2">  cic, </span>
-<span class="s2">  year </span>
-
-
+<span class="s2">WITH test AS (</span>
+<span class="s2">SELECT firm, year, citycode, geocode4_corr, cic</span>
+<span class="s2">  FROM firms_survey.asif_firms_prepared </span>
+<span class="s2">INNER JOIN </span>
+<span class="s2">  (</span>
+<span class="s2">  SELECT extra_code, geocode4_corr</span>
+<span class="s2">  FROM chinese_lookup.china_city_code_normalised </span>
+<span class="s2">  GROUP BY extra_code, geocode4_corr</span>
+<span class="s2">  ) as no_dup_citycode</span>
+<span class="s2">ON asif_firms_prepared.citycode = no_dup_citycode.extra_code</span>
 <span class="s2">  )</span>
-<span class="s2">  SELECT</span>
-<span class="s2">  cic,</span>
-<span class="s2">  AVG(working_capital_cit) AS working_capital_i,</span>
-<span class="s2">  AVG(asset_tangibility_cit) AS asset_tangibility_i,</span>
-<span class="s2">  AVG(current_ratio_cit) AS current_ratio_i,</span>
-<span class="s2">  AVG(cash_assets_cit) AS cash_assets_i,</span>
-<span class="s2">  AVG(liabilities_assets_cit) AS liabilities_assets_i,</span>
-<span class="s2">  AVG(return_on_asset_cit) AS return_on_asset_i,</span>
-<span class="s2">  AVG(sales_assets_cit) AS sales_assets_it</span>
-<span class="s2">  FROM ratio</span>
-<span class="s2">  GROUP BY cic</span>
-<span class="s2">  LIMIT 10</span>
+<span class="s2">  SELECT CNT, COUNT(*) </span>
+<span class="s2">  FROM(</span>
+<span class="s2">  SELECT firm, year, geocode4_corr, cic, COUNT(*) AS CNT</span>
+<span class="s2">  FROM test</span>
+<span class="s2">  GROUP BY firm, year, geocode4_corr, cic</span>
+<span class="s2">    )</span>
+<span class="s2">    GROUP BY CNT</span>
 <span class="s2">&quot;&quot;&quot;</span>
 <span class="n">output</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span>
                     <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
                     <span class="n">database</span><span class="o">=</span><span class="n">DatabaseName</span><span class="p">,</span>
                     <span class="n">s3_output</span><span class="o">=</span><span class="n">s3_output_example</span><span class="p">,</span>
-    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;example_3&#39;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;example_1&#39;</span>
                 <span class="p">)</span>
 <span class="n">output</span>
 </pre></div>
@@ -14047,6 +13525,1032 @@ div#notebook {
   <thead>
     <tr style="text-align: right;">
       <th></th>
+      <th>CNT</th>
+      <th>_col1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>2088300</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Make sure the output is the same before and after the use of city consistent code</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">WITH test AS (</span>
+<span class="s2">SELECT </span>
+<span class="s2">  year, </span>
+<span class="s2">  geocode4_corr,</span>
+<span class="s2">  cic, </span>
+<span class="s2">  SUM(output) as sum_output,</span>
+<span class="s2">  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, </span>
+<span class="s2">  SUM(c85) - SUM(c91) AS asset_tangibility_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(cuasset) AS DECIMAL(16, 5)</span>
+<span class="s2">  ) / NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      SUM(c95) AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS current_ratio_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    (SUM(c79) + SUM(c80) + SUM(c81)) - SUM(cuasset) AS DECIMAL(16, 5)</span>
+<span class="s2">  ) / NULLIF(CAST(</span>
+<span class="s2">    SUM(c93) AS DECIMAL(16, 5)</span>
+<span class="s2">  ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS cash_assets_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(c95) + SUM(c97) AS DECIMAL(16, 5)</span>
+<span class="s2">  )/ NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      SUM(c93) AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS liabilities_assets_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(c64) - SUM(c134) AS DECIMAL(16, 5)</span>
+<span class="s2">  )/ NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      SUM(c98) AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS return_on_asset_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(cuasset) AS DECIMAL(16, 5)</span>
+<span class="s2">  )/ NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      (</span>
+<span class="s2">        SUM(c98) - lag(</span>
+<span class="s2">          SUM(c98), </span>
+<span class="s2">          1</span>
+<span class="s2">        ) over(</span>
+<span class="s2">          partition by geocode4_corr, </span>
+<span class="s2">          cic </span>
+<span class="s2">          order by </span>
+<span class="s2">            geocode4_corr, </span>
+<span class="s2">            cic, </span>
+<span class="s2">            year</span>
+<span class="s2">        )</span>
+<span class="s2">      )/ 2 AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS sales_assets_cit </span>
+<span class="s2">FROM firms_survey.asif_firms_prepared </span>
+<span class="s2">INNER JOIN </span>
+<span class="s2">  (</span>
+<span class="s2">  SELECT extra_code, geocode4_corr</span>
+<span class="s2">  FROM chinese_lookup.china_city_code_normalised </span>
+<span class="s2">  GROUP BY extra_code, geocode4_corr</span>
+<span class="s2">  ) as no_dup_citycode</span>
+<span class="s2">  </span>
+<span class="s2">ON asif_firms_prepared.citycode = no_dup_citycode.extra_code</span>
+<span class="s2">GROUP BY </span>
+<span class="s2">  geocode4_corr, </span>
+<span class="s2">  cic, </span>
+<span class="s2">  year </span>
+<span class="s2">)</span>
+<span class="s2">SELECT SUM(sum_output) as sum_output</span>
+<span class="s2">FROM test</span>
+
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">output_1</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span>
+                    <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
+                    <span class="n">database</span><span class="o">=</span><span class="n">DatabaseName</span><span class="p">,</span>
+                    <span class="n">s3_output</span><span class="o">=</span><span class="n">s3_output_example</span><span class="p">,</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;example_1&#39;</span>
+                <span class="p">)</span>
+<span class="n">output_1</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[9]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>sum_output</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>166657829347</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">SELECT SUM(output) as sum_output</span>
+<span class="s2">FROM firms_survey.asif_firms_prepared </span>
+
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">output_2</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span>
+                    <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
+                    <span class="n">database</span><span class="o">=</span><span class="n">DatabaseName</span><span class="p">,</span>
+                    <span class="n">s3_output</span><span class="o">=</span><span class="n">s3_output_example</span><span class="p">,</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;example_1&#39;</span>
+                <span class="p">)</span>
+<span class="n">output_2</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[11]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>sum_output</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>170680191587</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">output_1</span> <span class="o">&gt;</span> <span class="n">output_2</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[12]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>sum_output</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ol>
+<li>Computation ratio by city-industry-year</li>
+</ol>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+
+<span class="s2">SELECT </span>
+<span class="s2">  year, </span>
+<span class="s2">  geocode4_corr,</span>
+<span class="s2">  cic, </span>
+<span class="s2">  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, </span>
+<span class="s2">  SUM(c85) - SUM(c91) AS asset_tangibility_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(cuasset) AS DECIMAL(16, 5)</span>
+<span class="s2">  ) / NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      SUM(c95) AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS current_ratio_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    (SUM(c79) + SUM(c80) + SUM(c81)) - SUM(cuasset) AS DECIMAL(16, 5)</span>
+<span class="s2">  ) / NULLIF(CAST(</span>
+<span class="s2">    SUM(c93) AS DECIMAL(16, 5)</span>
+<span class="s2">  ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS cash_assets_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(c95) + SUM(c97) AS DECIMAL(16, 5)</span>
+<span class="s2">  )/ NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      SUM(c93) AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS liabilities_assets_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(c64) - SUM(c134) AS DECIMAL(16, 5)</span>
+<span class="s2">  )/ NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      SUM(c98) AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS return_on_asset_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(cuasset) AS DECIMAL(16, 5)</span>
+<span class="s2">  )/ NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      (</span>
+<span class="s2">        SUM(c98) - lag(</span>
+<span class="s2">          SUM(c98), </span>
+<span class="s2">          1</span>
+<span class="s2">        ) over(</span>
+<span class="s2">          partition by geocode4_corr, </span>
+<span class="s2">          cic </span>
+<span class="s2">          order by </span>
+<span class="s2">            geocode4_corr, </span>
+<span class="s2">            cic, </span>
+<span class="s2">            year</span>
+<span class="s2">        )</span>
+<span class="s2">      )/ 2 AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS sales_assets_cit </span>
+<span class="s2">FROM firms_survey.asif_firms_prepared </span>
+<span class="s2">INNER JOIN </span>
+<span class="s2">  (</span>
+<span class="s2">  SELECT extra_code, geocode4_corr</span>
+<span class="s2">  FROM chinese_lookup.china_city_code_normalised </span>
+<span class="s2">  GROUP BY extra_code, geocode4_corr</span>
+<span class="s2">  ) as no_dup_citycode</span>
+<span class="s2">  </span>
+<span class="s2">ON asif_firms_prepared.citycode = no_dup_citycode.extra_code</span>
+<span class="s2">WHERE year in (&#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;, &#39;2006&#39;, &#39;2007&#39;) </span>
+<span class="s2">GROUP BY </span>
+<span class="s2">  geocode4_corr, </span>
+<span class="s2">  cic, </span>
+<span class="s2">  year </span>
+<span class="s2">LIMIT </span>
+<span class="s2">  10</span>
+
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span>
+                    <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
+                    <span class="n">database</span><span class="o">=</span><span class="n">DatabaseName</span><span class="p">,</span>
+                    <span class="n">s3_output</span><span class="o">=</span><span class="n">s3_output_example</span><span class="p">,</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;example_1&#39;</span>
+                <span class="p">)</span>
+<span class="n">output</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[15]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>year</th>
+      <th>geocode4_corr</th>
+      <th>cic</th>
+      <th>working_capital_cit</th>
+      <th>asset_tangibility_cit</th>
+      <th>current_ratio_cit</th>
+      <th>cash_assets_cit</th>
+      <th>liabilities_assets_cit</th>
+      <th>return_on_asset_cit</th>
+      <th>sales_assets_cit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2001</td>
+      <td>1101</td>
+      <td>1311</td>
+      <td>NaN</td>
+      <td>15001.0</td>
+      <td>1.83709</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2001</td>
+      <td>1101</td>
+      <td>1351</td>
+      <td>NaN</td>
+      <td>497.0</td>
+      <td>1.28746</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2002</td>
+      <td>1101</td>
+      <td>1351</td>
+      <td>NaN</td>
+      <td>542.0</td>
+      <td>0.85517</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>-0.16380</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2003</td>
+      <td>1101</td>
+      <td>1351</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.86504</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1.51412</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2004</td>
+      <td>1101</td>
+      <td>1351</td>
+      <td>237751.0</td>
+      <td>NaN</td>
+      <td>0.90487</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2.17850</td>
+      <td>3.93178</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>2005</td>
+      <td>1101</td>
+      <td>1351</td>
+      <td>210146.0</td>
+      <td>NaN</td>
+      <td>0.95418</td>
+      <td>-0.21929</td>
+      <td>0.66754</td>
+      <td>2.70258</td>
+      <td>13.64152</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>2006</td>
+      <td>1101</td>
+      <td>1351</td>
+      <td>246596.0</td>
+      <td>NaN</td>
+      <td>0.80885</td>
+      <td>-0.23367</td>
+      <td>0.68175</td>
+      <td>2.71386</td>
+      <td>5.44698</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>2007</td>
+      <td>1101</td>
+      <td>1351</td>
+      <td>246085.0</td>
+      <td>NaN</td>
+      <td>0.62528</td>
+      <td>-0.22591</td>
+      <td>0.75284</td>
+      <td>3.18626</td>
+      <td>4.84000</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>2000</td>
+      <td>1101</td>
+      <td>1512</td>
+      <td>NaN</td>
+      <td>186351.0</td>
+      <td>0.90246</td>
+      <td>NaN</td>
+      <td>0.58692</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>2001</td>
+      <td>1101</td>
+      <td>1512</td>
+      <td>NaN</td>
+      <td>266860.0</td>
+      <td>1.31703</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>15.22591</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ol>
+<li>Computation ratio by city-industry</li>
+</ol>
+<p>As an average over year 2002 to 2005</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">WITH ratio AS (</span>
+<span class="s2">SELECT </span>
+<span class="s2">  year, </span>
+<span class="s2">  geocode4_corr,</span>
+<span class="s2">  cic, </span>
+<span class="s2">  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, </span>
+<span class="s2">  SUM(c85) - SUM(c91) AS asset_tangibility_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(cuasset) AS DECIMAL(16, 5)</span>
+<span class="s2">  ) / NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      SUM(c95) AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS current_ratio_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    (SUM(c79) + SUM(c80) + SUM(c81)) - SUM(cuasset) AS DECIMAL(16, 5)</span>
+<span class="s2">  ) / NULLIF(CAST(</span>
+<span class="s2">    SUM(c93) AS DECIMAL(16, 5)</span>
+<span class="s2">  ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS cash_assets_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(c95) + SUM(c97) AS DECIMAL(16, 5)</span>
+<span class="s2">  )/ NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      SUM(c93) AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS liabilities_assets_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(c64) - SUM(c134) AS DECIMAL(16, 5)</span>
+<span class="s2">  )/ NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      SUM(c98) AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS return_on_asset_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(cuasset) AS DECIMAL(16, 5)</span>
+<span class="s2">  )/ NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      (</span>
+<span class="s2">        SUM(c98) - lag(</span>
+<span class="s2">          SUM(c98), </span>
+<span class="s2">          1</span>
+<span class="s2">        ) over(</span>
+<span class="s2">          partition by geocode4_corr, </span>
+<span class="s2">          cic </span>
+<span class="s2">          order by </span>
+<span class="s2">            geocode4_corr, </span>
+<span class="s2">            cic, </span>
+<span class="s2">            year</span>
+<span class="s2">        )</span>
+<span class="s2">      )/ 2 AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS sales_assets_cit </span>
+<span class="s2">FROM firms_survey.asif_firms_prepared </span>
+<span class="s2">INNER JOIN </span>
+<span class="s2">  (</span>
+<span class="s2">  SELECT extra_code, geocode4_corr</span>
+<span class="s2">  FROM chinese_lookup.china_city_code_normalised </span>
+<span class="s2">  GROUP BY extra_code, geocode4_corr</span>
+<span class="s2">  ) as no_dup_citycode</span>
+<span class="s2">  </span>
+<span class="s2">ON asif_firms_prepared.citycode = no_dup_citycode.extra_code</span>
+<span class="s2">WHERE year in (&#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;) </span>
+<span class="s2">GROUP BY </span>
+<span class="s2">  geocode4_corr, </span>
+<span class="s2">  cic, </span>
+<span class="s2">  year </span>
+<span class="s2">  )</span>
+<span class="s2">  SELECT</span>
+<span class="s2">  geocode4_corr, </span>
+<span class="s2">  cic,</span>
+<span class="s2">  AVG(working_capital_cit) AS working_capital_ci,</span>
+<span class="s2">  AVG(asset_tangibility_cit) AS asset_tangibility_ci,</span>
+<span class="s2">  AVG(current_ratio_cit) AS current_ratio_ci,</span>
+<span class="s2">  AVG(cash_assets_cit) AS cash_assets_ci,</span>
+<span class="s2">  AVG(liabilities_assets_cit) AS liabilities_assets_ci,</span>
+<span class="s2">  AVG(return_on_asset_cit) AS return_on_asset_ci,</span>
+<span class="s2">  AVG(sales_assets_cit) AS sales_assets_ci</span>
+<span class="s2">  FROM ratio</span>
+<span class="s2">  GROUP BY geocode4_corr, cic</span>
+<span class="s2">  LIMIT 10</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span>
+                    <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
+                    <span class="n">database</span><span class="o">=</span><span class="n">DatabaseName</span><span class="p">,</span>
+                    <span class="n">s3_output</span><span class="o">=</span><span class="n">s3_output_example</span><span class="p">,</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;example_2&#39;</span>
+                <span class="p">)</span>
+<span class="n">output</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[18]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geocode4_corr</th>
+      <th>cic</th>
+      <th>working_capital_ci</th>
+      <th>asset_tangibility_ci</th>
+      <th>current_ratio_ci</th>
+      <th>cash_assets_ci</th>
+      <th>liabilities_assets_ci</th>
+      <th>return_on_asset_ci</th>
+      <th>sales_assets_ci</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1101</td>
+      <td>1415</td>
+      <td>NaN</td>
+      <td>6.432000e+03</td>
+      <td>1.53949</td>
+      <td>NaN</td>
+      <td>0.57835</td>
+      <td>NaN</td>
+      <td>12.37887</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1101</td>
+      <td>1493</td>
+      <td>-31021.50</td>
+      <td>NaN</td>
+      <td>0.09502</td>
+      <td>-0.01881</td>
+      <td>0.74422</td>
+      <td>0.64927</td>
+      <td>-1.33252</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1101</td>
+      <td>1513</td>
+      <td>NaN</td>
+      <td>2.859962e+06</td>
+      <td>1.53131</td>
+      <td>NaN</td>
+      <td>0.21446</td>
+      <td>NaN</td>
+      <td>8.50620</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1101</td>
+      <td>1789</td>
+      <td>NaN</td>
+      <td>7.200000e+01</td>
+      <td>5.42152</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1101</td>
+      <td>1925</td>
+      <td>NaN</td>
+      <td>3.571333e+03</td>
+      <td>1.75451</td>
+      <td>NaN</td>
+      <td>0.19324</td>
+      <td>NaN</td>
+      <td>202.58851</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1101</td>
+      <td>2631</td>
+      <td>77131.50</td>
+      <td>NaN</td>
+      <td>1.09402</td>
+      <td>-0.23297</td>
+      <td>0.62844</td>
+      <td>1.25175</td>
+      <td>2.56717</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1101</td>
+      <td>3050</td>
+      <td>51031.75</td>
+      <td>4.051740e+05</td>
+      <td>0.99917</td>
+      <td>-0.08008</td>
+      <td>0.61953</td>
+      <td>1.48202</td>
+      <td>429.48911</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>1101</td>
+      <td>3070</td>
+      <td>181565.75</td>
+      <td>1.085113e+05</td>
+      <td>1.09210</td>
+      <td>-0.21850</td>
+      <td>0.63928</td>
+      <td>1.19696</td>
+      <td>-12.75603</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>1101</td>
+      <td>3148</td>
+      <td>149911.00</td>
+      <td>7.904133e+04</td>
+      <td>1.11265</td>
+      <td>-0.17345</td>
+      <td>0.57475</td>
+      <td>1.22193</td>
+      <td>6.65139</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>1101</td>
+      <td>3155</td>
+      <td>NaN</td>
+      <td>1.989000e+03</td>
+      <td>0.45908</td>
+      <td>NaN</td>
+      <td>0.55266</td>
+      <td>NaN</td>
+      <td>4.08998</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ol>
+<li>Computation ratio by industry</li>
+</ol>
+<p>As an average over year 2002 to 2005</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">WITH ratio AS (</span>
+<span class="s2">SELECT </span>
+<span class="s2">  year, </span>
+<span class="s2">  geocode4_corr,</span>
+<span class="s2">  cic, </span>
+<span class="s2">  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, </span>
+<span class="s2">  SUM(c85) - SUM(c91) AS asset_tangibility_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(cuasset) AS DECIMAL(16, 5)</span>
+<span class="s2">  ) / NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      SUM(c95) AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS current_ratio_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    (SUM(c79) + SUM(c80) + SUM(c81)) - SUM(cuasset) AS DECIMAL(16, 5)</span>
+<span class="s2">  ) / NULLIF(CAST(</span>
+<span class="s2">    SUM(c93) AS DECIMAL(16, 5)</span>
+<span class="s2">  ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS cash_assets_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(c95) + SUM(c97) AS DECIMAL(16, 5)</span>
+<span class="s2">  )/ NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      SUM(c93) AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS liabilities_assets_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(c64) - SUM(c134) AS DECIMAL(16, 5)</span>
+<span class="s2">  )/ NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      SUM(c98) AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS return_on_asset_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(cuasset) AS DECIMAL(16, 5)</span>
+<span class="s2">  )/ NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      (</span>
+<span class="s2">        SUM(c98) - lag(</span>
+<span class="s2">          SUM(c98), </span>
+<span class="s2">          1</span>
+<span class="s2">        ) over(</span>
+<span class="s2">          partition by geocode4_corr, </span>
+<span class="s2">          cic </span>
+<span class="s2">          order by </span>
+<span class="s2">            geocode4_corr, </span>
+<span class="s2">            cic, </span>
+<span class="s2">            year</span>
+<span class="s2">        )</span>
+<span class="s2">      )/ 2 AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS sales_assets_cit </span>
+<span class="s2">FROM firms_survey.asif_firms_prepared </span>
+<span class="s2">INNER JOIN </span>
+<span class="s2">  (</span>
+<span class="s2">  SELECT extra_code, geocode4_corr</span>
+<span class="s2">  FROM chinese_lookup.china_city_code_normalised </span>
+<span class="s2">  GROUP BY extra_code, geocode4_corr</span>
+<span class="s2">  ) as no_dup_citycode</span>
+<span class="s2">  </span>
+<span class="s2">ON asif_firms_prepared.citycode = no_dup_citycode.extra_code</span>
+<span class="s2">WHERE year in (&#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;) </span>
+<span class="s2">GROUP BY </span>
+<span class="s2">  geocode4_corr, </span>
+<span class="s2">  cic, </span>
+<span class="s2">  year </span>
+<span class="s2">  )</span>
+<span class="s2">  SELECT</span>
+<span class="s2">  cic,</span>
+<span class="s2">  AVG(working_capital_cit) AS working_capital_i,</span>
+<span class="s2">  AVG(asset_tangibility_cit) AS asset_tangibility_i,</span>
+<span class="s2">  AVG(current_ratio_cit) AS current_ratio_i,</span>
+<span class="s2">  AVG(cash_assets_cit) AS cash_assets_i,</span>
+<span class="s2">  AVG(liabilities_assets_cit) AS liabilities_assets_i,</span>
+<span class="s2">  AVG(return_on_asset_cit) AS return_on_asset_i,</span>
+<span class="s2">  AVG(sales_assets_cit) AS sales_assets_it</span>
+<span class="s2">  FROM ratio</span>
+<span class="s2">  GROUP BY cic</span>
+<span class="s2">  LIMIT 10</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span>
+                    <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
+                    <span class="n">database</span><span class="o">=</span><span class="n">DatabaseName</span><span class="p">,</span>
+                    <span class="n">s3_output</span><span class="o">=</span><span class="n">s3_output_example</span><span class="p">,</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;example_3&#39;</span>
+                <span class="p">)</span>
+<span class="n">output</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[19]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
       <th>cic</th>
       <th>working_capital_i</th>
       <th>asset_tangibility_i</th>
@@ -14060,113 +14564,113 @@ div#notebook {
   <tbody>
     <tr>
       <th>0</th>
-      <td>1011</td>
-      <td>8448.970443</td>
-      <td>19013.523179</td>
-      <td>17.04137</td>
-      <td>-1.48390</td>
-      <td>0.48753</td>
-      <td>7.59561</td>
-      <td>2.81771</td>
+      <td>3622</td>
+      <td>38343.150259</td>
+      <td>31409.538462</td>
+      <td>1.48731</td>
+      <td>-0.20733</td>
+      <td>0.58717</td>
+      <td>5.62412</td>
+      <td>12.27174</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>4217</td>
-      <td>24982.065868</td>
-      <td>11150.534884</td>
-      <td>2.08352</td>
-      <td>-1.46362</td>
-      <td>0.60728</td>
-      <td>3.61815</td>
-      <td>12.82614</td>
+      <td>3929</td>
+      <td>95914.903614</td>
+      <td>NaN</td>
+      <td>1.86058</td>
+      <td>-0.22818</td>
+      <td>0.55598</td>
+      <td>4.02962</td>
+      <td>-111.28421</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>1351</td>
-      <td>30775.297087</td>
-      <td>92150.967033</td>
-      <td>5.84878</td>
-      <td>-12.88255</td>
-      <td>0.59076</td>
-      <td>10.40011</td>
-      <td>2.55664</td>
+      <td>2210</td>
+      <td>23945.919118</td>
+      <td>108385.191011</td>
+      <td>2.60178</td>
+      <td>-0.17457</td>
+      <td>0.48103</td>
+      <td>10.66836</td>
+      <td>5.90217</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>3589</td>
-      <td>26495.665158</td>
-      <td>NaN</td>
-      <td>1.99185</td>
-      <td>-0.61976</td>
-      <td>0.54309</td>
-      <td>9.63654</td>
-      <td>-1.27488</td>
+      <td>3632</td>
+      <td>16745.189815</td>
+      <td>13620.280632</td>
+      <td>1.54545</td>
+      <td>-0.19090</td>
+      <td>0.58318</td>
+      <td>8.22095</td>
+      <td>6.58961</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>4090</td>
-      <td>61674.308725</td>
+      <td>4500</td>
+      <td>18030.867044</td>
       <td>NaN</td>
-      <td>4.25745</td>
-      <td>-1.02897</td>
-      <td>0.51692</td>
-      <td>4.73805</td>
-      <td>-7.42648</td>
+      <td>84.60114</td>
+      <td>-0.23902</td>
+      <td>0.56558</td>
+      <td>1.85657</td>
+      <td>-5.22460</td>
     </tr>
     <tr>
       <th>5</th>
-      <td>4318</td>
+      <td>1498</td>
       <td>NaN</td>
-      <td>20144.739669</td>
-      <td>2.94282</td>
+      <td>31947.697436</td>
+      <td>1.12852</td>
       <td>NaN</td>
-      <td>0.59331</td>
-      <td>-0.01273</td>
-      <td>-9.93585</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2.51140</td>
     </tr>
     <tr>
       <th>6</th>
-      <td>3435</td>
+      <td>1730</td>
+      <td>64584.009375</td>
       <td>NaN</td>
-      <td>23377.955932</td>
-      <td>2.00171</td>
-      <td>NaN</td>
-      <td>0.64099</td>
-      <td>-0.01635</td>
-      <td>20.30286</td>
+      <td>1.79452</td>
+      <td>-0.16932</td>
+      <td>0.61261</td>
+      <td>5.05479</td>
+      <td>-0.59120</td>
     </tr>
     <tr>
       <th>7</th>
-      <td>4053</td>
-      <td>75038.139130</td>
+      <td>3487</td>
       <td>NaN</td>
-      <td>1.44179</td>
-      <td>-1.21585</td>
-      <td>0.52897</td>
-      <td>2.65583</td>
-      <td>5.29944</td>
+      <td>42851.627907</td>
+      <td>1.27867</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>-6.13900</td>
     </tr>
     <tr>
       <th>8</th>
-      <td>3433</td>
-      <td>44493.910256</td>
+      <td>4171</td>
       <td>NaN</td>
-      <td>5.89290</td>
-      <td>-0.75614</td>
-      <td>0.58796</td>
-      <td>3.87370</td>
-      <td>-27.52611</td>
+      <td>253280.430769</td>
+      <td>1.27952</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1.22531</td>
     </tr>
     <tr>
       <th>9</th>
-      <td>2823</td>
-      <td>37849.095238</td>
-      <td>192745.294118</td>
-      <td>1.23104</td>
-      <td>-1.48532</td>
-      <td>0.63288</td>
-      <td>7.61240</td>
-      <td>13.17353</td>
+      <td>2770</td>
+      <td>31258.050000</td>
+      <td>NaN</td>
+      <td>2.54675</td>
+      <td>-0.18105</td>
+      <td>0.49835</td>
+      <td>8.27916</td>
+      <td>-11.32556</td>
     </tr>
   </tbody>
 </table>
@@ -14207,7 +14711,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">table_name</span> <span class="o">=</span> <span class="s1">&#39;asif_city_industry_financial_ratio&#39;</span>
@@ -14221,7 +14725,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">try</span><span class="p">:</span>
@@ -14248,7 +14752,7 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;e7210935-d3e2-4f2f-ac91-15fb089cd89a&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Mon, 23 Nov 2020 12:25:28 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;e7210935-d3e2-4f2f-ac91-15fb089cd89a&#39;}, &#39;RetryAttempts&#39;: 0}}
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;dde70c08-cf55-4164-94c8-66f56489d9b6&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Wed, 25 Nov 2020 12:26:59 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;dde70c08-cf55-4164-94c8-66f56489d9b6&#39;}, &#39;RetryAttempts&#39;: 0}}
 </pre>
 </div>
 </div>
@@ -14267,7 +14771,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s3</span><span class="o">.</span><span class="n">remove_all_bucket</span><span class="p">(</span><span class="n">path_remove</span> <span class="o">=</span> <span class="n">s3_output</span><span class="p">)</span>
@@ -14283,7 +14787,7 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[21]:</div>
+    <div class="prompt output_prompt">Out[22]:</div>
 
 
 
@@ -14300,7 +14804,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%time</span>
@@ -14308,74 +14812,80 @@ div#notebook {
 <span class="s2">CREATE TABLE </span><span class="si">{0}</span><span class="s2">.</span><span class="si">{1}</span><span class="s2"> WITH (format = &#39;PARQUET&#39;) AS</span>
 
 <span class="s2">WITH ratio AS (</span>
-<span class="s2">  SELECT </span>
-<span class="s2">    year, </span>
-<span class="s2">    citycode, </span>
-<span class="s2">    cic, </span>
-<span class="s2">    SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, </span>
-<span class="s2">    SUM(c85) - SUM(c91) AS asset_tangibility_cit, </span>
+<span class="s2">SELECT </span>
+<span class="s2">  year, </span>
+<span class="s2">  geocode4_corr,</span>
+<span class="s2">  cic, </span>
+<span class="s2">  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, </span>
+<span class="s2">  SUM(c85) - SUM(c91) AS asset_tangibility_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(cuasset) AS DECIMAL(16, 5)</span>
+<span class="s2">  ) / NULLIF(</span>
 <span class="s2">    CAST(</span>
-<span class="s2">      SUM(cuasset) AS DECIMAL(16, 5)</span>
-<span class="s2">    ) / NULLIF(</span>
-<span class="s2">      CAST(</span>
-<span class="s2">        SUM(c95) AS DECIMAL(16, 5)</span>
-<span class="s2">      ), </span>
-<span class="s2">      0</span>
-<span class="s2">    ) AS current_ratio_cit, </span>
+<span class="s2">      SUM(c95) AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS current_ratio_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    (SUM(c79) + SUM(c80) + SUM(c81)) - SUM(cuasset) AS DECIMAL(16, 5)</span>
+<span class="s2">  ) / NULLIF(CAST(</span>
+<span class="s2">    SUM(c93) AS DECIMAL(16, 5)</span>
+<span class="s2">  ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS cash_assets_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(c95) + SUM(c97) AS DECIMAL(16, 5)</span>
+<span class="s2">  )/ NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      SUM(c93) AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS liabilities_assets_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(c64) - SUM(c134) AS DECIMAL(16, 5)</span>
+<span class="s2">  )/ NULLIF(</span>
+<span class="s2">    CAST(</span>
+<span class="s2">      SUM(c98) AS DECIMAL(16, 5)</span>
+<span class="s2">    ), </span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS return_on_asset_cit, </span>
+<span class="s2">  CAST(</span>
+<span class="s2">    SUM(cuasset) AS DECIMAL(16, 5)</span>
+<span class="s2">  )/ NULLIF(</span>
 <span class="s2">    CAST(</span>
 <span class="s2">      (</span>
-<span class="s2">        SUM(c79) + SUM(c80) + SUM(c81)</span>
-<span class="s2">      ) - SUM(cuasset) AS DECIMAL(16, 5)</span>
-<span class="s2">    ) / NULLIF(CAST(</span>
-<span class="s2">      SUM(c79) + SUM(c80) + SUM(c81) AS DECIMAL(16, 5)</span>
+<span class="s2">        SUM(c98) - lag(</span>
+<span class="s2">          SUM(c98), </span>
+<span class="s2">          1</span>
+<span class="s2">        ) over(</span>
+<span class="s2">          partition by geocode4_corr, </span>
+<span class="s2">          cic </span>
+<span class="s2">          order by </span>
+<span class="s2">            geocode4_corr, </span>
+<span class="s2">            cic, </span>
+<span class="s2">            year</span>
+<span class="s2">        )</span>
+<span class="s2">      )/ 2 AS DECIMAL(16, 5)</span>
 <span class="s2">    ), </span>
-<span class="s2">      0</span>
-<span class="s2">    ) AS cash_assets_cit, </span>
-<span class="s2">    CAST(</span>
-<span class="s2">      SUM(c95) + SUM(c97) AS DECIMAL(16, 5)</span>
-<span class="s2">    )/ NULLIF(</span>
-<span class="s2">      CAST(</span>
-<span class="s2">        SUM(c93) AS DECIMAL(16, 5)</span>
-<span class="s2">      ), </span>
-<span class="s2">      0</span>
-<span class="s2">    ) AS liabilities_assets_cit, </span>
-<span class="s2">    CAST(</span>
-<span class="s2">      SUM(c64) - SUM(c134) AS DECIMAL(16, 5)</span>
-<span class="s2">    )/ NULLIF(</span>
-<span class="s2">      CAST(</span>
-<span class="s2">        SUM(c98) AS DECIMAL(16, 5)</span>
-<span class="s2">      ), </span>
-<span class="s2">      0</span>
-<span class="s2">    ) AS return_on_asset_cit, </span>
-<span class="s2">    CAST(</span>
-<span class="s2">      SUM(cuasset) AS DECIMAL(16, 5)</span>
-<span class="s2">    )/ NULLIF(</span>
-<span class="s2">      CAST(</span>
-<span class="s2">        (</span>
-<span class="s2">          SUM(c98) - lag(</span>
-<span class="s2">            SUM(c98), </span>
-<span class="s2">            1</span>
-<span class="s2">          ) over(</span>
-<span class="s2">            partition by citycode, </span>
-<span class="s2">            cic </span>
-<span class="s2">            order by </span>
-<span class="s2">              citycode, </span>
-<span class="s2">              cic, </span>
-<span class="s2">              year</span>
-<span class="s2">          )</span>
-<span class="s2">        )/ 2 AS DECIMAL(16, 5)</span>
-<span class="s2">      ), </span>
-<span class="s2">      0</span>
-<span class="s2">    ) AS sales_assets_cit </span>
-<span class="s2">  FROM </span>
-<span class="s2">    firms_survey.asif_firms_prepared </span>
-<span class="s2">  GROUP BY </span>
-<span class="s2">    citycode, </span>
-<span class="s2">    cic, </span>
-<span class="s2">    year</span>
+<span class="s2">    0</span>
+<span class="s2">  ) AS sales_assets_cit </span>
+<span class="s2">FROM firms_survey.asif_firms_prepared </span>
+<span class="s2">INNER JOIN </span>
+<span class="s2">  (</span>
+<span class="s2">  SELECT extra_code, geocode4_corr</span>
+<span class="s2">  FROM chinese_lookup.china_city_code_normalised </span>
+<span class="s2">  GROUP BY extra_code, geocode4_corr</span>
+<span class="s2">  ) as no_dup_citycode</span>
+<span class="s2">  </span>
+<span class="s2">ON asif_firms_prepared.citycode = no_dup_citycode.extra_code</span>
+<span class="s2">WHERE year in (&#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;, &#39;2006&#39;, &#39;2007&#39;) </span>
+<span class="s2">GROUP BY </span>
+<span class="s2">  geocode4_corr, </span>
+<span class="s2">  cic, </span>
+<span class="s2">  year </span>
 <span class="s2">) </span>
 <span class="s2">SELECT </span>
-<span class="s2">  ratio.citycode, </span>
+<span class="s2">  ratio.geocode4_corr, </span>
 <span class="s2">  ratio.cic, </span>
 <span class="s2">  ratio.year,</span>
 <span class="s2">  working_capital_cit, </span>
@@ -14402,7 +14912,7 @@ div#notebook {
 <span class="s2">  FROM ratio</span>
 <span class="s2">  LEFT JOIN (</span>
 <span class="s2">    SELECT</span>
-<span class="s2">  citycode, </span>
+<span class="s2">  geocode4_corr, </span>
 <span class="s2">  cic,</span>
 <span class="s2">  AVG(working_capital_cit) AS working_capital_ci,</span>
 <span class="s2">  AVG(asset_tangibility_cit) AS asset_tangibility_ci,</span>
@@ -14412,9 +14922,11 @@ div#notebook {
 <span class="s2">  AVG(return_on_asset_cit) AS return_on_asset_ci,</span>
 <span class="s2">  AVG(sales_assets_cit) AS sales_assets_ci</span>
 <span class="s2">  FROM ratio</span>
-<span class="s2">  GROUP BY citycode, cic</span>
+<span class="s2">  WHERE year in (&#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;) </span>
+<span class="s2">  GROUP BY geocode4_corr, cic</span>
+<span class="s2">  </span>
 <span class="s2">    ) as ratio_ci</span>
-<span class="s2">    ON ratio.citycode = ratio_ci.citycode AND</span>
+<span class="s2">    ON ratio.geocode4_corr = ratio_ci.geocode4_corr AND</span>
 <span class="s2">    ratio.cic = ratio_ci.cic</span>
 <span class="s2">  LEFT JOIN (</span>
 <span class="s2">    SELECT</span>
@@ -14427,6 +14939,7 @@ div#notebook {
 <span class="s2">  AVG(return_on_asset_cit) AS return_on_asset_i,</span>
 <span class="s2">  AVG(sales_assets_cit) AS sales_assets_i</span>
 <span class="s2">  FROM ratio</span>
+<span class="s2">  WHERE year in (&#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;) </span>
 <span class="s2">  GROUP BY cic</span>
 <span class="s2">    ) as ratio_i</span>
 <span class="s2">    ON ratio.cic = ratio_i.cic    </span>
@@ -14453,24 +14966,24 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>CPU times: user 1.01 s, sys: 102 ms, total: 1.11 s
-Wall time: 8.01 s
+<pre>CPU times: user 1.12 s, sys: 98.1 ms, total: 1.21 s
+Wall time: 8.97 s
 </pre>
 </div>
 </div>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[22]:</div>
+    <div class="prompt output_prompt">Out[24]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
 <pre>{&#39;Results&#39;: {&#39;State&#39;: &#39;SUCCEEDED&#39;,
-  &#39;SubmissionDateTime&#39;: datetime.datetime(2020, 11, 23, 13, 25, 38, 144000, tzinfo=tzlocal()),
-  &#39;CompletionDateTime&#39;: datetime.datetime(2020, 11, 23, 13, 25, 45, 965000, tzinfo=tzlocal())},
- &#39;QueryID&#39;: &#39;aece181f-f3e1-4288-8fe3-75bb51a53d7f&#39;}</pre>
+  &#39;SubmissionDateTime&#39;: datetime.datetime(2020, 11, 25, 13, 28, 48, 486000, tzinfo=tzlocal()),
+  &#39;CompletionDateTime&#39;: datetime.datetime(2020, 11, 25, 13, 28, 57, 285000, tzinfo=tzlocal())},
+ &#39;QueryID&#39;: &#39;1752a662-b577-4502-b7aa-82c8a659f1f5&#39;}</pre>
 </div>
 
 </div>
@@ -14481,7 +14994,7 @@ Wall time: 8.01 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -14507,7 +15020,7 @@ Wall time: 8.01 s
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[24]:</div>
+    <div class="prompt output_prompt">Out[25]:</div>
 
 
 
@@ -14536,7 +15049,7 @@ Wall time: 8.01 s
   <tbody>
     <tr>
       <th>0</th>
-      <td>441803</td>
+      <td>285981</td>
     </tr>
   </tbody>
 </table>
@@ -14586,10 +15099,10 @@ Wall time: 8.01 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;citycode&quot;</span><span class="p">,</span> <span class="s2">&quot;cic&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;geocode4_corr&quot;</span><span class="p">,</span> <span class="s2">&quot;cic&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">]</span>
 </pre></div>
 
     </div>
@@ -14609,7 +15122,7 @@ Wall time: 8.01 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">step</span> <span class="o">=</span> <span class="mi">0</span>
@@ -14633,7 +15146,7 @@ Wall time: 8.01 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">get_table_information</span><span class="p">(</span>
@@ -14651,13 +15164,13 @@ Wall time: 8.01 s
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[28]:</div>
+    <div class="prompt output_prompt">Out[29]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>[{&#39;Name&#39;: &#39;citycode&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+<pre>[{&#39;Name&#39;: &#39;geocode4_corr&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;cic&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;year&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;working_capital_cit&#39;, &#39;Type&#39;: &#39;bigint&#39;, &#39;Comment&#39;: &#39;&#39;},
@@ -14691,10 +15204,10 @@ Wall time: 8.01 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[41]:</div>
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;citycode&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;geocode4_corr&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;cic&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;working_capital_cit&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;bigint&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year&#39;</span><span class="p">},</span>
@@ -14744,7 +15257,7 @@ Wall time: 8.01 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[32]:</div>
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -14774,7 +15287,7 @@ Wall time: 8.01 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">DatabaseName</span> <span class="o">=</span> <span class="s1">&#39;firms_survey&#39;</span>
@@ -14787,11 +15300,11 @@ Wall time: 8.01 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">json_etl</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="n">step</span><span class="p">,</span>
     <span class="s1">&#39;description&#39;</span><span class="p">:</span><span class="n">description</span><span class="p">,</span>
     <span class="s1">&#39;query&#39;</span><span class="p">:</span><span class="n">query</span><span class="p">,</span>
     <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="n">schema</span><span class="p">,</span>
@@ -14816,16 +15329,16 @@ Wall time: 8.01 s
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[33]:</div>
+    <div class="prompt output_prompt">Out[38]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>{&#39;step&#39;: 1,
+<pre>{&#39;step&#39;: 0,
  &#39;description&#39;: &#39;\nCompute the financial ratio by city industry year, city industry and industry\n&#39;,
  &#39;query&#39;: &#39;\nSELECT COUNT(*) AS CNT\nFROM firms_survey.asif_city_industry_financial_ratio \n&#39;,
- &#39;schema&#39;: [{&#39;Name&#39;: &#39;citycode&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+ &#39;schema&#39;: [{&#39;Name&#39;: &#39;geocode4_corr&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
   {&#39;Name&#39;: &#39;cic&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
   {&#39;Name&#39;: &#39;year&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
   {&#39;Name&#39;: &#39;working_capital_cit&#39;,
@@ -14891,7 +15404,7 @@ Wall time: 8.01 s
   {&#39;Name&#39;: &#39;sales_assets_i&#39;,
    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
    &#39;Comment&#39;: &#39;(Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)] industry&#39;}],
- &#39;partition_keys&#39;: [&#39;citycode&#39;, &#39;cic&#39;, &#39;year&#39;],
+ &#39;partition_keys&#39;: [&#39;geocode4_corr&#39;, &#39;cic&#39;, &#39;year&#39;],
  &#39;metadata&#39;: {&#39;DatabaseName&#39;: &#39;firms_survey&#39;,
   &#39;TableName&#39;: &#39;asif_city_industry_financial_ratio&#39;,
   &#39;target_S3URI&#39;: &#39;s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO&#39;,
@@ -14906,7 +15419,7 @@ Wall time: 8.01 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
@@ -14928,7 +15441,7 @@ Wall time: 8.01 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[35]:</div>
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">index_to_remove</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
@@ -14950,7 +15463,7 @@ Wall time: 8.01 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[36]:</div>
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;TABLES&#39;</span><span class="p">][</span><span class="s1">&#39;TRANSFORMATION&#39;</span><span class="p">][</span><span class="s1">&#39;STEPS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">json_etl</span><span class="p">)</span>
@@ -14971,7 +15484,7 @@ Wall time: 8.01 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[37]:</div>
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span><span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
@@ -15014,7 +15527,7 @@ Wall time: 8.01 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[42]:</div>
+<div class="prompt input_prompt">In&nbsp;[43]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">update_schema_table</span><span class="p">(</span>
@@ -15033,19 +15546,19 @@ Wall time: 8.01 s
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[42]:</div>
+    <div class="prompt output_prompt">Out[43]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;b7e90dde-bd07-4c44-81f8-0880050bb0f8&#39;,
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;6281c00f-9efe-4d3e-a3e4-fe707d87f581&#39;,
   &#39;HTTPStatusCode&#39;: 200,
-  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Mon, 23 Nov 2020 12:44:47 GMT&#39;,
+  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Wed, 25 Nov 2020 12:30:28 GMT&#39;,
    &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;,
    &#39;content-length&#39;: &#39;2&#39;,
    &#39;connection&#39;: &#39;keep-alive&#39;,
-   &#39;x-amzn-requestid&#39;: &#39;b7e90dde-bd07-4c44-81f8-0880050bb0f8&#39;},
+   &#39;x-amzn-requestid&#39;: &#39;6281c00f-9efe-4d3e-a3e4-fe707d87f581&#39;},
   &#39;RetryAttempts&#39;: 0}}</pre>
 </div>
 
@@ -15066,10 +15579,10 @@ Wall time: 8.01 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[43]:</div>
+<div class="prompt input_prompt">In&nbsp;[44]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;citycode&quot;</span><span class="p">,</span> <span class="s2">&quot;cic&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;geocode4_corr&quot;</span><span class="p">,</span> <span class="s2">&quot;cic&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">]</span>
 
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
     <span class="n">parameters</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span>
@@ -15082,7 +15595,7 @@ Wall time: 8.01 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[44]:</div>
+<div class="prompt input_prompt">In&nbsp;[45]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### COUNT DUPLICATES</span>
@@ -15141,7 +15654,7 @@ Wall time: 8.01 s
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>441803</td>
+      <td>285981</td>
     </tr>
   </tbody>
 </table>
@@ -15200,7 +15713,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[45]:</div>
+<div class="prompt input_prompt">In&nbsp;[46]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">boto3</span>
@@ -15220,7 +15733,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[46]:</div>
+<div class="prompt input_prompt">In&nbsp;[47]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">primary_key</span> <span class="o">=</span> <span class="s1">&#39;year&#39;</span>
@@ -15235,7 +15748,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[64]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
@@ -15249,7 +15762,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
         <span class="s2">&quot;group&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">partition_keys</span><span class="p">)),</span>
         <span class="s2">&quot;keys&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">primary_key</span><span class="p">,</span><span class="n">secondary_key</span><span class="p">),</span>
         <span class="s2">&quot;y_var&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">y_var</span><span class="p">),</span>
-        <span class="s2">&quot;threshold&quot;</span><span class="p">:</span><span class="s2">&quot;0&quot;</span>
+        <span class="s2">&quot;threshold&quot;</span><span class="p">:</span><span class="mf">0.5</span>
     <span class="p">},</span>
 <span class="p">}</span>
 <span class="n">payload</span>
@@ -15259,39 +15772,10 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[64]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>{&#39;input_path&#39;: &#39;s3://datalake-datascience/ANALYTICS/TEMPLATE_NOTEBOOKS/template_analysis_from_lambda.ipynb&#39;,
- &#39;output_prefix&#39;: &#39;s3://datalake-datascience/ANALYTICS/OUTPUT/ASIF_CITY_INDUSTRY_FINANCIAL_RATIO/&#39;,
- &#39;parameters&#39;: {&#39;region&#39;: &#39;eu-west-3&#39;,
-  &#39;bucket&#39;: &#39;datalake-datascience&#39;,
-  &#39;DatabaseName&#39;: &#39;firms_survey&#39;,
-  &#39;table_name&#39;: &#39;asif_city_industry_financial_ratio&#39;,
-  &#39;group&#39;: &#39;citycode,cic,year&#39;,
-  &#39;keys&#39;: &#39;year,cic&#39;,
-  &#39;y_var&#39;: &#39;working_capital_cit&#39;,
-  &#39;threshold&#39;: &#39;0&#39;}}</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[66]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">client_lambda</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
@@ -15307,41 +15791,6 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[66]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;c59fbe89-c8ba-41ad-a509-5467c200092d&#39;,
-  &#39;HTTPStatusCode&#39;: 200,
-  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Mon, 23 Nov 2020 13:00:49 GMT&#39;,
-   &#39;content-type&#39;: &#39;application/json&#39;,
-   &#39;content-length&#39;: &#39;75&#39;,
-   &#39;connection&#39;: &#39;keep-alive&#39;,
-   &#39;x-amzn-requestid&#39;: &#39;c59fbe89-c8ba-41ad-a509-5467c200092d&#39;,
-   &#39;x-amzn-remapped-content-length&#39;: &#39;0&#39;,
-   &#39;x-amz-executed-version&#39;: &#39;$LATEST&#39;,
-   &#39;x-amz-log-result&#39;: &#39;U1RBUlQgUmVxdWVzdElkOiBjNTlmYmU4OS1jOGJhLTQxYWQtYTUwOS01NDY3YzIwMDA5MmQgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiBjNTlmYmU4OS1jOGJhLTQxYWQtYTUwOS01NDY3YzIwMDA5MmQKUkVQT1JUIFJlcXVlc3RJZDogYzU5ZmJlODktYzhiYS00MWFkLWE1MDktNTQ2N2MyMDAwOTJkCUR1cmF0aW9uOiAxMjMyLjE0IG1zCUJpbGxlZCBEdXJhdGlvbjogMTMwMCBtcwlNZW1vcnkgU2l6ZTogMTI4IE1CCU1heCBNZW1vcnkgVXNlZDogOTEgTUIJCg==&#39;,
-   &#39;x-amzn-trace-id&#39;: &#39;root=1-5fbbb280-035979b500214f7b505fbc71;sampled=0&#39;},
-  &#39;RetryAttempts&#39;: 0},
- &#39;StatusCode&#39;: 200,
- &#39;LogResult&#39;: &#39;U1RBUlQgUmVxdWVzdElkOiBjNTlmYmU4OS1jOGJhLTQxYWQtYTUwOS01NDY3YzIwMDA5MmQgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiBjNTlmYmU4OS1jOGJhLTQxYWQtYTUwOS01NDY3YzIwMDA5MmQKUkVQT1JUIFJlcXVlc3RJZDogYzU5ZmJlODktYzhiYS00MWFkLWE1MDktNTQ2N2MyMDAwOTJkCUR1cmF0aW9uOiAxMjMyLjE0IG1zCUJpbGxlZCBEdXJhdGlvbjogMTMwMCBtcwlNZW1vcnkgU2l6ZTogMTI4IE1CCU1heCBNZW1vcnkgVXNlZDogOTEgTUIJCg==&#39;,
- &#39;ExecutedVersion&#39;: &#39;$LATEST&#39;,
- &#39;Payload&#39;: &lt;botocore.response.StreamingBody at 0x7fcc5d8cb850&gt;}</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
@@ -15352,7 +15801,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[67]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">urllib</span><span class="o">,</span> <span class="nn">ipykernel</span><span class="o">,</span> <span class="nn">json</span>
@@ -15367,7 +15816,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[68]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">create_report</span><span class="p">(</span><span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">keep_code</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
@@ -15436,10 +15885,10 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[70]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">create_report</span><span class="p">(</span><span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">keep_code</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">create_report</span><span class="p">(</span><span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">keep_code</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 
     </div>
