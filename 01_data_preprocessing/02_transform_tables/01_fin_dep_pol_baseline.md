@@ -556,6 +556,7 @@ s3.remove_all_bucket(path_remove = s3_output)
 ```python
 %%time
 query = """
+CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS 
 SELECT 
   asif_city_industry_financial_ratio.year, 
   CASE WHEN asif_city_industry_financial_ratio.year in (
@@ -563,7 +564,7 @@ SELECT
   ) THEN 'FALSE' WHEN asif_city_industry_financial_ratio.year in ('2006', '2007') THEN 'TRUE' END AS period, 
   provinces, 
   china_city_sector_pollution.cityen, 
-  asif_city_industry_financial_ratio.citycode, 
+  city_mandate.geocode4_corr, 
   tcz, 
   spz, 
   asif_city_industry_financial_ratio.cic, 
@@ -595,7 +596,22 @@ SELECT
   sales_assets_i, 
   lower_location, 
   larger_location, 
-  coastal 
+  coastal, 
+  DENSE_RANK() OVER (
+    ORDER BY 
+      city_mandate.geocode4_corr, 
+      asif_city_industry_financial_ratio.cic
+  ) AS fe_c_i, 
+  DENSE_RANK() OVER (
+    ORDER BY 
+      asif_city_industry_financial_ratio.year, 
+      asif_city_industry_financial_ratio.cic
+  ) AS fe_t_i, 
+  DENSE_RANK() OVER (
+    ORDER BY 
+      city_mandate.geocode4_corr, 
+      asif_city_industry_financial_ratio.year
+  ) AS fe_c_t 
 FROM 
   environment.china_city_sector_pollution 
   INNER JOIN firms_survey.asif_city_industry_financial_ratio ON china_city_sector_pollution.citycode = asif_city_industry_financial_ratio.citycode 
@@ -613,17 +629,13 @@ FROM
       policy.china_city_reduction_mandate 
       INNER JOIN chinese_lookup.china_city_code_normalised ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn
   ) as city_mandate ON china_city_sector_pollution.citycode = city_mandate.extra_code 
-  LEFT JOIN policy.china_city_tcz_spz ON china_city_sector_pollution.citycode = china_city_tcz_spz.geocode4_corr 
+  LEFT JOIN policy.china_city_tcz_spz ON city_mandate.geocode4_corr = china_city_tcz_spz.geocode4_corr 
   LEFT JOIN chinese_lookup.ind_cic_2_name ON china_city_sector_pollution.ind2 = ind_cic_2_name.cic 
 WHERE 
   asif_city_industry_financial_ratio.year in (
     '2001', '2002', '2003', '2004', '2005', 
     '2006', '2007'
-  ) 
-LIMIT 
-  10
-
-
+  )
 
 """.format(DatabaseName, table_name)
 output = s3.run_query(
@@ -665,13 +677,13 @@ To validate the query, please fillin the json below. Don't forget to change the 
 1. Add a partition key
 
 ```python
-partition_keys = []
+partition_keys = ["geocode4_corr", "year", "cic"]
 ```
 
 2. Add the steps number
 
 ```python
-step = 0
+step = 1
 ```
 
 3. Change the schema
@@ -685,25 +697,137 @@ glue.get_table_information(
 ```
 
 ```python
-schema = [
-    {
-        "Name": "VAR1",
-        "Type": "",
-        "Comment": ""
-    },
-    {
-        "Name": "VAR2",
-        "Type": "",
-        "Comment": ""
-    }
-]
+schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'},
+ {'Name': 'period', 'Type': 'varchar(5)', 'Comment': 'False if year before 2005 included, True if year 2006 and 2007'},
+ {'Name': 'provinces', 'Type': 'string', 'Comment': ''},
+ {'Name': 'cityen', 'Type': 'string', 'Comment': ''},
+ {'Name': 'geocode4_corr', 'Type': 'string', 'Comment': ''},
+ {'Name': 'tcz', 'Type': 'string', 'Comment': 'Two control zone policy city'},
+ {'Name': 'spz', 'Type': 'string', 'Comment': 'Special policy zone policy city'},
+ {'Name': 'cic', 'Type': 'string', 'Comment': '4 digits industry'},
+ {'Name': 'ind2', 'Type': 'string', 'Comment': ''},
+ {'Name': 'short', 'Type': 'string', 'Comment': ''},
+ {'Name': 'tso2', 'Type': 'int', 'Comment': 'Total so2 city sector'},
+ {'Name': 'tso2_mandate_c', 'Type': 'float', 'Comment': 'city reduction mandate in tonnes'},
+ {'Name': 'in_10_000_tonnes', 'Type': 'float', 'Comment': 'city reduction mandate in 10k tonnes'},
+ {
+   "Name": "working_capital_cit",
+   "Type": "bigint",
+   "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year"
+},
+   {
+   "Name": "working_capital_ci",
+   "Type": "double",
+   "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry"
+},
+   {
+   "Name": "working_capital_i",
+   "Type": "double",
+   "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] industry"
+},
+   {
+   "Name": "asset_tangibility_cit",
+   "Type": "bigint",
+   "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry year"
+},
+   {
+   "Name": "asset_tangibility_ci",
+   "Type": "double",
+   "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry"
+},
+   {
+   "Name": "asset_tangibility_i",
+   "Type": "double",
+   "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] industry"
+},
+   {
+   "Name": "current_ratio_cit",
+   "Type": "decimal(21,5)",
+   "Comment": "Current asset [cuasset] / Current liabilities [c95]  city industry year"
+},
+   {
+   "Name": "current_ratio_ci",
+   "Type": "decimal(21,5)",
+   "Comment": "Current asset [cuasset] / Current liabilities [c95] city industry"
+},
+   {
+   "Name": "current_ratio_i",
+   "Type": "decimal(21,5)",
+   "Comment": "Current asset [cuasset] / Current liabilities [c95] industry"
+},
+   {
+   "Name": "cash_assets_cit",
+   "Type": "decimal(21,5)",
+   "Comment": "Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)]  city industry year"
+},
+   {
+   "Name": "cash_assets_ci",
+   "Type": "decimal(21,5)",
+   "Comment": "Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)] city industry"
+},
+   {
+   "Name": "cash_assets_i",
+   "Type": "decimal(21,5)",
+   "Comment": "Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)] industry"
+},
+   {
+   "Name": "liabilities_assets_cit",
+   "Type": "decimal(21,5)",
+   "Comment": "Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)]  city industry year"
+},
+   {
+   "Name": "liabilities_assets_ci",
+   "Type": "decimal(21,5)",
+   "Comment": "Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)] city industry"
+},
+   {
+   "Name": "liabilities_assets_i",
+   "Type": "decimal(21,5)",
+   "Comment": "Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)] industry"
+},
+   {
+   "Name": "return_on_asset_cit",
+   "Type": "decimal(21,5)",
+   "Comment": "Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\\Delta$ 资产总计318 (c98)]/2)  city industry year"
+},
+   {
+   "Name": "return_on_asset_ci",
+   "Type": "decimal(21,5)",
+   "Comment": "Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\\Delta$ 资产总计318 (c98)]/2) city industry"
+},
+   {
+   "Name": "return_on_asset_i",
+   "Type": "decimal(21,5)",
+   "Comment": "Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\\Delta$ 资产总计318 (c98)]/2) industry"
+},
+   {
+   "Name": "sales_assets_cit",
+   "Type": "decimal(21,5)",
+   "Comment": "(Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)]  city industry year"
+},
+   {
+   "Name": "sales_assets_ci",
+   "Type": "decimal(21,5)",
+   "Comment": "(Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)] city industry"
+},
+   {
+   "Name": "sales_assets_i",
+   "Type": "decimal(21,5)",
+   "Comment": "(Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)] industry"
+},
+    {'Name': 'lower_location', 'Type': 'string', 'Comment': 'Location city. one of Coastal, Central, Northwest, Northeast, Southwest'},
+    {'Name': 'larger_location', 'Type': 'string', 'Comment': 'Location city. one of Eastern, Central, Western'},
+    {'Name': 'coastal', 'Type': 'string', 'Comment': 'City is bordered by sea or not'},
+    {'Name': 'fe_c_i', 'Type': 'bigint', 'Comment': 'City industry fixed effect'},
+    {'Name': 'fe_t_i', 'Type': 'bigint', 'Comment': 'year industry fixed effect'},
+    {'Name': 'fe_c_t', 'Type': 'bigint', 'Comment': 'city industry fixed effect'}]
 ```
 
 4. Provide a description
 
 ```python
 description = """
-
+Transform (creating time-break variables and fixed effect) asif_financial_ratio data and merging pollution, industry and city mandate tables
 """
 ```
 
@@ -715,7 +839,7 @@ description = """
 
 ```python
 json_etl = {
-    'step': 1,
+    'step': step,
     'description':description,
     'query':query,
     'schema': schema,
@@ -731,7 +855,7 @@ json_etl
 ```
 
 ```python
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_TEMPLATE.json')) as json_file:
+with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
 
@@ -803,7 +927,7 @@ One of the most important step when creating a table is to check if the table co
 You are required to define the group(s) that Athena will use to compute the duplicate. For instance, your table can be grouped by COL1 and COL2 (need to be string or varchar), then pass the list ['COL1', 'COL2'] 
 
 ```python
-partition_keys = []
+partition_keys = ["geocode4_corr", "year", "cic"]
 
 with open(os.path.join(str(Path(path).parent), 'parameters_ETL_TEMPLATE.json')) as json_file:
     parameters = json.load(json_file)
@@ -921,170 +1045,6 @@ schema = glue.get_table_information(
     table = table_name
 )['Table']
 schema
-```
-
-## Count missing values
-
-```python
-from datetime import date
-today = date.today().strftime('%Y%M%d')
-```
-
-```python
-table_top = parameters["ANALYSIS"]["COUNT_MISSING"]["top"]
-table_middle = ""
-table_bottom = parameters["ANALYSIS"]["COUNT_MISSING"]["bottom"].format(
-    DatabaseName, table_name
-)
-
-for key, value in enumerate(schema["StorageDescriptor"]["Columns"]):
-    if key == len(schema["StorageDescriptor"]["Columns"]) - 1:
-
-        table_middle += "{} ".format(
-            parameters["ANALYSIS"]["COUNT_MISSING"]["middle"].format(value["Name"])
-        )
-    else:
-        table_middle += "{} ,".format(
-            parameters["ANALYSIS"]["COUNT_MISSING"]["middle"].format(value["Name"])
-        )
-query = table_top + table_middle + table_bottom
-output = s3.run_query(
-    query=query,
-    database=DatabaseName,
-    s3_output="SQL_OUTPUT_ATHENA",
-    filename="count_missing",  ## Add filename to print dataframe
-    destination_key=None,  ### Add destination key if need to copy output
-)
-display(
-    output.T.rename(columns={0: "total_missing"})
-    .assign(total_missing_pct=lambda x: x["total_missing"] / x.iloc[0, 0])
-    .sort_values(by=["total_missing"], ascending=False)
-    .style.format("{0:,.2%}", subset=["total_missing_pct"])
-    .bar(subset="total_missing_pct", color=["#d65f5f"])
-)
-```
-
-# Brief description table
-
-In this part, we provide a brief summary statistic from the lattest jobs. For the continuous analysis with a primary/secondary key, please add the relevant variables you want to know the count and distribution
-
-
-## Categorical Description
-
-During the categorical analysis, we wil count the number of observations for a given group and for a pair.
-
-### Count obs by group
-
-- Index: primary group
-- nb_obs: Number of observations per primary group value
-- percentage: Percentage of observation per primary group value over the total number of observations
-
-Returns the top 10 only
-
-```python
-for field in schema["StorageDescriptor"]["Columns"]:
-    if field["Type"] in ["string", "object", "varchar(12)"]:
-
-        print("Nb of obs for {}".format(field["Name"]))
-
-        query = parameters["ANALYSIS"]["CATEGORICAL"]["PAIR"].format(
-            DatabaseName, table_name, field["Name"]
-        )
-        output = s3.run_query(
-            query=query,
-            database=DatabaseName,
-            s3_output="SQL_OUTPUT_ATHENA",
-            filename="count_categorical_{}".format(
-                field["Name"]
-            ),  ## Add filename to print dataframe
-            destination_key=None,  ### Add destination key if need to copy output
-        )
-
-        ### Print top 10
-
-        display(
-            (
-                output.set_index([field["Name"]])
-                .assign(percentage=lambda x: x["nb_obs"] / x["nb_obs"].sum())
-                .sort_values("percentage", ascending=False)
-                .head(10)
-                .style.format("{0:.2%}", subset=["percentage"])
-                .bar(subset=["percentage"], color="#d65f5f")
-            )
-        )
-```
-
-## Continuous description
-
-There are three possibilities to show the ditribution of a continuous variables:
-
-1. Display the percentile
-2. Display the percentile, with one primary key
-3. Display the percentile, with one primary key, and a secondary key
-
-
-### 1. Display the percentile
-
-- pct: Percentile [.25, .50, .75, .95, .90]
-
-```python
-table_top = ""
-table_top_var = ""
-table_middle = ""
-table_bottom = ""
-
-var_index = 0
-size_continuous = len([len(x) for x in schema["StorageDescriptor"]["Columns"] if 
-                       x['Type'] in ["float", "double", "bigint", 'int']])
-cont = 0
-for key, value in enumerate(schema["StorageDescriptor"]["Columns"]):
-    if value["Type"] in ["float", "double", "bigint", 'int']:
-        cont +=1
-
-        if var_index == 0:
-            table_top_var += "{} ,".format(value["Name"])
-            table_top = parameters["ANALYSIS"]["CONTINUOUS"]["DISTRIBUTION"][
-                "bottom"
-            ].format(DatabaseName, table_name, value["Name"], key)
-        else:
-            temp_middle_1 = "{} {}".format(
-                parameters["ANALYSIS"]["CONTINUOUS"]["DISTRIBUTION"]["middle_1"],
-                parameters["ANALYSIS"]["CONTINUOUS"]["DISTRIBUTION"]["bottom"].format(
-                    DatabaseName, table_name, value["Name"], key
-                ),
-            )
-            temp_middle_2 = parameters["ANALYSIS"]["CONTINUOUS"]["DISTRIBUTION"][
-                "middle_2"
-            ].format(value["Name"])
-
-            if cont == size_continuous:
-
-                table_top_var += "{} {}".format(
-                    value["Name"],
-                    parameters["ANALYSIS"]["CONTINUOUS"]["DISTRIBUTION"]["top_3"],
-                )
-                table_bottom += "{} {})".format(temp_middle_1, temp_middle_2)
-            else:
-                table_top_var += "{} ,".format(value["Name"])
-                table_bottom += "{} {}".format(temp_middle_1, temp_middle_2)
-        var_index += 1
-
-query = (
-    parameters["ANALYSIS"]["CONTINUOUS"]["DISTRIBUTION"]["top_1"]
-    + table_top
-    + parameters["ANALYSIS"]["CONTINUOUS"]["DISTRIBUTION"]["top_2"]
-    + table_top_var
-    + table_bottom
-)
-output = s3.run_query(
-    query=query,
-    database=DatabaseName,
-    s3_output="SQL_OUTPUT_ATHENA",
-    filename="count_distribution",  ## Add filename to print dataframe
-    destination_key=None,  ### Add destination key if need to copy output
-)
-
-display(output.sort_values(by="pct").set_index(["pct"]).style.format("{0:.2f}"))
 ```
 
 # Generation report
