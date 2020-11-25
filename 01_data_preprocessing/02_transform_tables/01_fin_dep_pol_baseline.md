@@ -174,21 +174,28 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
 
 # Steps
 
+1. Load the pollution data: china_city_sector_pollution
+2. Merge with:
+    - asif_city_industry_financial_ratio
+    - china_city_reduction_mandate
+    - china_city_tcz_spz
+    - china_code_normalised
+    - ind_cic_2_name
+
 
 ## Example step by step
 
 ```python
-DatabaseName = ''
+DatabaseName = 'environment'
 s3_output_example = 'SQL_OUTPUT_ATHENA'
 ```
 
 ```python
 query= """
-
+SELECT *
+FROM environment.china_city_sector_pollution
+LIMIT 10
 """
-```
-
-```python
 output = s3.run_query(
                     query=query,
                     database=DatabaseName,
@@ -198,7 +205,320 @@ output = s3.run_query(
 output
 ```
 
-# Table `XX`
+Count number of observation in `china_city_sector_pollution`
+
+```python
+query= """
+SELECT COUNT(*) AS CNT
+FROM environment.china_city_sector_pollution
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'count_1'
+                )
+output
+```
+
+```python
+query= """
+SELECT *
+FROM firms_survey.asif_city_industry_financial_ratio
+LIMIT 10
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_2'
+                )
+output
+```
+
+```python
+query= """
+SELECT *
+FROM policy.china_city_reduction_mandate
+LIMIT 10
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_3'
+                )
+output
+```
+
+Count number of observation in `china_city_reduction_mandate`
+
+```python
+query= """
+SELECT COUNT(*) AS CNT
+FROM policy.china_city_reduction_mandate
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'count_2'
+                )
+output
+```
+
+```python
+query= """
+SELECT *
+FROM policy.china_city_tcz_spz
+LIMIT 10
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_4'
+                )
+output
+```
+
+```python
+query= """
+SELECT *
+FROM chinese_lookup.china_city_code_normalised
+LIMIT 10
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_5'
+                )
+output
+```
+
+```python
+query= """
+SELECT *
+FROM chinese_lookup.ind_cic_2_name
+LIMIT 10
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_6'
+                )
+output
+```
+
+Test merge on `china_city_reduction_mandate` and `china_city_code_normalised`
+
+Shanghai for instance has more than 3 codes
+
+```python
+query = """
+SELECT china_city_code_normalised.citycn, china_city_code_normalised.cityen, extra_code, geocode4_corr, tso2_mandate_c, in_10_000_tonnes
+FROM policy.china_city_reduction_mandate
+INNER JOIN chinese_lookup.china_city_code_normalised 
+ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn
+LIMIT 10
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_7'
+                )
+output
+```
+
+## Check the table with many city code
+
+A city can have more than one codes over time. Below, we show which tables have more than one code so we know on which columns we need to merge `extra_code` or `geocode4_corr` 
+
+
+**china_city_sector_pollution**
+
+The table `china_city_sector_pollution` needs to be matched using `extra_code`
+
+```python
+query = """
+SELECT DISTINCT(citycode)
+FROM environment.china_city_sector_pollution
+WHERE citycode in ('3100','3101','3102')
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_8'
+                )
+output
+```
+
+**asif_city_industry_financial_ratio**
+
+The table `asif_city_industry_financial_ratio` needs to be matched using `extra_code`
+
+```python
+query = """
+SELECT DISTINCT(citycode)
+FROM firms_survey.asif_city_industry_financial_ratio
+WHERE citycode in ('3100','3101','3102')
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_8'
+                )
+output
+```
+
+**china_city_tcz_spz**
+
+The table `china_city_tcz_spz` needs to be matched using `geocode4_corr`
+
+```python
+query = """
+SELECT DISTINCT(geocode4_corr)
+FROM policy.china_city_tcz_spz
+WHERE geocode4_corr in ('3100','3101','3102')
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_8'
+                )
+output
+```
+
+### Test merge
+
+Let's test the merge with the tables on `citycode` :
+
+- china_city_sector_pollution
+    - asif_city_industry_financial_ratio
+
+to be sure there is no duplicates
+
+```python
+query = """
+WITH merge AS (
+SELECT asif_city_industry_financial_ratio.year, asif_city_industry_financial_ratio.citycode, cic, ind2, tso2, lower_location, larger_location, coastal
+FROM environment.china_city_sector_pollution
+INNER JOIN firms_survey.asif_city_industry_financial_ratio
+ON 
+china_city_sector_pollution.citycode  = asif_city_industry_financial_ratio.citycode AND
+china_city_sector_pollution.year  = asif_city_industry_financial_ratio.year AND
+china_city_sector_pollution.indus_code  = asif_city_industry_financial_ratio.cic 
+WHERE year in ('2001','2002', '2003', '2004', '2005', '2006', '2007')
+)
+
+SELECT CNT, COUNT(CNT) AS dup
+FROM (
+  SELECT citycode, year, cic, COUNT(*) AS CNT
+  FROM merge
+GROUP BY citycode, year, cic
+  ) AS count_dup
+GROUP BY CNT
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_9'
+                )
+output
+```
+
+Test by adding the  `china_city_reduction_mandate` and `china_city_code_normalised`
+
+```python
+query = """
+WITH merge AS (
+SELECT asif_city_industry_financial_ratio.year, asif_city_industry_financial_ratio.citycode, cic, ind2, tso2,tso2_mandate_c,in_10_000_tonnes,lower_location, larger_location, coastal
+FROM environment.china_city_sector_pollution
+INNER JOIN firms_survey.asif_city_industry_financial_ratio
+ON 
+china_city_sector_pollution.citycode  = asif_city_industry_financial_ratio.citycode AND
+china_city_sector_pollution.year  = asif_city_industry_financial_ratio.year AND
+china_city_sector_pollution.indus_code  = asif_city_industry_financial_ratio.cic 
+INNER JOIN (
+  
+  SELECT china_city_code_normalised.citycn, china_city_code_normalised.cityen, extra_code, geocode4_corr, tso2_mandate_c, in_10_000_tonnes
+FROM policy.china_city_reduction_mandate
+INNER JOIN chinese_lookup.china_city_code_normalised 
+ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn
+) as city_mandate
+  ON china_city_sector_pollution.citycode  = city_mandate.extra_code
+
+WHERE year in ('2001','2002', '2003', '2004', '2005', '2006', '2007')
+)
+
+SELECT CNT, COUNT(CNT) AS dup
+FROM (
+  SELECT citycode, year, cic, COUNT(*) AS CNT
+  FROM merge
+GROUP BY citycode, year, cic
+  ) AS count_dup
+GROUP BY CNT
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_9'
+                )
+output
+```
+
+Test by adding `china_city_tcz_spz` on `geocode4_corr`
+
+```python
+query = """
+WITH merge AS (
+SELECT asif_city_industry_financial_ratio.year, asif_city_industry_financial_ratio.citycode,tcz, spz, cic, ind2, tso2,tso2_mandate_c,in_10_000_tonnes,lower_location, larger_location, coastal
+FROM environment.china_city_sector_pollution
+INNER JOIN firms_survey.asif_city_industry_financial_ratio
+ON 
+china_city_sector_pollution.citycode  = asif_city_industry_financial_ratio.citycode AND
+china_city_sector_pollution.year  = asif_city_industry_financial_ratio.year AND
+china_city_sector_pollution.indus_code  = asif_city_industry_financial_ratio.cic 
+INNER JOIN (
+  
+  SELECT china_city_code_normalised.citycn, china_city_code_normalised.cityen, extra_code, geocode4_corr, tso2_mandate_c, in_10_000_tonnes
+FROM policy.china_city_reduction_mandate
+INNER JOIN chinese_lookup.china_city_code_normalised 
+ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn
+) as city_mandate
+  ON china_city_sector_pollution.citycode  = city_mandate.extra_code
+
+LEFT JOIN policy.china_city_tcz_spz
+  ON china_city_sector_pollution.citycode  = china_city_tcz_spz.geocode4_corr
+WHERE year in ('2001','2002', '2003', '2004', '2005', '2006', '2007')
+)
+
+SELECT CNT, COUNT(CNT) AS dup
+FROM (
+  SELECT citycode, year, cic, COUNT(*) AS CNT
+  FROM merge
+GROUP BY citycode, year, cic
+  ) AS count_dup
+GROUP BY CNT
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_9'
+                )
+output
+```
+
+# Table `fin_dep_pollution_baseline`
 
 Since the table to create has missing value, please use the following at the top of the query
 
@@ -210,8 +530,8 @@ CREATE TABLE database.table_name WITH (format = 'PARQUET') AS
 Choose a location in S3 to save the CSV. It is recommended to save in it the `datalake-datascience` bucket. Locate an appropriate folder in the bucket, and make sure all output have the same format
 
 ```python
-s3_output = ''
-table_name = ''
+s3_output = 'DATA/ENVIRONMENT/CHINA/FYP/FINANCIAL_CONTRAINT/PAPER_FYP_FINANCE_POL/BASELINE'
+table_name = 'fin_dep_pollution_baseline'
 ```
 
 First, we need to delete the table (if exist)
@@ -236,7 +556,74 @@ s3.remove_all_bucket(path_remove = s3_output)
 ```python
 %%time
 query = """
-CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS
+SELECT 
+  asif_city_industry_financial_ratio.year, 
+  CASE WHEN asif_city_industry_financial_ratio.year in (
+    '2001', '2002', '2003', '2004', '2005'
+  ) THEN 'FALSE' WHEN asif_city_industry_financial_ratio.year in ('2006', '2007') THEN 'TRUE' END AS period, 
+  provinces, 
+  china_city_sector_pollution.cityen, 
+  asif_city_industry_financial_ratio.citycode, 
+  tcz, 
+  spz, 
+  asif_city_industry_financial_ratio.cic, 
+  ind2, 
+  short, 
+  tso2, 
+  tso2_mandate_c, 
+  in_10_000_tonnes, 
+  working_capital_cit, 
+  working_capital_ci, 
+  working_capital_i, 
+  asset_tangibility_cit, 
+  asset_tangibility_ci, 
+  asset_tangibility_i, 
+  current_ratio_cit, 
+  current_ratio_ci, 
+  current_ratio_i, 
+  cash_assets_cit, 
+  cash_assets_ci, 
+  cash_assets_i, 
+  liabilities_assets_cit, 
+  liabilities_assets_ci, 
+  liabilities_assets_i, 
+  return_on_asset_cit, 
+  return_on_asset_ci, 
+  return_on_asset_i, 
+  sales_assets_cit, 
+  sales_assets_ci, 
+  sales_assets_i, 
+  lower_location, 
+  larger_location, 
+  coastal 
+FROM 
+  environment.china_city_sector_pollution 
+  INNER JOIN firms_survey.asif_city_industry_financial_ratio ON china_city_sector_pollution.citycode = asif_city_industry_financial_ratio.citycode 
+  AND china_city_sector_pollution.year = asif_city_industry_financial_ratio.year 
+  AND china_city_sector_pollution.indus_code = asif_city_industry_financial_ratio.cic 
+  INNER JOIN (
+    SELECT 
+      china_city_code_normalised.citycn, 
+      china_city_code_normalised.cityen, 
+      extra_code, 
+      geocode4_corr, 
+      tso2_mandate_c, 
+      in_10_000_tonnes 
+    FROM 
+      policy.china_city_reduction_mandate 
+      INNER JOIN chinese_lookup.china_city_code_normalised ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn
+  ) as city_mandate ON china_city_sector_pollution.citycode = city_mandate.extra_code 
+  LEFT JOIN policy.china_city_tcz_spz ON china_city_sector_pollution.citycode = china_city_tcz_spz.geocode4_corr 
+  LEFT JOIN chinese_lookup.ind_cic_2_name ON china_city_sector_pollution.ind2 = ind_cic_2_name.cic 
+WHERE 
+  asif_city_industry_financial_ratio.year in (
+    '2001', '2002', '2003', '2004', '2005', 
+    '2006', '2007'
+  ) 
+LIMIT 
+  10
+
+
 
 """.format(DatabaseName, table_name)
 output = s3.run_query(
