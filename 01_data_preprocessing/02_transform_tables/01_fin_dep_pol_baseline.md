@@ -1262,9 +1262,9 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
     {'Name': 'lower_location', 'Type': 'string', 'Comment': 'Location city. one of Coastal, Central, Northwest, Northeast, Southwest'},
     {'Name': 'larger_location', 'Type': 'string', 'Comment': 'Location city. one of Eastern, Central, Western'},
     {'Name': 'coastal', 'Type': 'string', 'Comment': 'City is bordered by sea or not'},
-    {'Name': 'fe_c_i', 'Type': 'string', 'Comment': 'City industry fixed effect'},
-    {'Name': 'fe_t_i', 'Type': 'string', 'Comment': 'year industry fixed effect'},
-    {'Name': 'fe_c_t', 'Type': 'string', 'Comment': 'city industry fixed effect'}]
+    {'Name': 'fe_c_i', 'Type': 'int', 'Comment': 'City industry fixed effect'},
+    {'Name': 'fe_t_i', 'Type': 'int', 'Comment': 'year industry fixed effect'},
+    {'Name': 'fe_c_t', 'Type': 'int', 'Comment': 'city industry fixed effect'}]
 ```
 
 4. Provide a description
