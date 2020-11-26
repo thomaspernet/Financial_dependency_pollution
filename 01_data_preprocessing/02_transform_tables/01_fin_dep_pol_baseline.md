@@ -1091,12 +1091,12 @@ output
 ```
 
 ```python
-query = """
+query_count = """
 SELECT COUNT(*) AS CNT
 FROM {}.{} 
 """.format(DatabaseName, table_name)
 output = s3.run_query(
-                    query=query,
+                    query=query_count,
                     database=DatabaseName,
                     s3_output=s3_output_example,
     filename = 'count_{}'.format(table_name)
@@ -1309,7 +1309,7 @@ Remove the step number from the current file (if exist)
 index_to_remove = next(
                 (
                     index
-                    for (index, d) in enumerate(parameters['TABLES']['PREPARATION']['STEPS'])
+                    for (index, d) in enumerate(parameters['TABLES']['TRANSFORMATION']['STEPS'])
                     if d["step"] == step
                 ),
                 None,
@@ -1319,7 +1319,7 @@ if index_to_remove != None:
 ```
 
 ```python
-parameters['TABLES']['PREPARATION']['STEPS'].append(json_etl)
+parameters['TABLES']['TRANSFORMATION']['STEPS'].append(json_etl)
 ```
 
 Save JSON
@@ -1392,6 +1392,74 @@ if len(partition_keys) > 0:
                                 filename="duplicates_{}".format(table_name))
     display(dup)
 
+```
+
+# Update Github Data catalog
+
+The data catalog is available in Glue. Although, we might want to get a quick access to the tables in Github. In this part, we are generating a `README.md` in the folder `00_data_catalogue`. All tables used in the project will be added to the catalog. We use the ETL parameter file and the schema in Glue to create the README. 
+
+Bear in mind the code will erase the previous README. 
+
+```python
+README = """
+# Data Catalogue
+
+{}
+
+    """
+
+top_readme = """
+
+## Table of Content
+
+    """
+
+template = """
+
+## Table {0}
+
+- Database: {1}
+- S3uri: `{2}`
+- Partitition: {3}
+
+{4}
+
+    """
+github_link = os.path.join("https://github.com/", parameters['GLOBAL']['GITHUB']['owner'],
+                           parameters['GLOBAL']['GITHUB']['repo_name'], "tree/master/00_data_catalogue#table-")
+for key, value in parameters['TABLES'].items():
+    if key == 'CREATION':
+        param = 'ALL_SCHEMA'
+    else:
+        param = 'STEPS'
+        
+    for schema in parameters['TABLES'][key][param]:
+        description = schema['description']
+        DatabaseName = schema['metadata']['DatabaseName']
+        target_S3URI = schema['metadata']['target_S3URI']
+        partition = schema['partition_keys']
+        
+        if param =='ALL_SCHEMA':
+            table_name = '{}{}'.format(
+                schema['metadata']['TablePrefix'],
+                os.path.basename(schema['metadata']['target_S3URI']).lower()
+            )
+        else:
+            table_name = schema['metadata']['TableName']
+        
+        tb = pd.json_normalize(schema['schema']).to_markdown()
+        toc = "{}{}".format(github_link, table_name)
+        top_readme += '\n- [{0}]({1})'.format(table_name, toc)
+
+        README += template.format(table_name,
+                                  DatabaseName,
+                                  target_S3URI,
+                                  partition,
+                                  tb
+                                  )
+README = README.format(top_readme)
+with open(os.path.join(str(Path(path).parent.parent), '00_data_catalogue/README.md'), "w") as outfile:
+    outfile.write(README)
 ```
 
 # Analytics
