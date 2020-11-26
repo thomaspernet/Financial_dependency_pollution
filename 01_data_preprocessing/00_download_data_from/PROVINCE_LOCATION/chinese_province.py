@@ -99,7 +99,7 @@ glue.create_table_glue(
 
 # Add tp ETL parameter files
 json_etl = {
-    'description': 'Create Control zone policy city',
+    'description': 'Create Chinese province geographical description',
     'schema': schema,
     'partition_keys': [],
     'metadata': {
