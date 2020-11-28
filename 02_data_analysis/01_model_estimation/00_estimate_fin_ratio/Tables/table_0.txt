@@ -1,13 +1,13 @@
 
 % Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Sat, Nov 28, 2020 - 10:00:00
+% Date and time: Sat, Nov 28, 2020 - 14:32:23
 \begin{table}[!htbp] \centering 
-  \caption{TITLE} 
+  \caption{Baseline estimate} 
   \label{} 
 \begin{tabular}{@{\extracolsep{5pt}}lccccccc} 
 \\[-1.8ex]\hline 
 \hline \\[-1.8ex] 
- & \multicolumn{7}{c}{Dependent variable: YYYY} \\ 
+ & \multicolumn{7}{c}{Dependent variable: SO2 emission} \\ 
 \cline{2-8} 
 \\[-1.8ex] & (1) & (2) & (3) & (4) & (5) & (6) & (7)\\ 
 \hline \\[-1.8ex] 
@@ -29,6 +29,10 @@
   & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) \\ 
   tso2\_mandate\_c &  &  &  &  &  &  &  \\ 
   & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) \\ 
+  output & 0.006 & 0.004 & 0.007 & 0.007 & 0.007 & 0.007 & 0.007 \\ 
+  & (0.004) & (0.005) & (0.004) & (0.004) & (0.004) & (0.004) & (0.004) \\ 
+  employment & 0.018$^{***}$ & 0.020$^{***}$ & 0.018$^{***}$ & 0.018$^{***}$ & 0.018$^{***}$ & 0.018$^{***}$ & 0.018$^{***}$ \\ 
+  & (0.004) & (0.004) & (0.004) & (0.004) & (0.004) & (0.004) & (0.004) \\ 
   working\_capital\_i:period &  &  &  &  &  &  &  \\ 
   & (0.000) &  &  &  &  &  &  \\ 
   working\_capital\_i:tso2\_mandate\_c &  &  &  &  &  &  &  \\ 
@@ -59,26 +63,26 @@
   &  &  &  &  &  &  & (0.000) \\ 
   periodTRUE:tso2\_mandate\_c &  &  &  &  &  &  &  \\ 
   & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) \\ 
-  working\_capital\_i:periodTRUE:tso2\_mandate\_c & 0.00000 &  &  &  &  &  &  \\ 
-  & (0.00000) &  &  &  &  &  &  \\ 
-  asset\_tangibility\_i:periodTRUE:tso2\_mandate\_c &  & $-$0.00000 &  &  &  &  &  \\ 
-  &  & (0.00000) &  &  &  &  &  \\ 
-  current\_ratio\_i:periodTRUE:tso2\_mandate\_c &  &  & $-$0.006 &  &  &  &  \\ 
-  &  &  & (0.014) &  &  &  &  \\ 
-  cash\_assets\_i:periodTRUE:tso2\_mandate\_c &  &  &  & 1.081 &  &  &  \\ 
-  &  &  &  & (3.259) &  &  &  \\ 
-  liabilities\_assets\_i:periodTRUE:tso2\_mandate\_c &  &  &  &  & $-$0.865 &  &  \\ 
-  &  &  &  &  & (1.485) &  &  \\ 
+  working\_capital\_i:periodTRUE:tso2\_mandate\_c & 0.766$^{*}$ &  &  &  &  &  &  \\ 
+  & (0.426) &  &  &  &  &  &  \\ 
+  asset\_tangibility\_i:periodTRUE:tso2\_mandate\_c &  & $-$0.148 &  &  &  &  &  \\ 
+  &  & (0.201) &  &  &  &  &  \\ 
+  current\_ratio\_i:periodTRUE:tso2\_mandate\_c &  &  & 0.001 &  &  &  &  \\ 
+  &  &  & (0.010) &  &  &  &  \\ 
+  cash\_assets\_i:periodTRUE:tso2\_mandate\_c &  &  &  & $-$2.030 &  &  &  \\ 
+  &  &  &  & (2.940) &  &  &  \\ 
+  liabilities\_assets\_i:periodTRUE:tso2\_mandate\_c &  &  &  &  & 1.240 &  &  \\ 
+  &  &  &  &  & (0.898) &  &  \\ 
   return\_on\_asset\_i:periodTRUE:tso2\_mandate\_c &  &  &  &  &  & $-$0.006 &  \\ 
-  &  &  &  &  &  & (0.005) &  \\ 
-  sales\_assets\_i:periodTRUE:tso2\_mandate\_c &  &  &  &  &  &  & 0.002 \\ 
-  &  &  &  &  &  &  & (0.003) \\ 
+  &  &  &  &  &  & (0.004) &  \\ 
+  sales\_assets\_i:periodTRUE:tso2\_mandate\_c &  &  &  &  &  &  & $-$0.0002 \\ 
+  &  &  &  &  &  &  & (0.001) \\ 
  \hline \\[-1.8ex] 
 City-industry & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
 Time-industry & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
 City-time & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
-Observations & 81,131 & 69,837 & 92,253 & 81,131 & 81,131 & 81,131 & 91,446 \\ 
-R$^{2}$ & 0.825 & 0.836 & 0.839 & 0.825 & 0.825 & 0.825 & 0.838 \\ 
+Observations & 66,859 & 58,505 & 75,983 & 66,859 & 66,859 & 66,859 & 75,294 \\ 
+R$^{2}$ & 0.853 & 0.861 & 0.865 & 0.853 & 0.853 & 0.853 & 0.864 \\ 
 \hline 
 \hline \\[-1.8ex] 
 \end{tabular} 

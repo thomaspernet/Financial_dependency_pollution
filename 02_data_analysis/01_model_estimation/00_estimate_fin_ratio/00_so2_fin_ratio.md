@@ -160,7 +160,7 @@ pd.DataFrame(schema)
 ```
 
 ```sos kernel="SoS"
-download_data = False
+download_data = True
 
 if download_data:
     filename = 'df_{}'.format(table)
@@ -218,12 +218,26 @@ Then add it to the key `to_rename`
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-add_to_dic = False
+add_to_dic = True
 if add_to_dic:
     with open('schema_table.json') as json_file:
         data = json.load(json_file)
     data['to_rename'] = []
     dic_rename = [
+        ### control variables
+        {
+        'old':'output',
+        'new':'\\text{output}_{cit}'
+        },
+        {
+        'old':'employment',
+        'new':'\\text{employment}_{cit}'
+        },
+       # {
+       # 'old':'sales',
+       # 'new':'\\text{sales}_{cit}'
+       # },
+        
         ### financial ratio
         {
         'old':'working\_capital\_i',
@@ -304,7 +318,9 @@ path = '../../../00_Data_catalogue/temporary_local_data/df_fin_dep_pollution_bas
 df_final <- read_csv(path) %>%
 mutate_if(is.character, as.factor) %>%
     mutate_at(vars(starts_with("fe")), as.factor) %>%
-mutate(period = relevel(as.factor(period), ref='FALSE'))
+mutate(
+    period = relevel(as.factor(period), ref='FALSE')
+)
 ```
 
 ```sos kernel="R"
@@ -371,30 +387,37 @@ $$
 <!-- #endregion -->
 
 ```sos kernel="R"
-t_0 <- felm(log(tso2+1) ~ working_capital_i * period * tso2_mandate_c 
+t_0 <- felm(log(tso2) ~ working_capital_i * period * tso2_mandate_c +
+            output + employment 
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
-t_1 <- felm(log(tso2+1) ~ asset_tangibility_i * period * tso2_mandate_c 
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_2 <- felm(log(tso2+1) ~ current_ratio_i * period * tso2_mandate_c 
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_3 <- felm(log(tso2+1) ~ cash_assets_i * period * tso2_mandate_c 
+t_1 <- felm(log(tso2) ~ asset_tangibility_i * period * tso2_mandate_c +
+            output + employment 
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2+1) ~ liabilities_assets_i * period * tso2_mandate_c
+t_2 <- felm(log(tso2) ~ current_ratio_i * period * tso2_mandate_c +
+            output + employment 
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-t_5 <- felm(log(tso2+1) ~ return_on_asset_i * period * tso2_mandate_c 
+t_3 <- felm(log(tso2) ~ cash_assets_i * period * tso2_mandate_c +
+            output + employment 
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-t_6 <- felm(log(tso2+1) ~ sales_assets_i * period * tso2_mandate_c 
+t_4 <- felm(log(tso2) ~ liabilities_assets_i * period * tso2_mandate_c +
+            output + employment 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ return_on_asset_i * period * tso2_mandate_c +
+            output + employment 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_i * period * tso2_mandate_c +
+            output + employment 
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
@@ -417,7 +440,7 @@ except:
 ```
 
 ```sos kernel="R"
-dep <- "Dependent variable: YYYY"
+dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
     c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
@@ -429,7 +452,7 @@ fe1 <- list(
 table_1 <- go_latex(list(
     t_0,t_1, t_2, t_3, t_4, t_5, t_6
 ),
-    title="TITLE",
+    title="Baseline estimate",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
@@ -440,8 +463,8 @@ table_1 <- go_latex(list(
 
 ```sos kernel="Python 3"
 tbe1  = "This table estimates eq(3). " \
-"Heteroskedasticity-robust standard errors" \
-"clustered at the product level appear inparentheses."\
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
 "\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
 
 #multicolumn ={
@@ -467,13 +490,13 @@ lb.beautify(table_number = 0,
 # Generate reports
 <!-- #endregion -->
 
-```sos nteract={"transient": {"deleting": false}} outputExpanded=false kernel="SoS"
+```sos nteract={"transient": {"deleting": false}} outputExpanded=false kernel="Python 3"
 import os, time, shutil, urllib, ipykernel, json
 from pathlib import Path
 from notebook import notebookapp
 ```
 
-```sos nteract={"transient": {"deleting": false}} outputExpanded=false kernel="SoS"
+```sos nteract={"transient": {"deleting": false}} outputExpanded=false kernel="Python 3"
 def create_report(extension = "html", keep_code = False):
     """
     Create a report from the current notebook and save it in the 
@@ -533,6 +556,6 @@ def create_report(extension = "html", keep_code = False):
     print("Report Available at this adress:\n {}".format(dest))
 ```
 
-```sos nteract={"transient": {"deleting": false}} outputExpanded=false kernel="SoS"
-create_report(extension = "html")
+```sos nteract={"transient": {"deleting": false}} outputExpanded=false kernel="Python 3"
+create_report(extension = "html", keep_code = True)
 ```
