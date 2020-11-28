@@ -37,7 +37,7 @@ The asif_financial_ratio  has the following levels:
 
 **Construction variables**
 
-* Rescale output, fa_net, employment
+* ~Rescale output, fa_net, employment~
 * construct the following ratio:
     * If possible compute by:
       1. industry level
@@ -714,6 +714,9 @@ SELECT
   year, 
   geocode4_corr,
   cic, 
+  SUM(output) AS output,
+  SUM(employ) AS employment,  
+  SUM(c64) AS sales,  
   SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, 
   SUM(c85) - SUM(c91) AS asset_tangibility_cit, 
   CAST(
@@ -786,6 +789,9 @@ SELECT
   ratio.geocode4_corr, 
   ratio.cic, 
   ratio.year,
+  output, 
+  employment,
+  sales,
   working_capital_cit, 
   working_capital_ci, 
   working_capital_i, 
@@ -904,6 +910,9 @@ glue.get_table_information(
 schema = [{'Name': 'geocode4_corr', 'Type': 'string', 'Comment': ''},
           {'Name': 'cic', 'Type': 'string', 'Comment': ''},
           {'Name': 'year', 'Type': 'string', 'Comment': ''},
+          {'Name': 'output', 'Type': 'bigint', 'Comment': ''},
+          {'Name': 'employment', 'Type': 'bigint', 'Comment': ''},
+          {'Name': 'sales', 'Type': 'bigint', 'Comment': ''},
           {'Name': 'working_capital_cit', 'Type': 'bigint', 'Comment': 'Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year'},
           {'Name': 'working_capital_ci', 'Type': 'double', 'Comment': 'Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry'},
           {'Name': 'working_capital_i', 'Type': 'double', 'Comment': 'Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] industry'},
