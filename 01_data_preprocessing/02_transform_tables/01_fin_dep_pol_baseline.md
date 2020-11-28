@@ -183,7 +183,9 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
     - china_city_tcz_spz
     - china_code_normalised
     - ind_cic_2_name
-3. Scale working capital and tangible asset by a factor of 1000000
+    - asif_firms_prepared
+        - sum output, employement,sales at the city-industry-year level
+3. Scale working capital tangible asset, output, employement and sales by a factor of 1000000
 4. Keep year 2001 to 2007 and keep when SO2 emission are strickly possitive
 
 
@@ -1021,6 +1023,9 @@ SELECT
   tso2, 
   tso2_mandate_c, 
   in_10_000_tonnes, 
+  output /1000000 AS output,
+  employment/1000000 AS employment,
+  sales/1000000 AS sales,
   working_capital_cit/1000000 AS working_capital_cit, 
   working_capital_ci/1000000 AS working_capital_ci, 
   working_capital_i/1000000 AS working_capital_i, 
@@ -1156,6 +1161,9 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
  {'Name': 'tso2', 'Type': 'int', 'Comment': 'Total so2 city sector'},
  {'Name': 'tso2_mandate_c', 'Type': 'float', 'Comment': 'city reduction mandate in tonnes'},
  {'Name': 'in_10_000_tonnes', 'Type': 'float', 'Comment': 'city reduction mandate in 10k tonnes'},
+ {'Name': 'output', 'Type': 'bigint', 'Comment': 'Output. Scaled by a factor of 1000000'},
+ {'Name': 'employment', 'Type': 'bigint', 'Comment': 'Employemnt. Scaled by a factor of 1000000'},
+ {'Name': 'sales', 'Type': 'bigint', 'Comment': 'Sales. Scaled by a factor of 1000000'},
  {
    "Name": "working_capital_cit",
    "Type": "bigint",

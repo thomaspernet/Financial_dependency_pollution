@@ -395,27 +395,30 @@
 |  0 | geocode4_corr          | string        |                                                                                                                                                            |
 |  1 | cic                    | string        |                                                                                                                                                            |
 |  2 | year                   | string        |                                                                                                                                                            |
-|  3 | working_capital_cit    | bigint        | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year                                      |
-|  4 | working_capital_ci     | double        | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry                                           |
-|  5 | working_capital_i      | double        | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] industry                                                |
-|  6 | asset_tangibility_cit  | bigint        | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry year                                                            |
-|  7 | asset_tangibility_ci   | double        | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry                                                                 |
-|  8 | asset_tangibility_i    | double        | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] industry                                                                      |
-|  9 | current_ratio_cit      | decimal(21,5) | Current asset [cuasset] / Current liabilities [c95]  city industry year                                                                                    |
-| 10 | current_ratio_ci       | decimal(21,5) | Current asset [cuasset] / Current liabilities [c95] city industry                                                                                          |
-| 11 | current_ratio_i        | decimal(21,5) | Current asset [cuasset] / Current liabilities [c95] industry                                                                                               |
-| 12 | cash_assets_cit        | decimal(21,5) | Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)]  city industry year |
-| 13 | cash_assets_ci         | decimal(21,5) | Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)] city industry       |
-| 14 | cash_assets_i          | decimal(21,5) | Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)] industry            |
-| 15 | liabilities_assets_cit | decimal(21,5) | Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)]  city industry year                                            |
-| 16 | liabilities_assets_ci  | decimal(21,5) | Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)] city industry                                                  |
-| 17 | liabilities_assets_i   | decimal(21,5) | Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)] industry                                                       |
-| 18 | return_on_asset_cit    | decimal(21,5) | Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\Delta$ 资产总计318 (c98)]/2)  city industry year                               |
-| 19 | return_on_asset_ci     | decimal(21,5) | Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\Delta$ 资产总计318 (c98)]/2) city industry                                     |
-| 20 | return_on_asset_i      | decimal(21,5) | Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\Delta$ 资产总计318 (c98)]/2) industry                                          |
-| 21 | sales_assets_cit       | decimal(21,5) | (Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)]  city industry year          |
-| 22 | sales_assets_ci        | decimal(21,5) | (Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)] city industry                |
-| 23 | sales_assets_i         | decimal(21,5) | (Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)] industry                     |
+|  3 | output                 | bigint        |                                                                                                                                                            |
+|  4 | employment             | bigint        |                                                                                                                                                            |
+|  5 | sales                  | bigint        |                                                                                                                                                            |
+|  6 | working_capital_cit    | bigint        | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year                                      |
+|  7 | working_capital_ci     | double        | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry                                           |
+|  8 | working_capital_i      | double        | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] industry                                                |
+|  9 | asset_tangibility_cit  | bigint        | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry year                                                            |
+| 10 | asset_tangibility_ci   | double        | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry                                                                 |
+| 11 | asset_tangibility_i    | double        | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] industry                                                                      |
+| 12 | current_ratio_cit      | decimal(21,5) | Current asset [cuasset] / Current liabilities [c95]  city industry year                                                                                    |
+| 13 | current_ratio_ci       | decimal(21,5) | Current asset [cuasset] / Current liabilities [c95] city industry                                                                                          |
+| 14 | current_ratio_i        | decimal(21,5) | Current asset [cuasset] / Current liabilities [c95] industry                                                                                               |
+| 15 | cash_assets_cit        | decimal(21,5) | Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)]  city industry year |
+| 16 | cash_assets_ci         | decimal(21,5) | Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)] city industry       |
+| 17 | cash_assets_i          | decimal(21,5) | Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)] industry            |
+| 18 | liabilities_assets_cit | decimal(21,5) | Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)]  city industry year                                            |
+| 19 | liabilities_assets_ci  | decimal(21,5) | Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)] city industry                                                  |
+| 20 | liabilities_assets_i   | decimal(21,5) | Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)] industry                                                       |
+| 21 | return_on_asset_cit    | decimal(21,5) | Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\Delta$ 资产总计318 (c98)]/2)  city industry year                               |
+| 22 | return_on_asset_ci     | decimal(21,5) | Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\Delta$ 资产总计318 (c98)]/2) city industry                                     |
+| 23 | return_on_asset_i      | decimal(21,5) | Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\Delta$ 资产总计318 (c98)]/2) industry                                          |
+| 24 | sales_assets_cit       | decimal(21,5) | (Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)]  city industry year          |
+| 25 | sales_assets_ci        | decimal(21,5) | (Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)] city industry                |
+| 26 | sales_assets_i         | decimal(21,5) | (Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)] industry                     |
 
     
 
@@ -440,32 +443,35 @@
 | 10 | tso2                   | int           | Total so2 city sector                                                                                                                                      |
 | 11 | tso2_mandate_c         | float         | city reduction mandate in tonnes                                                                                                                           |
 | 12 | in_10_000_tonnes       | float         | city reduction mandate in 10k tonnes                                                                                                                       |
-| 13 | working_capital_cit    | bigint        | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year                                      |
-| 14 | working_capital_ci     | double        | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry                                           |
-| 15 | working_capital_i      | double        | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] industry                                                |
-| 16 | asset_tangibility_cit  | bigint        | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry year                                                            |
-| 17 | asset_tangibility_ci   | double        | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry                                                                 |
-| 18 | asset_tangibility_i    | double        | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] industry                                                                      |
-| 19 | current_ratio_cit      | decimal(21,5) | Current asset [cuasset] / Current liabilities [c95]  city industry year                                                                                    |
-| 20 | current_ratio_ci       | decimal(21,5) | Current asset [cuasset] / Current liabilities [c95] city industry                                                                                          |
-| 21 | current_ratio_i        | decimal(21,5) | Current asset [cuasset] / Current liabilities [c95] industry                                                                                               |
-| 22 | cash_assets_cit        | decimal(21,5) | Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)]  city industry year |
-| 23 | cash_assets_ci         | decimal(21,5) | Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)] city industry       |
-| 24 | cash_assets_i          | decimal(21,5) | Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)] industry            |
-| 25 | liabilities_assets_cit | decimal(21,5) | Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)]  city industry year                                            |
-| 26 | liabilities_assets_ci  | decimal(21,5) | Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)] city industry                                                  |
-| 27 | liabilities_assets_i   | decimal(21,5) | Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)] industry                                                       |
-| 28 | return_on_asset_cit    | decimal(21,5) | Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\Delta$ 资产总计318 (c98)]/2)  city industry year                               |
-| 29 | return_on_asset_ci     | decimal(21,5) | Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\Delta$ 资产总计318 (c98)]/2) city industry                                     |
-| 30 | return_on_asset_i      | decimal(21,5) | Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\Delta$ 资产总计318 (c98)]/2) industry                                          |
-| 31 | sales_assets_cit       | decimal(21,5) | (Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)]  city industry year          |
-| 32 | sales_assets_ci        | decimal(21,5) | (Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)] city industry                |
-| 33 | sales_assets_i         | decimal(21,5) | (Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)] industry                     |
-| 34 | lower_location         | string        | Location city. one of Coastal, Central, Northwest, Northeast, Southwest                                                                                    |
-| 35 | larger_location        | string        | Location city. one of Eastern, Central, Western                                                                                                            |
-| 36 | coastal                | string        | City is bordered by sea or not                                                                                                                             |
-| 37 | fe_c_i                 | int           | City industry fixed effect                                                                                                                                 |
-| 38 | fe_t_i                 | int           | year industry fixed effect                                                                                                                                 |
-| 39 | fe_c_t                 | int           | city industry fixed effect                                                                                                                                 |
+| 13 | output                 | bigint        | Output. Scaled by a factor of 1000000                                                                                                                      |
+| 14 | employment             | bigint        | Employemnt. Scaled by a factor of 1000000                                                                                                                  |
+| 15 | sales                  | bigint        | Sales. Scaled by a factor of 1000000                                                                                                                       |
+| 16 | working_capital_cit    | bigint        | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year. Scaled by a factor of 1000000       |
+| 17 | working_capital_ci     | double        | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry. Scaled by a factor of 1000000            |
+| 18 | working_capital_i      | double        | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] industry. Scaled by a factor of 1000000                 |
+| 19 | asset_tangibility_cit  | bigint        | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry year. Scaled by a factor of 1000000                             |
+| 20 | asset_tangibility_ci   | double        | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry. Scaled by a factor of 1000000                                  |
+| 21 | asset_tangibility_i    | double        | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] industry. Scaled by a factor of 1000000                                       |
+| 22 | current_ratio_cit      | decimal(21,5) | Current asset [cuasset] / Current liabilities [c95]  city industry year                                                                                    |
+| 23 | current_ratio_ci       | decimal(21,5) | Current asset [cuasset] / Current liabilities [c95] city industry                                                                                          |
+| 24 | current_ratio_i        | decimal(21,5) | Current asset [cuasset] / Current liabilities [c95] industry                                                                                               |
+| 25 | cash_assets_cit        | decimal(21,5) | Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)]  city industry year |
+| 26 | cash_assets_ci         | decimal(21,5) | Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)] city industry       |
+| 27 | cash_assets_i          | decimal(21,5) | Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)] industry            |
+| 28 | liabilities_assets_cit | decimal(21,5) | Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)]  city industry year                                            |
+| 29 | liabilities_assets_ci  | decimal(21,5) | Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)] city industry                                                  |
+| 30 | liabilities_assets_i   | decimal(21,5) | Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)] industry                                                       |
+| 31 | return_on_asset_cit    | decimal(21,5) | Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\Delta$ 资产总计318 (c98)]/2)  city industry year                               |
+| 32 | return_on_asset_ci     | decimal(21,5) | Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\Delta$ 资产总计318 (c98)]/2) city industry                                     |
+| 33 | return_on_asset_i      | decimal(21,5) | Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\Delta$ 资产总计318 (c98)]/2) industry                                          |
+| 34 | sales_assets_cit       | decimal(21,5) | (Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)]  city industry year          |
+| 35 | sales_assets_ci        | decimal(21,5) | (Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)] city industry                |
+| 36 | sales_assets_i         | decimal(21,5) | (Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)] industry                     |
+| 37 | lower_location         | string        | Location city. one of Coastal, Central, Northwest, Northeast, Southwest                                                                                    |
+| 38 | larger_location        | string        | Location city. one of Eastern, Central, Western                                                                                                            |
+| 39 | coastal                | string        | City is bordered by sea or not                                                                                                                             |
+| 40 | fe_c_i                 | int           | City industry fixed effect                                                                                                                                 |
+| 41 | fe_t_i                 | int           | year industry fixed effect                                                                                                                                 |
+| 42 | fe_c_t                 | int           | city industry fixed effect                                                                                                                                 |
 
     
