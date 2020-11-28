@@ -1,8 +1,8 @@
 
 % Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Sat, Nov 28, 2020 - 14:32:23
+% Date and time: Sat, Nov 28, 2020 - 16:24:15
 \begin{table}[!htbp] \centering 
-  \caption{Baseline estimate} 
+  \caption{Baseline estimate, SO2 emission reduction and industry financial ratio, industry level} 
   \label{} 
 \begin{tabular}{@{\extracolsep{5pt}}lccccccc} 
 \\[-1.8ex]\hline 

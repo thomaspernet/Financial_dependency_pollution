@@ -156,11 +156,7 @@ dtypes
 ```
 
 ```sos kernel="SoS"
-pd.DataFrame(schema)
-```
-
-```sos kernel="SoS"
-download_data = True
+download_data = False
 
 if download_data:
     filename = 'df_{}'.format(table)
@@ -191,6 +187,10 @@ if download_data:
     )
     s3.remove_file(full_path_filename)
     df.head()
+```
+
+```sos kernel="SoS"
+pd.DataFrame(schema)
 ```
 
 <!-- #region kernel="SoS" -->
@@ -239,6 +239,7 @@ if add_to_dic:
        # },
         
         ### financial ratio
+        #### Industry
         {
         'old':'working\_capital\_i',
         'new':'\\text{working capital}_i'
@@ -267,8 +268,71 @@ if add_to_dic:
         'old':'sales\_assets\_i',
         'new':'\\text{sales assets}_i'
         },
+        #### City-industry
+        {
+        'old':'working\_capital\_ci',
+        'new':'\\text{working capital}_{ci}'
+        },
+        {
+        'old':'asset\_tangibility\_ci',
+        'new':'\\text{asset tangibility}_{ci}'
+        },
+        {
+        'old':'current\_ratio\_ci',
+        'new':'\\text{current ratio}_{ci}'
+        },
+        {
+        'old':'cash\_assets\_ci',
+        'new':'\\text{cash assets}_{ci}'
+        },
+        {
+        'old':'liabilities\_assets\_ci',
+        'new':'\\text{liabilities assets}_{ci}'
+        },
+        {
+        'old':'return\_on\_asset\_ci',
+        'new':'\\text{return on asset}_{ci}'
+        },
+        {
+        'old':'sales\_assets\_ci',
+        'new':'\\text{sales assets}_{ci}'
+        },
+        #### City-Industry-year
+         {
+        'old':'working\_capital\_cit',
+        'new':'\\text{working capital}_{cit}'
+        },
+        {
+        'old':'asset\_tangibility\_cit',
+        'new':'\\text{asset tangibility}_{cit}'
+        },
+        {
+        'old':'current\_ratio\_cit',
+        'new':'\\text{current ratio}_{cit}'
+        },
+        {
+        'old':'cash\_assets\_cit',
+        'new':'\\text{cash assets}_{cit}'
+        },
+        {
+        'old':'liabilities\_assets\_cit',
+        'new':'\\text{liabilities assets}_{cit}'
+        },
+        {
+        'old':'return\_on\_asset\_cit',
+        'new':'\\text{return on asset}_{cit}'
+        },
+        {
+        'old':'sales\_assets\_cit',
+        'new':'\\text{sales assets}_{cit}'
+        },
+        #### 
         {
         'old':'periodTRUE',
+        'new':'\\text{period}'
+        },
+        {
+        'old':'period',
         'new':'\\text{period}'
         },
         {
@@ -328,7 +392,7 @@ head(df_final)
 ```
 
 <!-- #region kernel="SoS" -->
-## Table 1:XXX
+## Table 1: Baseline estimate, SO2 emission reduction and industry financial ratio, industry level
 
 $$
 \begin{aligned}
@@ -452,7 +516,7 @@ fe1 <- list(
 table_1 <- go_latex(list(
     t_0,t_1, t_2, t_3, t_4, t_5, t_6
 ),
-    title="Baseline estimate",
+    title="Baseline estimate, SO2 emission reduction and industry financial ratio, industry level",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
@@ -478,6 +542,260 @@ tbe1  = "This table estimates eq(3). " \
 #new_r = ['& test1', 'test2']
 lb.beautify(table_number = 0,
             #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200)
+```
+
+<!-- #region kernel="Python 3" -->
+## Table 2: Baseline estimate, SO2 emission reduction and industry financial ratio, city-industry level
+
+$$
+\begin{aligned}
+\text{SO2}_{cit}  &= \alpha \text{Financial ratio}_ci \times \text{Period} \times \text{policy mandate}_c  + \gamma_{ci} + \gamma_{ti} +\gamma_{ct}  + \epsilon_{cit}
+\end{aligned}
+$$
+  
+<!-- #endregion -->
+
+```sos kernel="R"
+t_0 <- felm(log(tso2) ~ working_capital_ci * period * tso2_mandate_c +
+            output + employment 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ asset_tangibility_ci * period * tso2_mandate_c +
+            output + employment 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ current_ratio_ci * period * tso2_mandate_c +
+            output + employment 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ cash_assets_ci * period * tso2_mandate_c +
+            output + employment 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ liabilities_assets_ci * period * tso2_mandate_c +
+            output + employment 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ return_on_asset_ci * period * tso2_mandate_c +
+            output + employment 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_ci * period * tso2_mandate_c +
+            output + employment 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+```
+
+```sos kernel="Python 3"
+import os
+try:
+    os.remove("Tables/table_1.txt")
+except:
+    pass
+try:
+    os.remove("Tables/table_1.tex")
+except:
+    pass
+try:
+    os.remove("Tables/table_1.pdf")
+except:
+    pass
+```
+
+```sos kernel="R"
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("Time-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 emission reduction and industry financial ratio, city-industry level",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name="Tables/table_1.txt"
+)
+```
+
+```sos kernel="Python 3"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+reorder = {
+    # Old, New
+    9:3, ## Working capital
+    10:4, ## Asset tangibility
+    11:6, ## current ratio
+    12:8, ## cash asset
+    13:10, ## liabilities asset
+    14:12, ## return on asset
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = 1,
+            reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200)
+```
+
+<!-- #region kernel="Python 3" -->
+## Table 3: Baseline estimate, SO2 emission reduction and industry financial ratio, city-industry-year level
+
+$$
+\begin{aligned}
+\text{SO2}_{cit}  &= \alpha \text{Financial ratio}_cit \times \text{Period} \times \text{policy mandate}_c  + \gamma_{ci} + \gamma_{ti} +\gamma_{ct}  + \epsilon_{cit}
+\end{aligned}
+$$
+  
+<!-- #endregion -->
+
+```sos kernel="R"
+t_0 <- felm(log(tso2) ~ working_capital_cit * period * tso2_mandate_c +
+            output + employment 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+#t_1 <- felm(log(tso2) ~ asset_tangibility_cit * period * tso2_mandate_c +
+#            output + employment 
+#            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+#            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ current_ratio_cit * period * tso2_mandate_c +
+            output + employment 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ cash_assets_cit * period * tso2_mandate_c +
+            output + employment 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ liabilities_assets_cit * period * tso2_mandate_c +
+            output + employment 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ return_on_asset_cit * period * tso2_mandate_c +
+            output + employment 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_cit * period * tso2_mandate_c +
+            output + employment 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+```
+
+```sos kernel="Python 3"
+import os
+try:
+    os.remove("Tables/table_2.txt")
+except:
+    pass
+try:
+    os.remove("Tables/table_2.tex")
+except:
+    pass
+try:
+    os.remove("Tables/table_2.pdf")
+except:
+    pass
+```
+
+```sos kernel="R"
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("Time-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0, t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 emission reduction and industry financial ratio, city-industry-year level",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name="Tables/table_2.txt"
+)
+```
+
+```sos kernel="Python 3"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+reorder = {
+    6:0,
+    7:1,
+    ## Working capital
+    0:2,
+    20:5,
+    ## current ratio
+    1:8,
+    21:9,
+    ## cash asset
+    2:12,
+    22:13,
+    ## liabilitis asset
+    3:16,
+    23:17,
+    ## Retun asset
+    4:20,
+    24:21,
+    ## Sales asset
+    5:23,
+
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = 2,
+            reorder_var = reorder,
             #multi_lines_dep = multi_lines_dep,
             #new_row= new_r,
             #multicolumn = multicolumn,
