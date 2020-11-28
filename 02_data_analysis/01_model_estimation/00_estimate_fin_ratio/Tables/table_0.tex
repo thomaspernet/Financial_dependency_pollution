@@ -1,0 +1,49 @@
+
+\documentclass[preview]{standalone} 
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs,caption,threeparttable, siunitx, adjustbox}
+
+\begin{document}% Date and time \times  Sat, Nov 28, 2020 - 10 \times 00 \times 00
+\begin{table}[!htbp] \centering 
+  \caption{TITLE} 
+\label{}
+\begin{adjustbox}{width=\textwidth, totalheight=\textheight-2\baselineskip,keepaspectratio}
+\begin{tabular}{@{\extracolsep{5pt}}lccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{7}{c}{Dependent variable: YYYY} \\ 
+\cline{2-8} 
+\\[-1.8ex] & (1) & (2) & (3) & (4) & (5) & (6) & (7)\\ 
+\hline \\[-1.8ex] 
+  \text{working capital}_i \times \text{period} \times \text{policy mandate}_c & 0.00000 &  &  &  &  &  &  \\ 
+  & (0.00000) &  &  &  &  &  &  \\ 
+  \text{asset tangibility}_i \times \text{period} \times \text{policy mandate}_c &  & $-$0.00000 &  &  &  &  &  \\ 
+  &  & (0.00000) &  &  &  &  &  \\ 
+  \text{current ratio}_i \times \text{period} \times \text{policy mandate}_c &  &  & $-$0.006 &  &  &  &  \\ 
+  &  &  & (0.014) &  &  &  &  \\ 
+  \text{cash assets}_i \times \text{period} \times \text{policy mandate}_c &  &  &  & 1.081 &  &  &  \\ 
+  &  &  &  & (3.259) &  &  &  \\ 
+  \text{liabilities assets}_i \times \text{period} \times \text{policy mandate}_c &  &  &  &  & $-$0.865 &  &  \\ 
+  &  &  &  &  & (1.485) &  &  \\ 
+  \text{return on asset}_i \times \text{period} \times \text{policy mandate}_c &  &  &  &  &  & $-$0.006 &  \\ 
+  &  &  &  &  &  & (0.005) &  \\ 
+  \text{sales assets}_i \times \text{period} \times \text{policy mandate}_c &  &  &  &  &  &  & 0.002 \\ 
+  &  &  &  &  &  &  & (0.003) \\ 
+ \hline \\[-1.8ex] 
+City-industry & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Time-industry & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+City-time & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Observations & 81,131 & 69,837 & 92,253 & 81,131 & 81,131 & 81,131 & 91,446 \\ 
+R$^{2}$ & 0.825 & 0.836 & 0.839 & 0.825 & 0.825 & 0.825 & 0.838 \\ 
+\hline 
+\hline \\[-1.8ex] 
+\end{tabular}
+\end{adjustbox}
+\begin{tablenotes} 
+ \small 
+ \item \\ 
+This table estimates eq(3). Heteroskedasticity-robust standard errorsclustered at the product level appear inparentheses.\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%. 
+\end{tablenotes}
+\end{table}
+
+\end{document}

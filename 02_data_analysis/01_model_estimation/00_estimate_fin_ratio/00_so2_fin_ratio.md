@@ -92,7 +92,7 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 #import seaborn as sns
-import os, shutil
+import os, shutil, json
 
 path = os.getcwd()
 parent_path = str(Path(path).parent.parent.parent)
@@ -119,6 +119,10 @@ if pandas_setting:
     #cm = sns.light_palette("green", as_cmap=True)
     pd.set_option('display.max_columns', None)
     pd.set_option('display.max_colwidth', None)
+```
+
+```sos kernel="SoS"
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 ```
 
 <!-- #region kernel="SoS" -->
@@ -149,6 +153,10 @@ for key, value in enumerate(schema):
         {value['Name']:format_}
     )
 dtypes
+```
+
+```sos kernel="SoS"
+pd.DataFrame(schema)
 ```
 
 ```sos kernel="SoS"
@@ -183,6 +191,82 @@ if download_data:
     )
     s3.remove_file(full_path_filename)
     df.head()
+```
+
+<!-- #region kernel="SoS" -->
+## Schema Latex table
+
+To rename a variable, please use the following template:
+
+```
+{
+    'old':'XX',
+    'new':'XX_1'
+    }
+```
+
+if you need to pass a latex format with `\`, you need to duplicate it for instance, `\text` becomes `\\text:
+
+```
+{
+    'old':'working\_capital\_i',
+    'new':'\\text{working capital}_i'
+    }
+```
+
+Then add it to the key `to_rename`
+<!-- #endregion -->
+
+```sos kernel="SoS"
+add_to_dic = False
+if add_to_dic:
+    with open('schema_table.json') as json_file:
+        data = json.load(json_file)
+    data['to_rename'] = []
+    dic_rename = [
+        ### financial ratio
+        {
+        'old':'working\_capital\_i',
+        'new':'\\text{working capital}_i'
+        },
+        {
+        'old':'asset\_tangibility\_i',
+        'new':'\\text{asset tangibility}_i'
+        },
+        {
+        'old':'current\_ratio\_i',
+        'new':'\\text{current ratio}_i'
+        },
+        {
+        'old':'cash\_assets\_i',
+        'new':'\\text{cash assets}_i'
+        },
+        {
+        'old':'liabilities\_assets\_i',
+        'new':'\\text{liabilities assets}_i'
+        },
+        {
+        'old':'return\_on\_asset\_i',
+        'new':'\\text{return on asset}_i'
+        },
+        {
+        'old':'sales\_assets\_i',
+        'new':'\\text{sales assets}_i'
+        },
+        {
+        'old':'periodTRUE',
+        'new':'\\text{period}'
+        },
+        {
+        'old':'tso2\_mandate\_c',
+        'new':'\\text{policy mandate}_c'
+        },
+    ]
+
+    data['to_rename'].extend(dic_rename)
+    with open('schema_table.json', 'w') as outfile:
+        json.dump(data, outfile)
+    print(data)
 ```
 
 <!-- #region kernel="SoS" -->
@@ -232,49 +316,88 @@ head(df_final)
 
 $$
 \begin{aligned}
-\text{Write your equation}
+\text{SO2}_{cit}  &= \alpha \text{Financial ratio}_i \times \text{Period} \times \text{policy mandate}_c  + \gamma_{ci} + \gamma_{ti} +\gamma_{ct}  + \epsilon_{cit}
 \end{aligned}
 $$
 
 
-* Column 1: XXX
+
+* Column 1: working_capital_i
+    * Expected sign: + -> Less constrain because more cash after meeting its bills
     * FE: 
-        - fe 1: `XX`
-        - fe 2: `XX`
-        - fe 3: `XX`
-* Column 2: XXX
+        - fe 1: `ci`
+        - fe 2: `ti`
+        - fe 3: `ct`
+* Column 2: asset_tangibility_i
+    * Expected sign: + -> Less constrain because more liquid assets 
     * FE: 
-        - fe 1: `XX`
-        - fe 2: `XX`
-        - fe 3: `XX`
-* Column 3: XXX
+        - fe 1: `ci`
+        - fe 2: `ti`
+        - fe 3: `ct`
+* Column 3: current_ratio_i
+    * Expected sign: + -> Less constrain because maximises current assets to payback current liabilities
     * FE: 
-        - fe 1: `XX`
-        - fe 2: `XX`
-        - fe 3: `XX`
-* Column 4: XXX
+        - fe 1: `ci`
+        - fe 2: `ti`
+        - fe 3: `ct`
+* Column 4: cash_assets_i
+    * Expected sign: + -> Less constrain because large portion of cash hold
     * FE: 
-        - fe 1: `XX`
-        - fe 2: `XX`
-        - fe 3: `XX`
+        - fe 1: `ci`
+        - fe 2: `ti`
+        - fe 3: `ct`
+* Column 5: liabilities_assets_i
+   * Expected sign: - -> Large value indicates financed by creditors and not owners
+   * FE: 
+        - fe 1: `ci`
+        - fe 2: `ti`
+        - fe 3: `ct`
+* Column 6: return_on_asset_i
+    * Expected sign:  + -> Large values indicates good performances, hence more profit
+    * FE: 
+        - fe 1: `ci`
+        - fe 2: `ti`
+        - fe 3: `ct`
+* Column 7: sales_assets_i
+    * Expected sign: + -> Large value indicates good use of asset to generate sales
+    * FE: 
+        - fe 1: `ci`
+        - fe 2: `ti`
+        - fe 3: `ct`   
+        
+**Andersen results**
+
+![](https://drive.google.com/uc?export=view&id=1HrqaA5NLRPjWk2lqvHyrZAjO3wSP5r-9)
 <!-- #endregion -->
 
 ```sos kernel="R"
-t_0 <- felm(YYY ~XXX
-            | FE|0 | CLUSTER, df_final %>% filter(XXX == 'YYY'),
+t_0 <- felm(log(tso2+1) ~ working_capital_i * period * tso2_mandate_c 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2+1) ~ asset_tangibility_i * period * tso2_mandate_c 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-t_0 <- felm(YYY ~XXX
-            | FE|0 | CLUSTER, df_final %>% filter(XXX != 'YYY'),
+t_2 <- felm(log(tso2+1) ~ current_ratio_i * period * tso2_mandate_c 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-t_2 <- felm(kYYY ~XXX
-            | FE|0 | CLUSTER, df_final,
+t_3 <- felm(log(tso2+1) ~ cash_assets_i * period * tso2_mandate_c 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-t_3 <- felm(kYYY ~XXX
-            | FE|0 | CLUSTER, df_final,
+t_4 <- felm(log(tso2+1) ~ liabilities_assets_i * period * tso2_mandate_c
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
+
+t_5 <- felm(log(tso2+1) ~ return_on_asset_i * period * tso2_mandate_c 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2+1) ~ sales_assets_i * period * tso2_mandate_c 
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
 ```
 
 ```sos kernel="Python 3"
@@ -296,21 +419,15 @@ except:
 ```sos kernel="R"
 dep <- "Dependent variable: YYYY"
 fe1 <- list(
-    c("XXXXX", "Yes", "Yes", "No", "No"),
+    c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("XXXXX", "Yes", "Yes", "No", "No"),
+    c("Time-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("XXXXX","Yes", "Yes", "Yes", "No"),
-    
-    c("XXXXX","No", "No", "Yes", "Yes"),
-    
-    c("XXXXX","No", "No", "Yes", "Yes"),
-    
-    c("XXXXX", "No", "No", "No", "Yes")
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6
 ),
     title="TITLE",
     dep_var = dep,
@@ -327,22 +444,23 @@ tbe1  = "This table estimates eq(3). " \
 "clustered at the product level appear inparentheses."\
 "\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
 
-multicolumn ={
-    'Eligible': 1,
-    'Non-Eligible': 1,
-    'All': 1,
-    'All benchmark': 1,
-}
-multi_lines_dep = ''
-#new_r = ['& Eligible', 'Non-Eligible', 'All', 'All benchmark']
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
 lb.beautify(table_number = 0,
-            #multi_lines_dep = None,
-            multi_lines_dep = multi_lines_dep,
-            new_row= False,
-            multicolumn = multicolumn,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
             table_nte = tbe1,
             jupyter_preview = True,
-            resolution = 150)
+            resolution = 200)
 ```
 
 <!-- #region nteract={"transient": {"deleting": false}} kernel="SoS" -->

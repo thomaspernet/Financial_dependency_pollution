@@ -1,0 +1,85 @@
+
+% Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
+% Date and time: Sat, Nov 28, 2020 - 10:00:00
+\begin{table}[!htbp] \centering 
+  \caption{TITLE} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}}lccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{7}{c}{Dependent variable: YYYY} \\ 
+\cline{2-8} 
+\\[-1.8ex] & (1) & (2) & (3) & (4) & (5) & (6) & (7)\\ 
+\hline \\[-1.8ex] 
+ working\_capital\_i &  &  &  &  &  &  &  \\ 
+  & (0.000) &  &  &  &  &  &  \\ 
+  asset\_tangibility\_i &  &  &  &  &  &  &  \\ 
+  &  & (0.000) &  &  &  &  &  \\ 
+  current\_ratio\_i &  &  &  &  &  &  &  \\ 
+  &  &  & (0.000) &  &  &  &  \\ 
+  cash\_assets\_i &  &  &  &  &  &  &  \\ 
+  &  &  &  & (0.000) &  &  &  \\ 
+  liabilities\_assets\_i &  &  &  &  &  &  &  \\ 
+  &  &  &  &  & (0.000) &  &  \\ 
+  return\_on\_asset\_i &  &  &  &  &  &  &  \\ 
+  &  &  &  &  &  & (0.000) &  \\ 
+  sales\_assets\_i &  &  &  &  &  &  &  \\ 
+  &  &  &  &  &  &  & (0.000) \\ 
+  period &  &  &  &  &  &  &  \\ 
+  & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) \\ 
+  tso2\_mandate\_c &  &  &  &  &  &  &  \\ 
+  & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) \\ 
+  working\_capital\_i:period &  &  &  &  &  &  &  \\ 
+  & (0.000) &  &  &  &  &  &  \\ 
+  working\_capital\_i:tso2\_mandate\_c &  &  &  &  &  &  &  \\ 
+  & (0.000) &  &  &  &  &  &  \\ 
+  asset\_tangibility\_i:period &  &  &  &  &  &  &  \\ 
+  &  & (0.000) &  &  &  &  &  \\ 
+  asset\_tangibility\_i:tso2\_mandate\_c &  &  &  &  &  &  &  \\ 
+  &  & (0.000) &  &  &  &  &  \\ 
+  current\_ratio\_i:period &  &  &  &  &  &  &  \\ 
+  &  &  & (0.000) &  &  &  &  \\ 
+  current\_ratio\_i:tso2\_mandate\_c &  &  &  &  &  &  &  \\ 
+  &  &  & (0.000) &  &  &  &  \\ 
+  cash\_assets\_i:period &  &  &  &  &  &  &  \\ 
+  &  &  &  & (0.000) &  &  &  \\ 
+  cash\_assets\_i:tso2\_mandate\_c &  &  &  &  &  &  &  \\ 
+  &  &  &  & (0.000) &  &  &  \\ 
+  liabilities\_assets\_i:period &  &  &  &  &  &  &  \\ 
+  &  &  &  &  & (0.000) &  &  \\ 
+  liabilities\_assets\_i:tso2\_mandate\_c &  &  &  &  &  &  &  \\ 
+  &  &  &  &  & (0.000) &  &  \\ 
+  return\_on\_asset\_i:period &  &  &  &  &  &  &  \\ 
+  &  &  &  &  &  & (0.000) &  \\ 
+  return\_on\_asset\_i:tso2\_mandate\_c &  &  &  &  &  &  &  \\ 
+  &  &  &  &  &  & (0.000) &  \\ 
+  sales\_assets\_i:period &  &  &  &  &  &  &  \\ 
+  &  &  &  &  &  &  & (0.000) \\ 
+  sales\_assets\_i:tso2\_mandate\_c &  &  &  &  &  &  &  \\ 
+  &  &  &  &  &  &  & (0.000) \\ 
+  periodTRUE:tso2\_mandate\_c &  &  &  &  &  &  &  \\ 
+  & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) \\ 
+  working\_capital\_i:periodTRUE:tso2\_mandate\_c & 0.00000 &  &  &  &  &  &  \\ 
+  & (0.00000) &  &  &  &  &  &  \\ 
+  asset\_tangibility\_i:periodTRUE:tso2\_mandate\_c &  & $-$0.00000 &  &  &  &  &  \\ 
+  &  & (0.00000) &  &  &  &  &  \\ 
+  current\_ratio\_i:periodTRUE:tso2\_mandate\_c &  &  & $-$0.006 &  &  &  &  \\ 
+  &  &  & (0.014) &  &  &  &  \\ 
+  cash\_assets\_i:periodTRUE:tso2\_mandate\_c &  &  &  & 1.081 &  &  &  \\ 
+  &  &  &  & (3.259) &  &  &  \\ 
+  liabilities\_assets\_i:periodTRUE:tso2\_mandate\_c &  &  &  &  & $-$0.865 &  &  \\ 
+  &  &  &  &  & (1.485) &  &  \\ 
+  return\_on\_asset\_i:periodTRUE:tso2\_mandate\_c &  &  &  &  &  & $-$0.006 &  \\ 
+  &  &  &  &  &  & (0.005) &  \\ 
+  sales\_assets\_i:periodTRUE:tso2\_mandate\_c &  &  &  &  &  &  & 0.002 \\ 
+  &  &  &  &  &  &  & (0.003) \\ 
+ \hline \\[-1.8ex] 
+City-industry & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Time-industry & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+City-time & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Observations & 81,131 & 69,837 & 92,253 & 81,131 & 81,131 & 81,131 & 91,446 \\ 
+R$^{2}$ & 0.825 & 0.836 & 0.839 & 0.825 & 0.825 & 0.825 & 0.838 \\ 
+\hline 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
