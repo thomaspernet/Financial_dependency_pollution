@@ -170,8 +170,9 @@ Does not work for first two vars
         lines = file.read()
 
         # rename from dictionary
-        for i in data['to_rename']:
-            lines = lines.replace(i['old'],i['new'])
+        #for i in data['to_rename']:
+            #lines = lines.replace(i['old'],i['new'])
+     #       lines = re.sub('\b{}\b'.format(i['old']), i['new'], lines)
 
 
         #### very risky
@@ -209,6 +210,23 @@ Does not work for first two vars
         for x, line in enumerate(lines):
             if x not in list_lines_to_remove:
                 f.write(line)
+
+
+    #### rename variables -> use regex to avoid replace substring not 100% matched
+    with open(table_out, 'r') as f:
+        lines = f.readlines()
+
+    for i in data['to_rename']:
+        for x, line in enumerate(lines):
+            regex_ = i['old'].replace('\_','\\\_')
+            matches = re.search(r'\s{}\s'.format(regex_), line)
+            if matches:
+                lines[x] = lines[x].replace(i['old'],i['new'])
+                #print(lines[x])
+
+    with open(table_out, "w") as f:
+        for line in lines:
+            f.write(line)
 
 
 
