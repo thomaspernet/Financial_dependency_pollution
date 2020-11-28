@@ -183,6 +183,7 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
     - china_city_tcz_spz
     - china_code_normalised
     - ind_cic_2_name
+3. Keep year 2001 to 2007 and keep when SO2 emission are strickly possitive
 
 
 ## Example step by step
@@ -1080,7 +1081,7 @@ WHERE
   asif_city_industry_financial_ratio.year in (
     '2001', '2002', '2003', '2004', '2005', 
     '2006', '2007'
-  )
+  ) AND tso2 > 0
 """.format(DatabaseName, table_name)
 output = s3.run_query(
                     query=query,
@@ -1303,7 +1304,7 @@ with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_depende
     parameters = json.load(json_file)
 ```
 
-Remove the step number from the current file (if exist)
+index_to_removeRemove the step number from the current file (if exist)
 
 ```python
 index_to_remove = next(
@@ -1315,7 +1316,7 @@ index_to_remove = next(
                 None,
             )
 if index_to_remove != None:
-    parameters['TABLES']['PREPARATION']['STEPS'].pop(index_to_remove)
+    parameters['TABLES']['TRANSFORMATION']['STEPS'].pop(index_to_remove)
 ```
 
 ```python
