@@ -183,7 +183,8 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
     - china_city_tcz_spz
     - china_code_normalised
     - ind_cic_2_name
-3. Keep year 2001 to 2007 and keep when SO2 emission are strickly possitive
+3. Scale working capital and tangible asset by a factor of 1000000
+4. Keep year 2001 to 2007 and keep when SO2 emission are strickly possitive
 
 
 ## Example step by step
@@ -1020,12 +1021,12 @@ SELECT
   tso2, 
   tso2_mandate_c, 
   in_10_000_tonnes, 
-  working_capital_cit, 
-  working_capital_ci, 
-  working_capital_i, 
-  asset_tangibility_cit, 
-  asset_tangibility_ci, 
-  asset_tangibility_i, 
+  working_capital_cit/1000000 AS working_capital_cit, 
+  working_capital_ci/1000000 AS working_capital_ci, 
+  working_capital_i/1000000 AS working_capital_i, 
+  asset_tangibility_cit/1000000 AS asset_tangibility_cit, 
+  asset_tangibility_ci/1000000 AS asset_tangibility_ci, 
+  asset_tangibility_i/1000000 AS asset_tangibility_i, 
   current_ratio_cit, 
   current_ratio_ci, 
   current_ratio_i, 
@@ -1158,32 +1159,32 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
  {
    "Name": "working_capital_cit",
    "Type": "bigint",
-   "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year"
+   "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year. Scaled by a factor of 1000000"
 },
    {
    "Name": "working_capital_ci",
    "Type": "double",
-   "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry"
+   "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry. Scaled by a factor of 1000000"
 },
    {
    "Name": "working_capital_i",
    "Type": "double",
-   "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] industry"
+   "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] industry. Scaled by a factor of 1000000"
 },
    {
    "Name": "asset_tangibility_cit",
    "Type": "bigint",
-   "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry year"
+   "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry year. Scaled by a factor of 1000000"
 },
    {
    "Name": "asset_tangibility_ci",
    "Type": "double",
-   "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry"
+   "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry. Scaled by a factor of 1000000"
 },
    {
    "Name": "asset_tangibility_i",
    "Type": "double",
-   "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] industry"
+   "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] industry. Scaled by a factor of 1000000"
 },
    {
    "Name": "current_ratio_cit",
