@@ -159,3 +159,6 @@ dmypy.json
 .pyre/
 00_data_catalogue/temporary_local_data/all9807finalruiliyong14.dta
 01_data_preprocessing/00_download_data_from_/ASIF_PANEL/firm_asif.py
+02_data_analysis/01_model_estimation/XX_template_econometrics_AWS.ipynb
+02_data_analysis/01_model_estimation/XX_template_econometrics_AWS.md
+00_data_catalogue/temporary_local_data/df_fin_dep_pollution_baseline.csv
