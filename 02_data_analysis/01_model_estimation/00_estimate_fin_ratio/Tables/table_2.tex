@@ -3,78 +3,32 @@
 \usepackage[utf8]{inputenc}
 \usepackage{booktabs,caption,threeparttable, siunitx, adjustbox}
 
-\begin{document}% Date and time \times  Sun, Nov 29, 2020 - 14 \times 01 \times 45
+\begin{document}% Date and time \times  Sun, Nov 29, 2020 - 15 \times 16 \times 45
 \begin{table}[!htbp] \centering 
-  \caption{Baseline estimate, SO2 emission reduction and industry financial ratio, city-industry-year level} 
+  \caption{Baseline estimate, SO2 emission reduction, policy mandate, individual sector} 
 \label{}
 \begin{adjustbox}{width=\textwidth, totalheight=\textheight-2\baselineskip,keepaspectratio}
-\begin{tabular}{@{\extracolsep{5pt}}lcccccc} 
+\begin{tabular}{@{\extracolsep{5pt}}lcccccccccc} 
 \\[-1.8ex]\hline 
 \hline \\[-1.8ex] 
- & \multicolumn{6}{c}{Dependent variable: SO2 emission} \\ 
-\cline{2-7} 
-\\[-1.8ex] & (1) & (2) & (3) & (4) & (5) & (6)\\ 
-\hline \\[-1.8ex] 
-  \text{output}_{cit} & $-$0.006 & $-$0.010$^{***}$ & $-$0.003 & $-$0.003 & $-$0.004 & $-$0.011$^{***}$ \\ 
-  & (0.006) & (0.003) & (0.007) & (0.007) & (0.004) & (0.003) \\ 
-  \text{capital}_{cit} & 0.004 & 0.037$^{***}$ & $-$0.001 & $-$0.004 & 0.011 & 0.042$^{***}$ \\ 
-  & (0.014) & (0.014) & (0.016) & (0.016) & (0.013) & (0.013) \\ 
-  \text{employment}_{cit} & 0.006$^{**}$ & 0.010$^{***}$ & 0.005 & 0.005 & 0.006$^{**}$ & 0.010$^{***}$ \\ 
-  & (0.003) & (0.002) & (0.004) & (0.004) & (0.003) & (0.002) \\ 
- \text{working capital}_{cit} & 0.102$^{**}$ &  &  &  &  &  \\ 
-  & (0.040) &  &  &  &  &  \\ 
-  \text{working capital}_{cit} \times \text{period} & $-$0.031 &  &  &  &  &  \\ 
-  & (0.026) &  &  &  &  &  \\ 
-  \text{working capital}_{cit} \times \text{period} \times \text{policy mandate}_c & 0.041$^{**}$ &  &  &  &  &  \\ 
-  & (0.016) &  &  &  &  &  \\ 
-  \text{working capital}_{cit} \times \text{policy mandate}_c & $-$0.085$^{***}$ &  &  &  &  &  \\ 
-  & (0.032) &  &  &  &  &  \\ 
-  \text{current ratio}_{cit} \times \text{period} &  & $-$0.014 &  &  &  &  \\ 
-  &  & (0.019) &  &  &  &  \\ 
-  \text{current ratio}_{cit} &  & 0.001 &  &  &  &  \\ 
-  &  & (0.001) &  &  &  &  \\ 
-  \text{current ratio}_{cit} \times \text{period} \times \text{policy mandate}_c &  & 0.096 &  &  &  &  \\ 
-  &  & (0.093) &  &  &  &  \\ 
-  \text{current ratio}_{cit} \times \text{policy mandate}_c &  & $-$0.052 &  &  &  &  \\ 
-  &  & (0.062) &  &  &  &  \\ 
-  \text{cash assets}_{cit} \times \text{period} &  &  & $-$0.406$^{*}$ &  &  &  \\ 
-  &  &  & (0.235) &  &  &  \\ 
-  \text{cash assets}_{cit} &  &  & 0.003 &  &  &  \\ 
-  &  &  & (0.006) &  &  &  \\ 
-  \text{cash assets}_{cit} \times \text{period} \times \text{policy mandate}_c &  &  & 1.460 &  &  &  \\ 
-  &  &  & (1.348) &  &  &  \\ 
-  \text{cash assets}_{cit} \times \text{policy mandate}_c &  &  & 1.304 &  &  &  \\ 
-  &  &  & (1.819) &  &  &  \\ 
-  \text{liabilities assets}_{cit} \times \text{period} &  &  &  & $-$0.070 &  &  \\ 
-  &  &  &  & (0.153) &  &  \\ 
-  \text{liabilities assets}_{cit} &  &  &  & $-$0.071 &  &  \\ 
-  &  &  &  & (0.139) &  &  \\ 
-  \text{liabilities assets}_{cit} \times \text{period} \times \text{policy mandate}_c &  &  &  & $-$1.241 &  &  \\ 
-  &  &  &  & (0.958) &  &  \\ 
-  \text{liabilities assets}_{cit} \times \text{policy mandate}_c &  &  &  & 0.778 &  &  \\ 
-  &  &  &  & (1.073) &  &  \\ 
-  \text{return on asset}_{cit} \times \text{period} &  &  &  &  & 0.0005 &  \\ 
-  &  &  &  &  & (0.0003) &  \\ 
-  \text{return on asset}_{cit} &  &  &  &  & 0.00003 &  \\ 
-  &  &  &  &  & (0.0001) &  \\ 
-  \text{return on asset}_{cit} \times \text{period} \times \text{policy mandate}_c &  &  &  &  & $-$0.004 &  \\ 
-  &  &  &  &  & (0.005) &  \\ 
-  \text{return on asset}_{cit} \times \text{policy mandate}_c &  &  &  &  & $-$0.001 &  \\ 
-  &  &  &  &  & (0.004) &  \\ 
-  \text{sales assets}_{cit} &  &  &  &  &  & 0.00001 \\ 
-  &  &  &  &  &  & (0.00001) \\ 
-  \text{sales assets}_{cit} \times \text{period} &  &  &  &  &  & $-$0.00001 \\ 
-  &  &  &  &  &  & (0.00001) \\ 
-  \text{sales assets}_{cit} \times \text{policy mandate}_c &  &  &  &  &  & $-$0.00001 \\ 
-  &  &  &  &  &  & (0.0001) \\ 
-  \text{sales assets}_{cit} \times \text{period} \times \text{policy mandate}_c &  &  &  &  &  & 0.00002 \\ 
-  &  &  &  &  &  & (0.0001) \\ 
+ & \multicolumn{10}{c}{Dependent variable: SO2 emission} \\ 
+\cline{2-11} 
+\\[-1.8ex] & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9) & (10)\\
+ \\[-1.8ex]& Fur & Chemical Fibers & Rubber & Foods & Artwork & Education and Sport Activity & Manufacture of Wood & Recording Media & Furniture & Unknown\\
  \hline \\[-1.8ex] 
-City-industry & Yes & Yes & Yes & Yes & Yes & Yes \\ 
-Time-industry & Yes & Yes & Yes & Yes & Yes & Yes \\ 
-City-time & Yes & Yes & Yes & Yes & Yes & Yes \\ 
-Observations & 18,292 & 31,652 & 13,702 & 13,702 & 18,238 & 26,775 \\ 
-R$^{2}$ & 0.905 & 0.864 & 0.925 & 0.925 & 0.906 & 0.878 \\ 
+  \text{output}_{cit} & $-$0.012 & 0.052$^{**}$ & 0.042 & 0.005 & $-$0.074 & $-$0.022 & $-$0.107 & $-$0.068 & 0.158 & 0.309$^{*}$ \\ 
+  & (0.024) & (0.022) & (0.058) & (0.039) & (0.080) & (0.150) & (0.118) & (0.121) & (0.106) & (0.181) \\ 
+  \text{employment}_{cit} & 0.004 & $-$0.086$^{**}$ & 0.040 & 0.027 & 0.065$^{***}$ & 0.051$^{*}$ & 0.093$^{**}$ & 0.076$^{**}$ & 0.064 & 0.031$^{*}$ \\ 
+  & (0.005) & (0.034) & (0.026) & (0.030) & (0.020) & (0.030) & (0.041) & (0.035) & (0.040) & (0.018) \\ 
+  \text{capital}_{cit} & 0.156 & 0.182$^{***}$ & $-$0.098 & $-$0.266$^{*}$ & $-$0.355 & $-$1.093$^{*}$ & 0.794 & $-$0.028 & $-$1.242$^{**}$ & $-$0.370 \\ 
+  & (0.109) & (0.055) & (0.082) & (0.138) & (0.447) & (0.570) & (0.742) & (0.224) & (0.513) & (0.563) \\ 
+  \text{period} \times \text{policy mandate}_c & $-$0.401 & $-$0.438 & $-$0.780$^{*}$ & $-$0.090 & 0.666 & $-$0.473 & $-$0.115 & $-$1.264 & $-$0.325 & 1.677 \\ 
+  & (0.345) & (0.307) & (0.420) & (0.481) & (0.583) & (0.952) & (0.962) & (0.864) & (1.055) & (2.513) \\ 
+ \hline \\[-1.8ex] 
+City & Yes & Yes & Yes & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Time & Yes & Yes & Yes & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Observations & 831 & 535 & 993 & 1,627 & 443 & 277 & 979 & 541 & 302 & 237 \\ 
+R$^{2}$ & 0.780 & 0.856 & 0.814 & 0.696 & 0.599 & 0.723 & 0.723 & 0.710 & 0.674 & 0.705 \\ 
 \hline 
 \hline \\[-1.8ex] 
 \end{tabular}
