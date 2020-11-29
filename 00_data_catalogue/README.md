@@ -442,15 +442,15 @@
 |  9 | tso2                   | int           | Total so2 city sector                                                                                                                                      |
 | 10 | tso2_mandate_c         | float         | city reduction mandate in tonnes                                                                                                                           |
 | 11 | in_10_000_tonnes       | float         | city reduction mandate in 10k tonnes                                                                                                                       |
-| 12 | output                 | bigint        | Output. Scaled by a factor of 1000000                                                                                                                      |
-| 13 | employment             | bigint        | Employemnt. Scaled by a factor of 1000                                                                                                                     |
-| 14 | sales                  | bigint        | Sales. Scaled by a factor of 1000000                                                                                                                       |
-| 15 | working_capital_cit    | bigint        | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year. Scaled by a factor of 1000000       |
-| 16 | working_capital_ci     | double        | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry. Scaled by a factor of 1000000            |
-| 17 | working_capital_i      | double        | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] industry. Scaled by a factor of 1000000                 |
-| 18 | asset_tangibility_cit  | bigint        | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry year. Scaled by a factor of 1000000                             |
-| 19 | asset_tangibility_ci   | double        | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry. Scaled by a factor of 1000000                                  |
-| 20 | asset_tangibility_i    | double        | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] industry. Scaled by a factor of 1000000                                       |
+| 12 | output                 | decimal(16,5) | Output. Scaled by a factor of 1000000                                                                                                                      |
+| 13 | employment             | decimal(16,5) | Employemnt. Scaled by a factor of 1000                                                                                                                     |
+| 14 | sales                  | decimal(16,5) | Sales. Scaled by a factor of 1000000                                                                                                                       |
+| 15 | working_capital_cit    | decimal(16,5) | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year. Scaled by a factor of 1000000       |
+| 16 | working_capital_ci     | decimal(16,5) | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry. Scaled by a factor of 1000000            |
+| 17 | working_capital_i      | decimal(16,5) | Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] industry. Scaled by a factor of 1000000                 |
+| 18 | asset_tangibility_cit  | decimal(16,5) | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry year. Scaled by a factor of 1000000                             |
+| 19 | asset_tangibility_ci   | decimal(16,5) | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry. Scaled by a factor of 1000000                                  |
+| 20 | asset_tangibility_i    | decimal(16,5) | Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] industry. Scaled by a factor of 1000000                                       |
 | 21 | current_ratio_cit      | decimal(21,5) | Current asset [cuasset] / Current liabilities [c95]  city industry year                                                                                    |
 | 22 | current_ratio_ci       | decimal(21,5) | Current asset [cuasset] / Current liabilities [c95] city industry                                                                                          |
 | 23 | current_ratio_i        | decimal(21,5) | Current asset [cuasset] / Current liabilities [c95] industry                                                                                               |
@@ -469,8 +469,8 @@
 | 36 | lower_location         | string        | Location city. one of Coastal, Central, Northwest, Northeast, Southwest                                                                                    |
 | 37 | larger_location        | string        | Location city. one of Eastern, Central, Western                                                                                                            |
 | 38 | coastal                | string        | City is bordered by sea or not                                                                                                                             |
-| 39 | fe_c_i                 | int           | City industry fixed effect                                                                                                                                 |
-| 40 | fe_t_i                 | int           | year industry fixed effect                                                                                                                                 |
-| 41 | fe_c_t                 | int           | city industry fixed effect                                                                                                                                 |
+| 39 | fe_c_i                 | bigint        | City industry fixed effect                                                                                                                                 |
+| 40 | fe_t_i                 | bigint        | year industry fixed effect                                                                                                                                 |
+| 41 | fe_c_t                 | bigint        | city industry fixed effect                                                                                                                                 |
 
     

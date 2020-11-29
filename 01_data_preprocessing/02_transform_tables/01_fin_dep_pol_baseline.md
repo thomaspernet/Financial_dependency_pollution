@@ -1210,37 +1210,37 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
  {'Name': 'tso2', 'Type': 'int', 'Comment': 'Total so2 city sector'},
  {'Name': 'tso2_mandate_c', 'Type': 'float', 'Comment': 'city reduction mandate in tonnes'},
  {'Name': 'in_10_000_tonnes', 'Type': 'float', 'Comment': 'city reduction mandate in 10k tonnes'},
- {'Name': 'output', 'Type': 'bigint', 'Comment': 'Output. Scaled by a factor of 1000000'},
- {'Name': 'employment', 'Type': 'bigint', 'Comment': 'Employemnt. Scaled by a factor of 1000'},
- {'Name': 'sales', 'Type': 'bigint', 'Comment': 'Sales. Scaled by a factor of 1000000'},
+ {'Name': 'output', 'Type': 'decimal(16,5)', 'Comment': 'Output. Scaled by a factor of 1000000'},
+ {'Name': 'employment', 'Type': 'decimal(16,5)', 'Comment': 'Employemnt. Scaled by a factor of 1000'},
+ {'Name': 'sales', 'Type': 'decimal(16,5)', 'Comment': 'Sales. Scaled by a factor of 1000000'},
  {
    "Name": "working_capital_cit",
-   "Type": "bigint",
+   "Type": "decimal(16,5)",
    "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year. Scaled by a factor of 1000000"
 },
    {
    "Name": "working_capital_ci",
-   "Type": "double",
+   "Type": "decimal(16,5)",
    "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry. Scaled by a factor of 1000000"
 },
    {
    "Name": "working_capital_i",
-   "Type": "double",
+   "Type": "decimal(16,5)",
    "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] industry. Scaled by a factor of 1000000"
 },
    {
    "Name": "asset_tangibility_cit",
-   "Type": "bigint",
+   "Type": "decimal(16,5)",
    "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry year. Scaled by a factor of 1000000"
 },
    {
    "Name": "asset_tangibility_ci",
-   "Type": "double",
+   "Type": "decimal(16,5)",
    "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry. Scaled by a factor of 1000000"
 },
    {
    "Name": "asset_tangibility_i",
-   "Type": "double",
+   "Type": "decimal(16,5)",
    "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] industry. Scaled by a factor of 1000000"
 },
    {
@@ -1321,9 +1321,9 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
     {'Name': 'lower_location', 'Type': 'string', 'Comment': 'Location city. one of Coastal, Central, Northwest, Northeast, Southwest'},
     {'Name': 'larger_location', 'Type': 'string', 'Comment': 'Location city. one of Eastern, Central, Western'},
     {'Name': 'coastal', 'Type': 'string', 'Comment': 'City is bordered by sea or not'},
-    {'Name': 'fe_c_i', 'Type': 'int', 'Comment': 'City industry fixed effect'},
-    {'Name': 'fe_t_i', 'Type': 'int', 'Comment': 'year industry fixed effect'},
-    {'Name': 'fe_c_t', 'Type': 'int', 'Comment': 'city industry fixed effect'}]
+    {'Name': 'fe_c_i', 'Type': 'bigint', 'Comment': 'City industry fixed effect'},
+    {'Name': 'fe_t_i', 'Type': 'bigint', 'Comment': 'year industry fixed effect'},
+    {'Name': 'fe_c_t', 'Type': 'bigint', 'Comment': 'city industry fixed effect'}]
 ```
 
 4. Provide a description
