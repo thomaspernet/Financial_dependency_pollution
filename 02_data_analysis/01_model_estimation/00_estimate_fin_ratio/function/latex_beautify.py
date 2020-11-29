@@ -12,7 +12,8 @@ multicolumn = None,
 table_nte = None,
 reorder_var = None,
 jupyter_preview = True,
-resolution = 150):
+resolution = 150,
+folder = 'Tables'):
     """
     Prepare a PDF table from multiple estimates
 
@@ -36,9 +37,11 @@ dic_ = {
 }
 Does not work for first two vars
     """
+    if os.path.exists(folder) == False:
+        os.mkdir(folder)
     #table_number = 1
-    table_in = "Tables/table_{}.txt".format(table_number)
-    table_out = "Tables/table_{}.tex".format(table_number)
+    table_in = "{}/table_{}.txt".format(folder,table_number)
+    table_out = "{}/table_{}.tex".format(folder, table_number)
 
     regex_to_remove = \
     r"\s\sregimeELIGIBLE\s"
@@ -303,10 +306,10 @@ Does not work for first two vars
                 f.write(line)
 
     if jupyter_preview:
-        f = open('Tables/table_{}.tex'.format(table_number))
+        f = open('{}/table_{}.tex'.format(folder,table_number))
         r = tex2pix.Renderer(f, runbibtex=False)
-        r.mkpdf('Tables/table_{}.pdf'.format(table_number))
-        img = WImage(filename='Tables/table_{}.pdf'.format(table_number),
+        r.mkpdf('{}/table_{}.pdf'.format(folder,table_number))
+        img = WImage(filename='{}/table_{}.pdf'.format(folder,table_number),
          resolution = resolution)
         return display(img)
 
