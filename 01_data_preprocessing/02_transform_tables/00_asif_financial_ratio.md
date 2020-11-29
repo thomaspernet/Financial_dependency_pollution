@@ -33,7 +33,7 @@ The asif_financial_ratio  has the following levels:
 
 * year
 * city
-* industry
+* industry -> 2 digits compared with 4 digits with the parent task
 
 **Construction variables**
 
@@ -215,6 +215,58 @@ DatabaseName = 'firms_survey'
 s3_output_example = 'SQL_OUTPUT_ATHENA'
 ```
 
+1. Count the number of digit by industry
+
+We want to keep only the fist two digit
+
+```python
+query = """
+SELECT len, COUNT(len) as CNT
+FROM (
+SELECT length(cic) AS len
+FROM asif_firms_prepared 
+)
+GROUP BY len
+ORDER BY CNT
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_1'
+                )
+output
+```
+
+Count when substring 1 or 2 digits
+
+```python
+query = """
+WITH test AS (
+SELECT
+CASE 
+WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2) 
+ELSE substr(cic,1, 1) END AS indu_2
+FROM asif_firms_prepared 
+)
+
+SELECT len, COUNT(len) as CNT
+FROM (
+SELECT length(indu_2) AS len
+FROM test 
+)
+GROUP BY len
+ORDER BY CNT
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_1'
+                )
+output
+```
+
 1. Add consistent city code
 
 
@@ -238,7 +290,9 @@ output
 ```python
 query = """
 WITH test AS (
-SELECT firm, year, citycode, geocode4_corr, cic
+SELECT firm, year, citycode, geocode4_corr, CASE 
+WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2) 
+ELSE substr(cic,1, 1) END AS indu_2
   FROM firms_survey.asif_firms_prepared 
 INNER JOIN 
   (
@@ -250,9 +304,9 @@ ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
   )
   SELECT CNT, COUNT(*) 
   FROM(
-  SELECT firm, year, geocode4_corr, cic, COUNT(*) AS CNT
+  SELECT firm, year, geocode4_corr, indu_2, COUNT(*) AS CNT
   FROM test
-  GROUP BY firm, year, geocode4_corr, cic
+  GROUP BY firm, year, geocode4_corr, indu_2
     )
     GROUP BY CNT
 """
@@ -378,11 +432,17 @@ output_1 > output_2
 
 ```python
 query = """
+WITH test AS (
+SELECT *, CASE 
+WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2) 
+ELSE substr(cic,1, 1) END AS indu_2
+FROM firms_survey.asif_firms_prepared 
+)
 
 SELECT 
   year, 
   geocode4_corr,
-  cic, 
+  indu_2, 
   SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, 
   SUM(c85) - SUM(c91) AS asset_tangibility_cit, 
   CAST(
@@ -426,17 +486,17 @@ SELECT
           1
         ) over(
           partition by geocode4_corr, 
-          cic 
+          indu_2 
           order by 
             geocode4_corr, 
-            cic, 
+            indu_2, 
             year
         )
       )/ 2 AS DECIMAL(16, 5)
     ), 
     0
   ) AS sales_assets_cit 
-FROM firms_survey.asif_firms_prepared 
+FROM test 
 INNER JOIN 
   (
   SELECT extra_code, geocode4_corr
@@ -444,11 +504,11 @@ INNER JOIN
   GROUP BY extra_code, geocode4_corr
   ) as no_dup_citycode
   
-ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+ON test.citycode = no_dup_citycode.extra_code
 WHERE year in ('2001', '2002', '2003', '2004', '2005', '2006', '2007') 
 GROUP BY 
   geocode4_corr, 
-  cic, 
+  indu_2, 
   year 
 LIMIT 
   10
@@ -469,11 +529,19 @@ As an average over year 2002 to 2005
 
 ```python
 query = """
+WITH test AS (
+SELECT *, CASE 
+WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2) 
+ELSE substr(cic,1, 1) END AS indu_2
+FROM firms_survey.asif_firms_prepared 
+)
+SELECT * 
+FROM (
 WITH ratio AS (
 SELECT 
   year, 
   geocode4_corr,
-  cic, 
+  indu_2, 
   SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, 
   SUM(c85) - SUM(c91) AS asset_tangibility_cit, 
   CAST(
@@ -517,17 +585,17 @@ SELECT
           1
         ) over(
           partition by geocode4_corr, 
-          cic 
+          indu_2 
           order by 
             geocode4_corr, 
-            cic, 
+            indu_2, 
             year
         )
       )/ 2 AS DECIMAL(16, 5)
     ), 
     0
   ) AS sales_assets_cit 
-FROM firms_survey.asif_firms_prepared 
+FROM test
 INNER JOIN 
   (
   SELECT extra_code, geocode4_corr
@@ -535,16 +603,16 @@ INNER JOIN
   GROUP BY extra_code, geocode4_corr
   ) as no_dup_citycode
   
-ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+ON test.citycode = no_dup_citycode.extra_code
 WHERE year in ('2001', '2002', '2003', '2004', '2005') 
 GROUP BY 
   geocode4_corr, 
-  cic, 
+  indu_2, 
   year 
   )
   SELECT
   geocode4_corr, 
-  cic,
+  indu_2,
   AVG(working_capital_cit) AS working_capital_ci,
   AVG(asset_tangibility_cit) AS asset_tangibility_ci,
   AVG(current_ratio_cit) AS current_ratio_ci,
@@ -553,8 +621,9 @@ GROUP BY
   AVG(return_on_asset_cit) AS return_on_asset_ci,
   AVG(sales_assets_cit) AS sales_assets_ci
   FROM ratio
-  GROUP BY geocode4_corr, cic
+  GROUP BY geocode4_corr, indu_2
   LIMIT 10
+  )
 """
 output = s3.run_query(
                     query=query,
@@ -571,11 +640,19 @@ As an average over year 2002 to 2005
 
 ```python
 query = """
+WITH test AS (
+SELECT *, CASE 
+WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2) 
+ELSE substr(cic,1, 1) END AS indu_2
+FROM firms_survey.asif_firms_prepared 
+)
+SELECT * 
+FROM (
 WITH ratio AS (
 SELECT 
   year, 
   geocode4_corr,
-  cic, 
+  indu_2, 
   SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, 
   SUM(c85) - SUM(c91) AS asset_tangibility_cit, 
   CAST(
@@ -619,17 +696,17 @@ SELECT
           1
         ) over(
           partition by geocode4_corr, 
-          cic 
+          indu_2 
           order by 
             geocode4_corr, 
-            cic, 
+            indu_2, 
             year
         )
       )/ 2 AS DECIMAL(16, 5)
     ), 
     0
   ) AS sales_assets_cit 
-FROM firms_survey.asif_firms_prepared 
+FROM test
 INNER JOIN 
   (
   SELECT extra_code, geocode4_corr
@@ -637,15 +714,15 @@ INNER JOIN
   GROUP BY extra_code, geocode4_corr
   ) as no_dup_citycode
   
-ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+ON test.citycode = no_dup_citycode.extra_code
 WHERE year in ('2001', '2002', '2003', '2004', '2005') 
 GROUP BY 
   geocode4_corr, 
-  cic, 
+  indu_2, 
   year 
   )
   SELECT
-  cic,
+  indu_2,
   AVG(working_capital_cit) AS working_capital_i,
   AVG(asset_tangibility_cit) AS asset_tangibility_i,
   AVG(current_ratio_cit) AS current_ratio_i,
@@ -654,8 +731,9 @@ GROUP BY
   AVG(return_on_asset_cit) AS return_on_asset_i,
   AVG(sales_assets_cit) AS sales_assets_it
   FROM ratio
-  GROUP BY cic
+  GROUP BY indu_2
   LIMIT 10
+  )
 """
 output = s3.run_query(
                     query=query,
@@ -709,11 +787,19 @@ s3.remove_all_bucket(path_remove = s3_output)
 query = """
 CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS
 
+WITH test AS (
+SELECT *, CASE 
+WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2) 
+ELSE substr(cic,1, 1) END AS indu_2
+FROM firms_survey.asif_firms_prepared 
+)
+SELECT * 
+FROM (
 WITH ratio AS (
 SELECT 
   year, 
   geocode4_corr,
-  cic, 
+  indu_2, 
   SUM(output) AS output,
   SUM(employ) AS employment,  
   SUM(c64) AS sales,  
@@ -760,17 +846,17 @@ SELECT
           1
         ) over(
           partition by geocode4_corr, 
-          cic 
+          indu_2 
           order by 
             geocode4_corr, 
-            cic, 
+            indu_2, 
             year
         )
       )/ 2 AS DECIMAL(16, 5)
     ), 
     0
   ) AS sales_assets_cit 
-FROM firms_survey.asif_firms_prepared 
+FROM test
 INNER JOIN 
   (
   SELECT extra_code, geocode4_corr
@@ -778,16 +864,16 @@ INNER JOIN
   GROUP BY extra_code, geocode4_corr
   ) as no_dup_citycode
   
-ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+ON test.citycode = no_dup_citycode.extra_code
 WHERE year in ('2001', '2002', '2003', '2004', '2005', '2006', '2007') 
 GROUP BY 
   geocode4_corr, 
-  cic, 
+  indu_2, 
   year 
 ) 
 SELECT 
   ratio.geocode4_corr, 
-  ratio.cic, 
+  ratio.indu_2, 
   ratio.year,
   output, 
   employment,
@@ -817,7 +903,7 @@ SELECT
   LEFT JOIN (
     SELECT
   geocode4_corr, 
-  cic,
+  indu_2,
   AVG(working_capital_cit) AS working_capital_ci,
   AVG(asset_tangibility_cit) AS asset_tangibility_ci,
   AVG(current_ratio_cit) AS current_ratio_ci,
@@ -827,14 +913,14 @@ SELECT
   AVG(sales_assets_cit) AS sales_assets_ci
   FROM ratio
   WHERE year in ('2001', '2002', '2003', '2004', '2005') 
-  GROUP BY geocode4_corr, cic
+  GROUP BY geocode4_corr, indu_2
   
     ) as ratio_ci
     ON ratio.geocode4_corr = ratio_ci.geocode4_corr AND
-    ratio.cic = ratio_ci.cic
+    ratio.indu_2 = ratio_ci.indu_2
   LEFT JOIN (
     SELECT
-  cic,
+  indu_2,
   AVG(working_capital_cit) AS working_capital_i,
   AVG(asset_tangibility_cit) AS asset_tangibility_i,
   AVG(current_ratio_cit) AS current_ratio_i,
@@ -844,9 +930,10 @@ SELECT
   AVG(sales_assets_cit) AS sales_assets_i
   FROM ratio
   WHERE year in ('2001', '2002', '2003', '2004', '2005') 
-  GROUP BY cic
+  GROUP BY indu_2
     ) as ratio_i
-    ON ratio.cic = ratio_i.cic    
+    ON ratio.indu_2 = ratio_i.indu_2    
+    )
 """.format(DatabaseName, table_name)
 output = s3.run_query(
                     query=query,
@@ -887,7 +974,7 @@ To validate the query, please fillin the json below. Don't forget to change the 
 1. Add a partition key
 
 ```python
-partition_keys = ["geocode4_corr", "cic", "year"]
+partition_keys = ["geocode4_corr", "indu_2", "year"]
 ```
 
 2. Add the steps number
@@ -908,7 +995,7 @@ glue.get_table_information(
 
 ```python
 schema = [{'Name': 'geocode4_corr', 'Type': 'string', 'Comment': ''},
-          {'Name': 'cic', 'Type': 'string', 'Comment': ''},
+          {'Name': 'indu_2', 'Type': 'string', 'Comment': 'Two digits industry. If length cic equals to 3, then indu_2 only one digit'},
           {'Name': 'year', 'Type': 'string', 'Comment': ''},
           {'Name': 'output', 'Type': 'bigint', 'Comment': ''},
           {'Name': 'employment', 'Type': 'bigint', 'Comment': ''},
@@ -1051,7 +1138,7 @@ One of the most important step when creating a table is to check if the table co
 You are required to define the group(s) that Athena will use to compute the duplicate. For instance, your table can be grouped by COL1 and COL2 (need to be string or varchar), then pass the list ['COL1', 'COL2'] 
 
 ```python
-partition_keys = ["geocode4_corr", "cic", "year"]
+partition_keys = ["geocode4_corr", "indu_2", "year"]
 
 with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
@@ -1128,7 +1215,7 @@ client_lambda = boto3.client(
 
 ```python
 primary_key = 'year'
-secondary_key = 'cic'
+secondary_key = 'indu_2'
 y_var = 'working_capital_cit'
 ```
 
