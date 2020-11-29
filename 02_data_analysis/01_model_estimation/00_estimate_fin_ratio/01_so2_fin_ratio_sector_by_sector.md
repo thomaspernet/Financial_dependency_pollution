@@ -466,9 +466,12 @@ working_capital_ordered
 ```
 
 ```sos kernel="Python 3"
-for ext in ['.tex', '.pdf']:
-    x = [a for a in os.listdir('Tables') if a.endswith(ext)]
-    [os.remove(os.path.join('Tables', i)) for i in x]
+folder = 'Tables_1'
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
 ```
 
 ```sos kernel="R"
@@ -476,7 +479,7 @@ for (i in 1:nrow(working_capital_ordered)){
     
     sector_name <- working_capital_ordered[i, 'short']$short
     
-    name = paste0("Tables/table_",i,".txt")
+    name = paste0("Tables_1/table_",i,".txt")
     title = paste0("Baseline estimate, SO2 emission reduction, policy mandate, individual sector ",sector_name)
 
     t_0 <- felm(log(tso2) ~ period * tso2_mandate_c * working_capital_ci+
@@ -578,7 +581,8 @@ for i in range(1, 31):
                 #multicolumn = multicolumn,
                 table_nte = tbe1,
                 jupyter_preview = True,
-                resolution = 200)
+                resolution = 200, 
+               folder = 'Tables_1')
 ```
 
 <!-- #region kernel="Python 3" -->
@@ -586,9 +590,12 @@ for i in range(1, 31):
 <!-- #endregion -->
 
 ```sos kernel="Python 3"
-for ext in ['.txt','.tex', '.pdf']:
-    x = [a for a in os.listdir('Tables') if a.endswith(ext)]
-    [os.remove(os.path.join('Tables', i)) for i in x]
+folder = 'Tables_2'
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
 ```
 
 ```sos kernel="R"
@@ -596,7 +603,7 @@ for (i in 1:nrow(working_capital_ordered)){
     
     sector_name <- working_capital_ordered[i, 'short']$short
     
-    name = paste0("Tables/table_",i,".txt")
+    name = paste0("Tables_2/table_",i,".txt")
     title = paste0("Baseline estimate, SO2 emission reduction, policy mandate, individual sector ",sector_name)
 
     t_0 <- felm(log(tso2) ~ period * tso2_mandate_c * working_capital_cit+
@@ -712,7 +719,8 @@ for i in range(1, 30):
                 #multicolumn = multicolumn,
                 table_nte = tbe1,
                 jupyter_preview = True,
-                resolution = 200)
+                resolution = 200,
+               folder= folder)
 ```
 
 <!-- #region kernel="SoS" nteract={"transient": {"deleting": false}} -->
