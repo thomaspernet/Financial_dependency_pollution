@@ -454,6 +454,15 @@ $$
 ![](https://drive.google.com/uc?export=view&id=1HrqaA5NLRPjWk2lqvHyrZAjO3wSP5r-9)
 <!-- #endregion -->
 
+```sos kernel="Python 3"
+folder = 'Tables_0'
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
 ```sos kernel="R"
 t_0 <- felm(log(tso2) ~ working_capital_i * period * tso2_mandate_c +
             output + employment + capital
@@ -489,25 +498,6 @@ t_6 <- felm(log(tso2) ~ sales_assets_i * period * tso2_mandate_c +
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-```
-
-```sos kernel="Python 3"
-import os
-try:
-    os.remove("Tables/table_0.txt")
-except:
-    pass
-try:
-    os.remove("Tables/table_0.tex")
-except:
-    pass
-try:
-    os.remove("Tables/table_0.pdf")
-except:
-    pass
-```
-
-```sos kernel="R"
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
     c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
@@ -525,8 +515,9 @@ table_1 <- go_latex(list(
     addFE=fe1,
     save=TRUE,
     note = FALSE,
-    name="Tables/table_0.txt"
+    name="Tables_0/table_0.txt"
 )
+
 ```
 
 ```sos kernel="Python 3"
@@ -551,7 +542,8 @@ lb.beautify(table_number = 0,
             #multicolumn = multicolumn,
             table_nte = tbe1,
             jupyter_preview = True,
-            resolution = 200)
+            resolution = 200,
+           folder = folder)
 ```
 
 <!-- #region kernel="Python 3" -->
@@ -636,7 +628,7 @@ table_1 <- go_latex(list(
     addFE=fe1,
     save=TRUE,
     note = FALSE,
-    name="Tables/table_1.txt"
+    name="Tables_0/table_1.txt"
 )
 ```
 
@@ -672,7 +664,8 @@ lb.beautify(table_number = 1,
             #multicolumn = multicolumn,
             table_nte = tbe1,
             jupyter_preview = True,
-            resolution = 200)
+            resolution = 200,
+           folder = folder)
 ```
 
 <!-- #region kernel="Python 3" -->
@@ -756,7 +749,7 @@ table_1 <- go_latex(list(
     addFE=fe1,
     save=TRUE,
     note = FALSE,
-    name="Tables/table_2.txt"
+    name="Tables_0/table_2.txt"
 )
 ```
 
@@ -806,7 +799,8 @@ lb.beautify(table_number = 2,
             #multicolumn = multicolumn,
             table_nte = tbe1,
             jupyter_preview = True,
-            resolution = 200)
+            resolution = 200, 
+           folder = folder)
 ```
 
 <!-- #region nteract={"transient": {"deleting": false}} kernel="SoS" -->
