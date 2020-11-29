@@ -231,6 +231,71 @@ Need to tackle duplicates in the table
 
 ![](https://drive.google.com/uc?export=view&id=1QyMI8wkI7SNGbQ-aHR-Ci_rrKwE9bGit)
 
+
+Check the number of digits in indus_code
+
+```python
+query ="""
+SELECT len, COUNT(len) as CNT
+FROM (
+SELECT length(indus_code) AS len
+FROM environment.china_city_sector_pollution 
+)
+GROUP BY len
+ORDER BY CNT
+
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'count_1'
+                )
+output
+```
+
+Check the number of digits in ind2
+
+```python
+query ="""
+SELECT len, COUNT(len) as CNT
+FROM (
+SELECT length(ind2) AS len
+FROM environment.china_city_sector_pollution 
+)
+GROUP BY len
+ORDER BY CNT
+
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'count_1'
+                )
+output
+```
+
+```python
+query ="""
+SELECT len, COUNT(len) as CNT
+FROM (
+SELECT length(indus_code) AS len
+FROM environment.china_city_sector_pollution 
+)
+GROUP BY len
+ORDER BY CNT
+
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'count_1'
+                )
+output
+```
+
 ```python
 query = """
 SELECT year, citycode, geocode4_corr, china_city_sector_pollution.cityen, indus_code, ind2, tso2, lower_location, larger_location, coastal
@@ -252,11 +317,11 @@ output = s3.run_query(
 output
 ```
 
-We can group by `geocode4_corr` 
+We can group by `geocode4_corr`  and ind2
 
 ```python
 query = """
-SELECT year, geocode4_corr, cityen, indus_code, ind2, SUM(tso2), lower_location, larger_location, coastal
+SELECT year, geocode4_corr, cityen, ind2, SUM(tso2), lower_location, larger_location, coastal
 
 FROM (
   SELECT 
@@ -270,7 +335,7 @@ INNER JOIN (
 ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code
 WHERE citycode in ('1101', '1102') and year = '2001' and indus_code = '3123'
   )
-  GROUP BY year, geocode4_corr, cityen, indus_code, ind2, lower_location, larger_location, coastal
+  GROUP BY year, geocode4_corr, cityen, ind2, lower_location, larger_location, coastal
 """
 output = s3.run_query(
                     query=query,
@@ -286,11 +351,11 @@ Make sure the total amount of `tso2` is the same before and after, or at least l
 ```python
 query = """
 WITH test AS (
-SELECT year, geocode4_corr, cityen, indus_code, ind2, SUM(tso2) as tso2, lower_location, larger_location, coastal
+SELECT year, geocode4_corr, cityen, ind2, SUM(tso2) as tso2, lower_location, larger_location, coastal
 
 FROM (
   SELECT 
-year, citycode, geocode4_corr, china_city_sector_pollution.cityen, indus_code, ind2, tso2, lower_location, larger_location, coastal
+year, citycode, geocode4_corr, china_city_sector_pollution.cityen, ind2, tso2, lower_location, larger_location, coastal
 FROM environment.china_city_sector_pollution 
 INNER JOIN (
   SELECT extra_code, geocode4_corr
@@ -299,7 +364,7 @@ INNER JOIN (
   ) as no_dup_citycode
 ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code
   )
-  GROUP BY year, geocode4_corr, cityen, indus_code, ind2, lower_location, larger_location, coastal
+  GROUP BY year, geocode4_corr, cityen, ind2, lower_location, larger_location, coastal
   )
   SELECT SUM(tso2) as total_so2
   FROM test
@@ -596,7 +661,6 @@ WITH aggregate_pol AS (
     year, 
     geocode4_corr, 
     cityen, 
-    indus_code, 
     ind2, 
     SUM(tso2) as tso2, 
     lower_location, 
@@ -609,7 +673,6 @@ WITH aggregate_pol AS (
         citycode, 
         geocode4_corr, 
         china_city_sector_pollution.cityen, 
-        indus_code, 
         ind2, 
         tso2, 
         lower_location, 
@@ -632,7 +695,6 @@ WITH aggregate_pol AS (
     year, 
     geocode4_corr, 
     cityen, 
-    indus_code, 
     ind2, 
     lower_location, 
     larger_location, 
@@ -647,7 +709,6 @@ FROM
         asif_city_industry_financial_ratio.year, 
         asif_city_industry_financial_ratio.geocode4_corr, 
         cityen, 
-        cic, 
         ind2, 
         tso2, 
         lower_location, 
@@ -657,7 +718,7 @@ FROM
         aggregate_pol 
         INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr 
         AND aggregate_pol.year = asif_city_industry_financial_ratio.year 
-        AND aggregate_pol.indus_code = asif_city_industry_financial_ratio.cic
+        AND aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2
     ) 
     SELECT 
       CNT, 
@@ -667,14 +728,14 @@ FROM
         SELECT 
           geocode4_corr, 
           year, 
-          cic, 
+          ind2, 
           COUNT(*) AS CNT 
         FROM 
           merge_asif 
         GROUP BY 
           geocode4_corr, 
           year, 
-          cic
+          ind2
       ) AS count_dup 
     GROUP BY 
       CNT
@@ -698,7 +759,6 @@ WITH aggregate_pol AS (
     year, 
     geocode4_corr, 
     cityen, 
-    indus_code, 
     ind2, 
     SUM(tso2) as tso2, 
     lower_location, 
@@ -711,7 +771,6 @@ WITH aggregate_pol AS (
         citycode, 
         geocode4_corr, 
         china_city_sector_pollution.cityen, 
-        indus_code, 
         ind2, 
         tso2, 
         lower_location, 
@@ -734,7 +793,6 @@ WITH aggregate_pol AS (
     year, 
     geocode4_corr, 
     cityen, 
-    indus_code, 
     ind2, 
     lower_location, 
     larger_location, 
@@ -749,7 +807,6 @@ FROM
         asif_city_industry_financial_ratio.year, 
         asif_city_industry_financial_ratio.geocode4_corr, 
         cityen, 
-        cic, 
         ind2, 
         tso2, 
         tso2_mandate_c,
@@ -761,7 +818,7 @@ FROM
         aggregate_pol 
         INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr 
         AND aggregate_pol.year = asif_city_industry_financial_ratio.year 
-        AND aggregate_pol.indus_code = asif_city_industry_financial_ratio.cic
+        AND aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2
         INNER JOIN (
         
         SELECT geocode4_corr, tso2_mandate_c, in_10_000_tonnes
@@ -780,14 +837,14 @@ FROM
         SELECT 
           geocode4_corr, 
           year, 
-          cic, 
+          ind2, 
           COUNT(*) AS CNT 
         FROM 
           merge_asif 
         GROUP BY 
           geocode4_corr, 
           year, 
-          cic
+          ind2
       ) AS count_dup 
     GROUP BY 
       CNT
@@ -811,7 +868,6 @@ WITH aggregate_pol AS (
     year, 
     geocode4_corr, 
     cityen, 
-    indus_code, 
     ind2, 
     SUM(tso2) as tso2, 
     lower_location, 
@@ -824,7 +880,6 @@ WITH aggregate_pol AS (
         citycode, 
         geocode4_corr, 
         china_city_sector_pollution.cityen, 
-        indus_code, 
         ind2, 
         tso2, 
         lower_location, 
@@ -847,7 +902,6 @@ WITH aggregate_pol AS (
     year, 
     geocode4_corr, 
     cityen, 
-    indus_code, 
     ind2, 
     lower_location, 
     larger_location, 
@@ -862,7 +916,6 @@ FROM
         asif_city_industry_financial_ratio.year, 
         asif_city_industry_financial_ratio.geocode4_corr, 
         cityen, 
-        cic, 
         ind2, 
         tso2, 
         tso2_mandate_c,
@@ -874,7 +927,7 @@ FROM
         aggregate_pol 
         INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr 
         AND aggregate_pol.year = asif_city_industry_financial_ratio.year 
-        AND aggregate_pol.indus_code = asif_city_industry_financial_ratio.cic
+        AND aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2
         INNER JOIN (
         
         SELECT geocode4_corr, tso2_mandate_c, in_10_000_tonnes
@@ -895,14 +948,14 @@ FROM
         SELECT 
           geocode4_corr, 
           year, 
-          cic, 
+          ind2, 
           COUNT(*) AS CNT 
         FROM 
           merge_asif 
         GROUP BY 
           geocode4_corr, 
           year, 
-          cic
+          ind2
       ) AS count_dup 
     GROUP BY 
       CNT
@@ -963,7 +1016,6 @@ WITH aggregate_pol AS (
     geocode4_corr,
     provinces,
     cityen, 
-    indus_code, 
     ind2, 
     SUM(tso2) as tso2, 
     lower_location, 
@@ -977,7 +1029,6 @@ WITH aggregate_pol AS (
         citycode, 
         geocode4_corr, 
         china_city_sector_pollution.cityen, 
-        indus_code, 
         ind2, 
         tso2, 
         lower_location, 
@@ -1001,7 +1052,6 @@ WITH aggregate_pol AS (
     provinces,
     geocode4_corr, 
     cityen, 
-    indus_code, 
     ind2, 
     lower_location, 
     larger_location, 
@@ -1017,7 +1067,6 @@ SELECT
   asif_city_industry_financial_ratio.geocode4_corr, 
   CASE WHEN tcz IS NULL THEN '0' ELSE tcz END AS tcz,
   CASE WHEN spz IS NULL THEN '0' ELSE spz END AS spz,
-  asif_city_industry_financial_ratio.cic, 
   ind2, 
   CASE WHEN short IS NULL THEN 'Unknown' ELSE short END AS short,
   tso2, 
@@ -1053,12 +1102,12 @@ SELECT
   DENSE_RANK() OVER (
     ORDER BY 
       city_mandate.geocode4_corr, 
-      asif_city_industry_financial_ratio.cic
+      ind2
   ) AS fe_c_i, 
   DENSE_RANK() OVER (
     ORDER BY 
       asif_city_industry_financial_ratio.year, 
-      asif_city_industry_financial_ratio.cic
+      ind2
   ) AS fe_t_i, 
   DENSE_RANK() OVER (
     ORDER BY 
@@ -1069,7 +1118,7 @@ SELECT
         aggregate_pol 
         INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr 
         AND aggregate_pol.year = asif_city_industry_financial_ratio.year 
-        AND aggregate_pol.indus_code = asif_city_industry_financial_ratio.cic
+        AND aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2
         INNER JOIN (
         
         SELECT geocode4_corr, tso2_mandate_c, in_10_000_tonnes
@@ -1128,7 +1177,7 @@ To validate the query, please fillin the json below. Don't forget to change the 
 1. Add a partition key
 
 ```python
-partition_keys = ["geocode4_corr", "year", "cic"]
+partition_keys = ["geocode4_corr", "year", "ind2"]
 ```
 
 2. Add the steps number
@@ -1155,8 +1204,8 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
  {'Name': 'geocode4_corr', 'Type': 'string', 'Comment': ''},
  {'Name': 'tcz', 'Type': 'string', 'Comment': 'Two control zone policy city'},
  {'Name': 'spz', 'Type': 'string', 'Comment': 'Special policy zone policy city'},
- {'Name': 'cic', 'Type': 'string', 'Comment': '4 digits industry'},
- {'Name': 'ind2', 'Type': 'string', 'Comment': ''},
+ #{'Name': 'cic', 'Type': 'string', 'Comment': '4 digits industry'},
+ {'Name': 'ind2', 'Type': 'string', 'Comment': '2 digits industry'},
  {'Name': 'short', 'Type': 'string', 'Comment': ''},
  {'Name': 'tso2', 'Type': 'int', 'Comment': 'Total so2 city sector'},
  {'Name': 'tso2_mandate_c', 'Type': 'float', 'Comment': 'city reduction mandate in tonnes'},
@@ -1381,7 +1430,7 @@ One of the most important step when creating a table is to check if the table co
 You are required to define the group(s) that Athena will use to compute the duplicate. For instance, your table can be grouped by COL1 and COL2 (need to be string or varchar), then pass the list ['COL1', 'COL2'] 
 
 ```python
-partition_keys = ["geocode4_corr", "year", "cic"]
+partition_keys = ["geocode4_corr", "year", "ind2"]
 
 with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
