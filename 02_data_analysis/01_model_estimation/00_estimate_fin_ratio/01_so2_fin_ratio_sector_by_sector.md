@@ -400,7 +400,7 @@ head(df_final)
 ```
 
 <!-- #region kernel="SoS" -->
-## Table 1: Baseline estimate, SO2 emission reduction, policy mandate, individual sector
+## Table 1: Baseline estimate, SO2 emission reduction, policy mandate, city individual sector
 
 $$
 \begin{aligned}
@@ -465,87 +465,72 @@ arrange(desc(working_capital_i))
 working_capital_ordered
 ```
 
-```sos kernel="R"
-t_0 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[1, 'short']$short),
-                exactDOF = TRUE)
-t_1 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[2, 'short']$short),
-                exactDOF = TRUE)
-
-t_2 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr,df_final %>% filter(short == working_capital_ordered[3, 'short']$short),
-                exactDOF = TRUE)
-
-t_3 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[4, 'short']$short),
-                exactDOF = TRUE)
-
-t_4 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[5, 'short']$short),
-                exactDOF = TRUE)
-
-t_5 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[6, 'short']$short),
-                exactDOF = TRUE)
-
-t_6 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr,df_final %>% filter(short == working_capital_ordered[7, 'short']$short),
-                exactDOF = TRUE)
-t_7 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[8, 'short']$short),
-                exactDOF = TRUE)
-t_8 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[8, 'short']$short),
-                exactDOF = TRUE)
-t_9 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[10, 'short']$short),
-                exactDOF = TRUE)
-```
-
 ```sos kernel="Python 3"
-import os
-try:
-    os.remove("Tables/table_0.txt")
-except:
-    pass
-try:
-    os.remove("Tables/table_0.tex")
-except:
-    pass
-try:
-    os.remove("Tables/table_0.pdf")
-except:
-    pass
+for ext in ['.tex', '.pdf']:
+    x = [a for a in os.listdir('Tables') if a.endswith(ext)]
+    [os.remove(os.path.join('Tables', i)) for i in x]
 ```
 
 ```sos kernel="R"
-dep <- "Dependent variable: SO2 emission"
-fe1 <- list(
-    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-             )
+for (i in 1:nrow(working_capital_ordered)){
+    
+    sector_name <- working_capital_ordered[i, 'short']$short
+    
+    name = paste0("Tables/table_",i,".txt")
+    title = paste0("Baseline estimate, SO2 emission reduction, policy mandate, individual sector ",sector_name)
 
-table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9
-),
-    title="Baseline estimate, SO2 emission reduction, policy mandate, individual sector",
-    dep_var = dep,
-    addFE=fe1,
-    save=TRUE,
-    note = FALSE,
-    name="Tables/table_0.txt"
-)
+    t_0 <- felm(log(tso2) ~ period * tso2_mandate_c * working_capital_ci+
+                    output + employment + capital
+                    | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == sector_name),
+                    exactDOF = TRUE)
+    t_1 <- felm(log(tso2) ~ period * tso2_mandate_c * asset_tangibility_ci+
+                    output + employment  + capital
+                    | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == sector_name),
+                    exactDOF = TRUE)
+
+    t_2 <- felm(log(tso2) ~ period * tso2_mandate_c * current_ratio_ci +
+                    output + employment  + capital
+                    | geocode4_corr+ year|0 | geocode4_corr,df_final %>% filter(short == sector_name),
+                    exactDOF = TRUE)
+
+    t_3 <- felm(log(tso2) ~ period * tso2_mandate_c * cash_assets_ci+
+                    output + employment  + capital
+                    | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == sector_name),
+                    exactDOF = TRUE)
+
+    t_4 <- felm(log(tso2) ~ period * tso2_mandate_c * liabilities_assets_ci+
+                    output + employment  + capital
+                    | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == sector_name),
+                    exactDOF = TRUE)
+
+    t_5 <- felm(log(tso2) ~ period * tso2_mandate_c * return_on_asset_ci+
+                    output + employment  + capital
+                    | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == sector_name),
+                    exactDOF = TRUE)
+
+    t_6 <- felm(log(tso2) ~ period * tso2_mandate_c * sales_assets_ci+
+                    output + employment  + capital
+                    | geocode4_corr+ year|0 | geocode4_corr,df_final %>% filter(short == sector_name),
+                    exactDOF = TRUE)
+
+    dep <- "Dependent variable: SO2 emission"
+    fe1 <- list(
+        c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+        c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+                 )
+
+    table_1 <- go_latex(list(
+        t_0,t_1, t_2, t_3, t_4, t_5, t_6
+    ),
+        title=title,
+        dep_var = dep,
+        addFE=fe1,
+        save=TRUE,
+        note = FALSE,
+        name=name
+    )
+    
+}
 ```
 
 ```sos kernel="Python 3"
@@ -562,118 +547,110 @@ tbe1  = "This table estimates eq(3). " \
 #}
 
 #multi_lines_dep = '(city/product/trade regime/year)'
-new_r = ['& Computers', #1
-         'Electrical Machine', #2
-         'Machinery', #3
-         'Tobacco', #4
-         'Transport Equipment', #5
-         'Smelting Metals', #6
-         'Raw Chemical', #7
-         'Special Machinery', #8
-         'Non-metallic Products', #9
-         'Metals', #10
-        ]
-lb.beautify(table_number = 0,
-            #reorder_var = reorder,
-            #multi_lines_dep = multi_lines_dep,
-            new_row= new_r,
-            #multicolumn = multicolumn,
-            table_nte = tbe1,
-            jupyter_preview = True,
-            resolution = 250)
+#new_r = ['& Computers', #1
+#         'Electrical Machine', #2
+#         'Machinery', #3
+#         'Tobacco', #4
+#         'Transport Equipment', #5
+#         'Smelting Metals', #6
+#         'Raw Chemical', #7
+#         'Special Machinery', #8
+#         'Non-metallic Products', #9
+#         'Metals', #10
+#        ]
+reorder = {
+    # Old, New
+    9:3, ## Working capital
+    10:4, ## Asset tangibility
+    11:6, ## current ratio
+    12:8, ## cash asset
+    13:10, ## liabilities asset
+    14:12, ## return on asset
+}
+
+for i in range(1, 31):
+
+    print('\n\nRank {} in term of Working capital\n\n'.format(i))
+    lb.beautify(table_number = i,
+                #reorder_var = reorder,
+                #multi_lines_dep = multi_lines_dep,
+                #new_row= new_r,
+                #multicolumn = multicolumn,
+                table_nte = tbe1,
+                jupyter_preview = True,
+                resolution = 200)
 ```
 
 <!-- #region kernel="Python 3" -->
-## Table 2: Baseline estimate, SO2 emission reduction, policy mandate, individual sector (continued)
-
-$$
-\begin{aligned}
-\text{SO2}_{cit}  &= \alpha\text{Period} \times \text{policy mandate}_c  + \gamma_{ci} + \gamma_{ti} +\gamma_{ct}  + \epsilon_{cit}
-\end{aligned}
-$$
+## Table 2: Baseline estimate, SO2 emission reduction, policy mandate, city-year individual sector
 <!-- #endregion -->
 
-```sos kernel="R"
-t_0 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[11, 'short']$short),
-                exactDOF = TRUE)
-t_1 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[12, 'short']$short),
-                exactDOF = TRUE)
-
-t_2 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr,df_final %>% filter(short == working_capital_ordered[13, 'short']$short),
-                exactDOF = TRUE)
-
-t_3 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[14, 'short']$short),
-                exactDOF = TRUE)
-
-t_4 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[15, 'short']$short),
-                exactDOF = TRUE)
-
-t_5 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[16, 'short']$short),
-                exactDOF = TRUE)
-
-t_6 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr,df_final %>% filter(short == working_capital_ordered[17, 'short']$short),
-                exactDOF = TRUE)
-t_7 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[18, 'short']$short),
-                exactDOF = TRUE)
-t_8 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[19, 'short']$short),
-                exactDOF = TRUE)
-t_9 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[20, 'short']$short),
-                exactDOF = TRUE)
-```
-
 ```sos kernel="Python 3"
-import os
-try:
-    os.remove("Tables/table_1.txt")
-except:
-    pass
-try:
-    os.remove("Tables/table_1.tex")
-except:
-    pass
-try:
-    os.remove("Tables/table_1.pdf")
-except:
-    pass
+for ext in ['.txt','.tex', '.pdf']:
+    x = [a for a in os.listdir('Tables') if a.endswith(ext)]
+    [os.remove(os.path.join('Tables', i)) for i in x]
 ```
 
 ```sos kernel="R"
-dep <- "Dependent variable: SO2 emission"
-fe1 <- list(
-    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-             )
+for (i in 1:nrow(working_capital_ordered)){
+    
+    sector_name <- working_capital_ordered[i, 'short']$short
+    
+    name = paste0("Tables/table_",i,".txt")
+    title = paste0("Baseline estimate, SO2 emission reduction, policy mandate, individual sector ",sector_name)
 
-table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9
-),
-    title="Baseline estimate, SO2 emission reduction, policy mandate, individual sector",
-    dep_var = dep,
-    addFE=fe1,
-    save=TRUE,
-    note = FALSE,
-    name="Tables/table_1.txt"
-)
+    t_0 <- felm(log(tso2) ~ period * tso2_mandate_c * working_capital_cit+
+                    output + employment + capital
+                    | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == sector_name),
+                    exactDOF = TRUE)
+    #t_1 <- felm(log(tso2) ~ period * tso2_mandate_c * asset_tangibility_ci+
+    #                output + employment  + capital
+    #                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == sector_name),
+    #                exactDOF = TRUE)
+
+    t_2 <- felm(log(tso2) ~ period * tso2_mandate_c * current_ratio_cit +
+                    output + employment  + capital
+                    | geocode4_corr+ year|0 | geocode4_corr,df_final %>% filter(short == sector_name),
+                    exactDOF = TRUE)
+
+    t_3 <- felm(log(tso2) ~ period * tso2_mandate_c * cash_assets_cit+
+                    output + employment  + capital
+                    | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == sector_name),
+                    exactDOF = TRUE)
+
+    t_4 <- felm(log(tso2) ~ period * tso2_mandate_c * liabilities_assets_cit+
+                    output + employment  + capital
+                    | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == sector_name),
+                    exactDOF = TRUE)
+
+    t_5 <- felm(log(tso2) ~ period * tso2_mandate_c * return_on_asset_cit+
+                    output + employment  + capital
+                    | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == sector_name),
+                    exactDOF = TRUE)
+
+    t_6 <- felm(log(tso2) ~ period * tso2_mandate_c * sales_assets_cit+
+                    output + employment  + capital
+                    | geocode4_corr+ year|0 | geocode4_corr,df_final %>% filter(short == sector_name),
+                    exactDOF = TRUE)
+
+    dep <- "Dependent variable: SO2 emission"
+    fe1 <- list(
+        c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+        c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+                 )
+
+    table_1 <- go_latex(list(
+        t_0, t_2, t_3, t_4, t_5, t_6
+    ),
+        title=title,
+        dep_var = dep,
+        addFE=fe1,
+        save=TRUE,
+        note = FALSE,
+        name=name
+    )
+    
+}
 ```
 
 ```sos kernel="Python 3"
@@ -690,153 +667,52 @@ tbe1  = "This table estimates eq(3). " \
 #}
 
 #multi_lines_dep = '(city/product/trade regime/year)'
-new_r = ['& Smelting Non-ferrous Metals', #1
-         'Processing foods', #2
-         'Medicines', #3
-         'Tobacco', #4
-         'Coking', #5
-         'Plastics', #6
-         'Footwear', #7
-         'Cultural instruments', #8
-         'Paper', #9
-         'Beverages', #10
-        ]
-lb.beautify(table_number = 1,
-            #reorder_var = reorder,
-            #multi_lines_dep = multi_lines_dep,
-            new_row= new_r,
-            #multicolumn = multicolumn,
-            table_nte = tbe1,
-            jupyter_preview = True,
-            resolution = 250)
-```
+#new_r = ['& Computers', #1
+#         'Electrical Machine', #2
+#         'Machinery', #3
+#         'Tobacco', #4
+#         'Transport Equipment', #5
+#         'Smelting Metals', #6
+#         'Raw Chemical', #7
+#         'Special Machinery', #8
+#         'Non-metallic Products', #9
+#         'Metals', #10
+#        ]
+reorder = {
+    6:0,
+    7:1,
+    8:1,
+    ## Working capital
+    0:3,
+    21:5,
+    ## current ratio
+    1:8,
+    22:9,
+    ## cash asset
+    2:12,
+    23:13,
+    ## liabilitis asset
+    3:16,
+    24:17,
+    ## Retun asset
+    4:20,
+    25:21,
+    ## Sales asset
+    5:23
 
-<!-- #region kernel="Python 3" -->
-## Table 3: Baseline estimate, SO2 emission reduction, policy mandate, individual sector (continued)
+}
 
-$$
-\begin{aligned}
-\text{SO2}_{cit}  &= \alpha\text{Period} \times \text{policy mandate}_c  + \gamma_{ci} + \gamma_{ti} +\gamma_{ct}  + \epsilon_{cit}
-\end{aligned}
-$$
-<!-- #endregion -->
+for i in range(1, 30):
 
-```sos kernel="R"
-t_0 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[21, 'short']$short),
-                exactDOF = TRUE)
-t_1 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[22, 'short']$short),
-                exactDOF = TRUE)
-
-t_2 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr,df_final %>% filter(short == working_capital_ordered[23, 'short']$short),
-                exactDOF = TRUE)
-
-t_3 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[24, 'short']$short),
-                exactDOF = TRUE)
-
-t_4 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[25, 'short']$short),
-                exactDOF = TRUE)
-
-t_5 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[26, 'short']$short),
-                exactDOF = TRUE)
-
-t_6 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr,df_final %>% filter(short == working_capital_ordered[27, 'short']$short),
-                exactDOF = TRUE)
-t_7 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[28, 'short']$short),
-                exactDOF = TRUE)
-t_8 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[29, 'short']$short),
-                exactDOF = TRUE)
-t_9 <- felm(log(tso2) ~ period * tso2_mandate_c +
-                output + employment  + capital
-                | geocode4_corr+ year|0 | geocode4_corr, df_final %>% filter(short == working_capital_ordered[30, 'short']$short),
-                exactDOF = TRUE)
-```
-
-```sos kernel="Python 3"
-import os
-try:
-    os.remove("Tables/table_2.txt")
-except:
-    pass
-try:
-    os.remove("Tables/table_2.tex")
-except:
-    pass
-try:
-    os.remove("Tables/table_2.pdf")
-except:
-    pass
-```
-
-```sos kernel="R"
-dep <- "Dependent variable: SO2 emission"
-fe1 <- list(
-    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-             )
-
-table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9
-),
-    title="Baseline estimate, SO2 emission reduction, policy mandate, individual sector",
-    dep_var = dep,
-    addFE=fe1,
-    save=TRUE,
-    note = FALSE,
-    name="Tables/table_2.txt"
-)
-```
-
-```sos kernel="Python 3"
-tbe1  = "This table estimates eq(3). " \
-"Heteroskedasticity-robust standard errors " \
-"clustered at the city level appear inp arentheses. "\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-#multicolumn ={
-#    'Eligible': 2,
-#    'Non-Eligible': 1,
-#    'All': 1,
-#    'All benchmark': 1,
-#}
-
-#multi_lines_dep = '(city/product/trade regime/year)'
-new_r = ['& Fur', #1
-         'Chemical Fibers', #2
-         'Rubber', #3
-         'Foods', #4
-         'Artwork', #5
-         'Education and Sport Activity', #6
-         'Manufacture of Wood', #7
-         'Recording Media', #8
-         'Furniture', #9
-         'Unknown', #10
-        ]
-lb.beautify(table_number = 2,
-            #reorder_var = reorder,
-            #multi_lines_dep = multi_lines_dep,
-            new_row= new_r,
-            #multicolumn = multicolumn,
-            table_nte = tbe1,
-            jupyter_preview = True,
-            resolution = 250)
+    print('\n\nRank {} in term of Working capital\n\n'.format(i))
+    lb.beautify(table_number = i,
+                #reorder_var = reorder,
+                #multi_lines_dep = multi_lines_dep,
+                #new_row= new_r,
+                #multicolumn = multicolumn,
+                table_nte = tbe1,
+                jupyter_preview = True,
+                resolution = 200)
 ```
 
 <!-- #region kernel="SoS" nteract={"transient": {"deleting": false}} -->
@@ -910,5 +786,5 @@ def create_report(extension = "html", keep_code = False):
 ```
 
 ```sos kernel="Python 3" nteract={"transient": {"deleting": false}} outputExpanded=false
-create_report(extension = "html", keep_code = True)
+create_report(extension = "html", keep_code = False)
 ```

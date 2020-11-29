@@ -1,0 +1,90 @@
+
+\documentclass[preview]{standalone} 
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs,caption,threeparttable, siunitx, adjustbox}
+
+\begin{document}% Date and time \times  Sun, Nov 29, 2020 - 16 \times 13 \times 11
+\begin{table}[!htbp] \centering 
+  \caption{Baseline estimate, SO2 emission reduction, policy mandate, individual sector Transport Equipment} 
+\label{}
+\begin{adjustbox}{width=\textwidth, totalheight=\textheight-2\baselineskip,keepaspectratio}
+\begin{tabular}{@{\extracolsep{5pt}}lcccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{6}{c}{Dependent variable: SO2 emission} \\ 
+\cline{2-7} 
+\\[-1.8ex] & (1) & (2) & (3) & (4) & (5) & (6)\\ 
+\hline \\[-1.8ex] 
+  \text{working capital}_{cit} & 0.170 &  &  &  &  &  \\ 
+  & (0.181) &  &  &  &  &  \\ 
+  \text{current ratio}_{cit} &  & $-$0.174 &  &  &  &  \\ 
+  &  & (0.172) &  &  &  &  \\ 
+  \text{cash assets}_{cit} &  &  & $-$1.853 &  &  &  \\ 
+  &  &  & (1.802) &  &  &  \\ 
+  \text{liabilities assets}_{cit} &  &  &  & 0.604 &  &  \\ 
+  &  &  &  & (1.168) &  &  \\ 
+  \text{return on asset}_{cit} &  &  &  &  & 0.069 &  \\ 
+  &  &  &  &  & (0.079) &  \\ 
+  \text{sales assets}_{cit} &  &  &  &  &  & 0.0004 \\ 
+  &  &  &  &  &  & (0.001) \\ 
+  \text{output}_{cit} & $-$0.033$^{*}$ & $-$0.021 & $-$0.028 & $-$0.029 & $-$0.028 & $-$0.022 \\ 
+  & (0.019) & (0.013) & (0.022) & (0.024) & (0.019) & (0.016) \\ 
+  \text{employment}_{cit} & 0.016 & 0.021$^{***}$ & 0.017 & 0.023 & 0.026$^{*}$ & 0.023$^{***}$ \\ 
+  & (0.014) & (0.007) & (0.022) & (0.022) & (0.014) & (0.008) \\ 
+  \text{capital}_{cit} & $-$0.065 & 0.016 & 0.009 & $-$0.018 & $-$0.025 & 0.014 \\ 
+  & (0.044) & (0.023) & (0.072) & (0.072) & (0.040) & (0.019) \\ 
+  \text{period} \times \text{policy mandate}_c & $-$0.299 & $-$1.825 & 2.011 & 1.156 & 0.503 & $-$0.450 \\ 
+  & (0.512) & (2.764) & (2.353) & (2.890) & (1.314) & (0.583) \\ 
+  \text{period} \times \text{working capital}_{cit} & 0.005 &  &  &  &  &  \\ 
+  & (0.114) &  &  &  &  &  \\ 
+  \text{policy mandate}_c \times \text{working capital}_{cit} & $-$0.062 &  &  &  &  &  \\ 
+  & (0.184) &  &  &  &  &  \\ 
+  \text{period} \times \text{policy mandate}_c \times \text{working capital}_{cit} & 0.207$^{**}$ &  &  &  &  &  \\ 
+  & (0.102) &  &  &  &  &  \\ 
+  \text{period} \times \text{current ratio}_{cit} &  & $-$0.180 &  &  &  &  \\ 
+  &  & (0.205) &  &  &  &  \\ 
+  \text{policy mandate}_c \times \text{current ratio}_{cit} &  & 0.272 &  &  &  &  \\ 
+  &  & (1.286) &  &  &  &  \\ 
+  \text{period} \times \text{policy mandate}_c \times \text{current ratio}_{cit} &  & 1.260 &  &  &  &  \\ 
+  &  & (2.459) &  &  &  &  \\ 
+  \text{period} \times \text{cash assets}_{cit} &  &  & $-$2.784 &  &  &  \\ 
+  &  &  & (1.831) &  &  &  \\ 
+  \text{policy mandate}_c \times \text{cash assets}_{cit} &  &  & 13.170 &  &  &  \\ 
+  &  &  & (8.758) &  &  &  \\ 
+  \text{period} \times \text{policy mandate}_c \times \text{cash assets}_{cit} &  &  & 5.167 &  &  &  \\ 
+  &  &  & (8.017) &  &  &  \\ 
+  \text{period} \times \text{liabilities assets}_{cit} &  &  &  & 0.573 &  &  \\ 
+  &  &  &  & (0.973) &  &  \\ 
+  \text{policy mandate}_c \times \text{liabilities assets}_{cit} &  &  &  & $-$6.628 &  &  \\ 
+  &  &  &  & (6.449) &  &  \\ 
+  \text{period} \times \text{policy mandate}_c \times \text{liabilities assets}_{cit} &  &  &  & $-$0.948 &  &  \\ 
+  &  &  &  & (4.818) &  &  \\ 
+  \text{period} \times \text{return on asset}_{cit} &  &  &  &  & $-$0.072 &  \\ 
+  &  &  &  &  & (0.096) &  \\ 
+  \text{policy mandate}_c \times \text{return on asset}_{cit} &  &  &  &  & $-$0.175 &  \\ 
+  &  &  &  &  & (0.475) &  \\ 
+  \text{period} \times \text{policy mandate}_c \times \text{return on asset}_{cit} &  &  &  &  & $-$0.029 &  \\ 
+  &  &  &  &  & (0.636) &  \\ 
+  \text{period} \times \text{sales assets}_{cit} &  &  &  &  &  & $-$0.001 \\ 
+  &  &  &  &  &  & (0.001) \\ 
+  \text{policy mandate}_c \times \text{sales assets}_{cit} &  &  &  &  &  & $-$0.003 \\ 
+  &  &  &  &  &  & (0.003) \\ 
+  \text{period} \times \text{policy mandate}_c \times \text{sales assets}_{cit} &  &  &  &  &  & 0.010 \\ 
+  &  &  &  &  &  & (0.011) \\ 
+ \hline \\[-1.8ex] 
+City & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Time & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Observations & 611 & 1,128 & 455 & 455 & 609 & 952 \\ 
+R$^{2}$ & 0.861 & 0.807 & 0.890 & 0.886 & 0.856 & 0.816 \\ 
+\hline 
+\hline \\[-1.8ex] 
+\end{tabular}
+\end{adjustbox}
+\begin{tablenotes} 
+ \small 
+ \item \\ 
+This table estimates eq(3). Heteroskedasticity-robust standard errors clustered at the city level appear inp arentheses. \sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%. 
+\end{tablenotes}
+\end{table}
+
+\end{document}
