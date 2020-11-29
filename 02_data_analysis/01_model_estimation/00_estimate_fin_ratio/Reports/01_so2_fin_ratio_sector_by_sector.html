@@ -13143,80 +13143,15 @@ div#notebook {
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="kn">from</span> <span class="nn">awsPy.aws_authorization</span> <span class="kn">import</span> <span class="n">aws_connector</span>
-<span class="kn">from</span> <span class="nn">awsPy.aws_s3</span> <span class="kn">import</span> <span class="n">service_s3</span>
-<span class="kn">from</span> <span class="nn">awsPy.aws_glue</span> <span class="kn">import</span> <span class="n">service_glue</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="c1">#import seaborn as sns</span>
-<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">json</span>
-
-<span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
-<span class="n">parent_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
-
-
-<span class="n">name_credential</span> <span class="o">=</span> <span class="s1">&#39;financial_dep_SO2_accessKeys.csv&#39;</span>
-<span class="n">region</span> <span class="o">=</span> <span class="s1">&#39;eu-west-3&#39;</span>
-<span class="n">bucket</span> <span class="o">=</span> <span class="s1">&#39;datalake-datascience&#39;</span>
-<span class="n">path_cred</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">/creds/</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">parent_path</span><span class="p">,</span> <span class="n">name_credential</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">con</span> <span class="o">=</span> <span class="n">aws_connector</span><span class="o">.</span><span class="n">aws_instantiate</span><span class="p">(</span><span class="n">credential</span> <span class="o">=</span> <span class="n">path_cred</span><span class="p">,</span>
-                                       <span class="n">region</span> <span class="o">=</span> <span class="n">region</span><span class="p">)</span>
-<span class="n">client</span><span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">client_boto</span><span class="p">()</span>
-<span class="n">s3</span> <span class="o">=</span> <span class="n">service_s3</span><span class="o">.</span><span class="n">connect_S3</span><span class="p">(</span><span class="n">client</span> <span class="o">=</span> <span class="n">client</span><span class="p">,</span>
-                      <span class="n">bucket</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
-<span class="n">glue</span> <span class="o">=</span> <span class="n">service_glue</span><span class="o">.</span><span class="n">connect_glue</span><span class="p">(</span><span class="n">client</span> <span class="o">=</span> <span class="n">client</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">pandas_setting</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">if</span> <span class="n">pandas_setting</span><span class="p">:</span>
-    <span class="c1">#cm = sns.light_palette(&quot;green&quot;, as_cmap=True)</span>
-    <span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.max_columns&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.max_colwidth&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;KMP_DUPLICATE_LIB_OK&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;True&#39;</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
@@ -13228,54 +13163,14 @@ div#notebook {
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="s1">&#39;environment&#39;</span>
-<span class="n">table</span> <span class="o">=</span> <span class="s1">&#39;fin_dep_pollution_baseline&#39;</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">dtypes</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="n">schema</span> <span class="o">=</span> <span class="p">(</span><span class="n">glue</span><span class="o">.</span><span class="n">get_table_information</span><span class="p">(</span><span class="n">database</span> <span class="o">=</span> <span class="n">db</span><span class="p">,</span>
-                           <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="p">)</span>
-          <span class="p">[</span><span class="s1">&#39;Table&#39;</span><span class="p">][</span><span class="s1">&#39;StorageDescriptor&#39;</span><span class="p">][</span><span class="s1">&#39;Columns&#39;</span><span class="p">]</span>
-         <span class="p">)</span>
-<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">schema</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;Type&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;varchar(12)&#39;</span><span class="p">]:</span>
-        <span class="n">format_</span> <span class="o">=</span> <span class="s1">&#39;string&#39;</span>
-    <span class="k">elif</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;Type&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="s1">&#39;bigint&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;float&#39;</span><span class="p">]:</span>
-        <span class="n">format_</span> <span class="o">=</span> <span class="s1">&#39;float&#39;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">format_</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;Type&#39;</span><span class="p">]</span> 
-    <span class="n">dtypes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-        <span class="p">{</span><span class="n">value</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]:</span><span class="n">format_</span><span class="p">}</span>
-    <span class="p">)</span>
-<span class="n">dtypes</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 <div class="output_wrapper">
 <div class="output">
 
-
 <div class="output_area">
-
-    <div class="prompt output_prompt">Out[6]:</div>
-
 
 
 
@@ -13332,68 +13227,14 @@ div#notebook {
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">download_data</span> <span class="o">=</span> <span class="kc">False</span>
-
-<span class="k">if</span> <span class="n">download_data</span><span class="p">:</span>
-    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;df_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
-    <span class="n">full_path_filename</span> <span class="o">=</span> <span class="s1">&#39;SQL_OUTPUT_ATHENA/CSV/</span><span class="si">{}</span><span class="s1">.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-    <span class="n">s3</span> <span class="o">=</span> <span class="n">service_s3</span><span class="o">.</span><span class="n">connect_S3</span><span class="p">(</span><span class="n">client</span> <span class="o">=</span> <span class="n">client</span><span class="p">,</span>
-                          <span class="n">bucket</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">    SELECT * </span>
-<span class="s2">    FROM </span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2"></span>
-<span class="s2">    &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span><span class="n">s3</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span>
-        <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
-        <span class="n">database</span><span class="o">=</span><span class="n">db</span><span class="p">,</span>
-        <span class="n">s3_output</span><span class="o">=</span><span class="s1">&#39;SQL_OUTPUT_ATHENA&#39;</span><span class="p">,</span>
-        <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>  <span class="c1"># Add filename to print dataframe</span>
-        <span class="n">destination_key</span><span class="o">=</span><span class="s1">&#39;SQL_OUTPUT_ATHENA/CSV&#39;</span><span class="p">,</span>  <span class="c1">#Use it temporarily</span>
-        <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span>
-    <span class="p">)</span>
-            <span class="p">)</span>
-    <span class="n">s3</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="n">full_path_filename</span>
-    <span class="p">)</span>
-    <span class="n">path_local</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> 
-                              <span class="s2">&quot;00_data_catalogue/temporary_local_data&quot;</span><span class="p">)</span>
-    <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span>
-        <span class="n">filename</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">,</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_local</span><span class="p">,</span> <span class="n">filename</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
-    <span class="p">)</span>
-    <span class="n">s3</span><span class="o">.</span><span class="n">remove_file</span><span class="p">(</span><span class="n">full_path_filename</span><span class="p">)</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 <div class="output_wrapper">
 <div class="output">
 
-
 <div class="output_area">
-
-    <div class="prompt output_prompt">Out[8]:</div>
-
 
 
 <div class="output_html rendered_html output_subarea output_execute_result">
@@ -13711,155 +13552,11 @@ div#notebook {
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">add_to_dic</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">if</span> <span class="n">add_to_dic</span><span class="p">:</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;schema_table.json&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;to_rename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">dic_rename</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="c1">### control variables</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;output&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text</span><span class="si">{output}</span><span class="s1">_</span><span class="si">{cit}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;employment&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text</span><span class="si">{employment}</span><span class="s1">_</span><span class="si">{cit}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;capital&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text</span><span class="si">{capital}</span><span class="s1">_</span><span class="si">{cit}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-       <span class="c1"># {</span>
-       <span class="c1"># &#39;old&#39;:&#39;sales&#39;,</span>
-       <span class="c1"># &#39;new&#39;:&#39;\\text{sales}_{cit}&#39;</span>
-       <span class="c1"># },</span>
-        
-        <span class="c1">### financial ratio</span>
-        <span class="c1">#### Industry</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;working\_capital\_i&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{working capital}_i&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;asset\_tangibility\_i&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{asset tangibility}_i&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;current\_ratio\_i&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{current ratio}_i&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;cash\_assets\_i&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{cash assets}_i&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;liabilities\_assets\_i&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{liabilities assets}_i&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;return\_on\_asset\_i&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{return on asset}_i&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;sales\_assets\_i&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{sales assets}_i&#39;</span>
-        <span class="p">},</span>
-        <span class="c1">#### City-industry</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;working\_capital\_ci&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{working capital}_</span><span class="si">{ci}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;asset\_tangibility\_ci&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{asset tangibility}_</span><span class="si">{ci}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;current\_ratio\_ci&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{current ratio}_</span><span class="si">{ci}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;cash\_assets\_ci&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{cash assets}_</span><span class="si">{ci}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;liabilities\_assets\_ci&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{liabilities assets}_</span><span class="si">{ci}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;return\_on\_asset\_ci&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{return on asset}_</span><span class="si">{ci}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;sales\_assets\_ci&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{sales assets}_</span><span class="si">{ci}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="c1">#### City-Industry-year</span>
-         <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;working\_capital\_cit&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{working capital}_</span><span class="si">{cit}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;asset\_tangibility\_cit&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{asset tangibility}_</span><span class="si">{cit}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;current\_ratio\_cit&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{current ratio}_</span><span class="si">{cit}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;cash\_assets\_cit&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{cash assets}_</span><span class="si">{cit}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;liabilities\_assets\_cit&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{liabilities assets}_</span><span class="si">{cit}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;return\_on\_asset\_cit&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{return on asset}_</span><span class="si">{cit}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;sales\_assets\_cit&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{sales assets}_</span><span class="si">{cit}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="c1">#### </span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;periodTRUE&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text</span><span class="si">{period}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;period&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text</span><span class="si">{period}</span><span class="s1">&#39;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-        <span class="s1">&#39;old&#39;</span><span class="p">:</span><span class="s1">&#39;tso2\_mandate\_c&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;new&#39;</span><span class="p">:</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">text{policy mandate}_c&#39;</span>
-        <span class="p">},</span>
-    <span class="p">]</span>
-
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;to_rename&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dic_rename</span><span class="p">)</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;schema_table.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
-        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 <div class="output_wrapper">
 <div class="output">
 
-
 <div class="output_area">
-
-    <div class="prompt"></div>
-
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>{&#39;to_remove&#39;: &#39;&#39;, &#39;to_rename&#39;: [{&#39;old&#39;: &#39;output&#39;, &#39;new&#39;: &#39;\\text{output}_{cit}&#39;}, {&#39;old&#39;: &#39;employment&#39;, &#39;new&#39;: &#39;\\text{employment}_{cit}&#39;}, {&#39;old&#39;: &#39;capital&#39;, &#39;new&#39;: &#39;\\text{capital}_{cit}&#39;}, {&#39;old&#39;: &#39;working\\_capital\\_i&#39;, &#39;new&#39;: &#39;\\text{working capital}_i&#39;}, {&#39;old&#39;: &#39;asset\\_tangibility\\_i&#39;, &#39;new&#39;: &#39;\\text{asset tangibility}_i&#39;}, {&#39;old&#39;: &#39;current\\_ratio\\_i&#39;, &#39;new&#39;: &#39;\\text{current ratio}_i&#39;}, {&#39;old&#39;: &#39;cash\\_assets\\_i&#39;, &#39;new&#39;: &#39;\\text{cash assets}_i&#39;}, {&#39;old&#39;: &#39;liabilities\\_assets\\_i&#39;, &#39;new&#39;: &#39;\\text{liabilities assets}_i&#39;}, {&#39;old&#39;: &#39;return\\_on\\_asset\\_i&#39;, &#39;new&#39;: &#39;\\text{return on asset}_i&#39;}, {&#39;old&#39;: &#39;sales\\_assets\\_i&#39;, &#39;new&#39;: &#39;\\text{sales assets}_i&#39;}, {&#39;old&#39;: &#39;working\\_capital\\_ci&#39;, &#39;new&#39;: &#39;\\text{working capital}_{ci}&#39;}, {&#39;old&#39;: &#39;asset\\_tangibility\\_ci&#39;, &#39;new&#39;: &#39;\\text{asset tangibility}_{ci}&#39;}, {&#39;old&#39;: &#39;current\\_ratio\\_ci&#39;, &#39;new&#39;: &#39;\\text{current ratio}_{ci}&#39;}, {&#39;old&#39;: &#39;cash\\_assets\\_ci&#39;, &#39;new&#39;: &#39;\\text{cash assets}_{ci}&#39;}, {&#39;old&#39;: &#39;liabilities\\_assets\\_ci&#39;, &#39;new&#39;: &#39;\\text{liabilities assets}_{ci}&#39;}, {&#39;old&#39;: &#39;return\\_on\\_asset\\_ci&#39;, &#39;new&#39;: &#39;\\text{return on asset}_{ci}&#39;}, {&#39;old&#39;: &#39;sales\\_assets\\_ci&#39;, &#39;new&#39;: &#39;\\text{sales assets}_{ci}&#39;}, {&#39;old&#39;: &#39;working\\_capital\\_cit&#39;, &#39;new&#39;: &#39;\\text{working capital}_{cit}&#39;}, {&#39;old&#39;: &#39;asset\\_tangibility\\_cit&#39;, &#39;new&#39;: &#39;\\text{asset tangibility}_{cit}&#39;}, {&#39;old&#39;: &#39;current\\_ratio\\_cit&#39;, &#39;new&#39;: &#39;\\text{current ratio}_{cit}&#39;}, {&#39;old&#39;: &#39;cash\\_assets\\_cit&#39;, &#39;new&#39;: &#39;\\text{cash assets}_{cit}&#39;}, {&#39;old&#39;: &#39;liabilities\\_assets\\_cit&#39;, &#39;new&#39;: &#39;\\text{liabilities assets}_{cit}&#39;}, {&#39;old&#39;: &#39;return\\_on\\_asset\\_cit&#39;, &#39;new&#39;: &#39;\\text{return on asset}_{cit}&#39;}, {&#39;old&#39;: &#39;sales\\_assets\\_cit&#39;, &#39;new&#39;: &#39;\\text{sales assets}_{cit}&#39;}, {&#39;old&#39;: &#39;periodTRUE&#39;, &#39;new&#39;: &#39;\\text{period}&#39;}, {&#39;old&#39;: &#39;period&#39;, &#39;new&#39;: &#39;\\text{period}&#39;}, {&#39;old&#39;: &#39;tso2\\_mandate\\_c&#39;, &#39;new&#39;: &#39;\\text{policy mandate}_c&#39;}]}
@@ -13884,47 +13581,14 @@ div#notebook {
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="kn">import</span> <span class="nn">function.latex_beautify</span> <span class="k">as</span> <span class="nn">lb</span>
-
-<span class="o">%</span><span class="n">load_ext</span> <span class="n">autoreload</span>
-<span class="o">%</span><span class="n">autoreload</span> <span class="mi">2</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">options</span><span class="p">(</span><span class="n">warn</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">library</span><span class="p">(</span><span class="n">tidyverse</span><span class="p">)</span>
-<span class="n">library</span><span class="p">(</span><span class="n">lfe</span><span class="p">)</span>
-<span class="c1">#library(lazyeval)</span>
-<span class="n">library</span><span class="p">(</span><span class="s1">&#39;progress&#39;</span><span class="p">)</span>
-<span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;function/table_golatex.R&quot;</span>
-<span class="n">source</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 <div class="output_wrapper">
 <div class="output">
 
-
 <div class="output_area">
-
-    <div class="prompt"></div>
-
 
 <div class="output_subarea output_stream output_stderr output_text">
 <pre>── <span class="ansi-bold">Attaching packages</span> ─────────────────────────────────────── tidyverse 1.3.0 ──
@@ -13967,31 +13631,11 @@ Please cite as:
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;../../../00_Data_catalogue/temporary_local_data/df_fin_dep_pollution_baseline.csv&#39;</span>
-<span class="n">df_final</span> <span class="o">&lt;-</span> <span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">%&gt;%</span>
-<span class="n">mutate_if</span><span class="p">(</span><span class="ow">is</span><span class="o">.</span><span class="n">character</span><span class="p">,</span> <span class="k">as</span><span class="o">.</span><span class="n">factor</span><span class="p">)</span> <span class="o">%&gt;%</span>
-    <span class="n">mutate_at</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">starts_with</span><span class="p">(</span><span class="s2">&quot;fe&quot;</span><span class="p">)),</span> <span class="k">as</span><span class="o">.</span><span class="n">factor</span><span class="p">)</span> <span class="o">%&gt;%</span>
-<span class="n">mutate</span><span class="p">(</span>
-    <span class="n">period</span> <span class="o">=</span> <span class="n">relevel</span><span class="p">(</span><span class="k">as</span><span class="o">.</span><span class="n">factor</span><span class="p">(</span><span class="n">period</span><span class="p">),</span> <span class="n">ref</span><span class="o">=</span><span class="s1">&#39;FALSE&#39;</span><span class="p">)</span>
-<span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 <div class="output_wrapper">
 <div class="output">
 
-
 <div class="output_area">
-
-    <div class="prompt"></div>
-
 
 <div class="output_subarea output_stream output_stderr output_text">
 <pre>Parsed with column specification:
@@ -14017,25 +13661,11 @@ See spec(...) for full column specifications.
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">head</span><span class="p">(</span><span class="n">df_final</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 <div class="output_wrapper">
 <div class="output">
 
-
 <div class="output_area">
-
-    <div class="prompt"></div>
-
 
 
 <div class="output_html rendered_html output_subarea ">
@@ -14149,29 +13779,11 @@ $$<p>Estimation for each of the 31 sectors</p>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">working_capital_ordered</span> <span class="o">&lt;-</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> 
-<span class="n">group_by</span><span class="p">(</span><span class="n">short</span><span class="p">)</span> <span class="o">%&gt;%</span> 
-<span class="n">summarise</span><span class="p">(</span><span class="n">working_capital_i</span> <span class="o">=</span> <span class="n">unique</span><span class="p">(</span><span class="n">working_capital_i</span><span class="p">))</span> <span class="o">%&gt;%</span>
-<span class="n">arrange</span><span class="p">(</span><span class="n">desc</span><span class="p">(</span><span class="n">working_capital_i</span><span class="p">))</span>
-<span class="n">working_capital_ordered</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 <div class="output_wrapper">
 <div class="output">
 
-
 <div class="output_area">
-
-    <div class="prompt"></div>
-
 
 <div class="output_subarea output_stream output_stderr output_text">
 <pre>`summarise()` ungrouping output (override with `.groups` argument)
@@ -14181,9 +13793,6 @@ $$<p>Estimation for each of the 31 sectors</p>
 </div>
 
 <div class="output_area">
-
-    <div class="prompt"></div>
-
 
 
 <div class="output_html rendered_html output_subarea ">
@@ -14236,166 +13845,20 @@ $$<p>Estimation for each of the 31 sectors</p>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">t_0</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span> <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-<span class="n">t_1</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-
-<span class="n">t_2</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span><span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-
-<span class="n">t_3</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-
-<span class="n">t_4</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-
-<span class="n">t_5</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-
-<span class="n">t_6</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span><span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-<span class="n">t_7</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-<span class="n">t_8</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-<span class="n">t_9</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">try:</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;Tables/table_0.txt&quot;</span><span class="p">)</span>
-<span class="kn">except:</span>
-    <span class="k">pass</span>
-<span class="kn">try:</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;Tables/table_0.tex&quot;</span><span class="p">)</span>
-<span class="kn">except:</span>
-    <span class="k">pass</span>
-<span class="kn">try:</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;Tables/table_0.pdf&quot;</span><span class="p">)</span>
-<span class="kn">except:</span>
-    <span class="k">pass</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">dep</span> <span class="o">&lt;-</span> <span class="s2">&quot;Dependent variable: SO2 emission&quot;</span>
-<span class="n">fe1</span> <span class="o">&lt;-</span> <span class="nb">list</span><span class="p">(</span>
-    <span class="n">c</span><span class="p">(</span><span class="s2">&quot;City&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">),</span>
-    <span class="n">c</span><span class="p">(</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">)</span>
-             <span class="p">)</span>
-
-<span class="n">table_1</span> <span class="o">&lt;-</span> <span class="n">go_latex</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span>
-    <span class="n">t_0</span><span class="p">,</span><span class="n">t_1</span><span class="p">,</span> <span class="n">t_2</span><span class="p">,</span> <span class="n">t_3</span><span class="p">,</span> <span class="n">t_4</span><span class="p">,</span> <span class="n">t_5</span><span class="p">,</span> <span class="n">t_6</span><span class="p">,</span> <span class="n">t_7</span><span class="p">,</span> <span class="n">t_8</span><span class="p">,</span> <span class="n">t_9</span>
-<span class="p">),</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Baseline estimate, SO2 emission reduction, policy mandate, individual sector&quot;</span><span class="p">,</span>
-    <span class="n">dep_var</span> <span class="o">=</span> <span class="n">dep</span><span class="p">,</span>
-    <span class="n">addFE</span><span class="o">=</span><span class="n">fe1</span><span class="p">,</span>
-    <span class="n">save</span><span class="o">=</span><span class="n">TRUE</span><span class="p">,</span>
-    <span class="n">note</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">,</span>
-    <span class="kp">name</span><span class="o">=</span><span class="s2">&quot;Tables/table_0.txt&quot;</span>
-<span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">tbe1</span>  <span class="o">=</span> <span class="s2">&quot;This table estimates eq(3). &quot;</span> \
-<span class="s2">&quot;Heteroskedasticity-robust standard errors &quot;</span> \
-<span class="s2">&quot;clustered at the city level appear inp arentheses. &quot;</span>\
-<span class="s2">&quot;\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%.&quot;</span>
-
-<span class="c1">#multicolumn ={</span>
-<span class="c1">#    &#39;Eligible&#39;: 2,</span>
-<span class="c1">#    &#39;Non-Eligible&#39;: 1,</span>
-<span class="c1">#    &#39;All&#39;: 1,</span>
-<span class="c1">#    &#39;All benchmark&#39;: 1,</span>
-<span class="c1">#}</span>
-
-<span class="c1">#multi_lines_dep = &#39;(city/product/trade regime/year)&#39;</span>
-<span class="n">new_r</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&amp; Computers&#39;</span><span class="p">,</span> <span class="c1">#1</span>
-         <span class="s1">&#39;Electrical Machine&#39;</span><span class="p">,</span> <span class="c1">#2</span>
-         <span class="s1">&#39;Machinery&#39;</span><span class="p">,</span> <span class="c1">#3</span>
-         <span class="s1">&#39;Tobacco&#39;</span><span class="p">,</span> <span class="c1">#4</span>
-         <span class="s1">&#39;Transport Equipment&#39;</span><span class="p">,</span> <span class="c1">#5</span>
-         <span class="s1">&#39;Smelting Metals&#39;</span><span class="p">,</span> <span class="c1">#6</span>
-         <span class="s1">&#39;Raw Chemical&#39;</span><span class="p">,</span> <span class="c1">#7</span>
-         <span class="s1">&#39;Special Machinery&#39;</span><span class="p">,</span> <span class="c1">#8</span>
-         <span class="s1">&#39;Non-metallic Products&#39;</span><span class="p">,</span> <span class="c1">#9</span>
-         <span class="s1">&#39;Metals&#39;</span><span class="p">,</span> <span class="c1">#10</span>
-        <span class="p">]</span>
-<span class="n">lb</span><span class="o">.</span><span class="n">beautify</span><span class="p">(</span><span class="n">table_number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="c1">#reorder_var = reorder,</span>
-            <span class="c1">#multi_lines_dep = multi_lines_dep,</span>
-            <span class="n">new_row</span><span class="o">=</span> <span class="n">new_r</span><span class="p">,</span>
-            <span class="c1">#multicolumn = multicolumn,</span>
-            <span class="n">table_nte</span> <span class="o">=</span> <span class="n">tbe1</span><span class="p">,</span>
-            <span class="n">jupyter_preview</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="n">resolution</span> <span class="o">=</span> <span class="mi">250</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 <div class="output_wrapper">
 <div class="output">
 
-
 <div class="output_area">
-
-    <div class="prompt"></div>
-
 
 
 
@@ -14423,166 +13886,20 @@ $$
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[19]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">t_0</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span> <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-<span class="n">t_1</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-
-<span class="n">t_2</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span><span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-
-<span class="n">t_3</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">14</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-
-<span class="n">t_4</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-
-<span class="n">t_5</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-
-<span class="n">t_6</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span><span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">17</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-<span class="n">t_7</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">18</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-<span class="n">t_8</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">19</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-<span class="n">t_9</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">try:</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;Tables/table_1.txt&quot;</span><span class="p">)</span>
-<span class="kn">except:</span>
-    <span class="k">pass</span>
-<span class="kn">try:</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;Tables/table_1.tex&quot;</span><span class="p">)</span>
-<span class="kn">except:</span>
-    <span class="k">pass</span>
-<span class="kn">try:</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;Tables/table_1.pdf&quot;</span><span class="p">)</span>
-<span class="kn">except:</span>
-    <span class="k">pass</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[21]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">dep</span> <span class="o">&lt;-</span> <span class="s2">&quot;Dependent variable: SO2 emission&quot;</span>
-<span class="n">fe1</span> <span class="o">&lt;-</span> <span class="nb">list</span><span class="p">(</span>
-    <span class="n">c</span><span class="p">(</span><span class="s2">&quot;City&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">),</span>
-    <span class="n">c</span><span class="p">(</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">)</span>
-             <span class="p">)</span>
-
-<span class="n">table_1</span> <span class="o">&lt;-</span> <span class="n">go_latex</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span>
-    <span class="n">t_0</span><span class="p">,</span><span class="n">t_1</span><span class="p">,</span> <span class="n">t_2</span><span class="p">,</span> <span class="n">t_3</span><span class="p">,</span> <span class="n">t_4</span><span class="p">,</span> <span class="n">t_5</span><span class="p">,</span> <span class="n">t_6</span><span class="p">,</span> <span class="n">t_7</span><span class="p">,</span> <span class="n">t_8</span><span class="p">,</span> <span class="n">t_9</span>
-<span class="p">),</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Baseline estimate, SO2 emission reduction, policy mandate, individual sector&quot;</span><span class="p">,</span>
-    <span class="n">dep_var</span> <span class="o">=</span> <span class="n">dep</span><span class="p">,</span>
-    <span class="n">addFE</span><span class="o">=</span><span class="n">fe1</span><span class="p">,</span>
-    <span class="n">save</span><span class="o">=</span><span class="n">TRUE</span><span class="p">,</span>
-    <span class="n">note</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">,</span>
-    <span class="kp">name</span><span class="o">=</span><span class="s2">&quot;Tables/table_1.txt&quot;</span>
-<span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">tbe1</span>  <span class="o">=</span> <span class="s2">&quot;This table estimates eq(3). &quot;</span> \
-<span class="s2">&quot;Heteroskedasticity-robust standard errors &quot;</span> \
-<span class="s2">&quot;clustered at the city level appear inp arentheses. &quot;</span>\
-<span class="s2">&quot;\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%.&quot;</span>
-
-<span class="c1">#multicolumn ={</span>
-<span class="c1">#    &#39;Eligible&#39;: 2,</span>
-<span class="c1">#    &#39;Non-Eligible&#39;: 1,</span>
-<span class="c1">#    &#39;All&#39;: 1,</span>
-<span class="c1">#    &#39;All benchmark&#39;: 1,</span>
-<span class="c1">#}</span>
-
-<span class="c1">#multi_lines_dep = &#39;(city/product/trade regime/year)&#39;</span>
-<span class="n">new_r</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&amp; Smelting Non-ferrous Metals&#39;</span><span class="p">,</span> <span class="c1">#1</span>
-         <span class="s1">&#39;Processing foods&#39;</span><span class="p">,</span> <span class="c1">#2</span>
-         <span class="s1">&#39;Medicines&#39;</span><span class="p">,</span> <span class="c1">#3</span>
-         <span class="s1">&#39;Tobacco&#39;</span><span class="p">,</span> <span class="c1">#4</span>
-         <span class="s1">&#39;Coking&#39;</span><span class="p">,</span> <span class="c1">#5</span>
-         <span class="s1">&#39;Plastics&#39;</span><span class="p">,</span> <span class="c1">#6</span>
-         <span class="s1">&#39;Footwear&#39;</span><span class="p">,</span> <span class="c1">#7</span>
-         <span class="s1">&#39;Cultural instruments&#39;</span><span class="p">,</span> <span class="c1">#8</span>
-         <span class="s1">&#39;Paper&#39;</span><span class="p">,</span> <span class="c1">#9</span>
-         <span class="s1">&#39;Beverages&#39;</span><span class="p">,</span> <span class="c1">#10</span>
-        <span class="p">]</span>
-<span class="n">lb</span><span class="o">.</span><span class="n">beautify</span><span class="p">(</span><span class="n">table_number</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="c1">#reorder_var = reorder,</span>
-            <span class="c1">#multi_lines_dep = multi_lines_dep,</span>
-            <span class="n">new_row</span><span class="o">=</span> <span class="n">new_r</span><span class="p">,</span>
-            <span class="c1">#multicolumn = multicolumn,</span>
-            <span class="n">table_nte</span> <span class="o">=</span> <span class="n">tbe1</span><span class="p">,</span>
-            <span class="n">jupyter_preview</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="n">resolution</span> <span class="o">=</span> <span class="mi">250</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 <div class="output_wrapper">
 <div class="output">
 
-
 <div class="output_area">
-
-    <div class="prompt"></div>
-
 
 
 
@@ -14610,166 +13927,20 @@ $$
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">t_0</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span> <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">21</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-<span class="n">t_1</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">22</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-
-<span class="n">t_2</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span><span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-
-<span class="n">t_3</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">24</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-
-<span class="n">t_4</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-
-<span class="n">t_5</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">26</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-
-<span class="n">t_6</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span><span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">27</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-<span class="n">t_7</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">28</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-<span class="n">t_8</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">29</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-<span class="n">t_9</span> <span class="o">&lt;-</span> <span class="n">felm</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">tso2</span><span class="p">)</span> <span class="o">~</span> <span class="n">period</span> <span class="o">*</span> <span class="n">tso2_mandate_c</span> <span class="o">+</span>
-                <span class="n">output</span> <span class="o">+</span> <span class="n">employment</span>  <span class="o">+</span> <span class="n">capital</span>
-                <span class="o">|</span> <span class="n">geocode4_corr</span><span class="o">+</span> <span class="n">year</span><span class="o">|</span><span class="mi">0</span> <span class="o">|</span> <span class="n">geocode4_corr</span><span class="p">,</span> <span class="n">df_final</span> <span class="o">%&gt;%</span> <span class="nb">filter</span><span class="p">(</span><span class="n">short</span> <span class="o">==</span> <span class="n">working_capital_ordered</span><span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">]</span><span class="err">$</span><span class="n">short</span><span class="p">),</span>
-                <span class="n">exactDOF</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[24]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">try:</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;Tables/table_2.txt&quot;</span><span class="p">)</span>
-<span class="kn">except:</span>
-    <span class="k">pass</span>
-<span class="kn">try:</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;Tables/table_2.tex&quot;</span><span class="p">)</span>
-<span class="kn">except:</span>
-    <span class="k">pass</span>
-<span class="kn">try:</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;Tables/table_2.pdf&quot;</span><span class="p">)</span>
-<span class="kn">except:</span>
-    <span class="k">pass</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[25]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">dep</span> <span class="o">&lt;-</span> <span class="s2">&quot;Dependent variable: SO2 emission&quot;</span>
-<span class="n">fe1</span> <span class="o">&lt;-</span> <span class="nb">list</span><span class="p">(</span>
-    <span class="n">c</span><span class="p">(</span><span class="s2">&quot;City&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">),</span>
-    <span class="n">c</span><span class="p">(</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">)</span>
-             <span class="p">)</span>
-
-<span class="n">table_1</span> <span class="o">&lt;-</span> <span class="n">go_latex</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span>
-    <span class="n">t_0</span><span class="p">,</span><span class="n">t_1</span><span class="p">,</span> <span class="n">t_2</span><span class="p">,</span> <span class="n">t_3</span><span class="p">,</span> <span class="n">t_4</span><span class="p">,</span> <span class="n">t_5</span><span class="p">,</span> <span class="n">t_6</span><span class="p">,</span> <span class="n">t_7</span><span class="p">,</span> <span class="n">t_8</span><span class="p">,</span> <span class="n">t_9</span>
-<span class="p">),</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Baseline estimate, SO2 emission reduction, policy mandate, individual sector&quot;</span><span class="p">,</span>
-    <span class="n">dep_var</span> <span class="o">=</span> <span class="n">dep</span><span class="p">,</span>
-    <span class="n">addFE</span><span class="o">=</span><span class="n">fe1</span><span class="p">,</span>
-    <span class="n">save</span><span class="o">=</span><span class="n">TRUE</span><span class="p">,</span>
-    <span class="n">note</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">,</span>
-    <span class="kp">name</span><span class="o">=</span><span class="s2">&quot;Tables/table_2.txt&quot;</span>
-<span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">tbe1</span>  <span class="o">=</span> <span class="s2">&quot;This table estimates eq(3). &quot;</span> \
-<span class="s2">&quot;Heteroskedasticity-robust standard errors &quot;</span> \
-<span class="s2">&quot;clustered at the city level appear inp arentheses. &quot;</span>\
-<span class="s2">&quot;\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%.&quot;</span>
-
-<span class="c1">#multicolumn ={</span>
-<span class="c1">#    &#39;Eligible&#39;: 2,</span>
-<span class="c1">#    &#39;Non-Eligible&#39;: 1,</span>
-<span class="c1">#    &#39;All&#39;: 1,</span>
-<span class="c1">#    &#39;All benchmark&#39;: 1,</span>
-<span class="c1">#}</span>
-
-<span class="c1">#multi_lines_dep = &#39;(city/product/trade regime/year)&#39;</span>
-<span class="n">new_r</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&amp; Fur&#39;</span><span class="p">,</span> <span class="c1">#1</span>
-         <span class="s1">&#39;Chemical Fibers&#39;</span><span class="p">,</span> <span class="c1">#2</span>
-         <span class="s1">&#39;Rubber&#39;</span><span class="p">,</span> <span class="c1">#3</span>
-         <span class="s1">&#39;Foods&#39;</span><span class="p">,</span> <span class="c1">#4</span>
-         <span class="s1">&#39;Artwork&#39;</span><span class="p">,</span> <span class="c1">#5</span>
-         <span class="s1">&#39;Education and Sport Activity&#39;</span><span class="p">,</span> <span class="c1">#6</span>
-         <span class="s1">&#39;Manufacture of Wood&#39;</span><span class="p">,</span> <span class="c1">#7</span>
-         <span class="s1">&#39;Recording Media&#39;</span><span class="p">,</span> <span class="c1">#8</span>
-         <span class="s1">&#39;Furniture&#39;</span><span class="p">,</span> <span class="c1">#9</span>
-         <span class="s1">&#39;Unknown&#39;</span><span class="p">,</span> <span class="c1">#10</span>
-        <span class="p">]</span>
-<span class="n">lb</span><span class="o">.</span><span class="n">beautify</span><span class="p">(</span><span class="n">table_number</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
-            <span class="c1">#reorder_var = reorder,</span>
-            <span class="c1">#multi_lines_dep = multi_lines_dep,</span>
-            <span class="n">new_row</span><span class="o">=</span> <span class="n">new_r</span><span class="p">,</span>
-            <span class="c1">#multicolumn = multicolumn,</span>
-            <span class="n">table_nte</span> <span class="o">=</span> <span class="n">tbe1</span><span class="p">,</span>
-            <span class="n">jupyter_preview</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="n">resolution</span> <span class="o">=</span> <span class="mi">250</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 <div class="output_wrapper">
 <div class="output">
 
-
 <div class="output_area">
-
-    <div class="prompt"></div>
-
 
 
 
@@ -14793,109 +13964,17 @@ $$
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[27]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">urllib</span><span class="o">,</span> <span class="nn">ipykernel</span><span class="o">,</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">notebook</span> <span class="kn">import</span> <span class="n">notebookapp</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[28]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="k">def</span> <span class="nf">create_report</span><span class="p">(</span><span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">keep_code</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create a report from the current notebook and save it in the </span>
-<span class="sd">    Report folder (Parent-&gt; child directory)</span>
-<span class="sd">    </span>
-<span class="sd">    1. Exctract the current notbook name</span>
-<span class="sd">    2. Convert the Notebook </span>
-<span class="sd">    3. Move the newly created report</span>
-<span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">    extension: string. Can be &quot;html&quot;, &quot;pdf&quot;, &quot;md&quot;</span>
-<span class="sd">    </span>
-<span class="sd">    </span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    
-    <span class="c1">### Get notebook name</span>
-    <span class="n">connection_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">ipykernel</span><span class="o">.</span><span class="n">get_connection_file</span><span class="p">())</span>
-    <span class="n">kernel_id</span> <span class="o">=</span> <span class="n">connection_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-
-    <span class="k">for</span> <span class="n">srv</span> <span class="ow">in</span> <span class="n">notebookapp</span><span class="o">.</span><span class="n">list_running_servers</span><span class="p">():</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">srv</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">srv</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">]:</span>  
-                <span class="n">req</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">srv</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;api/sessions&#39;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">req</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">srv</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span><span class="o">+</span> \
-                                             <span class="s1">&#39;api/sessions?token=&#39;</span> <span class="o">+</span> \
-                                             <span class="n">srv</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">])</span>
-            <span class="n">sessions</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
-            <span class="n">notebookname</span> <span class="o">=</span> <span class="n">sessions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">pass</span>  
-    
-    <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
-    <span class="c1">#parent_path = str(Path(path).parent)</span>
-    
-    <span class="c1">### Path report</span>
-    <span class="c1">#path_report = &quot;{}/Reports&quot;.format(parent_path)</span>
-    <span class="c1">#path_report = &quot;{}/Reports&quot;.format(path)</span>
-    
-    <span class="c1">### Path destination</span>
-    <span class="n">name_no_extension</span> <span class="o">=</span> <span class="n">notebookname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">source_to_move</span> <span class="o">=</span> <span class="n">name_no_extension</span> <span class="o">+</span><span class="s1">&#39;.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">extension</span><span class="p">)</span>
-    <span class="n">dest</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="s1">&#39;Reports&#39;</span><span class="p">,</span> <span class="n">source_to_move</span><span class="p">)</span>
-    
-    <span class="c1">### Generate notebook</span>
-    <span class="k">if</span> <span class="n">keep_code</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;jupyter nbconvert --to </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-    <span class="n">extension</span><span class="p">,</span><span class="n">notebookname</span><span class="p">))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;jupyter nbconvert --no-input --to </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-    <span class="n">extension</span><span class="p">,</span><span class="n">notebookname</span><span class="p">))</span>
-    
-    <span class="c1">### Move notebook to report folder</span>
-    <span class="c1">#time.sleep(5)</span>
-    <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">source_to_move</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Report Available at this adress:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dest</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 </div>
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[29]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-sos"><pre><span></span><span class="n">create_report</span><span class="p">(</span><span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">keep_code</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 <div class="output_wrapper">
 <div class="output">
 
-
 <div class="output_area">
-
-    <div class="prompt"></div>
-
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Report Available at this adress:
