@@ -233,6 +233,10 @@ if add_to_dic:
         'old':'employment',
         'new':'\\text{employment}_{cit}'
         },
+        {
+        'old':'capital',
+        'new':'\\text{capital}_{cit}'
+        },
        # {
        # 'old':'sales',
        # 'new':'\\text{sales}_{cit}'
@@ -452,36 +456,36 @@ $$
 
 ```sos kernel="R"
 t_0 <- felm(log(tso2) ~ working_capital_i * period * tso2_mandate_c +
-            output + employment 
+            output + employment + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 t_1 <- felm(log(tso2) ~ asset_tangibility_i * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_2 <- felm(log(tso2) ~ current_ratio_i * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_3 <- felm(log(tso2) ~ cash_assets_i * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_4 <- felm(log(tso2) ~ liabilities_assets_i * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_5 <- felm(log(tso2) ~ return_on_asset_i * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_6 <- felm(log(tso2) ~ sales_assets_i * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
@@ -563,36 +567,36 @@ $$
 
 ```sos kernel="R"
 t_0 <- felm(log(tso2) ~ working_capital_ci * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 t_1 <- felm(log(tso2) ~ asset_tangibility_ci * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_2 <- felm(log(tso2) ~ current_ratio_ci * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_3 <- felm(log(tso2) ~ cash_assets_ci * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_4 <- felm(log(tso2) ~ liabilities_assets_ci * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_5 <- felm(log(tso2) ~ return_on_asset_ci * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_6 <- felm(log(tso2) ~ sales_assets_ci * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
@@ -684,7 +688,7 @@ $$
 
 ```sos kernel="R"
 t_0 <- felm(log(tso2) ~ working_capital_cit * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 #t_1 <- felm(log(tso2) ~ asset_tangibility_cit * period * tso2_mandate_c +
@@ -693,27 +697,27 @@ t_0 <- felm(log(tso2) ~ working_capital_cit * period * tso2_mandate_c +
 #            exactDOF = TRUE)
 
 t_2 <- felm(log(tso2) ~ current_ratio_cit * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_3 <- felm(log(tso2) ~ cash_assets_cit * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_4 <- felm(log(tso2) ~ liabilities_assets_cit * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_5 <- felm(log(tso2) ~ return_on_asset_cit * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_6 <- felm(log(tso2) ~ sales_assets_cit * period * tso2_mandate_c +
-            output + employment 
+            output + employment  + capital
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 ```
@@ -772,23 +776,24 @@ tbe1  = "This table estimates eq(3). " \
 reorder = {
     6:0,
     7:1,
+    8:1,
     ## Working capital
-    0:2,
-    20:5,
+    0:3,
+    21:5,
     ## current ratio
     1:8,
-    21:9,
+    22:9,
     ## cash asset
     2:12,
-    22:13,
+    23:13,
     ## liabilitis asset
     3:16,
-    23:17,
+    24:17,
     ## Retun asset
     4:20,
-    24:21,
+    25:21,
     ## Sales asset
-    5:23,
+    5:23
 
 }
 

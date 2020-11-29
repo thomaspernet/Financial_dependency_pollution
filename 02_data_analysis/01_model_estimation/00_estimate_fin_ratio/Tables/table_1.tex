@@ -3,7 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{booktabs,caption,threeparttable, siunitx, adjustbox}
 
-\begin{document}% Date and time \times  Sat, Nov 28, 2020 - 16 \times 24 \times 24
+\begin{document}% Date and time \times  Sun, Nov 29, 2020 - 14 \times 01 \times 42
 \begin{table}[!htbp] \centering 
   \caption{Baseline estimate, SO2 emission reduction and industry financial ratio, city-industry level} 
 \label{}
@@ -15,44 +15,46 @@
 \cline{2-8} 
 \\[-1.8ex] & (1) & (2) & (3) & (4) & (5) & (6) & (7)\\ 
 \hline \\[-1.8ex] 
-  \text{output}_{cit} & 0.004 & 0.006 & 0.007 & 0.006 & 0.006 & 0.007$^{*}$ & 0.007 \\ 
-  & (0.004) & (0.005) & (0.004) & (0.004) & (0.004) & (0.004) & (0.004) \\ 
-  \text{employment}_{cit} & 0.018$^{***}$ & 0.019$^{***}$ & 0.018$^{***}$ & 0.018$^{***}$ & 0.018$^{***}$ & 0.018$^{***}$ & 0.018$^{***}$ \\ 
-  & (0.004) & (0.004) & (0.004) & (0.004) & (0.004) & (0.004) & (0.004) \\ 
-  \text{working capital}_{ci} \times \text{period} & 0.043 &  &  &  &  &  &  \\ 
-  & (0.073) &  &  &  &  &  &  \\ 
-  \text{working capital}_{ci} \times \text{period} \times \text{policy mandate}_c & 0.062 &  &  &  &  &  &  \\ 
-  & (0.057) &  &  &  &  &  &  \\ 
-  \text{asset tangibility}_{ci} \times \text{period} \times \text{policy mandate}_c &  & 0.093$^{***}$ &  &  &  &  &  \\ 
-  &  & (0.026) &  &  &  &  &  \\ 
-  \text{asset tangibility}_{ci} \times \text{period} &  & $-$0.122$^{***}$ &  &  &  &  &  \\ 
-  &  & (0.034) &  &  &  &  &  \\ 
-  \text{current ratio}_{ci} \times \text{period} \times \text{policy mandate}_c &  &  & 0.006 &  &  &  &  \\ 
-  &  &  & (0.009) &  &  &  &  \\ 
-  \text{current ratio}_{ci} \times \text{period} &  &  & 0.0004 &  &  &  &  \\ 
-  &  &  & (0.001) &  &  &  &  \\ 
-  \text{cash assets}_{ci} \times \text{period} \times \text{policy mandate}_c &  &  &  & $-$0.152 &  &  &  \\ 
-  &  &  &  & (0.420) &  &  &  \\ 
-  \text{cash assets}_{ci} \times \text{period} &  &  &  & 0.145 &  &  &  \\ 
-  &  &  &  & (0.141) &  &  &  \\ 
-  \text{liabilities assets}_{ci} \times \text{period} \times \text{policy mandate}_c &  &  &  &  & 0.171 &  &  \\ 
-  &  &  &  &  & (0.306) &  &  \\ 
-  \text{liabilities assets}_{ci} \times \text{period} &  &  &  &  & $-$0.178$^{**}$ &  &  \\ 
-  &  &  &  &  & (0.084) &  &  \\ 
-  \text{return on asset}_{ci} \times \text{period} \times \text{policy mandate}_c &  &  &  &  &  & $-$0.008 &  \\ 
-  &  &  &  &  &  & (0.007) &  \\ 
-  \text{return on asset}_{ci} \times \text{period} &  &  &  &  &  & 0.001 &  \\ 
-  &  &  &  &  &  & (0.001) &  \\ 
-  \text{sales assets}_{ci} \times \text{period} &  &  &  &  &  &  & 0.00000 \\ 
-  &  &  &  &  &  &  & (0.00004) \\ 
-  \text{sales assets}_{ci} \times \text{period} \times \text{policy mandate}_c &  &  &  &  &  &  & 0.00003 \\ 
+  \text{output}_{cit} & $-$0.010$^{***}$ & $-$0.010$^{***}$ & $-$0.010$^{***}$ & $-$0.010$^{***}$ & $-$0.010$^{***}$ & $-$0.010$^{***}$ & $-$0.010$^{***}$ \\ 
+  & (0.003) & (0.004) & (0.003) & (0.003) & (0.003) & (0.003) & (0.003) \\ 
+  \text{employment}_{cit} & 0.010$^{***}$ & 0.010$^{***}$ & 0.010$^{***}$ & 0.010$^{***}$ & 0.010$^{***}$ & 0.010$^{***}$ & 0.010$^{***}$ \\ 
+  & (0.002) & (0.002) & (0.002) & (0.002) & (0.002) & (0.002) & (0.002) \\ 
+  \text{capital}_{cit} & 0.035$^{***}$ & 0.036$^{**}$ & 0.037$^{***}$ & 0.037$^{***}$ & 0.037$^{***}$ & 0.037$^{***}$ & 0.037$^{***}$ \\ 
+  & (0.013) & (0.014) & (0.014) & (0.014) & (0.014) & (0.014) & (0.014) \\ 
+  \text{sales assets}_{ci} \times \text{period} &  &  &  &  &  &  & 0.0001$^{***}$ \\ 
+  &  &  &  &  &  &  & (0.00002) \\ 
+  \text{working capital}_{ci} \times \text{period} \times \text{policy mandate}_c & 0.024 &  &  &  &  &  &  \\ 
+  & (0.020) &  &  &  &  &  &  \\ 
+  \text{working capital}_{ci} \times \text{period} & $-$0.017 &  &  &  &  &  &  \\ 
+  & (0.027) &  &  &  &  &  &  \\ 
+  \text{asset tangibility}_{ci} \times \text{period} \times \text{policy mandate}_c &  & $-$0.005 &  &  &  &  &  \\ 
+  &  & (0.009) &  &  &  &  &  \\ 
+  \text{asset tangibility}_{ci} \times \text{period} &  & 0.004 &  &  &  &  &  \\ 
+  &  & (0.013) &  &  &  &  &  \\ 
+  \text{current ratio}_{ci} \times \text{period} \times \text{policy mandate}_c &  &  & 0.142 &  &  &  &  \\ 
+  &  &  & (0.153) &  &  &  &  \\ 
+  \text{current ratio}_{ci} \times \text{period} &  &  & $-$0.004 &  &  &  &  \\ 
+  &  &  & (0.004) &  &  &  &  \\ 
+  \text{cash assets}_{ci} \times \text{period} \times \text{policy mandate}_c &  &  &  & $-$0.261 &  &  &  \\ 
+  &  &  &  & (1.248) &  &  &  \\ 
+  \text{cash assets}_{ci} \times \text{period} &  &  &  & 0.015$^{***}$ &  &  &  \\ 
+  &  &  &  & (0.005) &  &  &  \\ 
+  \text{liabilities assets}_{ci} \times \text{period} \times \text{policy mandate}_c &  &  &  &  & $-$0.437 &  &  \\ 
+  &  &  &  &  & (0.712) &  &  \\ 
+  \text{liabilities assets}_{ci} \times \text{period} &  &  &  &  & $-$0.233$^{*}$ &  &  \\ 
+  &  &  &  &  & (0.134) &  &  \\ 
+  \text{return on asset}_{ci} \times \text{period} &  &  &  &  &  & 0.0002 &  \\ 
+  &  &  &  &  &  & (0.0004) &  \\ 
+  \text{return on asset}_{ci} \times \text{period} \times \text{policy mandate}_c &  &  &  &  &  & 0.002 &  \\ 
+  &  &  &  &  &  & (0.012) &  \\ 
+  \text{sales assets}_{ci} \times \text{period} \times \text{policy mandate}_c &  &  &  &  &  &  & $-$0.0004$^{***}$ \\ 
   &  &  &  &  &  &  & (0.0001) \\ 
  \hline \\[-1.8ex] 
 City-industry & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
 Time-industry & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
 City-time & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
-Observations & 62,039 & 46,626 & 75,250 & 60,612 & 60,612 & 61,911 & 72,610 \\ 
-R$^{2}$ & 0.848 & 0.866 & 0.864 & 0.847 & 0.847 & 0.847 & 0.861 \\ 
+Observations & 31,425 & 30,360 & 31,694 & 31,253 & 31,253 & 31,405 & 31,611 \\ 
+R$^{2}$ & 0.863 & 0.864 & 0.864 & 0.863 & 0.863 & 0.863 & 0.864 \\ 
 \hline 
 \hline \\[-1.8ex] 
 \end{tabular}
