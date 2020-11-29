@@ -790,7 +790,8 @@ CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS
 WITH test AS (
 SELECT *, CASE 
 WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2) 
-ELSE substr(cic,1, 1) END AS indu_2
+ELSE concat('0',substr(cic,1, 1)) END AS indu_2
+
 FROM firms_survey.asif_firms_prepared 
 )
 SELECT * 
@@ -957,6 +958,25 @@ output = s3.run_query(
 output
 ```
 
+```python
+query = """
+SELECT len, COUNT(len) as CNT
+FROM (
+SELECT length(indu_2) AS len
+FROM {}.{} 
+)
+GROUP BY len
+ORDER BY CNT
+""".format(DatabaseName, table_name)
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_1'
+                )
+output
+```
+
 # Validate query
 
 This step is mandatory to validate the query in the ETL. If you are not sure about the quality of the query, go to the next step.
@@ -995,7 +1015,7 @@ glue.get_table_information(
 
 ```python
 schema = [{'Name': 'geocode4_corr', 'Type': 'string', 'Comment': ''},
-          {'Name': 'indu_2', 'Type': 'string', 'Comment': 'Two digits industry. If length cic equals to 3, then indu_2 only one digit'},
+          {'Name': 'indu_2', 'Type': 'string', 'Comment': 'Two digits industry. If length cic equals to 3, then add 0 to indu_2 '},
           {'Name': 'year', 'Type': 'string', 'Comment': ''},
           {'Name': 'output', 'Type': 'bigint', 'Comment': ''},
           {'Name': 'employment', 'Type': 'bigint', 'Comment': ''},
