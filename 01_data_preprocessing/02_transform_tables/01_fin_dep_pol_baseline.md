@@ -1075,6 +1075,7 @@ SELECT
   CAST(output/1000000  AS DECIMAL(16, 5)) AS output,
   CAST(employment/1000 AS DECIMAL(16, 5)) AS employment,
   CAST(sales/1000000 AS DECIMAL(16, 5)) AS sales,
+  CAST(capital/1000000 AS DECIMAL(16, 5)) AS capital,
   CAST(working_capital_cit/1000000 AS DECIMAL(16, 5)) AS working_capital_cit, 
   CAST(working_capital_ci/1000000 AS DECIMAL(16, 5)) AS working_capital_ci, 
   CAST(working_capital_i/1000000 AS DECIMAL(16, 5)) AS working_capital_i, 
@@ -1213,6 +1214,7 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
  {'Name': 'output', 'Type': 'decimal(16,5)', 'Comment': 'Output. Scaled by a factor of 1000000'},
  {'Name': 'employment', 'Type': 'decimal(16,5)', 'Comment': 'Employemnt. Scaled by a factor of 1000'},
  {'Name': 'sales', 'Type': 'decimal(16,5)', 'Comment': 'Sales. Scaled by a factor of 1000000'},
+ {'Name': 'capital', 'Type': 'decimal(16,5)', 'Comment': 'Capital. Scaled by a factor of 1000000'},
  {
    "Name": "working_capital_cit",
    "Type": "decimal(16,5)",
