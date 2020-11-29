@@ -1,0 +1,90 @@
+
+% Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
+% Date and time: Sun, Nov 29, 2020 - 16:32:11
+\begin{table}[!htbp] \centering 
+  \caption{Baseline estimate, SO2 emission reduction, policy mandate, individual sector Transport Equipment} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}}lccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{7}{c}{Dependent variable: SO2 emission} \\ 
+\cline{2-8} 
+\\[-1.8ex] & (1) & (2) & (3) & (4) & (5) & (6) & (7)\\ 
+\hline \\[-1.8ex] 
+ period &  &  &  &  &  &  &  \\ 
+  & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) \\ 
+  tso2\_mandate\_c &  &  &  &  &  &  &  \\ 
+  & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) & (0.000) \\ 
+  working\_capital\_ci &  &  &  &  &  &  &  \\ 
+  & (0.000) &  &  &  &  &  &  \\ 
+  asset\_tangibility\_ci &  &  &  &  &  &  &  \\ 
+  &  & (0.000) &  &  &  &  &  \\ 
+  current\_ratio\_ci &  &  &  &  &  &  &  \\ 
+  &  &  & (0.000) &  &  &  &  \\ 
+  cash\_assets\_ci &  &  &  &  &  &  &  \\ 
+  &  &  &  & (0.000) &  &  &  \\ 
+  liabilities\_assets\_ci &  &  &  &  &  &  &  \\ 
+  &  &  &  &  & (0.000) &  &  \\ 
+  return\_on\_asset\_ci &  &  &  &  &  &  &  \\ 
+  &  &  &  &  &  & (0.000) &  \\ 
+  sales\_assets\_ci &  &  &  &  &  &  &  \\ 
+  &  &  &  &  &  &  & (0.000) \\ 
+  output & $-$0.025$^{*}$ & $-$0.027$^{*}$ & $-$0.021 & $-$0.021$^{*}$ & $-$0.021 & $-$0.020 & $-$0.020 \\ 
+  & (0.014) & (0.015) & (0.013) & (0.012) & (0.013) & (0.013) & (0.013) \\ 
+  employment & 0.020$^{***}$ & 0.022$^{***}$ & 0.020$^{***}$ & 0.021$^{***}$ & 0.021$^{***}$ & 0.021$^{***}$ & 0.021$^{***}$ \\ 
+  & (0.006) & (0.007) & (0.007) & (0.007) & (0.007) & (0.007) & (0.007) \\ 
+  capital & $-$0.005 & $-$0.004 & 0.014 & 0.015 & 0.013 & 0.013 & 0.015 \\ 
+  & (0.017) & (0.019) & (0.022) & (0.021) & (0.020) & (0.021) & (0.020) \\ 
+  periodTRUE:tso2\_mandate\_c & $-$1.062$^{**}$ & $-$0.948$^{**}$ & $-$0.861 & $-$0.822 & 1.837 & $-$0.526 & $-$0.508 \\ 
+  & (0.476) & (0.472) & (2.876) & (1.885) & (2.278) & (1.046) & (0.471) \\ 
+  periodTRUE:working\_capital\_ci & 0.108 &  &  &  &  &  &  \\ 
+  & (0.092) &  &  &  &  &  &  \\ 
+  tso2\_mandate\_c:working\_capital\_ci &  &  &  &  &  &  &  \\ 
+  & (0.000) &  &  &  &  &  &  \\ 
+  periodTRUE:tso2\_mandate\_c:working\_capital\_ci & 0.029 &  &  &  &  &  &  \\ 
+  & (0.054) &  &  &  &  &  &  \\ 
+  periodTRUE:asset\_tangibility\_ci &  & 0.062 &  &  &  &  &  \\ 
+  &  & (0.044) &  &  &  &  &  \\ 
+  tso2\_mandate\_c:asset\_tangibility\_ci &  &  &  &  &  &  &  \\ 
+  &  & (0.000) &  &  &  &  &  \\ 
+  periodTRUE:tso2\_mandate\_c:asset\_tangibility\_ci &  & 0.021 &  &  &  &  &  \\ 
+  &  & (0.024) &  &  &  &  &  \\ 
+  periodTRUE:current\_ratio\_ci &  &  & 0.151 &  &  &  &  \\ 
+  &  &  & (0.527) &  &  &  &  \\ 
+  tso2\_mandate\_c:current\_ratio\_ci &  &  &  &  &  &  &  \\ 
+  &  &  & (0.000) &  &  &  &  \\ 
+  periodTRUE:tso2\_mandate\_c:current\_ratio\_ci &  &  & 0.414 &  &  &  &  \\ 
+  &  &  & (2.520) &  &  &  &  \\ 
+  periodTRUE:cash\_assets\_ci &  &  &  & 0.246 &  &  &  \\ 
+  &  &  &  & (1.101) &  &  &  \\ 
+  tso2\_mandate\_c:cash\_assets\_ci &  &  &  &  &  &  &  \\ 
+  &  &  &  & (0.000) &  &  &  \\ 
+  periodTRUE:tso2\_mandate\_c:cash\_assets\_ci &  &  &  & $-$1.717 &  &  &  \\ 
+  &  &  &  & (7.451) &  &  &  \\ 
+  periodTRUE:liabilities\_assets\_ci &  &  &  &  & 0.421 &  &  \\ 
+  &  &  &  &  & (0.608) &  &  \\ 
+  tso2\_mandate\_c:liabilities\_assets\_ci &  &  &  &  &  &  &  \\ 
+  &  &  &  &  & (0.000) &  &  \\ 
+  periodTRUE:tso2\_mandate\_c:liabilities\_assets\_ci &  &  &  &  & $-$3.805 &  &  \\ 
+  &  &  &  &  & (3.789) &  &  \\ 
+  periodTRUE:return\_on\_asset\_ci &  &  &  &  &  & $-$0.105 &  \\ 
+  &  &  &  &  &  & (0.089) &  \\ 
+  tso2\_mandate\_c:return\_on\_asset\_ci &  &  &  &  &  &  &  \\ 
+  &  &  &  &  &  & (0.000) &  \\ 
+  periodTRUE:tso2\_mandate\_c:return\_on\_asset\_ci &  &  &  &  &  & 0.051 &  \\ 
+  &  &  &  &  &  & (0.553) &  \\ 
+  periodTRUE:sales\_assets\_ci &  &  &  &  &  &  & $-$0.0004 \\ 
+  &  &  &  &  &  &  & (0.003) \\ 
+  tso2\_mandate\_c:sales\_assets\_ci &  &  &  &  &  &  &  \\ 
+  &  &  &  &  &  &  & (0.000) \\ 
+  periodTRUE:tso2\_mandate\_c:sales\_assets\_ci &  &  &  &  &  &  & 0.006 \\ 
+  &  &  &  &  &  &  & (0.015) \\ 
+ \hline \\[-1.8ex] 
+City & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Time & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Observations & 1,119 & 1,127 & 1,129 & 1,118 & 1,118 & 1,118 & 1,127 \\ 
+R$^{2}$ & 0.806 & 0.808 & 0.807 & 0.804 & 0.804 & 0.804 & 0.807 \\ 
+\hline 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
