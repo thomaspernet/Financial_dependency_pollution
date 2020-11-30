@@ -152,7 +152,6 @@ for key, value in enumerate(schema):
     dtypes.update(
         {value['Name']:format_}
     )
-dtypes
 ```
 
 ```sos kernel="SoS"

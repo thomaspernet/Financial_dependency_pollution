@@ -1,6 +1,6 @@
 
 % Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Mon, Nov 30, 2020 - 16:08:11
+% Date and time: Mon, Nov 30, 2020 - 16:17:30
 \begin{table}[!htbp] \centering 
   \caption{Baseline estimate, SO2 emission reduction and industry financial ratio, city-industry-year level} 
   \label{} 
