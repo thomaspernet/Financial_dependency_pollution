@@ -348,21 +348,8 @@ if add_to_dic:
     data['to_rename'].extend(dic_rename)
     with open('schema_table.json', 'w') as outfile:
         json.dump(data, outfile)
-    print(data)
+    #print(data)
 ```
-
-<!-- #region kernel="SoS" -->
-# Models to estimate
-
-The model to estimate is: 
-
-## Fixed Effect
-
-TABLE FIXED EFFECT
-
-
-- FE NAME: `FE NAME IN TALBE`
-<!-- #endregion -->
 
 ```sos kernel="SoS"
 import function.latex_beautify as lb
