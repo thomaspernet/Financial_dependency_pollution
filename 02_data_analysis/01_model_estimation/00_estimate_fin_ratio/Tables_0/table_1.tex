@@ -1,0 +1,69 @@
+
+\documentclass[preview]{standalone} 
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs,caption,threeparttable, siunitx, adjustbox}
+
+\begin{document}% Date and time \times  Mon, Nov 30, 2020 - 10 \times 03 \times 58
+\begin{table}[!htbp] \centering 
+  \caption{Baseline estimate, SO2 emission reduction and industry financial ratio, city-industry level} 
+\label{}
+\begin{adjustbox}{width=\textwidth, totalheight=\textheight-2\baselineskip,keepaspectratio}
+\begin{tabular}{@{\extracolsep{5pt}}lccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{7}{c}{Dependent variable: SO2 emission} \\ 
+\cline{2-8} 
+\\[-1.8ex] & (1) & (2) & (3) & (4) & (5) & (6) & (7)\\ 
+\hline \\[-1.8ex] 
+  log(\text{output}_{cit} + 1) & 0.158$^{***}$ & 0.166$^{***}$ & 0.160$^{***}$ & 0.158$^{***}$ & 0.159$^{***}$ & 0.157$^{***}$ & 0.162$^{***}$ \\ 
+  & (0.038) & (0.038) & (0.038) & (0.038) & (0.038) & (0.038) & (0.038) \\ 
+  log(\text{employment}_{cit} + 1) & 0.279$^{***}$ & 0.275$^{***}$ & 0.276$^{***}$ & 0.284$^{***}$ & 0.281$^{***}$ & 0.280$^{***}$ & 0.276$^{***}$ \\ 
+  & (0.035) & (0.035) & (0.035) & (0.035) & (0.036) & (0.035) & (0.035) \\ 
+  log(\text{capital}_{cit} + 1) & 0.140$^{**}$ & 0.129$^{**}$ & 0.139$^{**}$ & 0.138$^{**}$ & 0.137$^{**}$ & 0.140$^{***}$ & 0.138$^{**}$ \\ 
+  & (0.054) & (0.055) & (0.053) & (0.053) & (0.054) & (0.054) & (0.053) \\ 
+  \text{working capital}_{ci} \times \text{\text{period}} & $-$0.005 &  &  &  &  &  &  \\ 
+  & (0.018) &  &  &  &  &  &  \\ 
+  \text{working capital}_{ci} \times \text{period} \times \text{policy mandate}_c & 0.013 &  &  &  &  &  &  \\ 
+  & (0.013) &  &  &  &  &  &  \\ 
+  \text{asset tangibility}_{ci} \times \text{\text{period}} &  & $-$0.004 &  &  &  &  &  \\ 
+  &  & (0.013) &  &  &  &  &  \\ 
+  \text{asset tangibility}_{ci} \times \text{period} \times \text{policy mandate}_c &  & $-$0.006 &  &  &  &  &  \\ 
+  &  & (0.009) &  &  &  &  &  \\ 
+  \text{current ratio}_{ci} \times \text{\text{period}} &  &  & $-$0.003 &  &  &  &  \\ 
+  &  &  & (0.004) &  &  &  &  \\ 
+  \text{current ratio}_{ci} \times \text{period} \times \text{policy mandate}_c &  &  & 0.097 &  &  &  &  \\ 
+  &  &  & (0.151) &  &  &  &  \\ 
+  \text{cash assets}_{ci} \times \text{\text{period}} &  &  &  & 0.013$^{***}$ &  &  &  \\ 
+  &  &  &  & (0.004) &  &  &  \\ 
+  \text{cash assets}_{ci} \times \text{period} \times \text{policy mandate}_c &  &  &  & 0.301 &  &  &  \\ 
+  &  &  &  & (1.284) &  &  &  \\ 
+  \text{liabilities assets}_{ci} \times \text{\text{period}} &  &  &  &  & $-$0.175 &  &  \\ 
+  &  &  &  &  & (0.135) &  &  \\ 
+  \text{liabilities assets}_{ci} \times \text{period} \times \text{policy mandate}_c &  &  &  &  & $-$0.382 &  &  \\ 
+  &  &  &  &  & (0.755) &  &  \\ 
+  \text{return on asset}_{ci} \times \text{\text{period}} &  &  &  &  &  & 0.0002 &  \\ 
+  &  &  &  &  &  & (0.0003) &  \\ 
+  \text{return on asset}_{ci} \times \text{period} \times \text{policy mandate}_c &  &  &  &  &  & 0.004 &  \\ 
+  &  &  &  &  &  & (0.011) &  \\ 
+  \text{sales assets}_{ci} \times \text{\text{period}} &  &  &  &  &  &  & 0.0001$^{***}$ \\ 
+  &  &  &  &  &  &  & (0.00002) \\ 
+  \text{sales assets}_{ci} \times \text{period} \times \text{policy mandate}_c &  &  &  &  &  &  & $-$0.0004$^{***}$ \\ 
+  &  &  &  &  &  &  & (0.0001) \\ 
+ \hline \\[-1.8ex] 
+City-industry & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Time-industry & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+City-time & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Observations & 31,425 & 30,360 & 31,694 & 31,253 & 31,253 & 31,405 & 31,611 \\ 
+R$^{2}$ & 0.864 & 0.865 & 0.865 & 0.864 & 0.864 & 0.864 & 0.865 \\ 
+\hline 
+\hline \\[-1.8ex] 
+\end{tabular}
+\end{adjustbox}
+\begin{tablenotes} 
+ \small 
+ \item \\ 
+This table estimates eq(3). Heteroskedasticity-robust standard errors clustered at the city level appear inp arentheses. \sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%. 
+\end{tablenotes}
+\end{table}
+
+\end{document}

@@ -454,7 +454,7 @@ $$
 ![](https://drive.google.com/uc?export=view&id=1HrqaA5NLRPjWk2lqvHyrZAjO3wSP5r-9)
 <!-- #endregion -->
 
-```sos kernel="Python 3"
+```sos kernel="SoS"
 folder = 'Tables_0'
 if os.path.exists(folder) == False:
         os.mkdir(folder)
@@ -465,36 +465,36 @@ for ext in ['.txt', '.tex', '.pdf']:
 
 ```sos kernel="R"
 t_0 <- felm(log(tso2) ~ working_capital_i * period * tso2_mandate_c +
-            output + employment + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 t_1 <- felm(log(tso2) ~ asset_tangibility_i * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_2 <- felm(log(tso2) ~ current_ratio_i * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_3 <- felm(log(tso2) ~ cash_assets_i * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_4 <- felm(log(tso2) ~ liabilities_assets_i * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_5 <- felm(log(tso2) ~ return_on_asset_i * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_6 <- felm(log(tso2) ~ sales_assets_i * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
@@ -557,60 +557,58 @@ $$
   
 <!-- #endregion -->
 
+```sos kernel="Python 3"
+import os
+try:
+    os.remove("Tables_0/table_1.txt")
+except:
+    pass
+try:
+    os.remove("Tables_0/table_1.tex")
+except:
+    pass
+try:
+    os.remove("Tables_0/table_1.pdf")
+except:
+    pass
+```
+
 ```sos kernel="R"
 t_0 <- felm(log(tso2) ~ working_capital_ci * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 t_1 <- felm(log(tso2) ~ asset_tangibility_ci * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_2 <- felm(log(tso2) ~ current_ratio_ci * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_3 <- felm(log(tso2) ~ cash_assets_ci * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_4 <- felm(log(tso2) ~ liabilities_assets_ci * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_5 <- felm(log(tso2) ~ return_on_asset_ci * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_6 <- felm(log(tso2) ~ sales_assets_ci * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-```
 
-```sos kernel="Python 3"
-import os
-try:
-    os.remove("Tables/table_1.txt")
-except:
-    pass
-try:
-    os.remove("Tables/table_1.tex")
-except:
-    pass
-try:
-    os.remove("Tables/table_1.pdf")
-except:
-    pass
-```
-
-```sos kernel="R"
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
     c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
@@ -647,12 +645,13 @@ tbe1  = "This table estimates eq(3). " \
 
 reorder = {
     # Old, New
-    9:3, ## Working capital
+    #9:3, ## Working capital
     10:4, ## Asset tangibility
     11:6, ## current ratio
     12:8, ## cash asset
     13:10, ## liabilities asset
     14:12, ## return on asset
+    15:14
 }
 
 #multi_lines_dep = '(city/product/trade regime/year)'
@@ -679,9 +678,25 @@ $$
   
 <!-- #endregion -->
 
+```sos kernel="SoS"
+import os
+try:
+    os.remove("Tables_0/table_2.txt")
+except:
+    pass
+try:
+    os.remove("Tables_0/table_2.tex")
+except:
+    pass
+try:
+    os.remove("Tables_0/table_2.pdf")
+except:
+    pass
+```
+
 ```sos kernel="R"
 t_0 <- felm(log(tso2) ~ working_capital_cit * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 #t_1 <- felm(log(tso2) ~ asset_tangibility_cit * period * tso2_mandate_c +
@@ -690,48 +705,30 @@ t_0 <- felm(log(tso2) ~ working_capital_cit * period * tso2_mandate_c +
 #            exactDOF = TRUE)
 
 t_2 <- felm(log(tso2) ~ current_ratio_cit * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_3 <- felm(log(tso2) ~ cash_assets_cit * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_4 <- felm(log(tso2) ~ liabilities_assets_cit * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_5 <- felm(log(tso2) ~ return_on_asset_cit * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 t_6 <- felm(log(tso2) ~ sales_assets_cit * period * tso2_mandate_c +
-            output + employment  + capital
+            log(output +1) + log(employment+1) + log(capital+1)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
-```
 
-```sos kernel="Python 3"
-import os
-try:
-    os.remove("Tables/table_2.txt")
-except:
-    pass
-try:
-    os.remove("Tables/table_2.tex")
-except:
-    pass
-try:
-    os.remove("Tables/table_2.pdf")
-except:
-    pass
-```
-
-```sos kernel="R"
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
     c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
