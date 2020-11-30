@@ -888,8 +888,7 @@ table_1 <- go_latex(list(
 )
 ```
 
-```sos kernel="Python 3"
-%get path table
+```sos kernel="SoS"
 tbe1  = "This table estimates eq(3). " \
 "Heteroskedasticity-robust standard errors " \
 "clustered at the city level appear inp arentheses. "\
@@ -1006,7 +1005,7 @@ table_1 <- go_latex(list(
 )
 ```
 
-```sos kernel="Python 3"
+```sos kernel="SoS"
 tbe1  = "This table estimates eq(3). " \
 "Heteroskedasticity-robust standard errors " \
 "clustered at the city level appear inp arentheses. "\
