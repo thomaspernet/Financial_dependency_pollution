@@ -225,6 +225,11 @@ Does not work for first two vars
             matches = re.search(r'\s{}\s'.format(regex_), line)
             if matches:
                 lines[x] = lines[x].replace(i['old'],i['new'])
+            else:
+                ### Try when the variable is in log
+                matches = re.search(r'{}\s'.format(regex_), line)
+            if matches:
+                lines[x] = lines[x].replace(i['old'],i['new'])
                 #print(lines[x])
 
     with open(table_out, "w") as f:
