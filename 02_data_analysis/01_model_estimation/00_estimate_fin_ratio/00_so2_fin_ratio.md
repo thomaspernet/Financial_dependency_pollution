@@ -1126,5 +1126,5 @@ def create_report(extension = "html", keep_code = False):
 ```
 
 ```sos nteract={"transient": {"deleting": false}} outputExpanded=false kernel="Python 3"
-create_report(extension = "html", keep_code = True)
+create_report(extension = "html", keep_code = False)
 ```
