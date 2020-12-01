@@ -13167,6 +13167,7 @@ div#notebook {
 <li>china_city_tcz_spz</li>
 <li>china_code_normalised</li>
 <li>ind_cic_2_name</li>
+<li>china_sector_pollution_threshold</li>
 <li>Github: <ul>
 <li><a href="https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/00_asif_financial_ratio.md">https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/00_asif_financial_ratio.md</a></li>
 <li><a href="https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_REDUCTION_MANDATE/city_reduction_mandate.py">https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_REDUCTION_MANDATE/city_reduction_mandate.py</a></li>
@@ -13174,6 +13175,7 @@ div#notebook {
 <li><a href="https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/TCZ_SPZ/tcz_spz_policy.py">https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/TCZ_SPZ/tcz_spz_policy.py</a></li>
 <li><a href="https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py">https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py</a></li>
 <li><a href="https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CIC_NAME/cic_industry_name.py">https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CIC_NAME/cic_industry_name.py</a></li>
+<li><a href="https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/02_so2_polluted_sectors.md">https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/02_so2_polluted_sectors.md</a></li>
 </ul>
 </li>
 </ul>
@@ -13889,7 +13891,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
@@ -13915,10 +13917,59 @@ div#notebook {
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[9]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>len</th>
+      <th>CNT</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>4</td>
+      <td>189475</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -13951,7 +14002,7 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[9]:</div>
+    <div class="prompt output_prompt">Out[10]:</div>
 
 
 
@@ -14034,7 +14085,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -14073,7 +14124,7 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[10]:</div>
+    <div class="prompt output_prompt">Out[11]:</div>
 
 
 
@@ -14419,6 +14470,7 @@ div#notebook {
       <th>output</th>
       <th>employment</th>
       <th>sales</th>
+      <th>capital</th>
       <th>working_capital_cit</th>
       <th>working_capital_ci</th>
       <th>working_capital_i</th>
@@ -14445,303 +14497,313 @@ div#notebook {
   <tbody>
     <tr>
       <th>0</th>
-      <td>1508</td>
-      <td>14</td>
-      <td>2004</td>
-      <td>974822</td>
-      <td>2541</td>
-      <td>869471.0</td>
-      <td>158726.0</td>
-      <td>127117.0</td>
-      <td>134451.560219</td>
+      <td>3705</td>
+      <td>34</td>
+      <td>2001</td>
+      <td>153628</td>
+      <td>1249</td>
       <td>NaN</td>
+      <td>52611</td>
       <td>NaN</td>
-      <td>269081.711240</td>
-      <td>0.56262</td>
-      <td>0.62211</td>
-      <td>1.13562</td>
+      <td>183681.0</td>
+      <td>379590.68906</td>
+      <td>44367.0</td>
+      <td>80224.0</td>
+      <td>358878.739754</td>
+      <td>1.02837</td>
+      <td>0.97073</td>
+      <td>2.81794</td>
       <td>NaN</td>
-      <td>-0.11408</td>
-      <td>-0.19455</td>
+      <td>-0.28340</td>
+      <td>-0.20016</td>
       <td>NaN</td>
-      <td>0.57522</td>
-      <td>0.55236</td>
-      <td>1.32625</td>
-      <td>1.59755</td>
-      <td>4.68457</td>
+      <td>0.48260</td>
+      <td>0.59236</td>
       <td>NaN</td>
-      <td>5.28564</td>
-      <td>21.6479</td>
+      <td>1.29998</td>
+      <td>4.45608</td>
+      <td>NaN</td>
+      <td>0.73011</td>
+      <td>-6.23121</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>1508</td>
-      <td>14</td>
-      <td>2005</td>
-      <td>1736548</td>
-      <td>2518</td>
-      <td>1608968.0</td>
-      <td>95508.0</td>
-      <td>127117.0</td>
-      <td>134451.560219</td>
+      <td>3705</td>
+      <td>34</td>
+      <td>2002</td>
+      <td>242556</td>
+      <td>1572</td>
       <td>NaN</td>
+      <td>102718</td>
       <td>NaN</td>
-      <td>269081.711240</td>
-      <td>0.68160</td>
-      <td>0.62211</td>
-      <td>1.13562</td>
-      <td>-0.11408</td>
-      <td>-0.11408</td>
-      <td>-0.19455</td>
-      <td>0.57522</td>
-      <td>0.57522</td>
-      <td>0.55236</td>
-      <td>1.86885</td>
-      <td>1.59755</td>
-      <td>4.68457</td>
-      <td>5.28564</td>
-      <td>5.28564</td>
-      <td>21.6479</td>
+      <td>183681.0</td>
+      <td>379590.68906</td>
+      <td>116081.0</td>
+      <td>80224.0</td>
+      <td>358878.739754</td>
+      <td>0.76380</td>
+      <td>0.97073</td>
+      <td>2.81794</td>
+      <td>NaN</td>
+      <td>-0.28340</td>
+      <td>-0.20016</td>
+      <td>NaN</td>
+      <td>0.48260</td>
+      <td>0.59236</td>
+      <td>NaN</td>
+      <td>1.29998</td>
+      <td>4.45608</td>
+      <td>4.77186</td>
+      <td>0.73011</td>
+      <td>-6.23121</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>1508</td>
-      <td>14</td>
-      <td>2006</td>
-      <td>2695504</td>
-      <td>3889</td>
-      <td>2050186.0</td>
-      <td>477032.0</td>
-      <td>127117.0</td>
-      <td>134451.560219</td>
+      <td>3705</td>
+      <td>34</td>
+      <td>2003</td>
+      <td>321424</td>
+      <td>1333</td>
       <td>NaN</td>
+      <td>101917</td>
       <td>NaN</td>
-      <td>269081.711240</td>
-      <td>0.67746</td>
-      <td>0.62211</td>
-      <td>1.13562</td>
-      <td>-0.05692</td>
-      <td>-0.11408</td>
-      <td>-0.19455</td>
-      <td>0.61435</td>
-      <td>0.57522</td>
-      <td>0.55236</td>
-      <td>1.43200</td>
-      <td>1.59755</td>
-      <td>4.68457</td>
-      <td>3.19653</td>
-      <td>5.28564</td>
-      <td>21.6479</td>
+      <td>183681.0</td>
+      <td>379590.68906</td>
+      <td>NaN</td>
+      <td>80224.0</td>
+      <td>358878.739754</td>
+      <td>0.77584</td>
+      <td>0.97073</td>
+      <td>2.81794</td>
+      <td>NaN</td>
+      <td>-0.28340</td>
+      <td>-0.20016</td>
+      <td>NaN</td>
+      <td>0.48260</td>
+      <td>0.59236</td>
+      <td>NaN</td>
+      <td>1.29998</td>
+      <td>4.45608</td>
+      <td>3.81010</td>
+      <td>0.73011</td>
+      <td>-6.23121</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>1508</td>
-      <td>14</td>
-      <td>2007</td>
-      <td>3159189</td>
-      <td>3517</td>
-      <td>2824254.0</td>
-      <td>296062.0</td>
-      <td>127117.0</td>
-      <td>134451.560219</td>
+      <td>3705</td>
+      <td>34</td>
+      <td>2004</td>
+      <td>1027333</td>
+      <td>4612</td>
+      <td>999609.0</td>
+      <td>443176</td>
+      <td>175741.0</td>
+      <td>183681.0</td>
+      <td>379590.68906</td>
       <td>NaN</td>
+      <td>80224.0</td>
+      <td>358878.739754</td>
+      <td>1.01494</td>
+      <td>0.97073</td>
+      <td>2.81794</td>
       <td>NaN</td>
-      <td>269081.711240</td>
-      <td>0.67524</td>
-      <td>0.62211</td>
-      <td>1.13562</td>
-      <td>-0.15107</td>
-      <td>-0.11408</td>
-      <td>-0.19455</td>
-      <td>0.57000</td>
-      <td>0.57522</td>
-      <td>0.55236</td>
-      <td>1.85248</td>
-      <td>1.59755</td>
-      <td>4.68457</td>
-      <td>19.89561</td>
-      <td>5.28564</td>
-      <td>21.6479</td>
+      <td>-0.28340</td>
+      <td>-0.20016</td>
+      <td>NaN</td>
+      <td>0.48260</td>
+      <td>0.59236</td>
+      <td>1.11960</td>
+      <td>1.29998</td>
+      <td>4.45608</td>
+      <td>2.40037</td>
+      <td>0.73011</td>
+      <td>-6.23121</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>1508</td>
-      <td>9</td>
-      <td>2004</td>
-      <td>737002</td>
-      <td>2088</td>
-      <td>659754.0</td>
-      <td>110858.0</td>
-      <td>123003.5</td>
-      <td>41503.905199</td>
+      <td>3705</td>
+      <td>34</td>
+      <td>2005</td>
+      <td>1199942</td>
+      <td>3353</td>
+      <td>1062992.0</td>
+      <td>347021</td>
+      <td>191621.0</td>
+      <td>183681.0</td>
+      <td>379590.68906</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>67639.397727</td>
-      <td>0.68508</td>
-      <td>0.79388</td>
-      <td>3.46606</td>
-      <td>NaN</td>
-      <td>-0.14775</td>
-      <td>-0.27254</td>
-      <td>NaN</td>
-      <td>0.30706</td>
-      <td>0.56938</td>
-      <td>2.23692</td>
-      <td>2.47227</td>
-      <td>4.43344</td>
-      <td>NaN</td>
-      <td>5.10173</td>
-      <td>-10.7377</td>
+      <td>80224.0</td>
+      <td>358878.739754</td>
+      <td>1.27070</td>
+      <td>0.97073</td>
+      <td>2.81794</td>
+      <td>-0.28340</td>
+      <td>-0.28340</td>
+      <td>-0.20016</td>
+      <td>0.48260</td>
+      <td>0.48260</td>
+      <td>0.59236</td>
+      <td>1.48035</td>
+      <td>1.29998</td>
+      <td>4.45608</td>
+      <td>-8.06191</td>
+      <td>0.73011</td>
+      <td>-6.23121</td>
     </tr>
     <tr>
       <th>5</th>
-      <td>1508</td>
-      <td>9</td>
-      <td>2005</td>
-      <td>1250279</td>
-      <td>2028</td>
-      <td>1254105.0</td>
-      <td>135149.0</td>
-      <td>123003.5</td>
-      <td>41503.905199</td>
+      <td>3705</td>
+      <td>34</td>
+      <td>2006</td>
+      <td>1698892</td>
+      <td>4103</td>
+      <td>1931614.0</td>
+      <td>421366</td>
+      <td>390728.0</td>
+      <td>183681.0</td>
+      <td>379590.68906</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>67639.397727</td>
-      <td>0.90267</td>
-      <td>0.79388</td>
-      <td>3.46606</td>
-      <td>-0.14775</td>
-      <td>-0.14775</td>
-      <td>-0.27254</td>
-      <td>0.30706</td>
-      <td>0.30706</td>
-      <td>0.56938</td>
-      <td>2.70761</td>
-      <td>2.47227</td>
-      <td>4.43344</td>
-      <td>5.10173</td>
-      <td>5.10173</td>
-      <td>-10.7377</td>
+      <td>80224.0</td>
+      <td>358878.739754</td>
+      <td>1.48533</td>
+      <td>0.97073</td>
+      <td>2.81794</td>
+      <td>-0.22346</td>
+      <td>-0.28340</td>
+      <td>-0.20016</td>
+      <td>0.47061</td>
+      <td>0.48260</td>
+      <td>0.59236</td>
+      <td>1.68778</td>
+      <td>1.29998</td>
+      <td>4.45608</td>
+      <td>5.03987</td>
+      <td>0.73011</td>
+      <td>-6.23121</td>
     </tr>
     <tr>
       <th>6</th>
-      <td>1508</td>
-      <td>9</td>
-      <td>2006</td>
-      <td>3047282</td>
-      <td>2360</td>
-      <td>3290771.0</td>
-      <td>448287.0</td>
-      <td>123003.5</td>
-      <td>41503.905199</td>
+      <td>3705</td>
+      <td>34</td>
+      <td>2007</td>
+      <td>3853955</td>
+      <td>6559</td>
+      <td>4018783.0</td>
+      <td>605057</td>
+      <td>444832.0</td>
+      <td>183681.0</td>
+      <td>379590.68906</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>67639.397727</td>
-      <td>1.36949</td>
-      <td>0.79388</td>
-      <td>3.46606</td>
-      <td>-0.26647</td>
-      <td>-0.14775</td>
-      <td>-0.27254</td>
-      <td>0.34490</td>
-      <td>0.30706</td>
-      <td>0.56938</td>
-      <td>3.18022</td>
-      <td>2.47227</td>
-      <td>4.43344</td>
-      <td>5.16314</td>
-      <td>5.10173</td>
-      <td>-10.7377</td>
+      <td>80224.0</td>
+      <td>358878.739754</td>
+      <td>1.28668</td>
+      <td>0.97073</td>
+      <td>2.81794</td>
+      <td>-0.24085</td>
+      <td>-0.28340</td>
+      <td>-0.20016</td>
+      <td>0.50730</td>
+      <td>0.48260</td>
+      <td>0.59236</td>
+      <td>2.16396</td>
+      <td>1.29998</td>
+      <td>4.45608</td>
+      <td>4.13216</td>
+      <td>0.73011</td>
+      <td>-6.23121</td>
     </tr>
     <tr>
       <th>7</th>
-      <td>1508</td>
-      <td>9</td>
-      <td>2007</td>
-      <td>4007475</td>
-      <td>2580</td>
-      <td>3881689.0</td>
-      <td>725355.0</td>
-      <td>123003.5</td>
-      <td>41503.905199</td>
+      <td>5109</td>
+      <td>34</td>
+      <td>2003</td>
+      <td>22219</td>
+      <td>252</td>
+      <td>NaN</td>
+      <td>3463</td>
+      <td>NaN</td>
+      <td>16356.5</td>
+      <td>379590.68906</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>67639.397727</td>
-      <td>1.23848</td>
-      <td>0.79388</td>
-      <td>3.46606</td>
-      <td>-0.27279</td>
-      <td>-0.14775</td>
-      <td>-0.27254</td>
-      <td>0.38500</td>
-      <td>0.30706</td>
-      <td>0.56938</td>
-      <td>2.22422</td>
-      <td>2.47227</td>
-      <td>4.43344</td>
-      <td>6.13005</td>
-      <td>5.10173</td>
-      <td>-10.7377</td>
+      <td>358878.739754</td>
+      <td>1.45166</td>
+      <td>1.21380</td>
+      <td>2.81794</td>
+      <td>NaN</td>
+      <td>-0.02643</td>
+      <td>-0.20016</td>
+      <td>NaN</td>
+      <td>0.50305</td>
+      <td>0.59236</td>
+      <td>NaN</td>
+      <td>1.82398</td>
+      <td>4.45608</td>
+      <td>NaN</td>
+      <td>6.21211</td>
+      <td>-6.23121</td>
     </tr>
     <tr>
       <th>8</th>
-      <td>2208</td>
-      <td>14</td>
-      <td>2001</td>
-      <td>33025</td>
-      <td>1068</td>
+      <td>5109</td>
+      <td>34</td>
+      <td>2004</td>
+      <td>43604</td>
+      <td>535</td>
+      <td>37311.0</td>
+      <td>32000</td>
+      <td>11412.0</td>
+      <td>16356.5</td>
+      <td>379590.68906</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>15708.0</td>
-      <td>134451.560219</td>
-      <td>14799.0</td>
-      <td>35418.0</td>
-      <td>269081.711240</td>
-      <td>1.31214</td>
-      <td>1.81013</td>
-      <td>1.13562</td>
+      <td>358878.739754</td>
+      <td>0.79439</td>
+      <td>1.21380</td>
+      <td>2.81794</td>
       <td>NaN</td>
-      <td>-0.14118</td>
-      <td>-0.19455</td>
+      <td>-0.02643</td>
+      <td>-0.20016</td>
       <td>NaN</td>
-      <td>0.76780</td>
-      <td>0.55236</td>
-      <td>NaN</td>
-      <td>0.96718</td>
-      <td>4.68457</td>
-      <td>NaN</td>
-      <td>-4.87877</td>
-      <td>21.6479</td>
+      <td>0.50305</td>
+      <td>0.59236</td>
+      <td>1.36684</td>
+      <td>1.82398</td>
+      <td>4.45608</td>
+      <td>2.01088</td>
+      <td>6.21211</td>
+      <td>-6.23121</td>
     </tr>
     <tr>
       <th>9</th>
-      <td>2208</td>
-      <td>14</td>
-      <td>2002</td>
-      <td>137233</td>
-      <td>2044</td>
+      <td>5109</td>
+      <td>34</td>
+      <td>2005</td>
+      <td>88477</td>
+      <td>696</td>
+      <td>72343.0</td>
+      <td>31050</td>
+      <td>21301.0</td>
+      <td>16356.5</td>
+      <td>379590.68906</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>15708.0</td>
-      <td>134451.560219</td>
-      <td>56037.0</td>
-      <td>35418.0</td>
-      <td>269081.711240</td>
-      <td>4.63430</td>
-      <td>1.81013</td>
-      <td>1.13562</td>
-      <td>NaN</td>
-      <td>-0.14118</td>
-      <td>-0.19455</td>
-      <td>NaN</td>
-      <td>0.76780</td>
-      <td>0.55236</td>
-      <td>NaN</td>
-      <td>0.96718</td>
-      <td>4.68457</td>
-      <td>11.99295</td>
-      <td>-4.87877</td>
-      <td>21.6479</td>
+      <td>358878.739754</td>
+      <td>1.39535</td>
+      <td>1.21380</td>
+      <td>2.81794</td>
+      <td>-0.02643</td>
+      <td>-0.02643</td>
+      <td>-0.20016</td>
+      <td>0.50305</td>
+      <td>0.50305</td>
+      <td>0.59236</td>
+      <td>2.28111</td>
+      <td>1.82398</td>
+      <td>4.45608</td>
+      <td>10.41333</td>
+      <td>6.21211</td>
+      <td>-6.23121</td>
     </tr>
   </tbody>
 </table>
@@ -15176,27 +15238,27 @@ div#notebook {
   <tbody>
     <tr>
       <th>0</th>
-      <td>Yulin</td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>Yichun</td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>Taizhou</td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <th>3</th>
       <td>Suzhou</td>
       <td>2</td>
     </tr>
     <tr>
-      <th>4</th>
+      <th>1</th>
       <td>Fuzhou</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Yulin</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Yichun</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Taizhou</td>
       <td>2</td>
     </tr>
   </tbody>
@@ -16097,11 +16159,11 @@ div#notebook {
   <tbody>
     <tr>
       <th>0</th>
-      <td>3102</td>
+      <td>3101</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>3101</td>
+      <td>3102</td>
     </tr>
   </tbody>
 </table>
@@ -16292,7 +16354,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -16359,6 +16421,179 @@ div#notebook {
 <span class="s2">        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr </span>
 <span class="s2">        AND aggregate_pol.year = asif_city_industry_financial_ratio.year </span>
 <span class="s2">        AND aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2</span>
+<span class="s2">    ) </span>
+<span class="s2">    SELECT </span>
+<span class="s2">      CNT, </span>
+<span class="s2">      COUNT(CNT) AS dup </span>
+<span class="s2">    FROM </span>
+<span class="s2">      (</span>
+<span class="s2">        SELECT </span>
+<span class="s2">          geocode4_corr, </span>
+<span class="s2">          year, </span>
+<span class="s2">          ind2, </span>
+<span class="s2">          COUNT(*) AS CNT </span>
+<span class="s2">        FROM </span>
+<span class="s2">          merge_asif </span>
+<span class="s2">        GROUP BY </span>
+<span class="s2">          geocode4_corr, </span>
+<span class="s2">          year, </span>
+<span class="s2">          ind2</span>
+<span class="s2">      ) AS count_dup </span>
+<span class="s2">    GROUP BY </span>
+<span class="s2">      CNT</span>
+<span class="s2">  )</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span>
+                    <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
+                    <span class="n">database</span><span class="o">=</span><span class="n">DatabaseName</span><span class="p">,</span>
+                    <span class="n">s3_output</span><span class="o">=</span><span class="n">s3_output_example</span><span class="p">,</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;example_9&#39;</span>
+                <span class="p">)</span>
+<span class="n">output</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[29]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>CNT</th>
+      <th>dup</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>34690</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Test by adding the aggregated pollution table with the financial ratio and reduction mandate</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">WITH aggregate_pol AS (</span>
+<span class="s2">  SELECT </span>
+<span class="s2">    year, </span>
+<span class="s2">    geocode4_corr, </span>
+<span class="s2">    cityen, </span>
+<span class="s2">    ind2, </span>
+<span class="s2">    SUM(tso2) as tso2, </span>
+<span class="s2">    lower_location, </span>
+<span class="s2">    larger_location, </span>
+<span class="s2">    coastal </span>
+<span class="s2">  FROM </span>
+<span class="s2">    (</span>
+<span class="s2">      SELECT </span>
+<span class="s2">        year, </span>
+<span class="s2">        citycode, </span>
+<span class="s2">        geocode4_corr, </span>
+<span class="s2">        china_city_sector_pollution.cityen, </span>
+<span class="s2">        ind2, </span>
+<span class="s2">        tso2, </span>
+<span class="s2">        lower_location, </span>
+<span class="s2">        larger_location, </span>
+<span class="s2">        coastal </span>
+<span class="s2">      FROM </span>
+<span class="s2">        environment.china_city_sector_pollution </span>
+<span class="s2">        INNER JOIN (</span>
+<span class="s2">          SELECT </span>
+<span class="s2">            extra_code, </span>
+<span class="s2">            geocode4_corr </span>
+<span class="s2">          FROM </span>
+<span class="s2">            chinese_lookup.china_city_code_normalised </span>
+<span class="s2">          GROUP BY </span>
+<span class="s2">            extra_code, </span>
+<span class="s2">            geocode4_corr</span>
+<span class="s2">        ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code</span>
+<span class="s2">    ) </span>
+<span class="s2">  GROUP BY </span>
+<span class="s2">    year, </span>
+<span class="s2">    geocode4_corr, </span>
+<span class="s2">    cityen, </span>
+<span class="s2">    ind2, </span>
+<span class="s2">    lower_location, </span>
+<span class="s2">    larger_location, </span>
+<span class="s2">    coastal</span>
+<span class="s2">) </span>
+<span class="s2">SELECT </span>
+<span class="s2">  * </span>
+<span class="s2">FROM </span>
+<span class="s2">  (</span>
+<span class="s2">    WITH merge_asif AS (</span>
+<span class="s2">      SELECT </span>
+<span class="s2">        asif_city_industry_financial_ratio.year, </span>
+<span class="s2">        asif_city_industry_financial_ratio.geocode4_corr, </span>
+<span class="s2">        cityen, </span>
+<span class="s2">        ind2, </span>
+<span class="s2">        tso2, </span>
+<span class="s2">        tso2_mandate_c,</span>
+<span class="s2">        in_10_000_tonnes</span>
+<span class="s2">        lower_location, </span>
+<span class="s2">        larger_location, </span>
+<span class="s2">        coastal </span>
+<span class="s2">      FROM </span>
+<span class="s2">        aggregate_pol </span>
+<span class="s2">        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr </span>
+<span class="s2">        AND aggregate_pol.year = asif_city_industry_financial_ratio.year </span>
+<span class="s2">        AND aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2</span>
+<span class="s2">        INNER JOIN (</span>
+<span class="s2">        </span>
+<span class="s2">        SELECT geocode4_corr, tso2_mandate_c, in_10_000_tonnes</span>
+<span class="s2">        FROM policy.china_city_reduction_mandate</span>
+<span class="s2">        INNER JOIN chinese_lookup.china_city_code_normalised </span>
+<span class="s2">        ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn</span>
+<span class="s2">        WHERE extra_code = geocode4_corr</span>
+<span class="s2">        ) as city_mandate</span>
+<span class="s2">        ON aggregate_pol.geocode4_corr = city_mandate.geocode4_corr</span>
 <span class="s2">    ) </span>
 <span class="s2">    SELECT </span>
 <span class="s2">      CNT, </span>
@@ -16447,7 +16682,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Test by adding the aggregated pollution table with the financial ratio and reduction mandate</p>
+<p>Test by adding the aggregated pollution table with the financial ratio, reduction mandate and TCZ policy</p>
 
 </div>
 </div>
@@ -16532,6 +16767,8 @@ div#notebook {
 <span class="s2">        WHERE extra_code = geocode4_corr</span>
 <span class="s2">        ) as city_mandate</span>
 <span class="s2">        ON aggregate_pol.geocode4_corr = city_mandate.geocode4_corr</span>
+<span class="s2">        LEFT JOIN policy.china_city_tcz_spz</span>
+<span class="s2">        ON aggregate_pol.geocode4_corr = china_city_tcz_spz.geocode4_corr</span>
 <span class="s2">    ) </span>
 <span class="s2">    SELECT </span>
 <span class="s2">      CNT, </span>
@@ -16620,181 +16857,6 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Test by adding the aggregated pollution table with the financial ratio, reduction mandate and TCZ policy</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[32]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">WITH aggregate_pol AS (</span>
-<span class="s2">  SELECT </span>
-<span class="s2">    year, </span>
-<span class="s2">    geocode4_corr, </span>
-<span class="s2">    cityen, </span>
-<span class="s2">    ind2, </span>
-<span class="s2">    SUM(tso2) as tso2, </span>
-<span class="s2">    lower_location, </span>
-<span class="s2">    larger_location, </span>
-<span class="s2">    coastal </span>
-<span class="s2">  FROM </span>
-<span class="s2">    (</span>
-<span class="s2">      SELECT </span>
-<span class="s2">        year, </span>
-<span class="s2">        citycode, </span>
-<span class="s2">        geocode4_corr, </span>
-<span class="s2">        china_city_sector_pollution.cityen, </span>
-<span class="s2">        ind2, </span>
-<span class="s2">        tso2, </span>
-<span class="s2">        lower_location, </span>
-<span class="s2">        larger_location, </span>
-<span class="s2">        coastal </span>
-<span class="s2">      FROM </span>
-<span class="s2">        environment.china_city_sector_pollution </span>
-<span class="s2">        INNER JOIN (</span>
-<span class="s2">          SELECT </span>
-<span class="s2">            extra_code, </span>
-<span class="s2">            geocode4_corr </span>
-<span class="s2">          FROM </span>
-<span class="s2">            chinese_lookup.china_city_code_normalised </span>
-<span class="s2">          GROUP BY </span>
-<span class="s2">            extra_code, </span>
-<span class="s2">            geocode4_corr</span>
-<span class="s2">        ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code</span>
-<span class="s2">    ) </span>
-<span class="s2">  GROUP BY </span>
-<span class="s2">    year, </span>
-<span class="s2">    geocode4_corr, </span>
-<span class="s2">    cityen, </span>
-<span class="s2">    ind2, </span>
-<span class="s2">    lower_location, </span>
-<span class="s2">    larger_location, </span>
-<span class="s2">    coastal</span>
-<span class="s2">) </span>
-<span class="s2">SELECT </span>
-<span class="s2">  * </span>
-<span class="s2">FROM </span>
-<span class="s2">  (</span>
-<span class="s2">    WITH merge_asif AS (</span>
-<span class="s2">      SELECT </span>
-<span class="s2">        asif_city_industry_financial_ratio.year, </span>
-<span class="s2">        asif_city_industry_financial_ratio.geocode4_corr, </span>
-<span class="s2">        cityen, </span>
-<span class="s2">        ind2, </span>
-<span class="s2">        tso2, </span>
-<span class="s2">        tso2_mandate_c,</span>
-<span class="s2">        in_10_000_tonnes</span>
-<span class="s2">        lower_location, </span>
-<span class="s2">        larger_location, </span>
-<span class="s2">        coastal </span>
-<span class="s2">      FROM </span>
-<span class="s2">        aggregate_pol </span>
-<span class="s2">        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr </span>
-<span class="s2">        AND aggregate_pol.year = asif_city_industry_financial_ratio.year </span>
-<span class="s2">        AND aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2</span>
-<span class="s2">        INNER JOIN (</span>
-<span class="s2">        </span>
-<span class="s2">        SELECT geocode4_corr, tso2_mandate_c, in_10_000_tonnes</span>
-<span class="s2">        FROM policy.china_city_reduction_mandate</span>
-<span class="s2">        INNER JOIN chinese_lookup.china_city_code_normalised </span>
-<span class="s2">        ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn</span>
-<span class="s2">        WHERE extra_code = geocode4_corr</span>
-<span class="s2">        ) as city_mandate</span>
-<span class="s2">        ON aggregate_pol.geocode4_corr = city_mandate.geocode4_corr</span>
-<span class="s2">        LEFT JOIN policy.china_city_tcz_spz</span>
-<span class="s2">        ON aggregate_pol.geocode4_corr = china_city_tcz_spz.geocode4_corr</span>
-<span class="s2">    ) </span>
-<span class="s2">    SELECT </span>
-<span class="s2">      CNT, </span>
-<span class="s2">      COUNT(CNT) AS dup </span>
-<span class="s2">    FROM </span>
-<span class="s2">      (</span>
-<span class="s2">        SELECT </span>
-<span class="s2">          geocode4_corr, </span>
-<span class="s2">          year, </span>
-<span class="s2">          ind2, </span>
-<span class="s2">          COUNT(*) AS CNT </span>
-<span class="s2">        FROM </span>
-<span class="s2">          merge_asif </span>
-<span class="s2">        GROUP BY </span>
-<span class="s2">          geocode4_corr, </span>
-<span class="s2">          year, </span>
-<span class="s2">          ind2</span>
-<span class="s2">      ) AS count_dup </span>
-<span class="s2">    GROUP BY </span>
-<span class="s2">      CNT</span>
-<span class="s2">  )</span>
-<span class="s2">&quot;&quot;&quot;</span>
-<span class="n">output</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span>
-                    <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
-                    <span class="n">database</span><span class="o">=</span><span class="n">DatabaseName</span><span class="p">,</span>
-                    <span class="n">s3_output</span><span class="o">=</span><span class="n">s3_output_example</span><span class="p">,</span>
-    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;example_9&#39;</span>
-                <span class="p">)</span>
-<span class="n">output</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[32]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>CNT</th>
-      <th>dup</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>34690</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="Table-fin_dep_pollution_baseline">Table <code>fin_dep_pollution_baseline</code><a class="anchor-link" href="#Table-fin_dep_pollution_baseline">&#182;</a></h1><p>Since the table to create has missing value, please use the following at the top of the query</p>
 
 <pre><code>CREATE TABLE database.table_name WITH (format = 'PARQUET') AS</code></pre>
@@ -16812,7 +16874,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s3_output</span> <span class="o">=</span> <span class="s1">&#39;DATA/ENVIRONMENT/CHINA/FYP/FINANCIAL_CONTRAINT/PAPER_FYP_FINANCE_POL/BASELINE&#39;</span>
@@ -16834,7 +16896,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">try</span><span class="p">:</span>
@@ -16861,7 +16923,7 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;6b6723ef-989f-4d6c-9a4e-d9b35e4d1193&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 29 Nov 2020 11:02:29 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;6b6723ef-989f-4d6c-9a4e-d9b35e4d1193&#39;}, &#39;RetryAttempts&#39;: 0}}
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;27e1d7c3-39ea-435c-9d78-454d00f6e580&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Tue, 01 Dec 2020 06:47:00 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;27e1d7c3-39ea-435c-9d78-454d00f6e580&#39;}, &#39;RetryAttempts&#39;: 0}}
 </pre>
 </div>
 </div>
@@ -16880,7 +16942,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[35]:</div>
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s3</span><span class="o">.</span><span class="n">remove_all_bucket</span><span class="p">(</span><span class="n">path_remove</span> <span class="o">=</span> <span class="n">s3_output</span><span class="p">)</span>
@@ -16896,7 +16958,7 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[35]:</div>
+    <div class="prompt output_prompt">Out[37]:</div>
 
 
 
@@ -16913,7 +16975,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[36]:</div>
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%time</span>
@@ -16977,14 +17039,19 @@ div#notebook {
 <span class="s2">  asif_city_industry_financial_ratio.geocode4_corr, </span>
 <span class="s2">  CASE WHEN tcz IS NULL THEN &#39;0&#39; ELSE tcz END AS tcz,</span>
 <span class="s2">  CASE WHEN spz IS NULL THEN &#39;0&#39; ELSE spz END AS spz,</span>
-<span class="s2">  ind2, </span>
+<span class="s2">  aggregate_pol.ind2, </span>
 <span class="s2">  CASE WHEN short IS NULL THEN &#39;Unknown&#39; ELSE short END AS short,</span>
+<span class="s2">  polluted_di,</span>
+<span class="s2">  polluted_mi,</span>
+<span class="s2">  polluted_mei,</span>
+<span class="s2">  polluted_thre,</span>
 <span class="s2">  tso2, </span>
 <span class="s2">  tso2_mandate_c, </span>
 <span class="s2">  in_10_000_tonnes, </span>
 <span class="s2">  CAST(output/1000000  AS DECIMAL(16, 5)) AS output,</span>
 <span class="s2">  CAST(employment/1000 AS DECIMAL(16, 5)) AS employment,</span>
 <span class="s2">  CAST(sales/1000000 AS DECIMAL(16, 5)) AS sales,</span>
+<span class="s2">  CAST(capital/1000000 AS DECIMAL(16, 5)) AS capital,</span>
 <span class="s2">  CAST(working_capital_cit/1000000 AS DECIMAL(16, 5)) AS working_capital_cit, </span>
 <span class="s2">  CAST(working_capital_ci/1000000 AS DECIMAL(16, 5)) AS working_capital_ci, </span>
 <span class="s2">  CAST(working_capital_i/1000000 AS DECIMAL(16, 5)) AS working_capital_i, </span>
@@ -17012,12 +17079,12 @@ div#notebook {
 <span class="s2">  DENSE_RANK() OVER (</span>
 <span class="s2">    ORDER BY </span>
 <span class="s2">      city_mandate.geocode4_corr, </span>
-<span class="s2">      ind2</span>
+<span class="s2">      aggregate_pol.ind2</span>
 <span class="s2">  ) AS fe_c_i, </span>
 <span class="s2">  DENSE_RANK() OVER (</span>
 <span class="s2">    ORDER BY </span>
 <span class="s2">      asif_city_industry_financial_ratio.year, </span>
-<span class="s2">      ind2</span>
+<span class="s2">      aggregate_pol.ind2</span>
 <span class="s2">  ) AS fe_t_i, </span>
 <span class="s2">  DENSE_RANK() OVER (</span>
 <span class="s2">    ORDER BY </span>
@@ -17041,6 +17108,12 @@ div#notebook {
 <span class="s2">        LEFT JOIN policy.china_city_tcz_spz</span>
 <span class="s2">        ON aggregate_pol.geocode4_corr = china_city_tcz_spz.geocode4_corr</span>
 <span class="s2">        LEFT JOIN chinese_lookup.ind_cic_2_name ON aggregate_pol.ind2 = ind_cic_2_name.cic </span>
+<span class="s2">        LEFT JOIN (</span>
+<span class="s2">        SELECT ind2, polluted_di, polluted_mi, polluted_mei, polluted_thre</span>
+<span class="s2">        FROM &quot;environment&quot;.&quot;china_sector_pollution_threshold&quot;</span>
+<span class="s2">        WHERE year = &#39;2001&#39;</span>
+<span class="s2">        ) as polluted_sector</span>
+<span class="s2">        ON  aggregate_pol.ind2 = polluted_sector.ind2</span>
 
 <span class="s2">WHERE </span>
 <span class="s2">  asif_city_industry_financial_ratio.year in (</span>
@@ -17070,24 +17143,24 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>CPU times: user 956 ms, sys: 97.5 ms, total: 1.05 s
-Wall time: 8.02 s
+<pre>CPU times: user 974 ms, sys: 97.5 ms, total: 1.07 s
+Wall time: 8.7 s
 </pre>
 </div>
 </div>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[36]:</div>
+    <div class="prompt output_prompt">Out[38]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
 <pre>{&#39;Results&#39;: {&#39;State&#39;: &#39;SUCCEEDED&#39;,
-  &#39;SubmissionDateTime&#39;: datetime.datetime(2020, 11, 29, 12, 3, 42, 155000, tzinfo=tzlocal()),
-  &#39;CompletionDateTime&#39;: datetime.datetime(2020, 11, 29, 12, 3, 49, 994000, tzinfo=tzlocal())},
- &#39;QueryID&#39;: &#39;ddf5e4fb-5954-4266-989b-30fa2c7eec1b&#39;}</pre>
+  &#39;SubmissionDateTime&#39;: datetime.datetime(2020, 12, 1, 7, 47, 58, 574000, tzinfo=tzlocal()),
+  &#39;CompletionDateTime&#39;: datetime.datetime(2020, 12, 1, 7, 48, 7, 67000, tzinfo=tzlocal())},
+ &#39;QueryID&#39;: &#39;7834551c-ecb3-4de5-868e-c6a9d5266745&#39;}</pre>
 </div>
 
 </div>
@@ -17098,7 +17171,7 @@ Wall time: 8.02 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[37]:</div>
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_count</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -17124,7 +17197,7 @@ Wall time: 8.02 s
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[37]:</div>
+    <div class="prompt output_prompt">Out[39]:</div>
 
 
 
@@ -17203,7 +17276,7 @@ Wall time: 8.02 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[38]:</div>
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;geocode4_corr&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;ind2&quot;</span><span class="p">]</span>
@@ -17226,10 +17299,10 @@ Wall time: 8.02 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[39]:</div>
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">step</span> <span class="o">=</span> <span class="mi">1</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">step</span> <span class="o">=</span> <span class="mi">2</span>
 </pre></div>
 
     </div>
@@ -17250,7 +17323,7 @@ Wall time: 8.02 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[40]:</div>
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">get_table_information</span><span class="p">(</span>
@@ -17268,7 +17341,7 @@ Wall time: 8.02 s
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[40]:</div>
+    <div class="prompt output_prompt">Out[42]:</div>
 
 
 
@@ -17283,12 +17356,17 @@ Wall time: 8.02 s
  {&#39;Name&#39;: &#39;spz&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;ind2&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;short&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;polluted_di&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;polluted_mi&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;polluted_mei&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;polluted_thre&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;tso2&#39;, &#39;Type&#39;: &#39;bigint&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;tso2_mandate_c&#39;, &#39;Type&#39;: &#39;float&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;in_10_000_tonnes&#39;, &#39;Type&#39;: &#39;float&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;output&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;employment&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;sales&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;capital&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;working_capital_cit&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;working_capital_ci&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;working_capital_i&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
@@ -17326,7 +17404,7 @@ Wall time: 8.02 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[41]:</div>
+<div class="prompt input_prompt">In&nbsp;[43]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;year from 2001 to 2007&#39;</span><span class="p">},</span>
@@ -17339,40 +17417,45 @@ Wall time: 8.02 s
  <span class="c1">#{&#39;Name&#39;: &#39;cic&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;4 digits industry&#39;},</span>
  <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;ind2&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;2 digits industry&#39;</span><span class="p">},</span>
  <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;short&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;polluted_di&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;varchar(5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Sectors with values above Yearly 75th percentile of SO2 label as ABOVE else BELOW&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;polluted_mi&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;varchar(5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Sectors with values above Yearly average of SO2 label as ABOVE else BELOW&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;polluted_mei&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;varchar(5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Sectors with values above Yearly median of SO2 label as ABOVE else BELOW&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;polluted_thre&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;varchar(5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Sectors with values above 68070.78  of SO2 label as ABOVE else BELOW&#39;</span><span class="p">},</span>
  <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;tso2&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Total so2 city sector&#39;</span><span class="p">},</span>
  <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;tso2_mandate_c&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;city reduction mandate in tonnes&#39;</span><span class="p">},</span>
  <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;in_10_000_tonnes&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;city reduction mandate in 10k tonnes&#39;</span><span class="p">},</span>
- <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;bigint&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Output. Scaled by a factor of 1000000&#39;</span><span class="p">},</span>
- <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;employment&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;bigint&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Employemnt. Scaled by a factor of 1000&#39;</span><span class="p">},</span>
- <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;sales&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;bigint&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Sales. Scaled by a factor of 1000000&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(16,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Output. Scaled by a factor of 1000000&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;employment&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(16,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Employemnt. Scaled by a factor of 1000&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;sales&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(16,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Sales. Scaled by a factor of 1000000&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;capital&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(16,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Capital. Scaled by a factor of 1000000&#39;</span><span class="p">},</span>
  <span class="p">{</span>
    <span class="s2">&quot;Name&quot;</span><span class="p">:</span> <span class="s2">&quot;working_capital_cit&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;bigint&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;decimal(16,5)&quot;</span><span class="p">,</span>
    <span class="s2">&quot;Comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year. Scaled by a factor of 1000000&quot;</span>
 <span class="p">},</span>
    <span class="p">{</span>
    <span class="s2">&quot;Name&quot;</span><span class="p">:</span> <span class="s2">&quot;working_capital_ci&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;double&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;decimal(16,5)&quot;</span><span class="p">,</span>
    <span class="s2">&quot;Comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry. Scaled by a factor of 1000000&quot;</span>
 <span class="p">},</span>
    <span class="p">{</span>
    <span class="s2">&quot;Name&quot;</span><span class="p">:</span> <span class="s2">&quot;working_capital_i&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;double&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;decimal(16,5)&quot;</span><span class="p">,</span>
    <span class="s2">&quot;Comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] industry. Scaled by a factor of 1000000&quot;</span>
 <span class="p">},</span>
    <span class="p">{</span>
    <span class="s2">&quot;Name&quot;</span><span class="p">:</span> <span class="s2">&quot;asset_tangibility_cit&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;bigint&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;decimal(16,5)&quot;</span><span class="p">,</span>
    <span class="s2">&quot;Comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry year. Scaled by a factor of 1000000&quot;</span>
 <span class="p">},</span>
    <span class="p">{</span>
    <span class="s2">&quot;Name&quot;</span><span class="p">:</span> <span class="s2">&quot;asset_tangibility_ci&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;double&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;decimal(16,5)&quot;</span><span class="p">,</span>
    <span class="s2">&quot;Comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry. Scaled by a factor of 1000000&quot;</span>
 <span class="p">},</span>
    <span class="p">{</span>
    <span class="s2">&quot;Name&quot;</span><span class="p">:</span> <span class="s2">&quot;asset_tangibility_i&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;double&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;decimal(16,5)&quot;</span><span class="p">,</span>
    <span class="s2">&quot;Comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] industry. Scaled by a factor of 1000000&quot;</span>
 <span class="p">},</span>
    <span class="p">{</span>
@@ -17453,9 +17536,9 @@ Wall time: 8.02 s
     <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;lower_location&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Location city. one of Coastal, Central, Northwest, Northeast, Southwest&#39;</span><span class="p">},</span>
     <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;larger_location&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Location city. one of Eastern, Central, Western&#39;</span><span class="p">},</span>
     <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;coastal&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;City is bordered by sea or not&#39;</span><span class="p">},</span>
-    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;fe_c_i&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;City industry fixed effect&#39;</span><span class="p">},</span>
-    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;fe_t_i&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;year industry fixed effect&#39;</span><span class="p">},</span>
-    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;fe_c_t&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;city industry fixed effect&#39;</span><span class="p">}]</span>
+    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;fe_c_i&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;bigint&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;City industry fixed effect&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;fe_t_i&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;bigint&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;year industry fixed effect&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;fe_c_t&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;bigint&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;city industry fixed effect&#39;</span><span class="p">}]</span>
 </pre></div>
 
     </div>
@@ -17475,7 +17558,7 @@ Wall time: 8.02 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[42]:</div>
+<div class="prompt input_prompt">In&nbsp;[44]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -17505,7 +17588,7 @@ Wall time: 8.02 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[43]:</div>
+<div class="prompt input_prompt">In&nbsp;[45]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">json_etl</span> <span class="o">=</span> <span class="p">{</span>
@@ -17534,15 +17617,15 @@ Wall time: 8.02 s
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[43]:</div>
+    <div class="prompt output_prompt">Out[45]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>{&#39;step&#39;: 1,
+<pre>{&#39;step&#39;: 2,
  &#39;description&#39;: &#39;\nTransform (creating time-break variables and fixed effect) asif_financial_ratio data and merging pollution, industry and city mandate tables\n&#39;,
- &#39;query&#39;: &#34;\nCREATE TABLE environment.fin_dep_pollution_baseline WITH (format = &#39;PARQUET&#39;) AS \n\nWITH aggregate_pol AS (\n  SELECT \n    year, \n    geocode4_corr,\n    provinces,\n    cityen, \n    ind2, \n    SUM(tso2) as tso2, \n    lower_location, \n    larger_location, \n    coastal \n  FROM \n    (\n      SELECT \n        year, \n        provinces,\n        citycode, \n        geocode4_corr, \n        china_city_sector_pollution.cityen, \n        ind2, \n        tso2, \n        lower_location, \n        larger_location, \n        coastal \n      FROM \n        environment.china_city_sector_pollution \n        INNER JOIN (\n          SELECT \n            extra_code, \n            geocode4_corr \n          FROM \n            chinese_lookup.china_city_code_normalised \n          GROUP BY \n            extra_code, \n            geocode4_corr\n        ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code\n    ) \n  GROUP BY \n    year, \n    provinces,\n    geocode4_corr, \n    cityen, \n    ind2, \n    lower_location, \n    larger_location, \n    coastal\n) \nSELECT \n  asif_city_industry_financial_ratio.year, \n  CASE WHEN aggregate_pol.year in (\n    &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;\n  ) THEN &#39;FALSE&#39; WHEN aggregate_pol.year in (&#39;2006&#39;, &#39;2007&#39;) THEN &#39;TRUE&#39; END AS period, \n  provinces, \n  cityen, \n  asif_city_industry_financial_ratio.geocode4_corr, \n  CASE WHEN tcz IS NULL THEN &#39;0&#39; ELSE tcz END AS tcz,\n  CASE WHEN spz IS NULL THEN &#39;0&#39; ELSE spz END AS spz,\n  ind2, \n  CASE WHEN short IS NULL THEN &#39;Unknown&#39; ELSE short END AS short,\n  tso2, \n  tso2_mandate_c, \n  in_10_000_tonnes, \n  CAST(output/1000000  AS DECIMAL(16, 5)) AS output,\n  CAST(employment/1000 AS DECIMAL(16, 5)) AS employment,\n  CAST(sales/1000000 AS DECIMAL(16, 5)) AS sales,\n  CAST(working_capital_cit/1000000 AS DECIMAL(16, 5)) AS working_capital_cit, \n  CAST(working_capital_ci/1000000 AS DECIMAL(16, 5)) AS working_capital_ci, \n  CAST(working_capital_i/1000000 AS DECIMAL(16, 5)) AS working_capital_i, \n  CAST(asset_tangibility_cit/1000000 AS DECIMAL(16, 5)) AS asset_tangibility_cit, \n  CAST(asset_tangibility_ci/1000000 AS DECIMAL(16, 5)) AS asset_tangibility_ci, \n  CAST(asset_tangibility_i/1000000 AS DECIMAL(16, 5)) AS asset_tangibility_i, \n  current_ratio_cit, \n  current_ratio_ci, \n  current_ratio_i, \n  cash_assets_cit, \n  cash_assets_ci, \n  cash_assets_i, \n  liabilities_assets_cit, \n  liabilities_assets_ci, \n  liabilities_assets_i, \n  return_on_asset_cit, \n  return_on_asset_ci, \n  return_on_asset_i, \n  sales_assets_cit, \n  sales_assets_ci, \n  sales_assets_i, \n  lower_location, \n  larger_location, \n  coastal, \n  DENSE_RANK() OVER (\n    ORDER BY \n      city_mandate.geocode4_corr, \n      ind2\n  ) AS fe_c_i, \n  DENSE_RANK() OVER (\n    ORDER BY \n      asif_city_industry_financial_ratio.year, \n      ind2\n  ) AS fe_t_i, \n  DENSE_RANK() OVER (\n    ORDER BY \n      city_mandate.geocode4_corr, \n      asif_city_industry_financial_ratio.year\n  ) AS fe_c_t \n      FROM \n        aggregate_pol \n        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr \n        AND aggregate_pol.year = asif_city_industry_financial_ratio.year \n        AND aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2\n        INNER JOIN (\n        \n        SELECT geocode4_corr, tso2_mandate_c, in_10_000_tonnes\n        FROM policy.china_city_reduction_mandate\n        INNER JOIN chinese_lookup.china_city_code_normalised \n        ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn\n        WHERE extra_code = geocode4_corr\n        ) as city_mandate\n        ON aggregate_pol.geocode4_corr = city_mandate.geocode4_corr\n        LEFT JOIN policy.china_city_tcz_spz\n        ON aggregate_pol.geocode4_corr = china_city_tcz_spz.geocode4_corr\n        LEFT JOIN chinese_lookup.ind_cic_2_name ON aggregate_pol.ind2 = ind_cic_2_name.cic \n\nWHERE \n  asif_city_industry_financial_ratio.year in (\n    &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;, \n    &#39;2006&#39;, &#39;2007&#39;\n  ) AND tso2 &gt; 0\n&#34;,
+ &#39;query&#39;: &#39;\nCREATE TABLE environment.fin_dep_pollution_baseline WITH (format = \&#39;PARQUET\&#39;) AS \n\nWITH aggregate_pol AS (\n  SELECT \n    year, \n    geocode4_corr,\n    provinces,\n    cityen, \n    ind2, \n    SUM(tso2) as tso2, \n    lower_location, \n    larger_location, \n    coastal \n  FROM \n    (\n      SELECT \n        year, \n        provinces,\n        citycode, \n        geocode4_corr, \n        china_city_sector_pollution.cityen, \n        ind2, \n        tso2, \n        lower_location, \n        larger_location, \n        coastal \n      FROM \n        environment.china_city_sector_pollution \n        INNER JOIN (\n          SELECT \n            extra_code, \n            geocode4_corr \n          FROM \n            chinese_lookup.china_city_code_normalised \n          GROUP BY \n            extra_code, \n            geocode4_corr\n        ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code\n    ) \n  GROUP BY \n    year, \n    provinces,\n    geocode4_corr, \n    cityen, \n    ind2, \n    lower_location, \n    larger_location, \n    coastal\n) \nSELECT \n  asif_city_industry_financial_ratio.year, \n  CASE WHEN aggregate_pol.year in (\n    \&#39;2001\&#39;, \&#39;2002\&#39;, \&#39;2003\&#39;, \&#39;2004\&#39;, \&#39;2005\&#39;\n  ) THEN \&#39;FALSE\&#39; WHEN aggregate_pol.year in (\&#39;2006\&#39;, \&#39;2007\&#39;) THEN \&#39;TRUE\&#39; END AS period, \n  provinces, \n  cityen, \n  asif_city_industry_financial_ratio.geocode4_corr, \n  CASE WHEN tcz IS NULL THEN \&#39;0\&#39; ELSE tcz END AS tcz,\n  CASE WHEN spz IS NULL THEN \&#39;0\&#39; ELSE spz END AS spz,\n  aggregate_pol.ind2, \n  CASE WHEN short IS NULL THEN \&#39;Unknown\&#39; ELSE short END AS short,\n  polluted_di,\n  polluted_mi,\n  polluted_mei,\n  polluted_thre,\n  tso2, \n  tso2_mandate_c, \n  in_10_000_tonnes, \n  CAST(output/1000000  AS DECIMAL(16, 5)) AS output,\n  CAST(employment/1000 AS DECIMAL(16, 5)) AS employment,\n  CAST(sales/1000000 AS DECIMAL(16, 5)) AS sales,\n  CAST(capital/1000000 AS DECIMAL(16, 5)) AS capital,\n  CAST(working_capital_cit/1000000 AS DECIMAL(16, 5)) AS working_capital_cit, \n  CAST(working_capital_ci/1000000 AS DECIMAL(16, 5)) AS working_capital_ci, \n  CAST(working_capital_i/1000000 AS DECIMAL(16, 5)) AS working_capital_i, \n  CAST(asset_tangibility_cit/1000000 AS DECIMAL(16, 5)) AS asset_tangibility_cit, \n  CAST(asset_tangibility_ci/1000000 AS DECIMAL(16, 5)) AS asset_tangibility_ci, \n  CAST(asset_tangibility_i/1000000 AS DECIMAL(16, 5)) AS asset_tangibility_i, \n  current_ratio_cit, \n  current_ratio_ci, \n  current_ratio_i, \n  cash_assets_cit, \n  cash_assets_ci, \n  cash_assets_i, \n  liabilities_assets_cit, \n  liabilities_assets_ci, \n  liabilities_assets_i, \n  return_on_asset_cit, \n  return_on_asset_ci, \n  return_on_asset_i, \n  sales_assets_cit, \n  sales_assets_ci, \n  sales_assets_i, \n  lower_location, \n  larger_location, \n  coastal, \n  DENSE_RANK() OVER (\n    ORDER BY \n      city_mandate.geocode4_corr, \n      aggregate_pol.ind2\n  ) AS fe_c_i, \n  DENSE_RANK() OVER (\n    ORDER BY \n      asif_city_industry_financial_ratio.year, \n      aggregate_pol.ind2\n  ) AS fe_t_i, \n  DENSE_RANK() OVER (\n    ORDER BY \n      city_mandate.geocode4_corr, \n      asif_city_industry_financial_ratio.year\n  ) AS fe_c_t \n      FROM \n        aggregate_pol \n        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr \n        AND aggregate_pol.year = asif_city_industry_financial_ratio.year \n        AND aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2\n        INNER JOIN (\n        \n        SELECT geocode4_corr, tso2_mandate_c, in_10_000_tonnes\n        FROM policy.china_city_reduction_mandate\n        INNER JOIN chinese_lookup.china_city_code_normalised \n        ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn\n        WHERE extra_code = geocode4_corr\n        ) as city_mandate\n        ON aggregate_pol.geocode4_corr = city_mandate.geocode4_corr\n        LEFT JOIN policy.china_city_tcz_spz\n        ON aggregate_pol.geocode4_corr = china_city_tcz_spz.geocode4_corr\n        LEFT JOIN chinese_lookup.ind_cic_2_name ON aggregate_pol.ind2 = ind_cic_2_name.cic \n        LEFT JOIN (\n        SELECT ind2, polluted_di, polluted_mi, polluted_mei, polluted_thre\n        FROM &#34;environment&#34;.&#34;china_sector_pollution_threshold&#34;\n        WHERE year = \&#39;2001\&#39;\n        ) as polluted_sector\n        ON  aggregate_pol.ind2 = polluted_sector.ind2\n\nWHERE \n  asif_city_industry_financial_ratio.year in (\n    \&#39;2001\&#39;, \&#39;2002\&#39;, \&#39;2003\&#39;, \&#39;2004\&#39;, \&#39;2005\&#39;, \n    \&#39;2006\&#39;, \&#39;2007\&#39;\n  ) AND tso2 &gt; 0\n&#39;,
  &#39;schema&#39;: [{&#39;Name&#39;: &#39;year&#39;,
    &#39;Type&#39;: &#39;string&#39;,
    &#39;Comment&#39;: &#39;year from 2001 to 2007&#39;},
@@ -17558,6 +17641,18 @@ Wall time: 8.02 s
    &#39;Comment&#39;: &#39;Special policy zone policy city&#39;},
   {&#39;Name&#39;: &#39;ind2&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;2 digits industry&#39;},
   {&#39;Name&#39;: &#39;short&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+  {&#39;Name&#39;: &#39;polluted_di&#39;,
+   &#39;Type&#39;: &#39;varchar(5)&#39;,
+   &#39;Comment&#39;: &#39;Sectors with values above Yearly 75th percentile of SO2 label as ABOVE else BELOW&#39;},
+  {&#39;Name&#39;: &#39;polluted_mi&#39;,
+   &#39;Type&#39;: &#39;varchar(5)&#39;,
+   &#39;Comment&#39;: &#39;Sectors with values above Yearly average of SO2 label as ABOVE else BELOW&#39;},
+  {&#39;Name&#39;: &#39;polluted_mei&#39;,
+   &#39;Type&#39;: &#39;varchar(5)&#39;,
+   &#39;Comment&#39;: &#39;Sectors with values above Yearly median of SO2 label as ABOVE else BELOW&#39;},
+  {&#39;Name&#39;: &#39;polluted_thre&#39;,
+   &#39;Type&#39;: &#39;varchar(5)&#39;,
+   &#39;Comment&#39;: &#39;Sectors with values above 68070.78  of SO2 label as ABOVE else BELOW&#39;},
   {&#39;Name&#39;: &#39;tso2&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;Total so2 city sector&#39;},
   {&#39;Name&#39;: &#39;tso2_mandate_c&#39;,
    &#39;Type&#39;: &#39;float&#39;,
@@ -17566,31 +17661,34 @@ Wall time: 8.02 s
    &#39;Type&#39;: &#39;float&#39;,
    &#39;Comment&#39;: &#39;city reduction mandate in 10k tonnes&#39;},
   {&#39;Name&#39;: &#39;output&#39;,
-   &#39;Type&#39;: &#39;bigint&#39;,
+   &#39;Type&#39;: &#39;decimal(16,5)&#39;,
    &#39;Comment&#39;: &#39;Output. Scaled by a factor of 1000000&#39;},
   {&#39;Name&#39;: &#39;employment&#39;,
-   &#39;Type&#39;: &#39;bigint&#39;,
+   &#39;Type&#39;: &#39;decimal(16,5)&#39;,
    &#39;Comment&#39;: &#39;Employemnt. Scaled by a factor of 1000&#39;},
   {&#39;Name&#39;: &#39;sales&#39;,
-   &#39;Type&#39;: &#39;bigint&#39;,
+   &#39;Type&#39;: &#39;decimal(16,5)&#39;,
    &#39;Comment&#39;: &#39;Sales. Scaled by a factor of 1000000&#39;},
+  {&#39;Name&#39;: &#39;capital&#39;,
+   &#39;Type&#39;: &#39;decimal(16,5)&#39;,
+   &#39;Comment&#39;: &#39;Capital. Scaled by a factor of 1000000&#39;},
   {&#39;Name&#39;: &#39;working_capital_cit&#39;,
-   &#39;Type&#39;: &#39;bigint&#39;,
+   &#39;Type&#39;: &#39;decimal(16,5)&#39;,
    &#39;Comment&#39;: &#39;Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year. Scaled by a factor of 1000000&#39;},
   {&#39;Name&#39;: &#39;working_capital_ci&#39;,
-   &#39;Type&#39;: &#39;double&#39;,
+   &#39;Type&#39;: &#39;decimal(16,5)&#39;,
    &#39;Comment&#39;: &#39;Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry. Scaled by a factor of 1000000&#39;},
   {&#39;Name&#39;: &#39;working_capital_i&#39;,
-   &#39;Type&#39;: &#39;double&#39;,
+   &#39;Type&#39;: &#39;decimal(16,5)&#39;,
    &#39;Comment&#39;: &#39;Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] industry. Scaled by a factor of 1000000&#39;},
   {&#39;Name&#39;: &#39;asset_tangibility_cit&#39;,
-   &#39;Type&#39;: &#39;bigint&#39;,
+   &#39;Type&#39;: &#39;decimal(16,5)&#39;,
    &#39;Comment&#39;: &#39;Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry year. Scaled by a factor of 1000000&#39;},
   {&#39;Name&#39;: &#39;asset_tangibility_ci&#39;,
-   &#39;Type&#39;: &#39;double&#39;,
+   &#39;Type&#39;: &#39;decimal(16,5)&#39;,
    &#39;Comment&#39;: &#39;Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry. Scaled by a factor of 1000000&#39;},
   {&#39;Name&#39;: &#39;asset_tangibility_i&#39;,
-   &#39;Type&#39;: &#39;double&#39;,
+   &#39;Type&#39;: &#39;decimal(16,5)&#39;,
    &#39;Comment&#39;: &#39;Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] industry. Scaled by a factor of 1000000&#39;},
   {&#39;Name&#39;: &#39;current_ratio_cit&#39;,
    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
@@ -17646,9 +17744,15 @@ Wall time: 8.02 s
   {&#39;Name&#39;: &#39;coastal&#39;,
    &#39;Type&#39;: &#39;string&#39;,
    &#39;Comment&#39;: &#39;City is bordered by sea or not&#39;},
-  {&#39;Name&#39;: &#39;fe_c_i&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;City industry fixed effect&#39;},
-  {&#39;Name&#39;: &#39;fe_t_i&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;year industry fixed effect&#39;},
-  {&#39;Name&#39;: &#39;fe_c_t&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;city industry fixed effect&#39;}],
+  {&#39;Name&#39;: &#39;fe_c_i&#39;,
+   &#39;Type&#39;: &#39;bigint&#39;,
+   &#39;Comment&#39;: &#39;City industry fixed effect&#39;},
+  {&#39;Name&#39;: &#39;fe_t_i&#39;,
+   &#39;Type&#39;: &#39;bigint&#39;,
+   &#39;Comment&#39;: &#39;year industry fixed effect&#39;},
+  {&#39;Name&#39;: &#39;fe_c_t&#39;,
+   &#39;Type&#39;: &#39;bigint&#39;,
+   &#39;Comment&#39;: &#39;city industry fixed effect&#39;}],
  &#39;partition_keys&#39;: [&#39;geocode4_corr&#39;, &#39;year&#39;, &#39;ind2&#39;],
  &#39;metadata&#39;: {&#39;DatabaseName&#39;: &#39;environment&#39;,
   &#39;TableName&#39;: &#39;fin_dep_pollution_baseline&#39;,
@@ -17664,7 +17768,7 @@ Wall time: 8.02 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[44]:</div>
+<div class="prompt input_prompt">In&nbsp;[46]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
@@ -17686,7 +17790,7 @@ Wall time: 8.02 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[45]:</div>
+<div class="prompt input_prompt">In&nbsp;[47]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">index_to_remove</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
@@ -17708,7 +17812,7 @@ Wall time: 8.02 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[46]:</div>
+<div class="prompt input_prompt">In&nbsp;[48]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;TABLES&#39;</span><span class="p">][</span><span class="s1">&#39;TRANSFORMATION&#39;</span><span class="p">][</span><span class="s1">&#39;STEPS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">json_etl</span><span class="p">)</span>
@@ -17729,7 +17833,7 @@ Wall time: 8.02 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[47]:</div>
+<div class="prompt input_prompt">In&nbsp;[49]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span><span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
@@ -17772,7 +17876,7 @@ Wall time: 8.02 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[48]:</div>
+<div class="prompt input_prompt">In&nbsp;[50]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">update_schema_table</span><span class="p">(</span>
@@ -17791,19 +17895,19 @@ Wall time: 8.02 s
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[48]:</div>
+    <div class="prompt output_prompt">Out[50]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;e748966a-46d4-4111-a939-7bda1734275b&#39;,
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;5fc25d13-85db-4197-a5d1-e9df8849b4bb&#39;,
   &#39;HTTPStatusCode&#39;: 200,
-  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 29 Nov 2020 11:04:58 GMT&#39;,
+  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Tue, 01 Dec 2020 06:55:18 GMT&#39;,
    &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;,
    &#39;content-length&#39;: &#39;2&#39;,
    &#39;connection&#39;: &#39;keep-alive&#39;,
-   &#39;x-amzn-requestid&#39;: &#39;e748966a-46d4-4111-a939-7bda1734275b&#39;},
+   &#39;x-amzn-requestid&#39;: &#39;5fc25d13-85db-4197-a5d1-e9df8849b4bb&#39;},
   &#39;RetryAttempts&#39;: 0}}</pre>
 </div>
 
@@ -17824,7 +17928,7 @@ Wall time: 8.02 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[49]:</div>
+<div class="prompt input_prompt">In&nbsp;[51]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;geocode4_corr&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;ind2&quot;</span><span class="p">]</span>
@@ -17840,7 +17944,7 @@ Wall time: 8.02 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[50]:</div>
+<div class="prompt input_prompt">In&nbsp;[52]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### COUNT DUPLICATES</span>
@@ -17923,7 +18027,7 @@ Wall time: 8.02 s
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[51]:</div>
+<div class="prompt input_prompt">In&nbsp;[53]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">README</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -18036,7 +18140,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[52]:</div>
+<div class="prompt input_prompt">In&nbsp;[54]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">boto3</span>
@@ -18056,7 +18160,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[53]:</div>
+<div class="prompt input_prompt">In&nbsp;[55]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">primary_key</span> <span class="o">=</span> <span class="s1">&#39;year&#39;</span>
@@ -18071,7 +18175,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[54]:</div>
+<div class="prompt input_prompt">In&nbsp;[56]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
@@ -18101,7 +18205,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[54]:</div>
+    <div class="prompt output_prompt">Out[56]:</div>
 
 
 
@@ -18127,7 +18231,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[55]:</div>
+<div class="prompt input_prompt">In&nbsp;[57]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">client_lambda</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
@@ -18149,28 +18253,28 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[55]:</div>
+    <div class="prompt output_prompt">Out[57]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;a94a52ff-2da1-4e18-8371-77c0493ab450&#39;,
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;534a0115-b63d-49e7-9e96-161d8494e6d6&#39;,
   &#39;HTTPStatusCode&#39;: 200,
-  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 29 Nov 2020 11:05:45 GMT&#39;,
+  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Tue, 01 Dec 2020 06:55:53 GMT&#39;,
    &#39;content-type&#39;: &#39;application/json&#39;,
    &#39;content-length&#39;: &#39;75&#39;,
    &#39;connection&#39;: &#39;keep-alive&#39;,
-   &#39;x-amzn-requestid&#39;: &#39;a94a52ff-2da1-4e18-8371-77c0493ab450&#39;,
+   &#39;x-amzn-requestid&#39;: &#39;534a0115-b63d-49e7-9e96-161d8494e6d6&#39;,
    &#39;x-amzn-remapped-content-length&#39;: &#39;0&#39;,
    &#39;x-amz-executed-version&#39;: &#39;$LATEST&#39;,
-   &#39;x-amz-log-result&#39;: &#39;U1RBUlQgUmVxdWVzdElkOiBhOTRhNTJmZi0yZGExLTRlMTgtODM3MS03N2MwNDkzYWI0NTAgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiBhOTRhNTJmZi0yZGExLTRlMTgtODM3MS03N2MwNDkzYWI0NTAKUkVQT1JUIFJlcXVlc3RJZDogYTk0YTUyZmYtMmRhMS00ZTE4LTgzNzEtNzdjMDQ5M2FiNDUwCUR1cmF0aW9uOiAyNzcyLjI1IG1zCUJpbGxlZCBEdXJhdGlvbjogMjgwMCBtcwlNZW1vcnkgU2l6ZTogMTI4IE1CCU1heCBNZW1vcnkgVXNlZDogODEgTUIJSW5pdCBEdXJhdGlvbjogMjc3LjM4IG1zCQo=&#39;,
-   &#39;x-amzn-trace-id&#39;: &#39;root=1-5fc38086-7a64e6861581156034566c17;sampled=0&#39;},
+   &#39;x-amz-log-result&#39;: &#39;U1RBUlQgUmVxdWVzdElkOiA1MzRhMDExNS1iNjNkLTQ5ZTctOWU5Ni0xNjFkODQ5NGU2ZDYgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiA1MzRhMDExNS1iNjNkLTQ5ZTctOWU5Ni0xNjFkODQ5NGU2ZDYKUkVQT1JUIFJlcXVlc3RJZDogNTM0YTAxMTUtYjYzZC00OWU3LTllOTYtMTYxZDg0OTRlNmQ2CUR1cmF0aW9uOiAyMzM2LjcxIG1zCUJpbGxlZCBEdXJhdGlvbjogMjMzNyBtcwlNZW1vcnkgU2l6ZTogMTI4IE1CCU1heCBNZW1vcnkgVXNlZDogODEgTUIJSW5pdCBEdXJhdGlvbjogMzEyLjc0IG1zCQo=&#39;,
+   &#39;x-amzn-trace-id&#39;: &#39;root=1-5fc5e8f6-033fd78d73f2543a4e2f6239;sampled=0&#39;},
   &#39;RetryAttempts&#39;: 0},
  &#39;StatusCode&#39;: 200,
- &#39;LogResult&#39;: &#39;U1RBUlQgUmVxdWVzdElkOiBhOTRhNTJmZi0yZGExLTRlMTgtODM3MS03N2MwNDkzYWI0NTAgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiBhOTRhNTJmZi0yZGExLTRlMTgtODM3MS03N2MwNDkzYWI0NTAKUkVQT1JUIFJlcXVlc3RJZDogYTk0YTUyZmYtMmRhMS00ZTE4LTgzNzEtNzdjMDQ5M2FiNDUwCUR1cmF0aW9uOiAyNzcyLjI1IG1zCUJpbGxlZCBEdXJhdGlvbjogMjgwMCBtcwlNZW1vcnkgU2l6ZTogMTI4IE1CCU1heCBNZW1vcnkgVXNlZDogODEgTUIJSW5pdCBEdXJhdGlvbjogMjc3LjM4IG1zCQo=&#39;,
+ &#39;LogResult&#39;: &#39;U1RBUlQgUmVxdWVzdElkOiA1MzRhMDExNS1iNjNkLTQ5ZTctOWU5Ni0xNjFkODQ5NGU2ZDYgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiA1MzRhMDExNS1iNjNkLTQ5ZTctOWU5Ni0xNjFkODQ5NGU2ZDYKUkVQT1JUIFJlcXVlc3RJZDogNTM0YTAxMTUtYjYzZC00OWU3LTllOTYtMTYxZDg0OTRlNmQ2CUR1cmF0aW9uOiAyMzM2LjcxIG1zCUJpbGxlZCBEdXJhdGlvbjogMjMzNyBtcwlNZW1vcnkgU2l6ZTogMTI4IE1CCU1heCBNZW1vcnkgVXNlZDogODEgTUIJSW5pdCBEdXJhdGlvbjogMzEyLjc0IG1zCQo=&#39;,
  &#39;ExecutedVersion&#39;: &#39;$LATEST&#39;,
- &#39;Payload&#39;: &lt;botocore.response.StreamingBody at 0x7fb578250750&gt;}</pre>
+ &#39;Payload&#39;: &lt;botocore.response.StreamingBody at 0x7f956a2190d0&gt;}</pre>
 </div>
 
 </div>
@@ -18188,7 +18292,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[56]:</div>
+<div class="prompt input_prompt">In&nbsp;[58]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">urllib</span><span class="o">,</span> <span class="nn">ipykernel</span><span class="o">,</span> <span class="nn">json</span>
@@ -18203,7 +18307,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[57]:</div>
+<div class="prompt input_prompt">In&nbsp;[59]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">create_report</span><span class="p">(</span><span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">keep_code</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>

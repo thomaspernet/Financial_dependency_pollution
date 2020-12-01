@@ -109,6 +109,7 @@ Target
 * china_city_tcz_spz
 * china_code_normalised
 * ind_cic_2_name
+* china_sector_pollution_threshold
 * Github: 
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/00_asif_financial_ratio.md
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_REDUCTION_MANDATE/city_reduction_mandate.py
@@ -116,6 +117,7 @@ Target
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/TCZ_SPZ/tcz_spz_policy.py
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CIC_NAME/cic_industry_name.py
+  * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/02_so2_polluted_sectors.md
 
 # Destination Output/Delivery
 
@@ -1067,8 +1069,12 @@ SELECT
   asif_city_industry_financial_ratio.geocode4_corr, 
   CASE WHEN tcz IS NULL THEN '0' ELSE tcz END AS tcz,
   CASE WHEN spz IS NULL THEN '0' ELSE spz END AS spz,
-  ind2, 
+  aggregate_pol.ind2, 
   CASE WHEN short IS NULL THEN 'Unknown' ELSE short END AS short,
+  polluted_di,
+  polluted_mi,
+  polluted_mei,
+  polluted_thre,
   tso2, 
   tso2_mandate_c, 
   in_10_000_tonnes, 
@@ -1103,12 +1109,12 @@ SELECT
   DENSE_RANK() OVER (
     ORDER BY 
       city_mandate.geocode4_corr, 
-      ind2
+      aggregate_pol.ind2
   ) AS fe_c_i, 
   DENSE_RANK() OVER (
     ORDER BY 
       asif_city_industry_financial_ratio.year, 
-      ind2
+      aggregate_pol.ind2
   ) AS fe_t_i, 
   DENSE_RANK() OVER (
     ORDER BY 
@@ -1132,6 +1138,12 @@ SELECT
         LEFT JOIN policy.china_city_tcz_spz
         ON aggregate_pol.geocode4_corr = china_city_tcz_spz.geocode4_corr
         LEFT JOIN chinese_lookup.ind_cic_2_name ON aggregate_pol.ind2 = ind_cic_2_name.cic 
+        LEFT JOIN (
+        SELECT ind2, polluted_di, polluted_mi, polluted_mei, polluted_thre
+        FROM "environment"."china_sector_pollution_threshold"
+        WHERE year = '2001'
+        ) as polluted_sector
+        ON  aggregate_pol.ind2 = polluted_sector.ind2
 
 WHERE 
   asif_city_industry_financial_ratio.year in (
@@ -1184,7 +1196,7 @@ partition_keys = ["geocode4_corr", "year", "ind2"]
 2. Add the steps number
 
 ```python
-step = 1
+step = 2
 ```
 
 3. Change the schema
@@ -1208,6 +1220,10 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
  #{'Name': 'cic', 'Type': 'string', 'Comment': '4 digits industry'},
  {'Name': 'ind2', 'Type': 'string', 'Comment': '2 digits industry'},
  {'Name': 'short', 'Type': 'string', 'Comment': ''},
+ {'Name': 'polluted_di', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 75th percentile of SO2 label as ABOVE else BELOW'},
+ {'Name': 'polluted_mi', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly average of SO2 label as ABOVE else BELOW'},
+ {'Name': 'polluted_mei', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly median of SO2 label as ABOVE else BELOW'},
+ {'Name': 'polluted_thre', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above 68070.78  of SO2 label as ABOVE else BELOW'},
  {'Name': 'tso2', 'Type': 'int', 'Comment': 'Total so2 city sector'},
  {'Name': 'tso2_mandate_c', 'Type': 'float', 'Comment': 'city reduction mandate in tonnes'},
  {'Name': 'in_10_000_tonnes', 'Type': 'float', 'Comment': 'city reduction mandate in 10k tonnes'},
