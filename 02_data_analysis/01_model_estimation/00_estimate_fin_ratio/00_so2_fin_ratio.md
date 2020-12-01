@@ -413,7 +413,7 @@ head(df_final)
 ```
 
 <!-- #region kernel="R" -->
-# 1. Table 0: Baseline estimate, SO2 emission reduction, financial ratio 
+# 1. Table 0 & 1: Baseline estimate, SO2 emission reduction, financial ratio 
 
 $$
 \begin{aligned}
@@ -669,7 +669,7 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-# Table 1: Baseline estimate, SO2 emission reduction, financial ratio and period
+# Table 2 & 3: Baseline estimate, SO2 emission reduction, financial ratio and period
 
 $$
 \begin{aligned}
@@ -821,7 +821,7 @@ t_6 <- felm(so2_intensity ~ sales_assets_i  * period +
             | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-dep <- "Dependent variable: SO2 emission"
+dep <- "Dependent variable: SO2 intensity emission"
 fe1 <- list(
     c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
@@ -868,7 +868,7 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-# Table 2: Baseline estimate, SO2 emission reduction, financial ratio and polluted sector 
+# Table 4 & 5: Baseline estimate, SO2 emission reduction, financial ratio and polluted sector 
 
 $$
 \begin{aligned}
@@ -1088,7 +1088,7 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-# Table 3 & 4: Baseline estimate, SO2 emission reduction, financial ratio, policy, polluted vs no polluted
+# Table 6 & 7: Baseline estimate, SO2 emission reduction, financial ratio, policy, polluted vs no polluted
 
 $$
 \begin{aligned}
@@ -1113,7 +1113,7 @@ path
 
 ```sos kernel="R"
 %get path table
-t_0 <- felm(log(tso2/output+1) ~ working_capital_i * period * tso2_mandate_c +
+t_0 <- felm(log(tso2) ~ working_capital_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
@@ -1314,7 +1314,7 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-## Table 5: Baseline estimate, SO2 emission reduction and industry financial ratio, industry level
+## Table 8: Baseline estimate, SO2 emission reduction and industry financial ratio, industry level
 
 $$
 \begin{aligned}
@@ -1473,7 +1473,7 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-# Table 6 : Baseline estimate, SO2 emission reduction, financial ratio, policy and polluted sector 
+# Table 9: Baseline estimate, SO2 emission reduction, financial ratio, policy and polluted sector 
 <!-- #endregion -->
 
 ```sos kernel="SoS"
@@ -1584,7 +1584,7 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="Python 3" -->
-## Table 7: Baseline estimate, SO2 emission reduction and industry financial ratio, city-industry level
+## Table 10: Baseline estimate, SO2 emission reduction and industry financial ratio, city-industry level
 
 $$
 \begin{aligned}
@@ -1702,7 +1702,7 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="Python 3" -->
-## Table 8: Baseline estimate, SO2 emission reduction and industry financial ratio, city-industry-year level
+## Table 11: Baseline estimate, SO2 emission reduction and industry financial ratio, city-industry-year level
 
 $$
 \begin{aligned}
