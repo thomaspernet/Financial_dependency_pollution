@@ -1076,17 +1076,18 @@ SELECT
   polluted_mei,
   polluted_thre,
   tso2, 
+  CAST(tso2 AS DECIMAL(16, 5)) / CAST(output AS DECIMAL(16, 5)) AS so2_intensity,
   tso2_mandate_c, 
   in_10_000_tonnes, 
-  CAST(output/1000000  AS DECIMAL(16, 5)) AS output,
-  CAST(employment/1000 AS DECIMAL(16, 5)) AS employment,
-  CAST(sales/1000000 AS DECIMAL(16, 5)) AS sales,
-  CAST(capital/1000000 AS DECIMAL(16, 5)) AS capital,
-  CAST(working_capital_cit/1000000 AS DECIMAL(16, 5)) AS working_capital_cit, 
-  CAST(working_capital_ci/1000000 AS DECIMAL(16, 5)) AS working_capital_ci, 
+  CAST(output  AS DECIMAL(16, 5)) AS output,
+  CAST(employment AS DECIMAL(16, 5)) AS employment,
+  CAST(sales AS DECIMAL(16, 5)) AS sales,
+  CAST(capital AS DECIMAL(16, 5)) AS capital,
+  CAST(working_capital_cit/10000 AS DECIMAL(16, 5)) AS working_capital_cit, 
+  CAST(working_capital_ci/100000 AS DECIMAL(16, 5)) AS working_capital_ci, 
   CAST(working_capital_i/1000000 AS DECIMAL(16, 5)) AS working_capital_i, 
-  CAST(asset_tangibility_cit/1000000 AS DECIMAL(16, 5)) AS asset_tangibility_cit, 
-  CAST(asset_tangibility_ci/1000000 AS DECIMAL(16, 5)) AS asset_tangibility_ci, 
+  CAST(asset_tangibility_cit/10000 AS DECIMAL(16, 5)) AS asset_tangibility_cit, 
+  CAST(asset_tangibility_ci/100000 AS DECIMAL(16, 5)) AS asset_tangibility_ci, 
   CAST(asset_tangibility_i/1000000 AS DECIMAL(16, 5)) AS asset_tangibility_i, 
   current_ratio_cit, 
   current_ratio_ci, 
@@ -1149,7 +1150,7 @@ WHERE
   asif_city_industry_financial_ratio.year in (
     '2001', '2002', '2003', '2004', '2005', 
     '2006', '2007'
-  ) AND tso2 > 0
+  ) AND tso2 > 0 AND output > 0 and capital > 0 and employment > 0
 """.format(DatabaseName, table_name)
 output = s3.run_query(
                     query=query,
@@ -1169,6 +1170,53 @@ output = s3.run_query(
                     database=DatabaseName,
                     s3_output=s3_output_example,
     filename = 'count_{}'.format(table_name)
+                )
+output
+```
+
+Check scale
+
+```python
+query = """
+SELECT COUNT(*) AS output_null
+FROM fin_dep_pollution_baseline 
+WHERE output = 0
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_9'
+                )
+output
+```
+
+```python
+query = """
+SELECT COUNT(*) AS capital_null
+FROM fin_dep_pollution_baseline 
+WHERE capital = 0
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_9'
+                )
+output
+```
+
+```python
+query = """
+SELECT COUNT(*) AS employment_null
+FROM fin_dep_pollution_baseline 
+WHERE employment = 0
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_9'
                 )
 output
 ```
@@ -1225,21 +1273,22 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
  {'Name': 'polluted_mei', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly median of SO2 label as ABOVE else BELOW'},
  {'Name': 'polluted_thre', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above 68070.78  of SO2 label as ABOVE else BELOW'},
  {'Name': 'tso2', 'Type': 'int', 'Comment': 'Total so2 city sector'},
+ {'Name': 'so2_intensity', 'Type': 'decimal(21,5)', 'Comment': 'SO2 divided by output'},
  {'Name': 'tso2_mandate_c', 'Type': 'float', 'Comment': 'city reduction mandate in tonnes'},
  {'Name': 'in_10_000_tonnes', 'Type': 'float', 'Comment': 'city reduction mandate in 10k tonnes'},
- {'Name': 'output', 'Type': 'decimal(16,5)', 'Comment': 'Output. Scaled by a factor of 1000000'},
- {'Name': 'employment', 'Type': 'decimal(16,5)', 'Comment': 'Employemnt. Scaled by a factor of 1000'},
- {'Name': 'sales', 'Type': 'decimal(16,5)', 'Comment': 'Sales. Scaled by a factor of 1000000'},
- {'Name': 'capital', 'Type': 'decimal(16,5)', 'Comment': 'Capital. Scaled by a factor of 1000000'},
+ {'Name': 'output', 'Type': 'decimal(16,5)', 'Comment': 'Output'},
+ {'Name': 'employment', 'Type': 'decimal(16,5)', 'Comment': 'Employemnt'},
+ {'Name': 'sales', 'Type': 'decimal(16,5)', 'Comment': 'Sales'},
+ {'Name': 'capital', 'Type': 'decimal(16,5)', 'Comment': 'Capital'},
  {
    "Name": "working_capital_cit",
    "Type": "decimal(16,5)",
-   "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year. Scaled by a factor of 1000000"
+   "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year. Scaled by a factor of 10000"
 },
    {
    "Name": "working_capital_ci",
    "Type": "decimal(16,5)",
-   "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry. Scaled by a factor of 1000000"
+   "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry. Scaled by a factor of 100000"
 },
    {
    "Name": "working_capital_i",
@@ -1249,12 +1298,12 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
    {
    "Name": "asset_tangibility_cit",
    "Type": "decimal(16,5)",
-   "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry year. Scaled by a factor of 1000000"
+   "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry year. Scaled by a factor of 10000"
 },
    {
    "Name": "asset_tangibility_ci",
    "Type": "decimal(16,5)",
-   "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry. Scaled by a factor of 1000000"
+   "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry. Scaled by a factor of 100000"
 },
    {
    "Name": "asset_tangibility_i",
