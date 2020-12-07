@@ -63,7 +63,7 @@ schema = [
     "Comment": "2 digits industry short name"
 },
 {
-    "Name": "“financial_dep_china”",
+    "Name": "financial_dep_china",
     "Type": "float",
     "Comment": "Financial dependency metric"
 }
