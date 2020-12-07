@@ -110,6 +110,7 @@ Target
 * china_code_normalised
 * ind_cic_2_name
 * china_sector_pollution_threshold
+* china_credit_constraint
 * Github: 
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/00_asif_financial_ratio.md
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_REDUCTION_MANDATE/city_reduction_mandate.py
@@ -118,6 +119,7 @@ Target
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CIC_NAME/cic_industry_name.py
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/02_so2_polluted_sectors.md
+  * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CIC_CREDIT_CONSTRAINT/financial_dependency.py
 
 # Destination Output/Delivery
 
@@ -1083,6 +1085,7 @@ SELECT
   CAST(employment AS DECIMAL(16, 5)) AS employment,
   CAST(sales AS DECIMAL(16, 5)) AS sales,
   CAST(capital AS DECIMAL(16, 5)) AS capital,
+  credit_constraint,
   CAST(working_capital_cit/10000 AS DECIMAL(16, 5)) AS working_capital_cit, 
   CAST(working_capital_ci/100000 AS DECIMAL(16, 5)) AS working_capital_ci, 
   CAST(working_capital_i/1000000 AS DECIMAL(16, 5)) AS working_capital_i, 
@@ -1145,6 +1148,12 @@ SELECT
         WHERE year = '2001'
         ) as polluted_sector
         ON  aggregate_pol.ind2 = polluted_sector.ind2
+        
+        LEFT JOIN (
+        SELECT cic, financial_dep_china AS credit_constraint
+        FROM industry.china_credit_constraint
+        ) as cred_constraint
+        ON aggregate_pol.ind2 = cred_constraint.cic
 
 WHERE 
   asif_city_industry_financial_ratio.year in (
@@ -1280,6 +1289,7 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
  {'Name': 'employment', 'Type': 'decimal(16,5)', 'Comment': 'Employemnt'},
  {'Name': 'sales', 'Type': 'decimal(16,5)', 'Comment': 'Sales'},
  {'Name': 'capital', 'Type': 'decimal(16,5)', 'Comment': 'Capital'},
+{'Name': 'credit_constraint', 'Type': 'float', 'Comment': 'Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311'},
  {
    "Name": "working_capital_cit",
    "Type": "decimal(16,5)",
