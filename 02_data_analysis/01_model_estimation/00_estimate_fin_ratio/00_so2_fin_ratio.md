@@ -193,6 +193,109 @@ pd.DataFrame(schema)
 ```
 
 <!-- #region kernel="SoS" -->
+# Correlation matrix indicator
+<!-- #endregion -->
+
+```sos kernel="SoS"
+query = """
+SELECT 
+china_credit_constraint.cic,
+industry_name,
+china_credit_constraint.financial_dep_china as credit_constraint,
+working_capital_i,
+current_ratio_i,
+cash_assets_i,
+liabilities_assets_i,
+return_on_asset_i,
+sales_assets_i
+FROM "industry"."china_credit_constraint"
+LEFT JOIN (
+  SELECT 
+indu_2 as cic,
+AVG(working_capital_i) as working_capital_i,
+AVG(current_ratio_i) as current_ratio_i,
+AVG(cash_assets_i) as cash_assets_i,
+AVG(liabilities_assets_i) as liabilities_assets_i,
+AVG(return_on_asset_i) as return_on_asset_i,
+AVG(sales_assets_i) as sales_assets_i
+FROM "firms_survey"."asif_city_industry_financial_ratio"
+GROUP BY indu_2
+  ) as fin
+on china_credit_constraint.cic = fin.cic
+"""
+df = (
+    s3.run_query(
+        query=query,
+        database=db,
+        s3_output='SQL_OUTPUT_ATHENA',
+        filename='correl'  # Add filename to print dataframe
+    )
+    .assign(
+    loc=lambda x: x[['cic', 'industry_name']].apply(
+            lambda x: '-'.join(x.astype('str')), axis=1)
+    )
+    .drop(columns = ['cic','industry_name'])
+    .set_index('loc')
+    .sort_values(by = ['credit_constraint'])
+)
+df
+```
+
+```sos kernel="SoS"
+import plotly.express as px
+import seaborn as sns
+import matplotlib.pyplot as plt
+```
+
+```sos kernel="SoS"
+cm = sns.light_palette("green", as_cmap=True)
+(
+    df
+    .rank()
+    .astype('int64')
+    .style
+    .background_gradient(cmap=cm)
+)
+```
+
+```sos kernel="SoS"
+fig = px.parallel_coordinates(df.rank(),
+                              labels={
+    "credit_constraint": "credit_constraint",
+    "working_capital_i": "working_capital_i",
+    "current_ratio_i": "current_ratio_i",
+    "cash_assets_i": "cash_assets_i",
+    "liabilities_assets_i": "liabilities_assets_i",
+    "return_on_asset_i": "return_on_asset_i",
+    "sales_assets_i": "sales_assets_i"
+},
+                              color_continuous_scale=px.colors.diverging.Tealrose,
+                              color_continuous_midpoint=2
+                             )
+fig
+```
+
+```sos kernel="SoS"
+sns.set_theme(style="white")
+
+# Compute the correlation matrix
+corr = df.rank().corr()
+
+# Generate a mask for the upper triangle
+mask = np.triu(np.ones_like(corr, dtype=bool))
+
+# Set up the matplotlib figure
+f, ax = plt.subplots(figsize=(11, 9))
+
+# Generate a custom diverging colormap
+cmap = sns.diverging_palette(230, 20, as_cmap=True)
+
+# Draw the heatmap with the mask and correct aspect ratio
+sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0,
+            square=True, linewidths=.5, cbar_kws={"shrink": .5})
+```
+
+<!-- #region kernel="SoS" -->
 ## Schema Latex table
 
 To rename a variable, please use the following template:
@@ -269,6 +372,10 @@ if add_to_dic:
 
         ### financial ratio
         #### Industry
+        {
+        'old':'credit\_constraint',
+        'new':'\\text{credit constraint}_i'
+        },
         {
         'old':'working\_capital\_i',
         'new':'\\text{working capital}_i'
@@ -413,7 +520,7 @@ head(df_final)
 ```
 
 <!-- #region kernel="R" -->
-# 1. Table 0 & 1: Baseline estimate, SO2 emission reduction, financial ratio 
+# 1. Table 0 & 1: Determinant of SO2 emission, financial ratio 
 
 $$
 \begin{aligned}
@@ -465,6 +572,16 @@ $$
         - fe 3: `ct`   
 <!-- #endregion -->
 
+<!-- #region kernel="R" -->
+## Industry Level
+
+Financial ratio are computed at the industry level
+<!-- #endregion -->
+
+<!-- #region kernel="R" -->
+### SO2
+<!-- #endregion -->
+
 ```sos kernel="SoS"
 folder = 'Tables_0'
 table_nb = 0
@@ -514,6 +631,11 @@ t_6 <- felm(log(tso2) ~ sales_assets_i +
             | geocode4_corr + year|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
+t_7 <- felm(log(tso2) ~ credit_constraint +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
     c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
@@ -522,9 +644,9 @@ fe1 <- list(
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7
 ),
-    title="Baseline estimate, SO2 emission reduction, financial ratio",
+    title="Determinant of SO2 emission, financial ratio, at industry level",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
@@ -547,12 +669,12 @@ tbe1  = "This table estimates eq(3). " \
 #    'All benchmark': 1,
 #}
 
-reorder = {
+#reorder = {
     
-    7:0,
-    8:1,
+#    7:0,
+#    8:1,
     #9:2
-}
+#}
 
 #multi_lines_dep = '(city/product/trade regime/year)'
 #new_r = ['& test1', 'test2']
@@ -566,6 +688,10 @@ lb.beautify(table_number = table_nb,
             resolution = 200,
            folder = folder)
 ```
+
+<!-- #region kernel="SoS" -->
+### SO2 intensity
+<!-- #endregion -->
 
 ```sos kernel="SoS"
 table_nb = 1
@@ -615,6 +741,11 @@ t_6 <- felm(so2_intensity ~ sales_assets_i +
             | geocode4_corr + year|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
+t_7 <- felm(so2_intensity ~ credit_constraint +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
 dep <- "Dependent variable: SO2 intensity emission"
 fe1 <- list(
     c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
@@ -623,9 +754,9 @@ fe1 <- list(
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7
 ),
-    title="Baseline estimate, SO2 emission reduction, financial ratio",
+    title="Determinant of SO2 intensity emission, financial ratio, at industry level",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
@@ -669,6 +800,442 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
+## city- Industry Level
+
+Financial ratio are computed at the city-industry level
+<!-- #endregion -->
+
+<!-- #region kernel="SoS" -->
+### SO2
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 2
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ working_capital_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year |0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ asset_tangibility_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ current_ratio_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ cash_assets_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ liabilities_assets_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ return_on_asset_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_ci +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+),
+    title="Determinant of SO2 emission, financial ratio, at city-industry level",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+#reorder = {
+    
+#    7:0,
+#    8:1,
+    #9:2
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+### SO2 intensity
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 3
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(so2_intensity ~ working_capital_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year |0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+t_1 <- felm(so2_intensity ~ asset_tangibility_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_2 <- felm(so2_intensity ~ current_ratio_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_3 <- felm(so2_intensity ~ cash_assets_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_4 <- felm(so2_intensity ~ liabilities_assets_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_5 <- felm(so2_intensity ~ return_on_asset_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(so2_intensity ~ sales_assets_ci +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 intensity emission"
+fe1 <- list(
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+),
+    title="Determinant of SO2 intensity emission, financial ratio, at city-industry level",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+#reorder = {
+    
+#    7:0,
+#    8:1,
+    #9:2
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## city-Industry-year Level
+
+Financial ratio are computed at the city-industry-year level
+<!-- #endregion -->
+
+<!-- #region kernel="SoS" -->
+### SO2
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 4
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ working_capital_cit  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year |0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ asset_tangibility_cit  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ current_ratio_cit  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ cash_assets_cit  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ liabilities_assets_cit  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ return_on_asset_cit  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_cit +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+),
+    title="Determinant of SO2 emission, financial ratio, at city-industry-year level",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+#reorder = {
+    
+#    7:0,
+#    8:1,
+    #9:2
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+### SO2 intensity
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 5
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(so2_intensity ~ working_capital_cit  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year |0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+t_1 <- felm(so2_intensity ~ asset_tangibility_cit  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_2 <- felm(so2_intensity ~ current_ratio_cit  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_3 <- felm(so2_intensity ~ cash_assets_cit  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_4 <- felm(so2_intensity ~ liabilities_assets_cit  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_5 <- felm(so2_intensity ~ return_on_asset_cit  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(so2_intensity ~ sales_assets_cit +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 intensity emission"
+fe1 <- list(
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+),
+    title="Determinant of SO2 intensity emission, financial ratio, at city-industry-year level",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+#reorder = {
+    
+#    7:0,
+#    8:1,
+    #9:2
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
 # Table 2 & 3: Baseline estimate, SO2 emission reduction, financial ratio and period
 
 $$
@@ -679,8 +1246,18 @@ $$
 
 <!-- #endregion -->
 
+<!-- #region kernel="SoS" -->
+## Industry Level
+
+Financial ratio are computed at the industry level
+<!-- #endregion -->
+
+<!-- #region kernel="SoS" -->
+### SO2 
+<!-- #endregion -->
+
 ```sos kernel="SoS"
-table_nb = 2
+table_nb = 6
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
@@ -727,6 +1304,11 @@ t_6 <- felm(log(tso2) ~ sales_assets_i  * period +
             | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
+t_7 <- felm(log(tso2) ~ credit_constraint  * period +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
     c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
@@ -735,9 +1317,9 @@ fe1 <- list(
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7
 ),
-    title="Baseline estimate, SO2 emission reduction, financial ratio",
+    title="Baseline estimate, SO2 emission reduction, financial ratio and period, at industry level",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
@@ -773,8 +1355,12 @@ lb.beautify(table_number = table_nb,
            folder = folder)
 ```
 
+<!-- #region kernel="SoS" -->
+### SO2 intensity
+<!-- #endregion -->
+
 ```sos kernel="SoS"
-table_nb = 3
+table_nb = 7
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
@@ -821,211 +1407,7 @@ t_6 <- felm(so2_intensity ~ sales_assets_i  * period +
             | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-dep <- "Dependent variable: SO2 intensity emission"
-fe1 <- list(
-    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    
-    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-             )
-
-table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6
-),
-    title="Baseline estimate, SO2 emission reduction, financial ratio",
-    dep_var = dep,
-    addFE=fe1,
-    save=TRUE,
-    note = FALSE,
-    name=path
-)
-
-```
-
-```sos kernel="SoS"
-tbe1  = "This table estimates eq(3). " \
-"Heteroskedasticity-robust standard errors " \
-"clustered at the city level appear inp arentheses. "\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-#multicolumn ={
-#    'Eligible': 2,
-#    'Non-Eligible': 1,
-#    'All': 1,
-#    'All benchmark': 1,
-#}
-
-#multi_lines_dep = '(city/product/trade regime/year)'
-#new_r = ['& test1', 'test2']
-lb.beautify(table_number = table_nb,
-            #reorder_var = reorder,
-            #multi_lines_dep = multi_lines_dep,
-            #new_row= new_r,
-            #multicolumn = multicolumn,
-            table_nte = tbe1,
-            jupyter_preview = True,
-            resolution = 200,
-           folder = folder)
-```
-
-<!-- #region kernel="SoS" -->
-# Table 4 & 5: Baseline estimate, SO2 emission reduction, financial ratio and polluted sector 
-
-$$
-\begin{aligned}
-\text{SO2}_{cit}  &= \alpha \text{Financial ratio}_i \times \text{Period} \times \text{Polluted sectors}_i + \gamma_{c} + \gamma_{t}  + \epsilon_{cit}
-\end{aligned}
-$$
-<!-- #endregion -->
-
-```sos kernel="SoS"
-table_nb = 4
-table = 'table_{}'.format(table_nb)
-path = os.path.join(folder, table + '.txt')
-if os.path.exists(folder) == False:
-        os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
-path
-```
-
-```sos kernel="R"
-%get path table
-t_0 <- felm(log(tso2) ~ working_capital_i * period * polluted_di  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-t_1 <- felm(log(tso2) ~ asset_tangibility_i * period * polluted_di  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_2 <- felm(log(tso2) ~ current_ratio_i * period  * polluted_di  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_3 <- felm(log(tso2) ~ cash_assets_i * period  * polluted_di  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_4 <- felm(log(tso2) ~ liabilities_assets_i * period  * polluted_di  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_5 <- felm(log(tso2) ~ return_on_asset_i * period  * polluted_di  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_6 <- felm(log(tso2) ~ sales_assets_i  * period * polluted_di  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-dep <- "Dependent variable: SO2 emission"
-fe1 <- list(
-    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    
-    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-             )
-
-table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6
-),
-    title="Baseline estimate, SO2 emission reduction, financial ratio and polluted sector ",
-    dep_var = dep,
-    addFE=fe1,
-    save=TRUE,
-    note = FALSE,
-    name=path
-)
-
-```
-
-```sos kernel="SoS"
-tbe1  = "This table estimates eq(3). " \
-"Heteroskedasticity-robust standard errors " \
-"clustered at the city level appear inp arentheses. "\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-#multicolumn ={
-#    'Eligible': 2,
-#    'Non-Eligible': 1,
-#    'All': 1,
-#    'All benchmark': 1,
-#}
-
-reorder = {
-    # Old, New
-    10:3, ## Working capital
-    11:5, 
-    12:7,
-    13:9,
-    14:11,
-    15:13,
-    16:15
-}
-
-#multi_lines_dep = '(city/product/trade regime/year)'
-#new_r = ['& test1', 'test2']
-lb.beautify(table_number = table_nb,
-            reorder_var = reorder,
-            #multi_lines_dep = multi_lines_dep,
-            #new_row= new_r,
-            #multicolumn = multicolumn,
-            table_nte = tbe1,
-            jupyter_preview = True,
-            resolution = 200,
-           folder = folder)
-```
-
-```sos kernel="SoS"
-table_nb = 5
-table = 'table_{}'.format(table_nb)
-path = os.path.join(folder, table + '.txt')
-if os.path.exists(folder) == False:
-        os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
-path
-```
-
-```sos kernel="R"
-%get path table
-t_0 <- felm(so2_intensity ~ working_capital_i * period * polluted_di  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-t_1 <- felm(so2_intensity ~ asset_tangibility_i * period * polluted_di  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_2 <- felm(so2_intensity ~ current_ratio_i * period  * polluted_di  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_3 <- felm(so2_intensity ~ cash_assets_i * period  * polluted_di  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_4 <- felm(so2_intensity ~ liabilities_assets_i * period  * polluted_di  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_5 <- felm(so2_intensity ~ return_on_asset_i * period  * polluted_di  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_6 <- felm(so2_intensity ~ sales_assets_i  * period * polluted_di  +
+t_7 <- felm(so2_intensity ~ credit_constraint  * period +
             log(output) + log(employment) + log(capital)
             | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
@@ -1038,9 +1420,9 @@ fe1 <- list(
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7
 ),
-    title="Baseline estimate, SO2 emission reduction, financial ratio and polluted sector ",
+    title="Baseline estimate, SO2 intensity emission reduction, financial ratio and period, at industry level",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
@@ -1063,21 +1445,10 @@ tbe1  = "This table estimates eq(3). " \
 #    'All benchmark': 1,
 #}
 
-reorder = {
-    # Old, New
-    10:3, ## Working capital
-    11:5, 
-    12:7,
-    13:9,
-    14:11,
-    15:13,
-    16:15
-}
-
 #multi_lines_dep = '(city/product/trade regime/year)'
 #new_r = ['& test1', 'test2']
 lb.beautify(table_number = table_nb,
-            reorder_var = reorder,
+            #reorder_var = reorder,
             #multi_lines_dep = multi_lines_dep,
             #new_row= new_r,
             #multicolumn = multicolumn,
@@ -1088,19 +1459,17 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-# Table 6 & 7: Baseline estimate, SO2 emission reduction, financial ratio, policy, polluted vs no polluted
+## city- Industry Level
 
-$$
-\begin{aligned}
-\text{SO2}_{cit}  &= \alpha \text{Financial ratio}_i \times \text{Period} \times \text{policy mandate}_c  + \gamma_{ci} + \gamma_{ti} +\gamma_{ct}  + \epsilon_{cit}
-\end{aligned}
-$$
+Financial ratio are computed at the city-industry level
+<!-- #endregion -->
 
-When polluted sector is Above and Below
+<!-- #region kernel="SoS" -->
+### SO2
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-table_nb = 6
+table_nb = 8
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
@@ -1113,53 +1482,474 @@ path
 
 ```sos kernel="R"
 %get path table
-t_0 <- felm(log(tso2) ~ working_capital_i * period * tso2_mandate_c +
+t_0 <- felm(log(tso2) ~ working_capital_ci * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final,
             exactDOF = TRUE)
-t_1 <- felm(log(tso2) ~ asset_tangibility_i * period * tso2_mandate_c +
+t_1 <- felm(log(tso2) ~ asset_tangibility_ci * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-
-t_2 <- felm(log(tso2) ~ current_ratio_i * period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-t_3 <- felm(log(tso2) ~ cash_assets_i * period * tso2_mandate_c +
+t_2 <- felm(log(tso2) ~ current_ratio_ci * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ liabilities_assets_i * period * tso2_mandate_c +
+t_3 <- felm(log(tso2) ~ cash_assets_ci * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-t_5 <- felm(log(tso2) ~ return_on_asset_i * period * tso2_mandate_c +
+t_4 <- felm(log(tso2) ~ liabilities_assets_ci * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-t_6 <- felm(log(tso2) ~ sales_assets_i * period * tso2_mandate_c +
+t_5 <- felm(log(tso2) ~ return_on_asset_ci * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_ci  * period +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("Time-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    
-    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
     t_0,t_1, t_2, t_3, t_4, t_5, t_6
 ),
-    title="Baseline estimate, SO2 emission reduction, financial ratio, policy, filter polluted sectors",
+    title="Baseline estimate, SO2 emission reduction, financial ratio and period, at city-industry level",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+```sos kernel="SoS"
+table_nb = 9
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+<!-- #region kernel="SoS" -->
+### SO2 intensity
+<!-- #endregion -->
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(so2_intensity ~ working_capital_ci * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+t_1 <- felm(so2_intensity ~ asset_tangibility_ci * period +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_2 <- felm(so2_intensity ~ current_ratio_ci * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_3 <- felm(so2_intensity ~ cash_assets_ci * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_4 <- felm(so2_intensity ~ liabilities_assets_ci * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_5 <- felm(so2_intensity ~ return_on_asset_ci * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(so2_intensity ~ sales_assets_ci  * period +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 intensity emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 intensity emission reduction, financial ratio and period, at city-industry level",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## city-Industry-year Level
+
+Financial ratio are computed at the city-industry-year level
+<!-- #endregion -->
+
+<!-- #region kernel="SoS" -->
+### SO2 
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 10
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ working_capital_cit * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+#t_1 <- felm(log(tso2) ~ asset_tangibility_cit * period +
+#            log(output) + log(employment) + log(capital)
+#            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+#            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ current_ratio_cit * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ cash_assets_cit * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ liabilities_assets_cit * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ return_on_asset_cit * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_cit  * period +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,
+    #t_1,
+    t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 emission reduction, financial ratio and period, at city-industry-year level",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+### SO2 intensity
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 11
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(so2_intensity ~ working_capital_cit * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+#t_1 <- felm(so2_intensity ~ asset_tangibility_cit * period +
+#            log(output) + log(employment) + log(capital)
+#            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+#            exactDOF = TRUE)
+
+t_2 <- felm(so2_intensity ~ current_ratio_cit * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_3 <- felm(so2_intensity ~ cash_assets_cit * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_4 <- felm(so2_intensity ~ liabilities_assets_cit * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_5 <- felm(so2_intensity ~ return_on_asset_cit * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(so2_intensity ~ sales_assets_cit  * period +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 intensity emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,
+    #t_1,
+    t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 intensity emission reduction, financial ratio and period, at city-industry-year level",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+# Table 4 & 5: Baseline estimate, SO2 emission reduction, financial ratio, filter polluted & no polluted sector
+
+$$
+\begin{aligned}
+\text{SO2}_{cit}  &= \alpha \text{Financial ratio}_i \times \text{Period} + \gamma_{c} + \gamma_{t}  + \epsilon_{cit}
+\end{aligned}
+$$
+<!-- #endregion -->
+
+<!-- #region kernel="SoS" -->
+## Industry Level
+
+Financial ratio are computed at the industry level
+<!-- #endregion -->
+
+<!-- #region kernel="SoS" -->
+### SO2
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 12
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ working_capital_i * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ asset_tangibility_i * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ current_ratio_i * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ cash_assets_i * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ liabilities_assets_i * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ return_on_asset_i * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_i  * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_7 <- felm(log(tso2) ~ credit_constraint  * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7
+),
+    title="Baseline estimate, SO2 emission reduction, financial ratio industry level, Filter polluted sector",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
@@ -1207,7 +1997,7 @@ lb.beautify(table_number = table_nb,
 ```
 
 ```sos kernel="SoS"
-table_nb = 7
+table_nb = 13
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
@@ -1220,53 +2010,56 @@ path
 
 ```sos kernel="R"
 %get path table
-t_0 <- felm(log(tso2) ~ working_capital_i * period * tso2_mandate_c +
+t_0 <- felm(log(tso2) ~ working_capital_i * period   +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
-t_1 <- felm(log(tso2) ~ asset_tangibility_i * period * tso2_mandate_c +
+t_1 <- felm(log(tso2) ~ asset_tangibility_i * period   +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
-            exactDOF = TRUE)
-
-t_2 <- felm(log(tso2) ~ current_ratio_i * period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_3 <- felm(log(tso2) ~ cash_assets_i * period * tso2_mandate_c +
+t_2 <- felm(log(tso2) ~ current_ratio_i * period    +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ liabilities_assets_i * period * tso2_mandate_c +
+t_3 <- felm(log(tso2) ~ cash_assets_i * period    +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_5 <- felm(log(tso2) ~ return_on_asset_i * period * tso2_mandate_c +
+t_4 <- felm(log(tso2) ~ liabilities_assets_i * period    +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_6 <- felm(log(tso2) ~ sales_assets_i * period * tso2_mandate_c +
+t_5 <- felm(log(tso2) ~ return_on_asset_i * period    +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_i  * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_7 <- felm(log(tso2) ~ credit_constraint  * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("Time-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    
-    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7
 ),
-    title="Baseline estimate, SO2 emission reduction, financial ratio, policy, filter no polluted sectors",
+    title="Baseline estimate, SO2 emission reduction, financial ratio industry level, Filter no polluted sector",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
@@ -1314,7 +2107,1546 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-## Table 8: Baseline estimate, SO2 emission reduction and industry financial ratio, industry level
+### SO2 intensity
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 14
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(so2_intensity ~ working_capital_i * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+t_1 <- felm(so2_intensity ~ asset_tangibility_i * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_2 <- felm(so2_intensity ~ current_ratio_i * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_3 <- felm(so2_intensity ~ cash_assets_i * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_4 <- felm(so2_intensity ~ liabilities_assets_i * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_5 <- felm(so2_intensity ~ return_on_asset_i * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_6 <- felm(so2_intensity ~ sales_assets_i  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr,df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_7 <- felm(so2_intensity ~ credit_constraint  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr,df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 intensity emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7
+),
+    title="Baseline estimate, SO2 intensity emission reduction,, financial ratio industry level, Filter polluted sector",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+reorder = {
+    # Old, New
+    10:3, ## Working capital
+    11:5, 
+    12:7,
+    13:9,
+    14:11,
+    15:13,
+    16:15
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+```sos kernel="SoS"
+table_nb = 15
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(so2_intensity ~ working_capital_i * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+t_1 <- felm(so2_intensity ~ asset_tangibility_i * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_2 <- felm(so2_intensity ~ current_ratio_i * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_3 <- felm(so2_intensity ~ cash_assets_i * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_4 <- felm(so2_intensity ~ liabilities_assets_i * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_5 <- felm(so2_intensity ~ return_on_asset_i * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_6 <- felm(so2_intensity ~ sales_assets_i  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr,df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_7 <- felm(so2_intensity ~ credit_constraint  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr,df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 intensity emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7
+),
+    title="Baseline estimate, SO2 intensity emission reduction, financial ratio industry level, Filter no-polluted sector",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+reorder = {
+    # Old, New
+    10:3, ## Working capital
+    11:5, 
+    12:7,
+    13:9,
+    14:11,
+    15:13,
+    16:15
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## city- Industry Level
+
+Financial ratio are computed at the city-industry level
+<!-- #endregion -->
+
+<!-- #region kernel="SoS" -->
+### SO2
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 16
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ working_capital_ci * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ asset_tangibility_ci * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ current_ratio_ci * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ cash_assets_ci * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ liabilities_assets_ci * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ return_on_asset_ci * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_ci  * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 emission reduction, financial ratio city-industry level, Filter polluted sector",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+reorder = {
+    # Old, New
+    10:3, ## Working capital
+    11:5, 
+    12:7,
+    13:9,
+    14:11,
+    15:13,
+    16:15
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+```sos kernel="SoS"
+table_nb = 17
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ working_capital_ci * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ asset_tangibility_ci * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ current_ratio_ci * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ cash_assets_ci * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ liabilities_assets_ci * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ return_on_asset_ci * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_ci  * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 emission reduction, financial ratio city-industry level, Filter no polluted sector",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+reorder = {
+    # Old, New
+    10:3, ## Working capital
+    11:5, 
+    12:7,
+    13:9,
+    14:11,
+    15:13,
+    16:15
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+### SO2 intensity
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 18
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(so2_intensity ~ working_capital_ci * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+t_1 <- felm(so2_intensity ~ asset_tangibility_ci * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_2 <- felm(so2_intensity ~ current_ratio_ci * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_3 <- felm(so2_intensity ~ cash_assets_ci * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_4 <- felm(so2_intensity ~ liabilities_assets_ci * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_5 <- felm(so2_intensity ~ return_on_asset_ci * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_6 <- felm(so2_intensity ~ sales_assets_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr,df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 intensity emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 intensity emission reduction, financial ratio city-industry level, Filter polluted sector",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+reorder = {
+    # Old, New
+    10:3, ## Working capital
+    11:5, 
+    12:7,
+    13:9,
+    14:11,
+    15:13,
+    16:15
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+```sos kernel="SoS"
+table_nb = 19
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(so2_intensity ~ working_capital_ci * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+t_1 <- felm(so2_intensity ~ asset_tangibility_ci * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_2 <- felm(so2_intensity ~ current_ratio_ci * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_3 <- felm(so2_intensity ~ cash_assets_ci * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_4 <- felm(so2_intensity ~ liabilities_assets_ci * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_5 <- felm(so2_intensity ~ return_on_asset_ci * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_6 <- felm(so2_intensity ~ sales_assets_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr,df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 intensity emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 intensity emission reduction, financial ratio city-industry level, Filter no polluted sector",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+reorder = {
+    # Old, New
+    10:3, ## Working capital
+    11:5, 
+    12:7,
+    13:9,
+    14:11,
+    15:13,
+    16:15
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## city-Industry-year Level
+
+Financial ratio are computed at the city-industry-year level
+<!-- #endregion -->
+
+<!-- #region kernel="SoS" -->
+### SO2 
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 20
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ working_capital_cit * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+#t_1 <- felm(log(tso2) ~ asset_tangibility_cit * period   +
+#            log(output) + log(employment) + log(capital)
+#            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+#            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ current_ratio_cit * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ cash_assets_cit * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ liabilities_assets_cit * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ return_on_asset_cit * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_cit  * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,
+    #t_1,
+    t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 emission reduction, financial ratio city-industry-year level, Filter polluted sector",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+reorder = {
+    # Old, New
+    10:3, ## Working capital
+    11:5, 
+    12:7,
+    13:9,
+    14:11,
+    15:13,
+    16:15
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+```sos kernel="SoS"
+table_nb = 21
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ working_capital_cit * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+#t_1 <- felm(log(tso2) ~ asset_tangibility_cit * period   +
+#            log(output) + log(employment) + log(capital)
+#            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+#            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ current_ratio_cit * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ cash_assets_cit * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ liabilities_assets_cit * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ return_on_asset_cit * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_cit  * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,#t_1,
+    t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 emission reduction, financial ratio city-industry-year level, Filter no polluted sector",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+reorder = {
+    # Old, New
+    10:3, ## Working capital
+    11:5, 
+    12:7,
+    13:9,
+    14:11,
+    15:13,
+    16:15
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+### SO2 intensity
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 22
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(so2_intensity ~ working_capital_cit * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+#t_1 <- felm(so2_intensity ~ asset_tangibility_cit * period   +
+#            log(output) + log(employment) + log(capital)
+#            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+#            exactDOF = TRUE)
+
+t_2 <- felm(so2_intensity ~ current_ratio_cit * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_3 <- felm(so2_intensity ~ cash_assets_cit * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_4 <- felm(so2_intensity ~ liabilities_assets_cit * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_5 <- felm(so2_intensity ~ return_on_asset_cit * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_6 <- felm(so2_intensity ~ sales_assets_cit  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr,df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 intensity emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,
+    #t_1,
+    t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 intensity emission reduction, financial ratio city-industry-year level, Filter polluted sector",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+reorder = {
+    # Old, New
+    10:3, ## Working capital
+    11:5, 
+    12:7,
+    13:9,
+    14:11,
+    15:13,
+    16:15
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+```sos kernel="SoS"
+table_nb = 23
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(so2_intensity ~ working_capital_cit * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+#t_1 <- felm(so2_intensity ~ asset_tangibility_cit * period   +
+#            log(output) + log(employment) + log(capital)
+#            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+#            exactDOF = TRUE)
+
+t_2 <- felm(so2_intensity ~ current_ratio_cit * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_3 <- felm(so2_intensity ~ cash_assets_cit * period    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_4 <- felm(so2_intensity ~ liabilities_assets_cit * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_5 <- felm(so2_intensity ~ return_on_asset_cit * period   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_6 <- felm(so2_intensity ~ sales_assets_cit  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr,df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 intensity emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,
+    #t_1,
+    t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 intensity emission reduction, financial ratio city-industry-year level, Filter no polluted sector",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+reorder = {
+    # Old, New
+    10:3, ## Working capital
+    11:5, 
+    12:7,
+    13:9,
+    14:11,
+    15:13,
+    16:15
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+# Table 6 & 7: Baseline estimate, SO2 emission reduction, financial ratio, filter polluted & no polluted sector
+<!-- #endregion -->
+
+<!-- #region kernel="SoS" -->
+## city- Industry Level
+
+Financial ratio are computed at the city-industry level
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 24
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ working_capital_ci   +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ asset_tangibility_ci   +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ current_ratio_ci    +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ cash_assets_ci    +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ liabilities_assets_ci    +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ return_on_asset_ci    +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_ci   +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 emission reduction, financial ratio city-industry level, Filter polluted sector",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+reorder = {
+    # Old, New
+    10:3, ## Working capital
+    11:5, 
+    12:7,
+    13:9,
+    14:11,
+    15:13,
+    16:15
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+```sos kernel="SoS"
+table_nb = 25
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ working_capital_ci   +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ asset_tangibility_ci   +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ current_ratio_ci    +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ cash_assets_ci    +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ liabilities_assets_ci    +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ return_on_asset_ci    +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_ci   +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 emission reduction, financial ratio city-industry level, Filter no polluted sector",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+reorder = {
+    # Old, New
+    10:3, ## Working capital
+    11:5, 
+    12:7,
+    13:9,
+    14:11,
+    15:13,
+    16:15
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## city-Industry-year Level
+
+Financial ratio are computed at the city-industry-year level
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 26
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ working_capital_cit   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+#t_1 <- felm(log(tso2) ~ asset_tangibility_cit   +
+#            log(output) + log(employment) + log(capital)
+#            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+#            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ current_ratio_cit    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ cash_assets_cit    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ liabilities_assets_cit    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ return_on_asset_cit    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_cit   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,
+    #t_1,
+    t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 emission reduction, financial ratio city-industry-year level, Filter polluted sector",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+reorder = {
+    # Old, New
+    10:3, ## Working capital
+    11:5, 
+    12:7,
+    13:9,
+    14:11,
+    15:13,
+    16:15
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+```sos kernel="SoS"
+table_nb = 27
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ working_capital_cit   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+#t_1 <- felm(log(tso2) ~ asset_tangibility_cit   +
+#            log(output) + log(employment) + log(capital)
+#            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+#            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ current_ratio_cit    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ cash_assets_cit    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ liabilities_assets_cit    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ return_on_asset_cit    +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ sales_assets_cit   +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,
+    #t_1,
+    t_2, t_3, t_4, t_5, t_6
+),
+    title="Baseline estimate, SO2 emission reduction, financial ratio city-industry-year level, Filter no polluted sector",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+reorder = {
+    # Old, New
+    10:3, ## Working capital
+    11:5, 
+    12:7,
+    13:9,
+    14:11,
+    15:13,
+    16:15
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+# Table 8: Baseline estimate, SO2 emission reduction and industry financial ratio, industry level
 
 $$
 \begin{aligned}
@@ -1424,17 +3756,22 @@ t_6 <- felm(log(tso2) ~ sales_assets_i * period * tso2_mandate_c +
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
+t_7 <- felm(log(tso2) ~ credit_constraint * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("Time-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("Time-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7
 ),
     title="Baseline estimate, SO2 emission reduction and industry financial ratio, industry level",
     dep_var = dep,
@@ -1524,6 +3861,11 @@ t_6 <- felm(log(tso2) ~ sales_assets_i * period * tso2_mandate_c * polluted_di +
             | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
+#t_7 <- felm(log(tso2) ~ credit_constraint * period * tso2_mandate_c * polluted_di +
+#            log(output) + log(employment) + log(capital)
+#            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+#            exactDOF = TRUE)
+
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
     c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
@@ -1534,7 +3876,7 @@ fe1 <- list(
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6#, t_7
 ),
     title="Baseline estimate, SO2 emission reduction and industry financial ratio, industry level",
     dep_var = dep,
