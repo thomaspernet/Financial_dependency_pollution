@@ -36,16 +36,78 @@ auth = authorization_service.get_authorization(
 gd_auth = auth.authorization_drive()
 drive = connect_drive.drive_operations(gd_auth)
 
-spreadsheet_id = drive.find_file_id('CIC_industry_name', to_print=False)
+spreadsheet_id = drive.find_file_id('credit_constraint_cic', to_print=False)
 var = (
     drive.upload_data_from_spreadsheet(
         sheetID=spreadsheet_id,
-        sheetName="industry_name",
+        sheetName="Fan_Chinese_data",
         to_dataframe=True)
 )
 
-var.to_csv('CIC_industry_name.csv', index = False)
+var.to_csv('credit_constraint_cic.csv', index = False)
 
-s3.upload_file('CIC_industry_name.csv',
-"DATA/ECON/LOOKUP_DATA/CIC_2_NAME")
-os.remove('CIC_industry_name.csv')
+s3.upload_file('credit_constraint_cic.csv',
+"DATA/ECON/INDUSTRY/ADDITIONAL_DATA/CHINA/CIC/CREDIT_CONSTRAINT")
+os.remove('credit_constraint_cic.csv')
+
+schema = [
+
+{
+    "Name": "cic",
+    "Type": "string",
+    "Comment": "2 digits industry short name"
+},
+{
+    "Name": "industry_name",
+    "Type": "string",
+    "Comment": "2 digits industry short name"
+},
+{
+    "Name": "“financial_dep_china”",
+    "Type": "float",
+    "Comment": "Financial dependency metric"
+}
+]
+
+glue = service_glue.connect_glue(client=client)
+target_S3URI = "s3://datalake-datascience/DATA/ECON/INDUSTRY/ADDITIONAL_DATA/CHINA/CIC/CREDIT_CONSTRAINT"
+name_crawler = "crawl-industry-name"
+Role = 'arn:aws:iam::468786073381:role/AWSGlueServiceRole-crawler-datalake'
+DatabaseName = "industry"
+TablePrefix = 'china_'
+
+
+glue.create_table_glue(
+    target_S3URI,
+    name_crawler,
+    Role,
+    DatabaseName,
+    TablePrefix,
+    from_athena=False,
+    update_schema=schema,
+)
+
+# Add tp ETL parameter files
+json_etl = {
+    'description': 'Create financial dependency at industry name 2 digits',
+    'schema': schema,
+    'partition_keys': [],
+    'metadata': {
+        'DatabaseName': DatabaseName,
+        'TablePrefix': TablePrefix,
+        'target_S3URI': target_S3URI,
+        'from_athena': 'False'
+    }
+}
+
+path_to_etl = os.path.join(str(Path(path).parent.parent),
+                           'parameters_ETL_Financial_dependency_pollution.json')
+with open(path_to_etl) as json_file:
+    parameters = json.load(json_file)
+
+#parameters['TABLES']['CREATION']['ALL_SCHEMA'].pop(0)
+
+parameters['TABLES']['CREATION']['ALL_SCHEMA'].append(json_etl)
+
+with open(path_to_etl, "w")as outfile:
+    json.dump(parameters, outfile)
