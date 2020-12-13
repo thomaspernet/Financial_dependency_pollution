@@ -238,7 +238,15 @@ df = (
     .set_index('loc')
     .sort_values(by = ['credit_constraint'])
 )
-df
+```
+
+```sos kernel="SoS"
+(
+    df
+    .style
+    .format('{0:,.2f}')
+    
+)
 ```
 
 ```sos kernel="SoS"
