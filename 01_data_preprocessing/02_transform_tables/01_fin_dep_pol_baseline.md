@@ -617,18 +617,18 @@ output
 The table `asif_city_industry_financial_ratio` needs to be matched using `extra_code`
 
 ```python
-query = """
-SELECT DISTINCT(geocode4_corr)
-FROM firms_survey.asif_city_industry_financial_ratio
-WHERE geocode4_corr in ('3100','3101','3102')
-"""
-output = s3.run_query(
-                    query=query,
-                    database=DatabaseName,
-                    s3_output=s3_output_example,
-    filename = 'example_8'
-                )
-output
+#query = """
+#SELECT DISTINCT(geocode4_corr)
+#FROM firms_survey.asif_city_industry_financial_ratio
+#WHERE geocode4_corr in ('3100','3101','3102')
+#"""
+#output = s3.run_query(
+#                    query=query,
+#                    database=DatabaseName,
+#                    s3_output=s3_output_example,
+#    filename = 'example_8'
+#                )
+#output
 ```
 
 **china_city_tcz_spz**
@@ -710,8 +710,8 @@ FROM
   (
     WITH merge_asif AS (
       SELECT 
-        asif_city_industry_financial_ratio.year, 
-        asif_city_industry_financial_ratio.geocode4_corr, 
+        year, 
+        geocode4_corr, 
         cityen, 
         ind2, 
         tso2, 
@@ -720,9 +720,8 @@ FROM
         coastal 
       FROM 
         aggregate_pol 
-        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr 
-        AND aggregate_pol.year = asif_city_industry_financial_ratio.year 
-        AND aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2
+        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON  
+         aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2
     ) 
     SELECT 
       CNT, 
@@ -808,8 +807,8 @@ FROM
   (
     WITH merge_asif AS (
       SELECT 
-        asif_city_industry_financial_ratio.year, 
-        asif_city_industry_financial_ratio.geocode4_corr, 
+        year, 
+        aggregate_pol.geocode4_corr, 
         cityen, 
         ind2, 
         tso2, 
@@ -820,9 +819,7 @@ FROM
         coastal 
       FROM 
         aggregate_pol 
-        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr 
-        AND aggregate_pol.year = asif_city_industry_financial_ratio.year 
-        AND aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2
+        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2
         INNER JOIN (
         
         SELECT geocode4_corr, tso2_mandate_c, in_10_000_tonnes
@@ -917,8 +914,8 @@ FROM
   (
     WITH merge_asif AS (
       SELECT 
-        asif_city_industry_financial_ratio.year, 
-        asif_city_industry_financial_ratio.geocode4_corr, 
+        year, 
+        aggregate_pol.geocode4_corr, 
         cityen, 
         ind2, 
         tso2, 
@@ -929,9 +926,7 @@ FROM
         coastal 
       FROM 
         aggregate_pol 
-        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr 
-        AND aggregate_pol.year = asif_city_industry_financial_ratio.year 
-        AND aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2
+        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2
         INNER JOIN (
         
         SELECT geocode4_corr, tso2_mandate_c, in_10_000_tonnes
@@ -964,6 +959,59 @@ FROM
     GROUP BY 
       CNT
   )
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_9'
+                )
+output
+```
+
+```python
+
+WITH test AS (
+SELECT *, CASE 
+WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2) 
+ELSE concat('0',substr(cic,1, 1)) END AS indu_2
+
+FROM firms_survey.asif_firms_prepared 
+)
+```
+
+```python
+query = """
+SELECT 
+year,
+geocode4_corr,
+indu_2,
+SUM(output) AS output,
+SUM(employ) AS employment,  
+SUM(captal) AS capital
+
+FROM (
+SELECT 
+  year, 
+  geocode4_corr,
+  CASE WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2) ELSE concat('0',substr(cic,1, 1)) END AS indu_2, 
+  output,
+  employ,  
+  captal
+  FROM firms_survey.asif_firms_prepared 
+  INNER JOIN 
+   (
+   SELECT extra_code, geocode4_corr
+   FROM chinese_lookup.china_city_code_normalised 
+   GROUP BY extra_code, geocode4_corr
+   ) as no_dup_citycode
+  ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+  )
+  WHERE year in ('2001', '2002', '2003', '2004', '2005', '2006', '2007') 
+GROUP BY 
+  geocode4_corr, 
+  indu_2, 
+  year  
 """
 output = s3.run_query(
                     query=query,
@@ -1012,13 +1060,11 @@ s3.remove_all_bucket(path_remove = s3_output)
 ```python
 %%time
 query = """
-CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS 
-
-WITH aggregate_pol AS (
+CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS WITH aggregate_pol AS (
   SELECT 
     year, 
-    geocode4_corr,
-    provinces,
+    geocode4_corr, 
+    provinces, 
     cityen, 
     ind2, 
     SUM(tso2) as tso2, 
@@ -1029,7 +1075,7 @@ WITH aggregate_pol AS (
     (
       SELECT 
         year, 
-        provinces,
+        provinces, 
         citycode, 
         geocode4_corr, 
         china_city_sector_pollution.cityen, 
@@ -1053,7 +1099,7 @@ WITH aggregate_pol AS (
     ) 
   GROUP BY 
     year, 
-    provinces,
+    provinces, 
     geocode4_corr, 
     cityen, 
     ind2, 
@@ -1062,51 +1108,66 @@ WITH aggregate_pol AS (
     coastal
 ) 
 SELECT 
-  asif_city_industry_financial_ratio.year, 
+  aggregate_pol.year, 
   CASE WHEN aggregate_pol.year in (
     '2001', '2002', '2003', '2004', '2005'
   ) THEN 'FALSE' WHEN aggregate_pol.year in ('2006', '2007') THEN 'TRUE' END AS period, 
   provinces, 
   cityen, 
-  asif_city_industry_financial_ratio.geocode4_corr, 
-  CASE WHEN tcz IS NULL THEN '0' ELSE tcz END AS tcz,
-  CASE WHEN spz IS NULL THEN '0' ELSE spz END AS spz,
+  aggregate_pol.geocode4_corr, 
+  CASE WHEN tcz IS NULL THEN '0' ELSE tcz END AS tcz, 
+  CASE WHEN spz IS NULL THEN '0' ELSE spz END AS spz, 
   aggregate_pol.ind2, 
-  CASE WHEN short IS NULL THEN 'Unknown' ELSE short END AS short,
-  polluted_di,
-  polluted_mi,
-  polluted_mei,
-  polluted_thre,
+  CASE WHEN short IS NULL THEN 'Unknown' ELSE short END AS short, 
+  polluted_di, 
+  polluted_mi, 
+  polluted_mei, 
+  polluted_thre, 
   tso2, 
-  CAST(tso2 AS DECIMAL(16, 5)) / CAST(output AS DECIMAL(16, 5)) AS so2_intensity,
+  CAST(
+    tso2 AS DECIMAL(16, 5)
+  ) / CAST(
+    output AS DECIMAL(16, 5)
+  ) AS so2_intensity, 
   tso2_mandate_c, 
   in_10_000_tonnes, 
-  CAST(output  AS DECIMAL(16, 5)) AS output,
-  CAST(employment AS DECIMAL(16, 5)) AS employment,
-  CAST(sales AS DECIMAL(16, 5)) AS sales,
-  CAST(capital AS DECIMAL(16, 5)) AS capital,
-  credit_constraint,
-  CAST(working_capital_cit/10000 AS DECIMAL(16, 5)) AS working_capital_cit, 
-  CAST(working_capital_ci/100000 AS DECIMAL(16, 5)) AS working_capital_ci, 
-  CAST(working_capital_i/1000000 AS DECIMAL(16, 5)) AS working_capital_i, 
-  CAST(asset_tangibility_cit/10000 AS DECIMAL(16, 5)) AS asset_tangibility_cit, 
-  CAST(asset_tangibility_ci/100000 AS DECIMAL(16, 5)) AS asset_tangibility_ci, 
-  CAST(asset_tangibility_i/1000000 AS DECIMAL(16, 5)) AS asset_tangibility_i, 
-  current_ratio_cit, 
-  current_ratio_ci, 
+  CAST(
+    output AS DECIMAL(16, 5)
+  ) AS output, 
+  CAST(
+    employment AS DECIMAL(16, 5)
+  ) AS employment, 
+  CAST(
+    sales AS DECIMAL(16, 5)
+  ) AS sales, 
+  CAST(
+    capital AS DECIMAL(16, 5)
+  ) AS capital, 
+  credit_constraint, 
+  workink_capital_i, 
+  std_workink_capital_i, 
+  working_capital_requirement_i, 
+  std_working_capital_requirement_i, 
   current_ratio_i, 
-  cash_assets_cit, 
-  cash_assets_ci, 
+  std_current_ratio_i, 
   cash_assets_i, 
-  liabilities_assets_cit, 
-  liabilities_assets_ci, 
-  liabilities_assets_i, 
-  return_on_asset_cit, 
-  return_on_asset_ci, 
+  std_cash_assets_i, 
+  liabilities_assets_m1_i, 
+  std_liabilities_assets_m1_i, 
+  liabilities_assets_m2_i, 
+  std_liabilities_assets_m2_i, 
   return_on_asset_i, 
-  sales_assets_cit, 
-  sales_assets_ci, 
+  std_return_on_asset_i, 
   sales_assets_i, 
+  std_sales_assets_i, 
+  rd_intensity_i, 
+  std_rd_intensity_i, 
+  inventory_to_sales_i, 
+  std_inventory_to_sales_i, 
+  asset_tangibility_i, 
+  std_asset_tangibility_i, 
+  account_paybable_to_asset_i, 
+  std_account_paybable_to_asset_i, 
   lower_location, 
   larger_location, 
   coastal, 
@@ -1117,49 +1178,102 @@ SELECT
   ) AS fe_c_i, 
   DENSE_RANK() OVER (
     ORDER BY 
-      asif_city_industry_financial_ratio.year, 
+      aggregate_pol.year, 
       aggregate_pol.ind2
   ) AS fe_t_i, 
   DENSE_RANK() OVER (
     ORDER BY 
       city_mandate.geocode4_corr, 
-      asif_city_industry_financial_ratio.year
+      aggregate_pol.year
   ) AS fe_c_t 
-      FROM 
-        aggregate_pol 
-        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.geocode4_corr = asif_city_industry_financial_ratio.geocode4_corr 
-        AND aggregate_pol.year = asif_city_industry_financial_ratio.year 
-        AND aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2
-        INNER JOIN (
-        
-        SELECT geocode4_corr, tso2_mandate_c, in_10_000_tonnes
-        FROM policy.china_city_reduction_mandate
-        INNER JOIN chinese_lookup.china_city_code_normalised 
-        ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn
-        WHERE extra_code = geocode4_corr
-        ) as city_mandate
-        ON aggregate_pol.geocode4_corr = city_mandate.geocode4_corr
-        LEFT JOIN policy.china_city_tcz_spz
-        ON aggregate_pol.geocode4_corr = china_city_tcz_spz.geocode4_corr
-        LEFT JOIN chinese_lookup.ind_cic_2_name ON aggregate_pol.ind2 = ind_cic_2_name.cic 
-        LEFT JOIN (
-        SELECT ind2, polluted_di, polluted_mi, polluted_mei, polluted_thre
-        FROM "environment"."china_sector_pollution_threshold"
-        WHERE year = '2001'
-        ) as polluted_sector
-        ON  aggregate_pol.ind2 = polluted_sector.ind2
-        
-        LEFT JOIN (
-        SELECT cic, financial_dep_china AS credit_constraint
-        FROM industry.china_credit_constraint
-        ) as cred_constraint
-        ON aggregate_pol.ind2 = cred_constraint.cic
-
+FROM 
+  aggregate_pol 
+  INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2 
+  INNER JOIN (
+    SELECT 
+      geocode4_corr, 
+      tso2_mandate_c, 
+      in_10_000_tonnes 
+    FROM 
+      policy.china_city_reduction_mandate 
+      INNER JOIN chinese_lookup.china_city_code_normalised ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn 
+    WHERE 
+      extra_code = geocode4_corr
+  ) as city_mandate ON aggregate_pol.geocode4_corr = city_mandate.geocode4_corr 
+  LEFT JOIN policy.china_city_tcz_spz ON aggregate_pol.geocode4_corr = china_city_tcz_spz.geocode4_corr 
+  LEFT JOIN chinese_lookup.ind_cic_2_name ON aggregate_pol.ind2 = ind_cic_2_name.cic 
+  LEFT JOIN (
+    SELECT 
+      ind2, 
+      polluted_di, 
+      polluted_mi, 
+      polluted_mei, 
+      polluted_thre 
+    FROM 
+      "environment"."china_sector_pollution_threshold" 
+    WHERE 
+      year = '2001'
+  ) as polluted_sector ON aggregate_pol.ind2 = polluted_sector.ind2 
+  LEFT JOIN (
+    SELECT 
+      cic, 
+      financial_dep_china AS credit_constraint 
+    FROM 
+      industry.china_credit_constraint
+  ) as cred_constraint ON aggregate_pol.ind2 = cred_constraint.cic 
+  LEFT JOIN (
+    SELECT 
+      year, 
+      geocode4_corr, 
+      indu_2, 
+      SUM(output) AS output, 
+      SUM(employ) AS employment, 
+      SUM(captal) AS capital,
+      SUM(sales) as sales
+    FROM 
+      (
+        SELECT 
+          year, 
+          geocode4_corr, 
+          CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
+            '0', 
+            substr(cic, 1, 1)
+          ) END AS indu_2, 
+          output, 
+          employ, 
+          captal,
+          sales
+        FROM 
+          firms_survey.asif_firms_prepared 
+          INNER JOIN (
+            SELECT 
+              extra_code, 
+              geocode4_corr 
+            FROM 
+              chinese_lookup.china_city_code_normalised 
+            GROUP BY 
+              extra_code, 
+              geocode4_corr
+          ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+      ) 
+    WHERE 
+      year in (
+        '2001', '2002', '2003', '2004', '2005', 
+        '2006', '2007'
+      ) 
+    GROUP BY 
+      geocode4_corr, 
+      indu_2, 
+      year
+  ) as agg_output ON aggregate_pol.geocode4_corr = agg_output.geocode4_corr 
+  AND aggregate_pol.ind2 = agg_output.indu_2 
+  AND aggregate_pol.year = agg_output.year 
 WHERE 
-  asif_city_industry_financial_ratio.year in (
-    '2001', '2002', '2003', '2004', '2005', 
-    '2006', '2007'
-  ) AND tso2 > 0 AND output > 0 and capital > 0 and employment > 0
+  tso2 > 0 
+  AND output > 0 
+  and capital > 0 
+  and employment > 0
+
 """.format(DatabaseName, table_name)
 output = s3.run_query(
                     query=query,
@@ -1186,13 +1300,13 @@ output
 Check scale
 
 ```python
-query = """
+query_ = """
 SELECT COUNT(*) AS output_null
 FROM fin_dep_pollution_baseline 
 WHERE output = 0
 """
 output = s3.run_query(
-                    query=query,
+                    query=query_,
                     database=DatabaseName,
                     s3_output=s3_output_example,
     filename = 'example_9'
@@ -1201,13 +1315,13 @@ output
 ```
 
 ```python
-query = """
+query_ = """
 SELECT COUNT(*) AS capital_null
 FROM fin_dep_pollution_baseline 
 WHERE capital = 0
 """
 output = s3.run_query(
-                    query=query,
+                    query=query_,
                     database=DatabaseName,
                     s3_output=s3_output_example,
     filename = 'example_9'
@@ -1216,13 +1330,13 @@ output
 ```
 
 ```python
-query = """
+query_ = """
 SELECT COUNT(*) AS employment_null
 FROM fin_dep_pollution_baseline 
 WHERE employment = 0
 """
 output = s3.run_query(
-                    query=query,
+                    query=query_,
                     database=DatabaseName,
                     s3_output=s3_output_example,
     filename = 'example_9'
@@ -1268,20 +1382,19 @@ glue.get_table_information(
 
 ```python
 schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'},
- {'Name': 'period', 'Type': 'string', 'Comment': 'False if year before 2005 included, True if year 2006 and 2007'},
- {'Name': 'province', 'Type': 'string', 'Comment': ''},
- {'Name': 'city', 'Type': 'string', 'Comment': ''},
+ {'Name': 'period', 'Type': 'varchar(5)', 'Comment': 'False if year before 2005 included, True if year 2006 and 2007'},
+ {'Name': 'provinces', 'Type': 'string', 'Comment': ''},
+ {'Name': 'cityen', 'Type': 'string', 'Comment': ''},
  {'Name': 'geocode4_corr', 'Type': 'string', 'Comment': ''},
  {'Name': 'tcz', 'Type': 'string', 'Comment': 'Two control zone policy city'},
  {'Name': 'spz', 'Type': 'string', 'Comment': 'Special policy zone policy city'},
- #{'Name': 'cic', 'Type': 'string', 'Comment': '4 digits industry'},
  {'Name': 'ind2', 'Type': 'string', 'Comment': '2 digits industry'},
  {'Name': 'short', 'Type': 'string', 'Comment': ''},
  {'Name': 'polluted_di', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 75th percentile of SO2 label as ABOVE else BELOW'},
  {'Name': 'polluted_mi', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly average of SO2 label as ABOVE else BELOW'},
  {'Name': 'polluted_mei', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly median of SO2 label as ABOVE else BELOW'},
  {'Name': 'polluted_thre', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above 68070.78  of SO2 label as ABOVE else BELOW'},
- {'Name': 'tso2', 'Type': 'int', 'Comment': 'Total so2 city sector'},
+ {'Name': 'tso2', 'Type': 'bigint', 'Comment': 'Total so2 city sector'},
  {'Name': 'so2_intensity', 'Type': 'decimal(21,5)', 'Comment': 'SO2 divided by output'},
  {'Name': 'tso2_mandate_c', 'Type': 'float', 'Comment': 'city reduction mandate in tonnes'},
  {'Name': 'in_10_000_tonnes', 'Type': 'float', 'Comment': 'city reduction mandate in 10k tonnes'},
@@ -1289,118 +1402,85 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
  {'Name': 'employment', 'Type': 'decimal(16,5)', 'Comment': 'Employemnt'},
  {'Name': 'sales', 'Type': 'decimal(16,5)', 'Comment': 'Sales'},
  {'Name': 'capital', 'Type': 'decimal(16,5)', 'Comment': 'Capital'},
-{'Name': 'credit_constraint', 'Type': 'float', 'Comment': 'Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311'},
- {
-   "Name": "working_capital_cit",
-   "Type": "decimal(16,5)",
-   "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry year. Scaled by a factor of 10000"
-},
-   {
-   "Name": "working_capital_ci",
-   "Type": "decimal(16,5)",
-   "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] city industry. Scaled by a factor of 100000"
-},
-   {
-   "Name": "working_capital_i",
-   "Type": "decimal(16,5)",
-   "Comment": "Inventory [存货 (c81)] + Accounts receivable [应收帐款 (c80)] - Accounts payable [应付帐款  (c96)] industry. Scaled by a factor of 1000000"
-},
-   {
-   "Name": "asset_tangibility_cit",
-   "Type": "decimal(16,5)",
-   "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry year. Scaled by a factor of 10000"
-},
-   {
-   "Name": "asset_tangibility_ci",
-   "Type": "decimal(16,5)",
-   "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] city industry. Scaled by a factor of 100000"
-},
-   {
-   "Name": "asset_tangibility_i",
-   "Type": "decimal(16,5)",
-   "Comment": "Total fixed assets [固定资产合计 (c85)] - Intangible assets [无形资产 (c91)] industry. Scaled by a factor of 1000000"
-},
-   {
-   "Name": "current_ratio_cit",
-   "Type": "decimal(21,5)",
-   "Comment": "Current asset [cuasset] / Current liabilities [c95]  city industry year"
-},
-   {
-   "Name": "current_ratio_ci",
-   "Type": "decimal(21,5)",
-   "Comment": "Current asset [cuasset] / Current liabilities [c95] city industry"
-},
-   {
-   "Name": "current_ratio_i",
-   "Type": "decimal(21,5)",
-   "Comment": "Current asset [cuasset] / Current liabilities [c95] industry"
-},
-   {
-   "Name": "cash_assets_cit",
-   "Type": "decimal(21,5)",
-   "Comment": "Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)]  city industry year"
-},
-   {
-   "Name": "cash_assets_ci",
-   "Type": "decimal(21,5)",
-   "Comment": "Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)] city industry"
-},
-   {
-   "Name": "cash_assets_i",
-   "Type": "decimal(21,5)",
-   "Comment": "Cash [( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)] /  Assets [其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)] industry"
-},
-   {
-   "Name": "liabilities_assets_cit",
-   "Type": "decimal(21,5)",
-   "Comment": "Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)]  city industry year"
-},
-   {
-   "Name": "liabilities_assets_ci",
-   "Type": "decimal(21,5)",
-   "Comment": "Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)] city industry"
-},
-   {
-   "Name": "liabilities_assets_i",
-   "Type": "decimal(21,5)",
-   "Comment": "Liabilities [(流动负债合计 (c95) + 长期负债合计 (c97))] /  Total assets [资产总计318 (c93)] industry"
-},
-   {
-   "Name": "return_on_asset_cit",
-   "Type": "decimal(21,5)",
-   "Comment": "Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\\Delta$ 资产总计318 (c98)]/2)  city industry year"
-},
-   {
-   "Name": "return_on_asset_ci",
-   "Type": "decimal(21,5)",
-   "Comment": "Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\\Delta$ 资产总计318 (c98)]/2) city industry"
-},
-   {
-   "Name": "return_on_asset_i",
-   "Type": "decimal(21,5)",
-   "Comment": "Total annual revenue [全年营业收入合计 (c64) ] / (Delta Total assets 318 [$\\Delta$ 资产总计318 (c98)]/2) industry"
-},
-   {
-   "Name": "sales_assets_cit",
-   "Type": "decimal(21,5)",
-   "Comment": "(Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)]  city industry year"
-},
-   {
-   "Name": "sales_assets_ci",
-   "Type": "decimal(21,5)",
-   "Comment": "(Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)] city industry"
-},
-   {
-   "Name": "sales_assets_i",
-   "Type": "decimal(21,5)",
-   "Comment": "(Total annual revenue - Income tax payable) [(全年营业收入合计 (c64) - 应交所得税 (c134))] / Total assets [资产总计318 (c98)] industry"
-},
-    {'Name': 'lower_location', 'Type': 'string', 'Comment': 'Location city. one of Coastal, Central, Northwest, Northeast, Southwest'},
-    {'Name': 'larger_location', 'Type': 'string', 'Comment': 'Location city. one of Eastern, Central, Western'},
-    {'Name': 'coastal', 'Type': 'string', 'Comment': 'City is bordered by sea or not'},
-    {'Name': 'fe_c_i', 'Type': 'bigint', 'Comment': 'City industry fixed effect'},
-    {'Name': 'fe_t_i', 'Type': 'bigint', 'Comment': 'year industry fixed effect'},
-    {'Name': 'fe_c_t', 'Type': 'bigint', 'Comment': 'city industry fixed effect'}]
+ {'Name': 'credit_constraint', 'Type': 'float', 'Comment': 'Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311'},
+ {'Name': 'workink_capital_i',
+   'Type': 'double',
+   'Comment': 'cuasset- 流动负债合计 (c95)'},
+  {'Name': 'std_workink_capital_i',
+   'Type': 'double',
+   'Comment': 'standaridzed values (x - x mean) / std)'},
+  {'Name': 'working_capital_requirement_i',
+   'Type': 'double',
+   'Comment': '存货 (c81) + 应收帐款 (c80) - 应付帐款 (c96)'},
+  {'Name': 'std_working_capital_requirement_i',
+   'Type': 'double',
+   'Comment': 'standaridzed values (x - x mean) / std)'},
+  {'Name': 'current_ratio_i',
+   'Type': 'double',
+   'Comment': 'cuasset/流动负债合计 (c95)'},
+  {'Name': 'std_current_ratio_i',
+   'Type': 'double',
+   'Comment': 'standaridzed values (x - x mean) / std)'},
+  {'Name': 'cash_assets_i',
+   'Type': 'double',
+   'Comment': '(( 其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81)) - cuasset)/ 流动负债合计 (c95)'},
+  {'Name': 'std_cash_assets_i',
+   'Type': 'double',
+   'Comment': 'standaridzed values (x - x mean) / std)'},
+  {'Name': 'liabilities_assets_m1_i',
+   'Type': 'double',
+   'Comment': '(流动负债合计 (c95) + 长期负债合计 (c97)) / 资产总计318 (c93)'},
+  {'Name': 'std_liabilities_assets_m1_i',
+   'Type': 'double',
+   'Comment': 'standaridzed values (x - x mean) / std)'},
+  {'Name': 'liabilities_assets_m2_i',
+   'Type': 'double',
+   'Comment': '负债合计 (c98)/ 资产总计318 (c93)'},
+  {'Name': 'std_liabilities_assets_m2_i',
+   'Type': 'double',
+   'Comment': 'standaridzed values (x - x mean) / std)'},
+  {'Name': 'return_on_asset_i',
+   'Type': 'double',
+   'Comment': '全年营业收入合计 (c64) - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /资产总计318 (c93)'},
+  {'Name': 'std_return_on_asset_i',
+   'Type': 'double',
+   'Comment': 'standaridzed values (x - x mean) / std)'},
+  {'Name': 'sales_assets_i',
+   'Type': 'double',
+   'Comment': '全年营业收入合计 (c64) /(delta 资产总计318 (c93)/2)'},
+  {'Name': 'std_sales_assets_i',
+   'Type': 'double',
+   'Comment': 'standaridzed values (x - x mean) / std)'},
+  {'Name': 'rd_intensity_i',
+   'Type': 'double',
+   'Comment': 'rdfee/全年营业收入合计 (c64)'},
+  {'Name': 'std_rd_intensity_i',
+   'Type': 'double',
+   'Comment': 'standaridzed values (x - x mean) / std)'},
+  {'Name': 'inventory_to_sales_i',
+   'Type': 'double',
+   'Comment': '存货 (c81) / 全年营业收入合计 (c64)'},
+  {'Name': 'std_inventory_to_sales_i',
+   'Type': 'double',
+   'Comment': 'standaridzed values (x - x mean) / std)'},
+  {'Name': 'asset_tangibility_i',
+   'Type': 'double',
+   'Comment': '固定资产合计 (c85) - 无形资产 (c91)'},
+  {'Name': 'std_asset_tangibility_i',
+   'Type': 'double',
+   'Comment': 'standaridzed values (x - x mean) / std)'},
+  {'Name': 'account_paybable_to_asset_i',
+   'Type': 'double',
+   'Comment': '(delta 应付帐款 (c96))/ (delta 资产总计318 (c93))'},
+  {'Name': 'std_account_paybable_to_asset_i',
+   'Type': 'double',
+   'Comment': 'standaridzed values (x - x mean) / std)'},
+ {'Name': 'lower_location', 'Type': 'string', 'Comment': 'Location city. one of Coastal, Central, Northwest, Northeast, Southwest'},
+ {'Name': 'larger_location', 'Type': 'string', 'Comment': 'Location city. one of Eastern, Central, Western'},
+ {'Name': 'coastal', 'Type': 'string', 'Comment': 'City is bordered by sea or not'},
+ {'Name': 'fe_c_i', 'Type': 'bigint', 'Comment': 'City industry fixed effect'},
+ {'Name': 'fe_t_i', 'Type': 'bigint', 'Comment': 'year industry fixed effect'},
+ {'Name': 'fe_c_t', 'Type': 'bigint', 'Comment': 'city industry fixed effect'}]
 ```
 
 4. Provide a description
