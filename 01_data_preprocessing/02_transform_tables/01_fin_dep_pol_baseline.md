@@ -1116,13 +1116,12 @@ SELECT
   cityen, 
   aggregate_pol.geocode4_corr, 
   CASE WHEN tcz IS NULL THEN '0' ELSE tcz END AS tcz, 
-  CASE WHEN spz IS NULL THEN '0' ELSE spz END AS spz, 
+  CASE WHEN spz IS NULL OR spz = '#N/A' THEN '0' ELSE spz END AS spz, 
   aggregate_pol.ind2, 
   CASE WHEN short IS NULL THEN 'Unknown' ELSE short END AS short, 
   polluted_di, 
   polluted_mi, 
   polluted_mei, 
-  polluted_thre, 
   tso2, 
   CAST(
     tso2 AS DECIMAL(16, 5)
@@ -1207,8 +1206,7 @@ FROM
       ind2, 
       polluted_di, 
       polluted_mi, 
-      polluted_mei, 
-      polluted_thre 
+      polluted_mei
     FROM 
       "environment"."china_sector_pollution_threshold" 
     WHERE 
@@ -1273,6 +1271,7 @@ WHERE
   AND output > 0 
   and capital > 0 
   and employment > 0
+  AND aggregate_pol.ind2 != '43'
 
 """.format(DatabaseName, table_name)
 output = s3.run_query(
