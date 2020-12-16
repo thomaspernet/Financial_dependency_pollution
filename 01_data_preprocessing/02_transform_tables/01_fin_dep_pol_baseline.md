@@ -970,17 +970,6 @@ output
 ```
 
 ```python
-
-WITH test AS (
-SELECT *, CASE 
-WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2) 
-ELSE concat('0',substr(cic,1, 1)) END AS indu_2
-
-FROM firms_survey.asif_firms_prepared 
-)
-```
-
-```python
 query = """
 SELECT 
 year,
@@ -1392,7 +1381,6 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
  {'Name': 'polluted_di', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 75th percentile of SO2 label as ABOVE else BELOW'},
  {'Name': 'polluted_mi', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly average of SO2 label as ABOVE else BELOW'},
  {'Name': 'polluted_mei', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly median of SO2 label as ABOVE else BELOW'},
- {'Name': 'polluted_thre', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above 68070.78  of SO2 label as ABOVE else BELOW'},
  {'Name': 'tso2', 'Type': 'bigint', 'Comment': 'Total so2 city sector'},
  {'Name': 'so2_intensity', 'Type': 'decimal(21,5)', 'Comment': 'SO2 divided by output'},
  {'Name': 'tso2_mandate_c', 'Type': 'float', 'Comment': 'city reduction mandate in tonnes'},
