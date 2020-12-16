@@ -222,7 +222,13 @@ Does not work for first two vars
     for i in data['to_rename']:
         for x, line in enumerate(lines):
             regex_ = i['old'].replace('\_','\\\_')
-            matches = re.search(r'\s{}\s'.format(regex_), line)
+            matches = re.search(r'^{}$'.format(regex_), line)
+            if matches:
+                print(matches)
+                lines[x] = lines[x].replace(i['old'],i['new'])
+            else:
+
+                matches = re.search(r'^{}'.format(regex_), line)
             if matches:
                 lines[x] = lines[x].replace(i['old'],i['new'])
             else:
@@ -231,6 +237,11 @@ Does not work for first two vars
             if matches:
                 lines[x] = lines[x].replace(i['old'],i['new'])
                 #print(lines[x])
+            #else:
+            #    matches = re.search(r'{}'.format(regex_), line)
+            #if matches:
+            #    lines[x] = lines[x].replace(i['old'],i['new'])
+
 
     with open(table_out, "w") as f:
         for line in lines:
