@@ -1142,7 +1142,7 @@ FROM
       SELECT 
         year, 
         indu_2, 
-        SUM(cuasset) - SUM(c95) as workink_capital_it, 
+        SUM(cuasset) - SUM(c95) as working_capital_it, 
         SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_requirement_it, 
         CAST(
           SUM(cuasset) AS DECIMAL(16, 5)
@@ -1265,24 +1265,22 @@ FROM
           SELECT 
             indu_2, 
             'FAKE_GROUP' as fake, 
-            AVG(workink_capital_it) AS workink_capital_i, 
-            AVG(working_capital_requirement_it) AS working_capital_requirement_i, 
+            AVG(working_capital_it)/1000000 AS workink_capital_i, 
+            AVG(working_capital_requirement_it)/1000000 AS working_capital_requirement_i, 
             AVG(current_ratio_it) AS current_ratio_i, 
             AVG(cash_assets_it) AS cash_assets_i, 
             AVG(liabilities_assets_m1_it) AS liabilities_assets_m1_i, 
-            AVG(liabilities_assets_m2_it) AS liabilities_assets_m2_i, 
+            AVG(liabilities_assets_m2_it)/1000000 AS liabilities_assets_m2_i, 
             AVG(return_on_asset_it) AS return_on_asset_i, 
             AVG(sales_assets_it) AS sales_assets_i, 
             AVG(rd_intensity_it) AS rd_intensity_i, 
             AVG(inventory_to_sales_it) AS inventory_to_sales_i, 
-            AVG(asset_tangibility_it) AS asset_tangibility_i, 
+            AVG(asset_tangibility_it)/1000000 AS asset_tangibility_i, 
             AVG(account_paybable_to_asset_it) AS account_paybable_to_asset_i 
           FROM 
             ratio 
           GROUP BY 
             indu_2 
-          -- ORDER BY 
-          -- workink_capital_i
         ) 
         SELECT 
           field0 AS indu_2, 
@@ -1589,10 +1587,10 @@ glue.get_table_information(
 
 ```python
 schema = [{'Name': 'indu_2', 'Type': 'string', 'Comment': 'Two digits industry. If length cic equals to 3, then add 0 to indu_2'},
-          {'Name': 'workink_capital_i', 'Type': 'double', 'Comment': 'cuasset- 流动负债合计 (c95)'},
+          {'Name': 'workink_capital_i', 'Type': 'double', 'Comment': 'cuasset- 流动负债合计 (c95). Scaled by 1000000'},
           {'Name': 'std_workink_capital_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
           {'Name': 'working_capital_requirement_i',
-              'Type': 'double', 'Comment': '存货 (c81) + 应收帐款 (c80) - 应付帐款 (c96)'},
+              'Type': 'double', 'Comment': '存货 (c81) + 应收帐款 (c80) - 应付帐款 (c96) Scaled by 1000000'},
           {'Name': 'std_working_capital_requirement_i',
            'Type': 'double',
            'Comment': 'standaridzed values (x - x mean) / std)'},
@@ -1602,7 +1600,7 @@ schema = [{'Name': 'indu_2', 'Type': 'string', 'Comment': 'Two digits industry. 
           {'Name': 'std_cash_assets_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
           {'Name': 'liabilities_assets_m1_i', 'Type': 'double', 'Comment': '(流动负债合计 (c95) + 长期负债合计 (c97)) / 资产总计318 (c93)'},
           {'Name': 'std_liabilities_assets_m1_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
-          {'Name': 'liabilities_assets_m2_i', 'Type': 'double', 'Comment': '负债合计 (c98)/ 资产总计318 (c93)'},
+          {'Name': 'liabilities_assets_m2_i', 'Type': 'double', 'Comment': '负债合计 (c98)/ 资产总计318 (c93) Scaled by 1000000'},
           {'Name': 'std_liabilities_assets_m2_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
           {'Name': 'return_on_asset_i', 'Type': 'double', 'Comment': '全年营业收入合计 (c64) - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /资产总计318 (c93)'},
           {'Name': 'std_return_on_asset_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
@@ -1612,7 +1610,7 @@ schema = [{'Name': 'indu_2', 'Type': 'string', 'Comment': 'Two digits industry. 
           {'Name': 'std_rd_intensity_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
           {'Name': 'inventory_to_sales_i', 'Type': 'double', 'Comment': '存货 (c81) / 全年营业收入合计 (c64)'},
           {'Name': 'std_inventory_to_sales_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
-          {'Name': 'asset_tangibility_i', 'Type': 'double', 'Comment': '固定资产合计 (c85) - 无形资产 (c91)'},
+          {'Name': 'asset_tangibility_i', 'Type': 'double', 'Comment': '固定资产合计 (c85) - 无形资产 (c91)  Scaled by 1000000'},
           {'Name': 'std_asset_tangibility_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
           {'Name': 'account_paybable_to_asset_i', 'Type': 'double', 'Comment': '(delta 应付帐款 (c96))/ (delta 资产总计318 (c93))'},
           {'Name': 'std_account_paybable_to_asset_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'}]
