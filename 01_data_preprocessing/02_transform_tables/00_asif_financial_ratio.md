@@ -458,7 +458,7 @@ SELECT
   indu_2, 
   SUM(cuasset)  as curr_asset,
   SUM(c95) as curr_liabilities,
-  SUM(cuasset) - SUM(c95) as workink_capital_it,
+  SUM(cuasset) - SUM(c95) as working_capital_it,
   SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_requirement_it,   
   CAST(
     SUM(cuasset) AS DECIMAL(16, 5)
@@ -556,7 +556,7 @@ GROUP BY
   indu_2,
   curr_asset,
   curr_liabilities,
-  workink_capital_it AS workink_capital_i,
+  working_capital_it AS working_capital_i,
   working_capital_requirement_it AS working_capital_requirement_i,
   current_ratio_it AS current_ratio_i,
   cash_assets_it AS cash_assets_i,
@@ -569,7 +569,7 @@ GROUP BY
   asset_tangibility_it AS asset_tangibility_i,
   account_paybable_to_asset_it AS account_paybable_to_asset_i
   FROM ratio
-  ORDER BY year, workink_capital_i
+  ORDER BY year, working_capital_i
   )
 """
 output = s3.run_query(
@@ -605,7 +605,7 @@ FROM
       SELECT 
         year, 
         indu_2, 
-        SUM(cuasset) - SUM(c95) as workink_capital_it, 
+        SUM(cuasset) - SUM(c95) as working_capital_it, 
         SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_requirement_it, 
         CAST(
           SUM(cuasset) AS DECIMAL(16, 5)
@@ -728,7 +728,7 @@ FROM
           SELECT 
             indu_2, 
             'FAKE_GROUP' as fake, 
-            AVG(workink_capital_it) AS workink_capital_i, 
+            AVG(working_capital_it) AS working_capital_i, 
             AVG(working_capital_requirement_it) AS working_capital_requirement_i, 
             AVG(current_ratio_it) AS current_ratio_i, 
             AVG(cash_assets_it) AS cash_assets_i, 
@@ -745,12 +745,12 @@ FROM
           GROUP BY 
             indu_2 
           -- ORDER BY 
-          -- workink_capital_i
+          -- working_capital_i
         ) 
         SELECT 
           field0 AS indu_2, 
-          val_1[ 'workink_capital' ] AS workink_capital_i, 
-          val_2[ 'workink_capital' ] AS std_workink_capital_i, 
+          val_1[ 'workink_capital' ] AS working_capital_i, 
+          val_2[ 'workink_capital' ] AS std_working_capital_i, 
           val_1[ 'working_capital_requirement' ] AS working_capital_requirement_i, 
           val_2[ 'working_capital_requirement' ] AS std_working_capital_requirement_i, 
           val_1[ 'current_ratio' ] AS current_ratio_i, 
@@ -810,10 +810,10 @@ FROM
                           (
                             SELECT 
                               'workink_capital' as w, 
-                              AVG(workink_capital_i) as avg, 
-                              ARRAY_AGG(workink_capital_i) as array_w, 
+                              AVG(working_capital_i) as avg, 
+                              ARRAY_AGG(working_capital_i) as array_w, 
                               ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(workink_capital_i) as std_w 
+                              stddev(working_capital_i) as std_w 
                             FROM 
                               agg 
                             GROUP BY 
@@ -970,7 +970,7 @@ FROM
               field0
           )
       )
-      ORDER BY workink_capital_i
+      ORDER BY working_capital_i
   )
 """
 output = s3.run_query(
@@ -996,7 +996,7 @@ import matplotlib.pyplot as plt
 cm = sns.light_palette("green", as_cmap=True)
 (
     output[['indu_2',
-            'workink_capital_i',
+            'working_capital_i',
             'working_capital_requirement_i',
             'current_ratio_i',
             'cash_assets_i',
@@ -1019,7 +1019,7 @@ cm = sns.light_palette("green", as_cmap=True)
 ```python
 fig = px.parallel_coordinates(
     output[['indu_2',
-            'workink_capital_i',
+            'working_capital_i',
             'working_capital_requirement_i',
             'current_ratio_i',
             'cash_assets_i',
@@ -1032,7 +1032,7 @@ fig = px.parallel_coordinates(
             'asset_tangibility_i',
             'account_paybable_to_asset_i']].rank(),
     labels={
-        "workink_capital_i": "workink_capital_i",
+        "working_capital_i": "working_capital_i",
         "working_capital_requirement_i": "working_capital_requirement_i",
         "current_ratio_i": "current_ratio_i",
         "cash_assets_i": "cash_assets_i",
@@ -1056,7 +1056,7 @@ sns.set_theme(style="white")
 
 # Compute the correlation matrix
 corr = output[['indu_2',
-            'workink_capital_i',
+            'working_capital_i',
             'working_capital_requirement_i',
             'current_ratio_i',
             'cash_assets_i',
@@ -1265,7 +1265,7 @@ FROM
           SELECT 
             indu_2, 
             'FAKE_GROUP' as fake, 
-            AVG(working_capital_it)/1000000 AS workink_capital_i, 
+            AVG(working_capital_it)/1000000 AS working_capital_i, 
             AVG(working_capital_requirement_it)/1000000 AS working_capital_requirement_i, 
             AVG(current_ratio_it) AS current_ratio_i, 
             AVG(cash_assets_it) AS cash_assets_i, 
@@ -1284,8 +1284,8 @@ FROM
         ) 
         SELECT 
           field0 AS indu_2, 
-          val_1[ 'workink_capital' ] AS workink_capital_i, 
-          val_2[ 'workink_capital' ] AS std_workink_capital_i, 
+          val_1[ 'working_capital' ] AS working_capital_i, 
+          val_2[ 'working_capital' ] AS std_working_capital_i, 
           val_1[ 'working_capital_requirement' ] AS working_capital_requirement_i, 
           val_2[ 'working_capital_requirement' ] AS std_working_capital_requirement_i, 
           val_1[ 'current_ratio' ] AS current_ratio_i, 
@@ -1344,11 +1344,11 @@ FROM
                         FROM 
                           (
                             SELECT 
-                              'workink_capital' as w, 
-                              AVG(workink_capital_i) as avg, 
-                              ARRAY_AGG(workink_capital_i) as array_w, 
+                              'working_capital' as w, 
+                              AVG(working_capital_i) as avg, 
+                              ARRAY_AGG(working_capital_i) as array_w, 
                               ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(workink_capital_i) as std_w 
+                              stddev(working_capital_i) as std_w 
                             FROM 
                               agg 
                             GROUP BY 
@@ -1505,7 +1505,7 @@ FROM
               field0
           )
       )
-      ORDER BY workink_capital_i
+      ORDER BY working_capital_i
   )
 """.format(DatabaseName, table_name)
 output = s3.run_query(
@@ -1587,8 +1587,8 @@ glue.get_table_information(
 
 ```python
 schema = [{'Name': 'indu_2', 'Type': 'string', 'Comment': 'Two digits industry. If length cic equals to 3, then add 0 to indu_2'},
-          {'Name': 'workink_capital_i', 'Type': 'double', 'Comment': 'cuasset- 流动负债合计 (c95). Scaled by 1000000'},
-          {'Name': 'std_workink_capital_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
+          {'Name': 'working_capital_i', 'Type': 'double', 'Comment': 'cuasset- 流动负债合计 (c95). Scaled by 1000000'},
+          {'Name': 'std_working_capital_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
           {'Name': 'working_capital_requirement_i',
               'Type': 'double', 'Comment': '存货 (c81) + 应收帐款 (c80) - 应付帐款 (c96) Scaled by 1000000'},
           {'Name': 'std_working_capital_requirement_i',
