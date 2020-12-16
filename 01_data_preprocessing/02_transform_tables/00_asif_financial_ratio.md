@@ -728,8 +728,8 @@ FROM
           SELECT 
             indu_2, 
             'FAKE_GROUP' as fake, 
-            AVG(working_capital_it) AS working_capital_i, 
-            AVG(working_capital_requirement_it) AS working_capital_requirement_i, 
+            AVG(working_capital_it)/1000000 AS working_capital_i, 
+            AVG(working_capital_requirement_it)/1000000 AS working_capital_requirement_i, 
             AVG(current_ratio_it) AS current_ratio_i, 
             AVG(cash_assets_it) AS cash_assets_i, 
             AVG(liabilities_assets_m1_it) AS liabilities_assets_m1_i, 
@@ -738,14 +738,12 @@ FROM
             AVG(sales_assets_it) AS sales_assets_i, 
             AVG(rd_intensity_it) AS rd_intensity_i, 
             AVG(inventory_to_sales_it) AS inventory_to_sales_i, 
-            AVG(asset_tangibility_it) AS asset_tangibility_i, 
-            AVG(account_paybable_to_asset_it) AS account_paybable_to_asset_i 
+            AVG(asset_tangibility_it)/1000000 AS asset_tangibility_i, 
+            AVG(account_paybable_to_asset_it) AS account_paybable_to_asset_i  
           FROM 
             ratio 
           GROUP BY 
             indu_2 
-          -- ORDER BY 
-          -- working_capital_i
         ) 
         SELECT 
           field0 AS indu_2, 
@@ -876,7 +874,7 @@ FROM
                             SELECT 
                               'liabilities_assets_m2' as w, 
                               AVG(liabilities_assets_m2_i) as avg, 
-                              ARRAY_AGG(working_capital_requirement_i) as array_w, 
+                              ARRAY_AGG(liabilities_assets_m2_i) as array_w, 
                               ARRAY_AGG(indu_2) as array_indu_2, 
                               stddev(liabilities_assets_m2_i) as std_w 
                             FROM 
@@ -970,7 +968,7 @@ FROM
               field0
           )
       )
-      ORDER BY working_capital_i
+      ORDER BY indu_2
   )
 """
 output = s3.run_query(
@@ -1270,7 +1268,7 @@ FROM
             AVG(current_ratio_it) AS current_ratio_i, 
             AVG(cash_assets_it) AS cash_assets_i, 
             AVG(liabilities_assets_m1_it) AS liabilities_assets_m1_i, 
-            AVG(liabilities_assets_m2_it)/1000000 AS liabilities_assets_m2_i, 
+            AVG(liabilities_assets_m2_it) AS liabilities_assets_m2_i, 
             AVG(return_on_asset_it) AS return_on_asset_i, 
             AVG(sales_assets_it) AS sales_assets_i, 
             AVG(rd_intensity_it) AS rd_intensity_i, 
@@ -1411,7 +1409,7 @@ FROM
                             SELECT 
                               'liabilities_assets_m2' as w, 
                               AVG(liabilities_assets_m2_i) as avg, 
-                              ARRAY_AGG(working_capital_requirement_i) as array_w, 
+                              ARRAY_AGG(liabilities_assets_m2_i) as array_w, 
                               ARRAY_AGG(indu_2) as array_indu_2, 
                               stddev(liabilities_assets_m2_i) as std_w 
                             FROM 
