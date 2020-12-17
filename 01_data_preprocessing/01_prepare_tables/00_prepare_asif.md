@@ -538,7 +538,7 @@ Method cleaning dataset
 | Step cleaning | method                                                                                                  | Variables                                                      |
 |---------------|---------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
 | 1             | remove row if  total assets, net value of fixed assets, sales, gross value of industrial output missing | (负债合计 (c98) + 所有者权益合计 (c99), tofixed, sales, output |
-| 2             | number of employees hired by a firm must not be less than 10                                            | c62 (年末从业人员合计_总计)                                    |
+| 2             | ~number of employees hired by a firm must not be less than 10~                                            | c62 (年末从业人员合计_总计)                                    |
 | 3             | total assets must be higher than the liquid assets                                                      | (负债合计 (c98) + 所有者权益合计 (c99) >                       |
 | 4             | total assets must be larger than the total fixed assets                                                 | (负债合计 (c98) + 所有者权益合计 (c99) > totfixed              |
 | 5             | total assets must be larger than the net value of the fixed assets                                      | (负债合计 (c98) + 所有者权益合计 (c99) > netfixed              |
@@ -619,8 +619,8 @@ WHERE
          ownership in ('COLLECTIVE', 'SOE', 'PRIVATE', 'HTM', 'FOREIGN')  
          AND
          c98 > 0 AND c99 >0 AND tofixed > 0 AND sales > 0 AND output > 0
-         AND
-         c62 > 10 
+         -- AND
+         -- c62 > 10 
          AND 
          (c98 + c99) > tofixed
          AND 
