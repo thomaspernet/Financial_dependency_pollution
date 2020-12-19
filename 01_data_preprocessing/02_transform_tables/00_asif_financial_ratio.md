@@ -182,34 +182,33 @@ if pandas_setting:
 
 Write query and save the CSV back in the S3 bucket `datalake-datascience` 
 
-<!-- #region -->
+
 # Steps
 
 Detail computation:
 
-| index | Metrics                        | comments                                           | variables                                                                                                                                                           | Roam_link                                       | Exepected sign                                                                                                            | Comment                                                                                                                                                                                                                                  |
-|-------|--------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1     | % receivable                   | receivable account / current asset                 | 应收帐款 (c80) / cuasset                                                                                                                                            | #account-receivable #current-asset              | Share of receivable over current asset. Larger value indicates longer time before collecting the money from the customers |                                                                                                                                                                                                                                          |
-| 2     | % non cash                     | Current asset - cash / current asset               | (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset                                                                            | #current-asset #cash                            | Positive                                                                                                                  | Share of non-cash asset over current asset. Larger value indicates longer time before selling and collecting money. The drivers are inventory and account receivable                                                                     |
-| 3     | Working capital                | Current asset - current liabilities                | cuasset- 流动负债合计 (c95)                                                                                                                                         | #working-capital-requirement                    | Negative                                                                                                                  | Difference between current asset and current liabilities. Larger value indicates that assets are enough to cope with the short term need                                                                                                 |
-| 4     | working capital requirement    | Inventory + Accounts receivable - Accounts payable | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       | #working-capital                                | negative                                                                                                                  |                                                                                                                                                                                                                                          |
-| 5     | current ratio                  | Current asset /current liabilities                 | cuasset/流动负债合计 (c95)                                                                                                                                          | #current-ratio                                  | negative                                                                                                                  | Asset divided by liabilities. Value above 1 indicates there are more assets than liabilities                                                                                                                                             |
-| 6     | Quick ratio                    | (Current asset - Inventory)/current liabilities    | (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                                          | #quick-ratio                                    | negative                                                                                                                  | The quick ratio is a measure of liquidity. The higher the more liquid the company is. To improve the ratio, company should reduce the account receivable (reduce payment time) and increase the account payable (negociate payment term) |
-| 7     | cash ratio                     | (Cash + marketable securities)/current liabilities | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)/ 流动负债合计 (c95)                                                                                  | #cash-asset #cash-ratio                         | negative                                                                                                                  | Cash divided by liabilities. A portion of short-term debt that can be financed by cash. A larger value indicates the company generates enough cash to cope with the short term debt                                                      |
-| 8     | Total Debt to Total Assets     | (Short-Tern Debt + Long-Term Debt)/total asset     | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 | #total-debt-to-total-assets                     | negative                                                                                                                  | Share of liabilities over total asset. Larger value indicates assets that are financed by external creditors                                                                                                                             |
-| 9     | Return on Asset                | Net income / Total assets                          | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset | #return-on-asset                                | negative                                                                                                                  | Net income over total asset. Capacity of an asset to generate income. Larger value indicates that asset are used in an efficiente way to generate income                                                                                 |
-| 10    | Asset Turnover Ratio           | Total sales / ((delta total asset)/2)              | 全年营业收入合计 (c64) /($\Delta$ toasset/2)                                                                                                                      | #asset-turnover-ratio                           | negative                                                                                                                  | Sales divided by the average changes in total asset. Larger value indicates better efficiency at using asset to generate revenue                                                                                                         |
-| 14    | Asset tangibility              | Total fixed assets - Intangible assets             | tofixed - 无形资产 (c92)                                                                                                                                            | #asset-tangibility                              | negative                                                                                                                  | Difference between fixed sset and intangible asset. Larger value indicates more collateral, hence higher borrowing capacity                                                                                                              |
-| 15    | Account payable to total asset | (delta account payable)/ (delta total asset)       | ($\Delta$ 应付帐款  (c96))/ ($\Delta$ (toasset))                                                                                                                | #change-account-paybable-to-change-total-assets | ambiguous                                                                                                                 | Variation of account payable over variation total asser                                                                                                                                                                                  |
-| 12    | R&D intensity                  | RD / Sales                                         | rdfee/sales                                                                                                                                                         | #rd-intensity                                   | positive                                                                                                                  | Share of RD expenditure over sales. larger values indicates larger use of sales to spend on RD. Say differently, lower borrowing done toward RD                                                                                          |
-| 13    | Inventory to sales             | Inventory / sales                                  | 存货 (c81) / sales                                                                                                                                                  | #inventory-to-sales                             | positive                                                                                                                  | Share of inventory over sales. Larger values indicates share of unsold or not consumed items. large values is a demonstration of tighter credit constraint                                                                               |
-| 11    | External finance dependence    |                                                    |                                                                                                                                                                     | #external-finance-dependence                    |                                                                                                                           |                                                                                                                                                                                                                                          |
-    
+| index | Metrics                        | comments                                           | variables                                                                                                                                                           | Roam_link                                       | Exepected sign | Comment                                                                                                                                                                                                                                  |
+|-------|--------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1     | % receivable                   | receivable account / current asset                 | 应收帐款 (c80) / cuasset                                                                                                                                            | #account-receivable #current-asset              | Positive       | Share of receivable over current asset. Larger value indicates longer time before collecting the money from the customers                                                                                                                |
+| 2     | % non cash                     | Current asset - cash / current asset               | (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset                                                                            | #current-asset #cash                            | Positive       | Share of non-cash asset over current asset. Larger value indicates longer time before selling and collecting money. The drivers are inventory and account receivable                                                                     |
+| 3     | Working capital                | Current asset - current liabilities                | cuasset- 流动负债合计 (c95)                                                                                                                                         | #working-capital-requirement                    | Negative       | Difference between current asset and current liabilities. Larger value indicates that assets are enough to cope with the short term need                                                                                                 |
+| 4     | working capital requirement    | Inventory + Accounts receivable - Accounts payable | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       | #working-capital                                | negative       |                                                                                                                                                                                                                                          |
+| 5     | current ratio                  | Current asset /current liabilities                 | cuasset/流动负债合计 (c95)                                                                                                                                          | #current-ratio                                  | negative       | Asset divided by liabilities. Value above 1 indicates there are more assets than liabilities                                                                                                                                             |
+| 6     | Quick ratio                    | (Current asset - Inventory)/current liabilities    | (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                                          | #quick-ratio                                    | negative       | The quick ratio is a measure of liquidity. The higher the more liquid the company is. To improve the ratio, company should reduce the account receivable (reduce payment time) and increase the account payable (negociate payment term) |
+| 7     | cash ratio                     | (Cash + marketable securities)/current liabilities | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)/ 流动负债合计 (c95)                                                                                  | #cash-asset #cash-ratio                         | negative       | Cash divided by liabilities. A portion of short-term debt that can be financed by cash. A larger value indicates the company generates enough cash to cope with the short term debt                                                      |
+| 8     | Total Debt to Total Assets     | (Short-Tern Debt + Long-Term Debt)/total asset     | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 | #total-debt-to-total-assets                     | negative       | Share of liabilities over total asset. Larger value indicates assets that are financed by external creditors                                                                                                                             |
+| 9     | Return on Asset                | Net income / Total assets                          | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset | #return-on-asset                                | negative       | Net income over total asset. Capacity of an asset to generate income. Larger value indicates that asset are used in an efficiente way to generate income                                                                                 |
+| 10    | Asset Turnover Ratio           | Total sales / ((delta total asset)/2)              | 全年营业收入合计 (c64) /($$\Delta$$ toasset/2)                                                                                                                      | #asset-turnover-ratio                           | negative       | Sales divided by the average changes in total asset. Larger value indicates better efficiency at using asset to generate revenue                                                                                                         |
+| 14    | Asset tangibility              | Total fixed assets - Intangible assets             | tofixed - 无形资产 (c92)                                                                                                                                            | #asset-tangibility                              | negative       | Difference between fixed sset and intangible asset. Larger value indicates more collateral, hence higher borrowing capacity                                                                                                              |
+| 15    | Account payable to total asset | (delta account payable)/ (delta total asset)       | ($$\Delta$$ 应付帐款  (c96))/ ($$\Delta$$ (toasset))                                                                                                                | #change-account-paybable-to-change-total-assets | ambiguous      | Variation of account payable over variation total asser                                                                                                                                                                                  |
+| 12    | R&D intensity                  | RD / Sales                                         | rdfee/sales                                                                                                                                                         | #rd-intensity                                   | positive       | Share of RD expenditure over sales. larger values indicates larger use of sales to spend on RD. Say differently, lower borrowing done toward RD                                                                                          |
+| 13    | Inventory to sales             | Inventory / sales                                  | 存货 (c81) / sales                                                                                                                                                  | #inventory-to-sales                             | positive       | Share of inventory over sales. Larger values indicates share of unsold or not consumed items. large values is a demonstration of tighter credit constraint                                                                               |
+| 11    | External finance dependence    |                                                    |                                                                                                                                                                     | #external-finance-dependence                    |                |                                                                                                                                                                                                                                          |
     
 **pct missing**
 
 ![](https://drive.google.com/uc?export=view&id=1LPNhZIPkJgx0-ZsM6NLNAB6dGH9h7ELo)
-<!-- #endregion -->
+
 
 ## Example step by step
 
@@ -582,7 +581,7 @@ SELECT
   ) AS current_ratio_it, 
   
   CAST(
-    SUM(cuasset) - SUM(c81) AS DECIMAL(16, 5)
+    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) AS DECIMAL(16, 5)
   ) / NULLIF(
     CAST(
       SUM(c95) AS DECIMAL(16, 5)
@@ -591,7 +590,7 @@ SELECT
   ) AS quick_ratio_it, 
 
   CAST(
-    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) AS DECIMAL(16, 5)
+    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
   ) / NULLIF(CAST(
     SUM(c95) AS DECIMAL(16, 5)
   ), 
@@ -926,16 +925,16 @@ FROM
   ) AS current_ratio_it, 
   
   CAST(
-    SUM(cuasset) - SUM(c81) AS DECIMAL(16, 5)
+    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) AS DECIMAL(16, 5)
   ) / NULLIF(
     CAST(
       SUM(c95) AS DECIMAL(16, 5)
     ), 
     0
   ) AS quick_ratio_it, 
-  
+
   CAST(
-    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) AS DECIMAL(16, 5)
+    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
   ) / NULLIF(CAST(
     SUM(c95) AS DECIMAL(16, 5)
   ), 
@@ -1572,16 +1571,16 @@ FROM
   ) AS current_ratio_it, 
   
   CAST(
-    SUM(cuasset) - SUM(c81) AS DECIMAL(16, 5)
+    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) AS DECIMAL(16, 5)
   ) / NULLIF(
     CAST(
       SUM(c95) AS DECIMAL(16, 5)
     ), 
     0
   ) AS quick_ratio_it, 
-  
+
   CAST(
-    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) AS DECIMAL(16, 5)
+    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
   ) / NULLIF(CAST(
     SUM(c95) AS DECIMAL(16, 5)
   ), 
@@ -2090,9 +2089,9 @@ schema = [{'Name': 'indu_2', 'Type': 'string', 'Comment': 'Two digits industry. 
   'Comment': 'standaridzed values (x - x mean) / std)'},
  {'Name': 'current_ratio_i', 'Type': 'double', 'Comment': 'cuasset/流动负债合计 (c95)'},
  {'Name': 'std_current_ratio_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'quick_ratio_i', 'Type': 'double', 'Comment': '(cuasset-存货 (c81) ) / 流动负债合计 (c95)'},
+ {'Name': 'quick_ratio_i', 'Type': 'double', 'Comment': '(cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)) / 流动负债合计 (c95)'},
  {'Name': 'std_quick_ratio_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'cash_ratio_i', 'Type': 'double', 'Comment': '(cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)/ 流动负债合计 (c95)'},
+ {'Name': 'cash_ratio_i', 'Type': 'double', 'Comment': '(cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)'},
  {'Name': 'std_cash_ratio_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
  {'Name': 'liabilities_assets_i', 'Type': 'double', 'Comment': '(流动负债合计 (c95) + 长期负债合计 (c97)) / toasset'},
  {'Name': 'std_liabilities_assets_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
