@@ -1260,7 +1260,7 @@ FROM
   AND aggregate_pol.ind2 = agg_output.indu_2 
   AND aggregate_pol.year = agg_output.year 
 WHERE 
-  tso2 > 2000 
+  tso2 > 4863 
   AND output > 0 
   and capital > 0 
   and employment > 0
@@ -1385,7 +1385,7 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
  {'Name': 'polluted_di', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 75th percentile of SO2 label as ABOVE else BELOW'},
  {'Name': 'polluted_mi', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly average of SO2 label as ABOVE else BELOW'},
  {'Name': 'polluted_mei', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly median of SO2 label as ABOVE else BELOW'},
- {'Name': 'tso2', 'Type': 'bigint', 'Comment': 'Total so2 city sector. Filtered values above 2000 (5% of the distribution)'},
+ {'Name': 'tso2', 'Type': 'bigint', 'Comment': 'Total so2 city sector. Filtered values above  4863 (5% of the distribution)'},
  {'Name': 'so2_intensity', 'Type': 'decimal(21,5)', 'Comment': 'SO2 divided by output'},
  {'Name': 'tso2_mandate_c', 'Type': 'float', 'Comment': 'city reduction mandate in tonnes'},
  {'Name': 'in_10_000_tonnes', 'Type': 'float', 'Comment': 'city reduction mandate in 10k tonnes'},

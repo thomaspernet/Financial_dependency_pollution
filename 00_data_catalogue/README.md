@@ -440,9 +440,9 @@
 |  8 | std_working_capital_requirement_i | double | standaridzed values (x - x mean) / std)                                                                                                                             |
 |  9 | current_ratio_i                   | double | cuasset/流动负债合计 (c95)                                                                                                                                          |
 | 10 | std_current_ratio_i               | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 11 | quick_ratio_i                     | double | (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                                          |
+| 11 | quick_ratio_i                     | double | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)) / 流动负债合计 (c95)                                                                                |
 | 12 | std_quick_ratio_i                 | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 13 | cash_ratio_i                      | double | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)/ 流动负债合计 (c95)                                                                                  |
+| 13 | cash_ratio_i                      | double | (cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)                                                             |
 | 14 | std_cash_ratio_i                  | double | standaridzed values (x - x mean) / std)                                                                                                                             |
 | 15 | liabilities_assets_i              | double | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 |
 | 16 | std_liabilities_assets_i          | double | standaridzed values (x - x mean) / std)                                                                                                                             |
@@ -481,7 +481,7 @@
 |  9 | polluted_di                       | varchar(5)    | Sectors with values above Yearly 75th percentile of SO2 label as ABOVE else BELOW                                                                                   |
 | 10 | polluted_mi                       | varchar(5)    | Sectors with values above Yearly average of SO2 label as ABOVE else BELOW                                                                                           |
 | 11 | polluted_mei                      | varchar(5)    | Sectors with values above Yearly median of SO2 label as ABOVE else BELOW                                                                                            |
-| 12 | tso2                              | bigint        | Total so2 city sector. Filtered values above 2000 (5% of the distribution)                                                                                          |
+| 12 | tso2                              | bigint        | Total so2 city sector. Filtered values above  4863 (5% of the distribution)                                                                                         |
 | 13 | so2_intensity                     | decimal(21,5) | SO2 divided by output                                                                                                                                               |
 | 14 | tso2_mandate_c                    | float         | city reduction mandate in tonnes                                                                                                                                    |
 | 15 | in_10_000_tonnes                  | float         | city reduction mandate in 10k tonnes                                                                                                                                |
