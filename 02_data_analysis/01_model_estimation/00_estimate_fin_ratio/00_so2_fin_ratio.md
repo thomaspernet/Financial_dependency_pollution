@@ -155,7 +155,7 @@ for key, value in enumerate(schema):
 ```
 
 ```sos kernel="SoS"
-download_data = False
+download_data = True
 
 if download_data:
     filename = 'df_{}'.format(table)
@@ -194,6 +194,26 @@ pd.DataFrame(schema)
 
 <!-- #region kernel="SoS" -->
 # Correlation matrix indicator
+
+Summary of the ratio definition
+
+| index | Metrics                        | comments                                           | variables                                                                                                                                                           | Roam_link                                       | Exepected sign | Comment                                                                                                                                                                                                                                  |
+|-------|--------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1     | % receivable                   | receivable account / current asset                 | 应收帐款 (c80) / cuasset                                                                                                                                            | #account-receivable #current-asset              | Positive       | Share of receivable over current asset. Larger value indicates longer time before collecting the money from the customers                                                                                                                |
+| 2     | % non cash                     | Current asset - cash / current asset               | (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset                                                                            | #current-asset #cash                            | Positive       | Share of non-cash asset over current asset. Larger value indicates longer time before selling and collecting money. The drivers are inventory and account receivable                                                                     |
+| 3     | Working capital                | Current asset - current liabilities                | cuasset- 流动负债合计 (c95)                                                                                                                                         | #working-capital-requirement                    | Negative       | Difference between current asset and current liabilities. Larger value indicates that assets are enough to cope with the short term need                                                                                                 |
+| 4     | working capital requirement    | Inventory + Accounts receivable - Accounts payable | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       | #working-capital                                | negative       |                                                                                                                                                                                                                                          |
+| 5     | current ratio                  | Current asset /current liabilities                 | cuasset/流动负债合计 (c95)                                                                                                                                          | #current-ratio                                  | negative       | Asset divided by liabilities. Value above 1 indicates there are more assets than liabilities                                                                                                                                             |
+| 6     | Quick ratio                    | (Current asset - Inventory)/current liabilities    | (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                                          | #quick-ratio                                    | negative       | The quick ratio is a measure of liquidity. The higher the more liquid the company is. To improve the ratio, company should reduce the account receivable (reduce payment time) and increase the account payable (negociate payment term) |
+| 7     | cash ratio                     | (Cash + marketable securities)/current liabilities | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)/ 流动负债合计 (c95)                                                                                  | #cash-asset #cash-ratio                         | negative       | Cash divided by liabilities. A portion of short-term debt that can be financed by cash. A larger value indicates the company generates enough cash to cope with the short term debt                                                      |
+| 8     | Total Debt to Total Assets     | (Short-Tern Debt + Long-Term Debt)/total asset     | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 | #total-debt-to-total-assets                     | negative       | Share of liabilities over total asset. Larger value indicates assets that are financed by external creditors                                                                                                                             |
+| 9     | Return on Asset                | Net income / Total assets                          | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset | #return-on-asset                                | negative       | Net income over total asset. Capacity of an asset to generate income. Larger value indicates that asset are used in an efficiente way to generate income                                                                                 |
+| 10    | Asset Turnover Ratio           | Total sales / ((delta total asset)/2)              | 全年营业收入合计 (c64) /($$\Delta$$ toasset/2)                                                                                                                      | #asset-turnover-ratio                           | negative       | Sales divided by the average changes in total asset. Larger value indicates better efficiency at using asset to generate revenue                                                                                                         |
+| 14    | Asset tangibility              | Total fixed assets - Intangible assets             | tofixed - 无形资产 (c92)                                                                                                                                            | #asset-tangibility                              | negative       | Difference between fixed sset and intangible asset. Larger value indicates more collateral, hence higher borrowing capacity                                                                                                              |
+| 15    | Account payable to total asset | (delta account payable)/ (delta total asset)       | ($$\Delta$$ 应付帐款  (c96))/ ($$\Delta$$ (toasset))                                                                                                                | #change-account-paybable-to-change-total-assets | ambiguous      | Variation of account payable over variation total asser                                                                                                                                                                                  |
+| 12    | R&D intensity                  | RD / Sales                                         | rdfee/sales                                                                                                                                                         | #rd-intensity                                   | positive       | Share of RD expenditure over sales. larger values indicates larger use of sales to spend on RD. Say differently, lower borrowing done toward RD                                                                                          |
+| 13    | Inventory to sales             | Inventory / sales                                  | 存货 (c81) / sales                                                                                                                                                  | #inventory-to-sales                             | positive       | Share of inventory over sales. Larger values indicates share of unsold or not consumed items. large values is a demonstration of tighter credit constraint                                                                               |
+| 11    | External finance dependence    |                                                    |                                                                                                                                                                     | #external-finance-dependence                    |                |                                                                                                                                                                                                                                          |
 <!-- #endregion -->
 
 ```sos kernel="SoS"
@@ -202,12 +222,67 @@ SELECT
 china_credit_constraint.cic,
 industry_name,
 china_credit_constraint.financial_dep_china as credit_constraint,
-working_capital_i, std_working_capital_i, working_capital_requirement_i, std_working_capital_requirement_i, current_ratio_i, std_current_ratio_i, cash_assets_i, std_cash_assets_i, liabilities_assets_m1_i, std_liabilities_assets_m1_i, liabilities_assets_m2_i, std_liabilities_assets_m2_i, return_on_asset_i, std_return_on_asset_i, sales_assets_i, std_sales_assets_i, rd_intensity_i, std_rd_intensity_i, inventory_to_sales_i, std_inventory_to_sales_i, asset_tangibility_i, std_asset_tangibility_i, account_paybable_to_asset_i, std_account_paybable_to_asset_i
+  receivable_curasset_i,
+  std_receivable_curasset_i,
+  cash_over_curasset_i,
+  std_cash_over_curasset_i,
+  working_capital_i,
+  std_working_capital_i,
+  working_capital_requirement_i,
+  std_working_capital_requirement_i,
+  current_ratio_i,
+  std_current_ratio_i,
+  quick_ratio_i,
+  std_quick_ratio_i,
+  cash_ratio_i,
+  std_cash_ratio_i,
+  liabilities_assets_i,
+  std_liabilities_assets_i,
+  return_on_asset_i,
+  std_return_on_asset_i,
+  sales_assets_i,
+  std_sales_assets_i,
+  account_paybable_to_asset_i,
+  std_account_paybable_to_asset_i,
+  asset_tangibility_i,
+  std_asset_tangibility_i,
+  rd_intensity_i,
+  std_rd_intensity_i,
+  inventory_to_sales_i,
+  std_inventory_to_sales_i
+
 FROM "industry"."china_credit_constraint"
 LEFT JOIN (
   SELECT 
 indu_2 as cic,
-  working_capital_i, std_working_capital_i, working_capital_requirement_i, std_working_capital_requirement_i, current_ratio_i, std_current_ratio_i, cash_assets_i, std_cash_assets_i, liabilities_assets_m1_i, std_liabilities_assets_m1_i, liabilities_assets_m2_i, std_liabilities_assets_m2_i, return_on_asset_i, std_return_on_asset_i, sales_assets_i, std_sales_assets_i, rd_intensity_i, std_rd_intensity_i, inventory_to_sales_i, std_inventory_to_sales_i, asset_tangibility_i, std_asset_tangibility_i, account_paybable_to_asset_i, std_account_paybable_to_asset_i
+  receivable_curasset_i,
+  std_receivable_curasset_i,
+  cash_over_curasset_i,
+  std_cash_over_curasset_i,
+  working_capital_i,
+  std_working_capital_i,
+  working_capital_requirement_i,
+  std_working_capital_requirement_i,
+  current_ratio_i,
+  std_current_ratio_i,
+  quick_ratio_i,
+  std_quick_ratio_i,
+  cash_ratio_i,
+  std_cash_ratio_i,
+  liabilities_assets_i,
+  std_liabilities_assets_i,
+  return_on_asset_i,
+  std_return_on_asset_i,
+  sales_assets_i,
+  std_sales_assets_i,
+  account_paybable_to_asset_i,
+  std_account_paybable_to_asset_i,
+  asset_tangibility_i,
+  std_asset_tangibility_i,
+  rd_intensity_i,
+  std_rd_intensity_i,
+  inventory_to_sales_i,
+  std_inventory_to_sales_i
 FROM "firms_survey"."asif_city_industry_financial_ratio"
   ) as fin
 on china_credit_constraint.cic = fin.cic
@@ -279,17 +354,20 @@ cm = sns.light_palette("green", as_cmap=True)
 fig = px.parallel_coordinates(df.filter(regex='^(?!std)\w+$|credit').rank(),
                               labels={
     "credit_constraint": "credit_constraint",
-    "working_capital_requirement_i": "working_capital_requirement_i",
+    "receivable_curasset_i":"receivable_curasset_i",
+        "cash_over_curasset_i":"cash_over_curasset_i",
+        "working_capital_i": "working_capital_i",
+        "working_capital_requirement_i": "working_capital_requirement_i",
         "current_ratio_i": "current_ratio_i",
-        "cash_assets_i": "cash_assets_i",
-        "liabilities_assets_m1_i": "liabilities_assets_m1_i",
-        "liabilities_assets_m2_i": "liabilities_assets_m2_i",
+        "quick_ratio_i": "quick_ratio_i",
+        "cash_ratio_i": "cash_ratio_i",
+        "liabilities_assets_i": "liabilities_assets_i",
         "return_on_asset_i": "return_on_asset_i",
         "sales_assets_i": "sales_assets_i",
         "rd_intensity_i": "rd_intensity_i",
         "inventory_to_sales_i": "inventory_to_sales_i",
         "asset_tangibility_i": "asset_tangibility_i",
-        "account_paybable_to_asset_i": "account_paybable_to_asset_i",
+        "account_paybable_to_asset_i": "account_paybable_to_asset_i"
     },
                               color_continuous_scale=px.colors.diverging.Tealrose,
                               color_continuous_midpoint=2
@@ -399,6 +477,22 @@ if add_to_dic:
         'new':'\\text{credit constraint}_i'
         },
         {
+        'old':'std\_receivable\_curasset\_i',
+        'new':'\\text{std receivable asset ratio}_i'
+        },
+        {
+        'old':'receivable\_curasset\_i',
+        'new':'\\text{receivable asset ratio}_i'
+        },
+        {
+        'old':'std\_cash\_over\_curasset\_i',
+        'new':'\\text{cash over asset}_i'
+        },
+        {
+        'old':'cash\_over\_curasset\_i',
+        'new':'\\text{cash over asset}_i'
+        },
+        {
         'old':'std\_working\_capital\_i',
         'new':'\\text{std working capital}_i'
         },
@@ -423,26 +517,27 @@ if add_to_dic:
         'new':'\\text{current ratio}_i'
         },
         {
-        'old':'std\_cash\_assets\_i',
-        'new':'\\text{std cash assets}_i'
+        'old':'std\_quick\_ratio\_i',
+        'new':'\\text{std quick ratio}_i'
+        },
+        {
+        'old':'quick\_ratio\_i',
+        'new':'\\text{quick ratio}_i'
+        },
+        {
+        'old':'std\_cash\_ratio\_i',
+        'new':'\\text{std cash ratio}_i'
+        },
+        {
+        'old':'cash\_ratio\_i',
+        'new':'\\text{cash ratio}_i'
+        },
+        {
+        'old':'std\_liabilities\_assets\_i',
+        'new':'\\text{std liabilities assets}_i'
         },{
-        'old':'cash\_assets\_i',
-        'new':'\\text{cash assets}_i'
-        },
-        {
-        'old':'std\_liabilities\_assets\_m1\_i',
-        'new':'\\text{std liabilities assets m1}_i'
-        },{
-        'old':'liabilities\_assets\_m1\_i',
-        'new':'\\text{liabilities assets m1}_i'
-        },
-        {
-        'old':'std\_liabilities\_assets\_m2\_i',
-        'new':'\\text{std liabilities assets m2}_i'
-        },
-        {
-        'old':'liabilities\_assets\_m2\_i',
-        'new':'\\text{liabilities assets m2}_i'
+        'old':'liabilities\_assets\_i',
+        'new':'\\text{liabilities assets}_i'
         },
         {
         'old':'std\_return\_on\_asset\_i',
@@ -584,80 +679,90 @@ path
 %get path table
 t_0 <- felm(log(tso2) ~ credit_constraint  +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year |0 | geocode4_corr, df_final,
+            | geocode4_corr + year |0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_1 <- felm(log(tso2) ~ rd_intensity_i +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_2 <- felm(log(tso2) ~ inventory_to_sales_i +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_3 <- felm(log(tso2) ~ working_capital_i  +
+t_3 <- felm(log(tso2) ~ receivable_curasset_i +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ working_capital_requirement_i  +
+t_4 <- felm(log(tso2) ~ cash_over_curasset_i +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_5 <- felm(log(tso2) ~ current_ratio_i  +
+t_5 <- felm(log(tso2) ~ working_capital_i  +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_6 <- felm(log(tso2) ~ cash_assets_i  +
+t_6 <- felm(log(tso2) ~ working_capital_requirement_i  +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_7 <- felm(log(tso2) ~ liabilities_assets_m1_i  +
+t_7 <- felm(log(tso2) ~ current_ratio_i  +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_8 <- felm(log(tso2) ~ liabilities_assets_m2_i +
+t_8 <- felm(log(tso2) ~ quick_ratio_i  +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_9 <- felm(log(tso2) ~ return_on_asset_i +
+t_9 <- felm(log(tso2) ~ cash_ratio_i  +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_10 <- felm(log(tso2) ~ sales_assets_i +
+t_10 <- felm(log(tso2) ~ liabilities_assets_i  +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_11 <- felm(log(tso2) ~ return_on_asset_i +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_12 <- felm(log(tso2) ~ sales_assets_i +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
 
-t_11 <- felm(log(tso2) ~ asset_tangibility_i +
+t_13 <- felm(log(tso2) ~ asset_tangibility_i +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_12 <- felm(log(tso2) ~ account_paybable_to_asset_i +
+t_14 <- felm(log(tso2) ~ account_paybable_to_asset_i +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
 ),
     title="Determinant of SO2 emission, financial ratio",
     dep_var = dep,
@@ -719,78 +824,87 @@ path
 %get path table
 t_0 <- felm(log(tso2) ~ credit_constraint  +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year |0 | geocode4_corr, df_final,
+            | geocode4_corr + year |0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_1 <- felm(log(tso2) ~ std_rd_intensity_i +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_2 <- felm(log(tso2) ~ std_inventory_to_sales_i +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_3 <- felm(log(tso2) ~ std_working_capital_i  +
+t_3 <- felm(log(tso2) ~ std_receivable_curasset_i +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ std_working_capital_requirement_i  +
+t_4 <- felm(log(tso2) ~ std_cash_over_curasset_i +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_5 <- felm(log(tso2) ~ std_current_ratio_i  +
+t_5 <- felm(log(tso2) ~ std_working_capital_i  +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_6 <- felm(log(tso2) ~ std_cash_assets_i  +
+t_6 <- felm(log(tso2) ~ std_working_capital_requirement_i  +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_7 <- felm(log(tso2) ~ std_liabilities_assets_m1_i  +
+t_7 <- felm(log(tso2) ~ std_current_ratio_i  +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_8 <- felm(log(tso2) ~ std_liabilities_assets_m2_i +
+t_8 <- felm(log(tso2) ~ std_quick_ratio_i  +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_9 <- felm(log(tso2) ~ std_return_on_asset_i +
+t_9 <- felm(log(tso2) ~ std_cash_ratio_i  +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_10 <- felm(log(tso2) ~ std_sales_assets_i +
+t_10 <- felm(log(tso2) ~ std_liabilities_assets_i  +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_11 <- felm(log(tso2) ~ std_return_on_asset_i +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_12 <- felm(log(tso2) ~ std_sales_assets_i +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
 
-t_11 <- felm(log(tso2) ~ std_asset_tangibility_i +
+t_13 <- felm(log(tso2) ~ std_asset_tangibility_i +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_12 <- felm(log(tso2) ~ std_account_paybable_to_asset_i +
+t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_i +
             log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            | geocode4_corr + year|0 | ind2, df_final,
             exactDOF = TRUE)
 
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
-
 table_1 <- go_latex(list(
     t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12
 ),
@@ -866,79 +980,90 @@ path
 %get path table
 t_0 <- felm(log(tso2) ~ credit_constraint * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i |0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_1 <- felm(log(tso2) ~ rd_intensity_i * period+
+t_1 <- felm(log(tso2) ~ rd_intensity_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_2 <- felm(log(tso2) ~ inventory_to_sales_i * period+
+t_2 <- felm(log(tso2) ~ inventory_to_sales_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_3 <- felm(log(tso2) ~ working_capital_i * period +
+t_3 <- felm(log(tso2) ~ receivable_curasset_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ working_capital_requirement_i * period +
+t_4 <- felm(log(tso2) ~ cash_over_curasset_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_5 <- felm(log(tso2) ~ current_ratio_i * period +
+t_5 <- felm(log(tso2) ~ working_capital_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_6 <- felm(log(tso2) ~ cash_assets_i * period +
+t_6 <- felm(log(tso2) ~ working_capital_requirement_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_7 <- felm(log(tso2) ~ liabilities_assets_m1_i * period +
+t_7 <- felm(log(tso2) ~ current_ratio_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_8 <- felm(log(tso2) ~ liabilities_assets_m2_i * period +
+t_8 <- felm(log(tso2) ~ quick_ratio_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_9 <- felm(log(tso2) ~ return_on_asset_i * period+
+t_9 <- felm(log(tso2) ~ cash_ratio_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_10 <- felm(log(tso2) ~ sales_assets_i * period+
+t_10 <- felm(log(tso2) ~ liabilities_assets_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_11 <- felm(log(tso2) ~ asset_tangibility_i * period+
+t_11 <- felm(log(tso2) ~ return_on_asset_i* period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_12 <- felm(log(tso2) ~ account_paybable_to_asset_i * period+
+t_12 <- felm(log(tso2) ~ sales_assets_i* period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
+            exactDOF = TRUE)
+
+
+t_13 <- felm(log(tso2) ~ asset_tangibility_i* period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_14 <- felm(log(tso2) ~ account_paybable_to_asset_i* period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
 ),
     title="S02 emission reduction, financial ratio and period",
     dep_var = dep,
@@ -994,79 +1119,90 @@ path
 %get path table
 t_0 <- felm(log(tso2) ~ credit_constraint * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i |0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_1 <- felm(log(tso2) ~ std_rd_intensity_i * period+
+t_1 <- felm(log(tso2) ~ std_rd_intensity_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_2 <- felm(log(tso2) ~ std_inventory_to_sales_i * period+
+t_2 <- felm(log(tso2) ~ std_inventory_to_sales_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_3 <- felm(log(tso2) ~ std_working_capital_i * period +
+t_3 <- felm(log(tso2) ~ std_receivable_curasset_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ std_working_capital_requirement_i * period +
+t_4 <- felm(log(tso2) ~ std_cash_over_curasset_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_5 <- felm(log(tso2) ~ std_current_ratio_i * period +
+t_5 <- felm(log(tso2) ~ std_working_capital_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_6 <- felm(log(tso2) ~ std_cash_assets_i * period +
+t_6 <- felm(log(tso2) ~ std_working_capital_requirement_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_7 <- felm(log(tso2) ~ std_liabilities_assets_m1_i * period +
+t_7 <- felm(log(tso2) ~ std_current_ratio_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_8 <- felm(log(tso2) ~ std_liabilities_assets_m2_i * period +
+t_8 <- felm(log(tso2) ~ std_quick_ratio_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_9 <- felm(log(tso2) ~ std_return_on_asset_i * period+
+t_9 <- felm(log(tso2) ~ std_cash_ratio_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_10 <- felm(log(tso2) ~ std_sales_assets_i * period+
+t_10 <- felm(log(tso2) ~ std_liabilities_assets_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_11 <- felm(log(tso2) ~ std_asset_tangibility_i * period+
+t_11 <- felm(log(tso2) ~ std_return_on_asset_i* period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_12 <- felm(log(tso2) ~ std_account_paybable_to_asset_i * period+
+t_12 <- felm(log(tso2) ~ std_sales_assets_i* period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
+            exactDOF = TRUE)
+
+
+t_13 <- felm(log(tso2) ~ std_asset_tangibility_i* period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_i* period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
 ),
     title="S02 emission reduction, financial ratio and period (standardized values)",
     dep_var = dep,
@@ -1132,79 +1268,90 @@ path
 %get path table
 t_0 <- felm(log(tso2) ~ credit_constraint * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i |0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_1 <- felm(log(tso2) ~ rd_intensity_i * period+
+t_1 <- felm(log(tso2) ~ rd_intensity_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_2 <- felm(log(tso2) ~ inventory_to_sales_i * period+
+t_2 <- felm(log(tso2) ~ inventory_to_sales_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_3 <- felm(log(tso2) ~ working_capital_i * period +
+t_3 <- felm(log(tso2) ~ receivable_curasset_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ working_capital_requirement_i * period +
+t_4 <- felm(log(tso2) ~ cash_over_curasset_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_5 <- felm(log(tso2) ~ current_ratio_i * period +
+t_5 <- felm(log(tso2) ~ working_capital_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_6 <- felm(log(tso2) ~ cash_assets_i * period +
+t_6 <- felm(log(tso2) ~ working_capital_requirement_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_7 <- felm(log(tso2) ~ liabilities_assets_m1_i * period +
+t_7 <- felm(log(tso2) ~ current_ratio_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_8 <- felm(log(tso2) ~ liabilities_assets_m2_i * period +
+t_8 <- felm(log(tso2) ~ quick_ratio_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_9 <- felm(log(tso2) ~ return_on_asset_i * period+
+t_9 <- felm(log(tso2) ~ cash_ratio_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_10 <- felm(log(tso2) ~ sales_assets_i * period+
+t_10 <- felm(log(tso2) ~ liabilities_assets_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_11 <- felm(log(tso2) ~ asset_tangibility_i * period+
+t_11 <- felm(log(tso2) ~ return_on_asset_i* period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2,df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_12 <- felm(log(tso2) ~ account_paybable_to_asset_i * period+
+t_12 <- felm(log(tso2) ~ sales_assets_i* period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+
+t_13 <- felm(log(tso2) ~ asset_tangibility_i* period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_14 <- felm(log(tso2) ~ account_paybable_to_asset_i* period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
 ),
     title="Baseline estimate, S02 emission reduction, financial ratio, Filter polluted sector",
     dep_var = dep,
@@ -1259,79 +1406,90 @@ path
 %get path table
 t_0 <- felm(log(tso2) ~ credit_constraint * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i |0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_1 <- felm(log(tso2) ~ std_rd_intensity_i * period+
+t_1 <- felm(log(tso2) ~ std_rd_intensity_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_2 <- felm(log(tso2) ~ std_inventory_to_sales_i * period+
+t_2 <- felm(log(tso2) ~ std_inventory_to_sales_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_3 <- felm(log(tso2) ~ std_working_capital_i * period +
+t_3 <- felm(log(tso2) ~ std_receivable_curasset_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ std_working_capital_requirement_i * period +
+t_4 <- felm(log(tso2) ~ std_cash_over_curasset_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_5 <- felm(log(tso2) ~ std_current_ratio_i * period +
+t_5 <- felm(log(tso2) ~ std_working_capital_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_6 <- felm(log(tso2) ~ std_cash_assets_i * period +
+t_6 <- felm(log(tso2) ~ std_working_capital_requirement_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_7 <- felm(log(tso2) ~ std_liabilities_assets_m1_i * period +
+t_7 <- felm(log(tso2) ~ std_current_ratio_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_8 <- felm(log(tso2) ~ std_liabilities_assets_m2_i * period +
+t_8 <- felm(log(tso2) ~ std_quick_ratio_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_9 <- felm(log(tso2) ~ std_return_on_asset_i * period+
+t_9 <- felm(log(tso2) ~ std_cash_ratio_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_10 <- felm(log(tso2) ~ std_sales_assets_i * period+
+t_10 <- felm(log(tso2) ~ std_liabilities_assets_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_11 <- felm(log(tso2) ~ std_asset_tangibility_i * period+
+t_11 <- felm(log(tso2) ~ std_return_on_asset_i* period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2,df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_12 <- felm(log(tso2) ~ std_account_paybable_to_asset_i * period+
+t_12 <- felm(log(tso2) ~ std_sales_assets_i* period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+
+t_13 <- felm(log(tso2) ~ std_asset_tangibility_i* period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_i* period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
 ),
     title="Baseline estimate, S02 emission reduction, financial ratio, Filter polluted sector (standardized)",
     dep_var = dep,
@@ -1408,79 +1566,90 @@ path
 %get path table
 t_0 <- felm(log(tso2) ~ credit_constraint * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i |0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_1 <- felm(log(tso2) ~ rd_intensity_i * period+
+t_1 <- felm(log(tso2) ~ rd_intensity_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_2 <- felm(log(tso2) ~ inventory_to_sales_i * period+
+t_2 <- felm(log(tso2) ~ inventory_to_sales_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_3 <- felm(log(tso2) ~ working_capital_i * period +
+t_3 <- felm(log(tso2) ~ receivable_curasset_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ working_capital_requirement_i * period +
+t_4 <- felm(log(tso2) ~ cash_over_curasset_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_5 <- felm(log(tso2) ~ current_ratio_i * period +
+t_5 <- felm(log(tso2) ~ working_capital_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_6 <- felm(log(tso2) ~ cash_assets_i * period +
+t_6 <- felm(log(tso2) ~ working_capital_requirement_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_7 <- felm(log(tso2) ~ liabilities_assets_m1_i * period +
+t_7 <- felm(log(tso2) ~ current_ratio_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_8 <- felm(log(tso2) ~ liabilities_assets_m2_i * period +
+t_8 <- felm(log(tso2) ~ quick_ratio_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_9 <- felm(log(tso2) ~ return_on_asset_i * period+
+t_9 <- felm(log(tso2) ~ cash_ratio_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_10 <- felm(log(tso2) ~ sales_assets_i * period+
+t_10 <- felm(log(tso2) ~ liabilities_assets_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_11 <- felm(log(tso2) ~ asset_tangibility_i * period+
+t_11 <- felm(log(tso2) ~ return_on_asset_i* period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2,df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_12 <- felm(log(tso2) ~ account_paybable_to_asset_i * period+
+t_12 <- felm(log(tso2) ~ sales_assets_i* period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+
+t_13 <- felm(log(tso2) ~ asset_tangibility_i* period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_14 <- felm(log(tso2) ~ account_paybable_to_asset_i* period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
 ),
     title="S02 emission reduction, financial ratio, Filter no polluted sector",
     dep_var = dep,
@@ -1536,79 +1705,90 @@ path
 %get path table
 t_0 <- felm(log(tso2) ~ credit_constraint * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i |0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i |0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_1 <- felm(log(tso2) ~ std_rd_intensity_i * period+
+t_1 <- felm(log(tso2) ~ std_rd_intensity_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_2 <- felm(log(tso2) ~ std_inventory_to_sales_i * period+
+t_2 <- felm(log(tso2) ~ std_inventory_to_sales_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_3 <- felm(log(tso2) ~ std_working_capital_i * period +
+t_3 <- felm(log(tso2) ~ std_receivable_curasset_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ std_working_capital_requirement_i * period +
+t_4 <- felm(log(tso2) ~ std_cash_over_curasset_i * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_5 <- felm(log(tso2) ~ std_current_ratio_i * period +
+t_5 <- felm(log(tso2) ~ std_working_capital_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_6 <- felm(log(tso2) ~ std_cash_assets_i * period +
+t_6 <- felm(log(tso2) ~ std_working_capital_requirement_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_7 <- felm(log(tso2) ~ std_liabilities_assets_m1_i * period +
+t_7 <- felm(log(tso2) ~ std_current_ratio_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_8 <- felm(log(tso2) ~ std_liabilities_assets_m2_i * period +
+t_8 <- felm(log(tso2) ~ std_quick_ratio_i  * period +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_9 <- felm(log(tso2) ~ std_return_on_asset_i * period+
+t_9 <- felm(log(tso2) ~ std_cash_ratio_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_10 <- felm(log(tso2) ~ std_sales_assets_i * period+
+t_10 <- felm(log(tso2) ~ std_liabilities_assets_i * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_11 <- felm(log(tso2) ~ std_asset_tangibility_i * period+
+t_11 <- felm(log(tso2) ~ std_return_on_asset_i* period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2,df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_12 <- felm(log(tso2) ~ std_account_paybable_to_asset_i * period+
+t_12 <- felm(log(tso2) ~ std_sales_assets_i* period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+
+t_13 <- felm(log(tso2) ~ std_asset_tangibility_i* period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_i* period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
 ),
     title="S02 emission reduction, financial ratio, Filter no polluted sector (standardized values)",
     dep_var = dep,
@@ -1684,79 +1864,90 @@ path
 %get path table
 t_0 <- felm(log(tso2) ~ credit_constraint * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t |0 | geocode4_corr, df_final %>% filter(tso2 > 2000.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_1 <- felm(log(tso2) ~ rd_intensity_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 2000.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_2 <- felm(log(tso2) ~ inventory_to_sales_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 2000.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final),
             exactDOF = TRUE)
 
-t_3 <- felm(log(tso2) ~ working_capital_i * period * tso2_mandate_c +
+t_3 <- felm(log(tso2) ~ receivable_curasset_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 2000.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ working_capital_requirement_i * period * tso2_mandate_c +
+t_4 <- felm(log(tso2) ~ cash_over_curasset_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr,df_final %>% filter(tso2 > 2000.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_5 <- felm(log(tso2) ~ current_ratio_i * period * tso2_mandate_c +
+t_5 <- felm(log(tso2) ~ working_capital_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 2000.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_6 <- felm(log(tso2) ~ cash_assets_i * period * tso2_mandate_c +
+t_6 <- felm(log(tso2) ~ working_capital_requirement_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 2000.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_7 <- felm(log(tso2) ~ liabilities_assets_m1_i * period * tso2_mandate_c +
+t_7 <- felm(log(tso2) ~ current_ratio_i  * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 2000.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_8 <- felm(log(tso2) ~ liabilities_assets_m2_i * period * tso2_mandate_c +
+t_8 <- felm(log(tso2) ~ quick_ratio_i  * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 2000.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_9 <- felm(log(tso2) ~ return_on_asset_i * period * tso2_mandate_c +
+t_9 <- felm(log(tso2) ~ cash_ratio_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 2000.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_10 <- felm(log(tso2) ~ sales_assets_i * period * tso2_mandate_c +
+t_10 <- felm(log(tso2) ~ liabilities_assets_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 2000.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_11 <- felm(log(tso2) ~ asset_tangibility_i * period * tso2_mandate_c +
+t_11 <- felm(log(tso2) ~ return_on_asset_i* period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 2000.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_12 <- felm(log(tso2) ~ account_paybable_to_asset_i * period * tso2_mandate_c +
+t_12 <- felm(log(tso2) ~ sales_assets_i* period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 2000.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+
+t_13 <- felm(log(tso2) ~ asset_tangibility_i* period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_14 <- felm(log(tso2) ~ account_paybable_to_asset_i* period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
 ),
     title="SO2 emission reduction, industry financial ratio and policy mandate",
     dep_var = dep,
@@ -1771,7 +1962,7 @@ table_1 <- go_latex(list(
 ```sos kernel="SoS"
 tbe1  = "This table estimates eq(3). " \
 "Heteroskedasticity-robust standard errors " \
-"clustered at the city level appear inp arentheses. "\
+"clustered at the industry level appear inp arentheses. "\
 "\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
 
 multicolumn ={
@@ -1812,79 +2003,90 @@ path
 %get path table
 t_0 <- felm(log(tso2) ~ credit_constraint * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t |0 | geocode4_corr, df_final %>% filter(tso2 > 4863.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_1 <- felm(log(tso2) ~ std_rd_intensity_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 4863.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_2 <- felm(log(tso2) ~ std_inventory_to_sales_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 4863.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2,  df_final,
             exactDOF = TRUE)
 
-t_3 <- felm(log(tso2) ~ std_working_capital_i * period * tso2_mandate_c +
+t_3 <- felm(log(tso2) ~ std_receivable_curasset_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 4863.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2,  df_final,
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ std_working_capital_requirement_i * period * tso2_mandate_c +
+t_4 <- felm(log(tso2) ~ std_cash_over_curasset_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 4863.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2,  df_final,
             exactDOF = TRUE)
 
-t_5 <- felm(log(tso2) ~ std_current_ratio_i * period * tso2_mandate_c +
+t_5 <- felm(log(tso2) ~ std_working_capital_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 4863.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2,  df_final,
             exactDOF = TRUE)
 
-t_6 <- felm(log(tso2) ~ std_cash_assets_i * period * tso2_mandate_c +
+t_6 <- felm(log(tso2) ~ std_working_capital_requirement_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 4863.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2,  df_final,
             exactDOF = TRUE)
 
-t_7 <- felm(log(tso2) ~ std_liabilities_assets_m1_i * period * tso2_mandate_c +
+t_7 <- felm(log(tso2) ~ std_current_ratio_i  * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 4863.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2,  df_final,
             exactDOF = TRUE)
 
-t_8 <- felm(log(tso2) ~ std_liabilities_assets_m2_i* period * tso2_mandate_c +
+t_8 <- felm(log(tso2) ~ std_quick_ratio_i  * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 4863.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2,  df_final,
             exactDOF = TRUE)
 
-t_9 <- felm(log(tso2) ~ std_return_on_asset_i * period * tso2_mandate_c +
+t_9 <- felm(log(tso2) ~ std_cash_ratio_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 4863.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2,  df_final,
             exactDOF = TRUE)
 
-t_10 <- felm(log(tso2) ~ std_sales_assets_i * period * tso2_mandate_c +
+t_10 <- felm(log(tso2) ~ std_liabilities_assets_i * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 4863.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2,  df_final,
             exactDOF = TRUE)
 
-t_11 <- felm(log(tso2) ~ std_asset_tangibility_i * period * tso2_mandate_c +
+t_11 <- felm(log(tso2) ~ std_return_on_asset_i* period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 4863.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_12 <- felm(log(tso2) ~ std_account_paybable_to_asset_i * period * tso2_mandate_c +
+t_12 <- felm(log(tso2) ~ std_sales_assets_i* period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tso2 > 4863.00),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+
+t_13 <- felm(log(tso2) ~ std_asset_tangibility_i* period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2,  df_final,
+            exactDOF = TRUE)
+
+t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_i* period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2,  df_final,
             exactDOF = TRUE)
 
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
 ),
     title="SO2 emission reduction, industry financial ratio and policy mandate (standardized values)",
     dep_var = dep,
@@ -1899,7 +2101,7 @@ table_1 <- go_latex(list(
 ```sos kernel="SoS"
 tbe1  = "This table estimates eq(3). " \
 "Heteroskedasticity-robust standard errors " \
-"clustered at the city level appear inp arentheses. "\
+"clustered at the industry level appear inp arentheses. "\
 "\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
 
 multicolumn ={
