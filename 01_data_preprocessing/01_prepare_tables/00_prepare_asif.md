@@ -876,6 +876,10 @@ y_var = 'output'
 ```
 
 ```python
+table_name.upper()
+```
+
+```python
 payload = {
     "input_path": "s3://datalake-datascience/ANALYTICS/TEMPLATE_NOTEBOOKS/template_analysis_from_lambda.ipynb",
     "output_prefix": "s3://datalake-datascience/ANALYTICS/OUTPUT/{}/".format(table_name.upper()),
@@ -885,9 +889,9 @@ payload = {
         "DatabaseName": "{}".format(DatabaseName),
         "table_name": "{}".format(table_name),
         "group": "{}".format(','.join(partition_keys)),
-        "primary_key": "{}".format(primary_key),
-        "secondary_key": "{}".format(secondary_key),
+        "keys": "{},{}".format(primary_key,secondary_key),
         "y_var": "{}".format(y_var),
+        "threshold":.5
     },
 }
 payload
