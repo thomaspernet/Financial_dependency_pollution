@@ -877,7 +877,7 @@ y_var = 'output'
 
 ```python
 payload = {
-    "input_path": "s3://datalake-datascience/ANALYTICS/TEMPLATE_NOTEBOOKS/Template_analysis_from_lambda.ipynb",
+    "input_path": "s3://datalake-datascience/ANALYTICS/TEMPLATE_NOTEBOOKS/template_analysis_from_lambda.ipynb",
     "output_prefix": "s3://datalake-datascience/ANALYTICS/OUTPUT/{}/".format(table_name.upper()),
     "parameters": {
         "region": "{}".format(region),
