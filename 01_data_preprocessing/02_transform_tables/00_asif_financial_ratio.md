@@ -187,21 +187,23 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
 
 Detail computation:
 
-| index | Metrics                        | comments                                           | variables                                                                                                                                                                                      | Roam_link                                       |
-|-------|--------------------------------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|
-| 1     | Working capital                | Current asset - current liabilities                | cuasset- 流动负债合计 (c95)                                                                                                                                                                    | #working-capital-requirement                    |
-| 2     | working capital requirement    | Inventory + Accounts receivable - Accounts payable | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                                                  | #working-capital                                |
-| 3     | current ratio                  | Current asset /current liabilities                 | cuasset/流动负债合计 (c95)                                                                                                                                                                     | #current-ratio                                  |
-| 4     | cash ratio                     | (Cash + marketable securities)/current liabilities | (其中：短期投资 (c79) + 应收帐款 (c80) + 存货 (c81))/ 流动负债合计 (c95)                                                                                                          | #cash-asset #cash-ratio                         |
-| 5     | Total Debt to Total Assets     | (Short-Tern Debt + Long-Term Debt)/total asset     | (流动负债合计 (c95) + 长期负债合计 (c97)) / 资产总计318 (c93)                                                                                                                                  | #total-debt-to-total-assets                     |
-| 6     |                                | Total debt/total asset                             | 负债合计 (c98)/  资产总计318 (c93)                                                                                                                                                             |                                                 |
-| 7     | Return on Asset                | Net income / Total assets                          | 全年营业收入合计 (c64) - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /资产总计318 (c93) | #return-on-asset                                |
-| 8     | Asset Turnover Ratio           | Total sales / ((delta total asset)/2)              | 全年营业收入合计 (c64) /($\Delta$ 资产总计318 (c93)/2)                                                                                                                                         | #asset-turnover-ratio                           |
-| 9     | External finance dependence    |                                                    |                                                                                                                                                                                                | #external-finance-dependence                    |
-| 10    | R&D intensity                  | RD / Sales                                         | rdfee/全年营业收入合计 (c64)                                                                                                                                                                                    | #rd-intensity                                   |
-| 11    | Inventory to sales             | Inventory / sales                                  | 存货 (c81) / 全年营业收入合计 (c64)                                                                                                                                                                             | #inventory-to-sales                             |
-| 12    | Asset tangibility              | Total fixed assets - Intangible assets             | 固定资产合计 (c85) - 无形资产 (c91)                                                                                                                                                            | #asset-tangibility                              |
-| 13    | Account payable to total asset | (delta account payable)/ (delta total asset)       | ($\Delta$ 应付帐款  (c96))/ ($\Delta$ 资产总计318 (c93))                                                                                                                                       | #change-account-paybable-to-change-total-assets |
+| index | Metrics                        | comments                                           | variables                                                                                                                                                           | Roam_link                                       | Exepected sign                                                                                                            | Comment                                                                                                                                                                                                                                  |
+|-------|--------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1     | % receivable                   | receivable account / current asset                 | 应收帐款 (c80) / cuasset                                                                                                                                            | #account-receivable #current-asset              | Share of receivable over current asset. Larger value indicates longer time before collecting the money from the customers |                                                                                                                                                                                                                                          |
+| 2     | % non cash                     | Current asset - cash / current asset               | (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset                                                                            | #current-asset #cash                            | Positive                                                                                                                  | Share of non-cash asset over current asset. Larger value indicates longer time before selling and collecting money. The drivers are inventory and account receivable                                                                     |
+| 3     | Working capital                | Current asset - current liabilities                | cuasset- 流动负债合计 (c95)                                                                                                                                         | #working-capital-requirement                    | Negative                                                                                                                  | Difference between current asset and current liabilities. Larger value indicates that assets are enough to cope with the short term need                                                                                                 |
+| 4     | working capital requirement    | Inventory + Accounts receivable - Accounts payable | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       | #working-capital                                | negative                                                                                                                  |                                                                                                                                                                                                                                          |
+| 5     | current ratio                  | Current asset /current liabilities                 | cuasset/流动负债合计 (c95)                                                                                                                                          | #current-ratio                                  | negative                                                                                                                  | Asset divided by liabilities. Value above 1 indicates there are more assets than liabilities                                                                                                                                             |
+| 6     | Quick ratio                    | (Current asset - Inventory)/current liabilities    | (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                                          | #quick-ratio                                    | negative                                                                                                                  | The quick ratio is a measure of liquidity. The higher the more liquid the company is. To improve the ratio, company should reduce the account receivable (reduce payment time) and increase the account payable (negociate payment term) |
+| 7     | cash ratio                     | (Cash + marketable securities)/current liabilities | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)/ 流动负债合计 (c95)                                                                                  | #cash-asset #cash-ratio                         | negative                                                                                                                  | Cash divided by liabilities. A portion of short-term debt that can be financed by cash. A larger value indicates the company generates enough cash to cope with the short term debt                                                      |
+| 8     | Total Debt to Total Assets     | (Short-Tern Debt + Long-Term Debt)/total asset     | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 | #total-debt-to-total-assets                     | negative                                                                                                                  | Share of liabilities over total asset. Larger value indicates assets that are financed by external creditors                                                                                                                             |
+| 9     | Return on Asset                | Net income / Total assets                          | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset | #return-on-asset                                | negative                                                                                                                  | Net income over total asset. Capacity of an asset to generate income. Larger value indicates that asset are used in an efficiente way to generate income                                                                                 |
+| 10    | Asset Turnover Ratio           | Total sales / ((delta total asset)/2)              | 全年营业收入合计 (c64) /($\Delta$ toasset/2)                                                                                                                      | #asset-turnover-ratio                           | negative                                                                                                                  | Sales divided by the average changes in total asset. Larger value indicates better efficiency at using asset to generate revenue                                                                                                         |
+| 14    | Asset tangibility              | Total fixed assets - Intangible assets             | tofixed - 无形资产 (c92)                                                                                                                                            | #asset-tangibility                              | negative                                                                                                                  | Difference between fixed sset and intangible asset. Larger value indicates more collateral, hence higher borrowing capacity                                                                                                              |
+| 15    | Account payable to total asset | (delta account payable)/ (delta total asset)       | ($\Delta$ 应付帐款  (c96))/ ($\Delta$ (toasset))                                                                                                                | #change-account-paybable-to-change-total-assets | ambiguous                                                                                                                 | Variation of account payable over variation total asser                                                                                                                                                                                  |
+| 12    | R&D intensity                  | RD / Sales                                         | rdfee/sales                                                                                                                                                         | #rd-intensity                                   | positive                                                                                                                  | Share of RD expenditure over sales. larger values indicates larger use of sales to spend on RD. Say differently, lower borrowing done toward RD                                                                                          |
+| 13    | Inventory to sales             | Inventory / sales                                  | 存货 (c81) / sales                                                                                                                                                  | #inventory-to-sales                             | positive                                                                                                                  | Share of inventory over sales. Larger values indicates share of unsold or not consumed items. large values is a demonstration of tighter credit constraint                                                                               |
+| 11    | External finance dependence    |                                                    |                                                                                                                                                                     | #external-finance-dependence                    |                                                                                                                           |                                                                                                                                                                                                                                          |
     
     
 **pct missing**
@@ -578,6 +580,16 @@ SELECT
     ), 
     0
   ) AS current_ratio_it, 
+  
+  CAST(
+    SUM(cuasset) - SUM(c81) AS DECIMAL(16, 5)
+  ) / NULLIF(
+    CAST(
+      SUM(c95) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS quick_ratio_it, 
+
   CAST(
     SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) AS DECIMAL(16, 5)
   ) / NULLIF(CAST(
@@ -724,6 +736,7 @@ GROUP BY
   working_capital_it AS working_capital_i,
   working_capital_requirement_it AS working_capital_requirement_i,
   current_ratio_it AS current_ratio_i,
+  quick_ratio_it as quick_ratio_i,
   cash_ratio_it AS cash_ratio_i,
   liabilities_assets_it AS liabilities_assets_i,
   return_on_asset_it AS return_on_asset_i,
@@ -762,6 +775,7 @@ The table below shows the rank of variables group by three group:
 2. Current Liabilities
     - working_capital_i
     - current_ratio_i
+    - quick_ratio_i
     - cash_ratio_i
 3. Total asset
     - liabilities_assets_i
@@ -783,6 +797,7 @@ The table below shows the rank of variables group by three group:
      'pct_non_cash_over_curasset',
             'working_capital_i',
             'current_ratio_i',
+     'quick_ratio_i',
             'cash_ratio_i',
             'liabilities_assets_i',
             'return_on_asset_i',
@@ -799,6 +814,7 @@ The table below shows the rank of variables group by three group:
         
         rank_w = lambda x: x['working_capital_i'].rank().astype('int64'),
         rank_c = lambda x: x['current_ratio_i'].rank().astype('int64'),
+        rank_q = lambda x: x['quick_ratio_i'].rank().astype('int64'),
         rank_cash = lambda x: x['cash_ratio_i'].rank().astype('int64'),
         
         rank_li = lambda x: x['liabilities_assets_i'].rank().astype('int64'),
@@ -809,7 +825,7 @@ The table below shows the rank of variables group by three group:
     )
     .style
     .background_gradient(cmap=sns.light_palette("green", as_cmap=True), subset = ["rank_rc",'rank_pct_non_cash'])
-    .background_gradient(cmap=sns.light_palette("blue", as_cmap=True), subset = ["rank_w",'rank_c', 'rank_cash'])
+    .background_gradient(cmap=sns.light_palette("blue", as_cmap=True), subset = ["rank_w",'rank_c','rank_q', 'rank_cash'])
     .background_gradient(cmap=sns.light_palette("orange", as_cmap=True), subset = ["rank_li",'rank_re', 'rank_sa', 'rank_at', 'rank_ap'])
 )
 ```
@@ -827,6 +843,7 @@ The table below shows the rank of variables group by three group:
      'pct_non_cash_over_curasset',
             'working_capital_i',
             'current_ratio_i',
+     'quick_ratio_i',
             'cash_ratio_i',
             'liabilities_assets_i',
             'return_on_asset_i',
@@ -843,6 +860,7 @@ The table below shows the rank of variables group by three group:
         
         rank_w = lambda x: x['working_capital_i'].rank().astype('int64'),
         rank_c = lambda x: x['current_ratio_i'].rank().astype('int64'),
+        rank_q = lambda x: x['quick_ratio_i'].rank().astype('int64'),
         rank_cash = lambda x: x['cash_ratio_i'].rank().astype('int64'),
         
         rank_li = lambda x: x['liabilities_assets_i'].rank().astype('int64'),
@@ -853,7 +871,7 @@ The table below shows the rank of variables group by three group:
     )
     .style
     .background_gradient(cmap=sns.light_palette("green", as_cmap=True), subset = ["rank_rc",'rank_pct_non_cash'])
-    .background_gradient(cmap=sns.light_palette("blue", as_cmap=True), subset = ["rank_w",'rank_c', 'rank_cash'])
+    .background_gradient(cmap=sns.light_palette("blue", as_cmap=True), subset = ["rank_w",'rank_c','rank_q', 'rank_cash'])
     .background_gradient(cmap=sns.light_palette("orange", as_cmap=True), subset = ["rank_li",'rank_re', 'rank_sa', 'rank_at', 'rank_ap'])
 )
 ```
@@ -906,6 +924,16 @@ FROM
     ), 
     0
   ) AS current_ratio_it, 
+  
+  CAST(
+    SUM(cuasset) - SUM(c81) AS DECIMAL(16, 5)
+  ) / NULLIF(
+    CAST(
+      SUM(c95) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS quick_ratio_it, 
+  
   CAST(
     SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) AS DECIMAL(16, 5)
   ) / NULLIF(CAST(
@@ -1048,6 +1076,7 @@ FROM test
             AVG(working_capital_it)/1000000 AS working_capital_i, 
             AVG(working_capital_requirement_it)/1000000 AS working_capital_requirement_i, 
             AVG(current_ratio_it) AS current_ratio_i, 
+            AVG(quick_ratio_it) AS quick_ratio_i,
             AVG(cash_ratio_it) AS cash_ratio_i, 
             
             AVG(liabilities_assets_it) AS liabilities_assets_i, 
@@ -1077,6 +1106,8 @@ FROM test
           val_2[ 'working_capital_requirement' ] AS std_working_capital_requirement_i, 
           val_1[ 'current_ratio' ] AS current_ratio_i, 
           val_2[ 'current_ratio' ] AS std_current_ratio_i, 
+          val_1[ 'quick_ratio' ] AS quick_ratio_i, 
+          val_2[ 'quick_ratio' ] AS quick_ratio_i,
           val_1[ 'cash_ratio' ] AS cash_ratio_i, 
           val_2[ 'cash_ratio' ] AS std_cash_ratio_i, 
           
@@ -1189,6 +1220,19 @@ FROM test
                               ARRAY_AGG(current_ratio_i) as array_w, 
                               ARRAY_AGG(indu_2) as array_indu_2, 
                               stddev(current_ratio_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'quick_ratio' as w, 
+                              AVG(quick_ratio_i) as avg, 
+                              ARRAY_AGG(quick_ratio_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              stddev(quick_ratio_i) as std_w 
                             FROM 
                               agg 
                             GROUP BY 
@@ -1323,10 +1367,6 @@ output = s3.run_query(
 ```
 
 ```python
-list(output)
-```
-
-```python
 (
     output
     #.loc[lambda x: x['year'].isin(['2006'])]
@@ -1337,6 +1377,7 @@ list(output)
      'cash_over_curasset_i',
      'working_capital_i',
      'current_ratio_i',
+     'quick_ratio_i',
      'cash_ratio_i',
      'liabilities_assets_i',
      'return_on_asset_i',
@@ -1355,6 +1396,7 @@ list(output)
         
         rank_w = lambda x: x['working_capital_i'].rank().astype('int64'),
         rank_c = lambda x: x['current_ratio_i'].rank().astype('int64'),
+        rank_q = lambda x: x['quick_ratio_i'].rank().astype('int64'),
         rank_cash = lambda x: x['cash_ratio_i'].rank().astype('int64'),
         
         rank_li = lambda x: x['liabilities_assets_i'].rank().astype('int64'),
@@ -1365,7 +1407,7 @@ list(output)
     )
     .style
     .background_gradient(cmap=sns.light_palette("green", as_cmap=True), subset = ["rank_rc",'rank_pct_non_cash'])
-    .background_gradient(cmap=sns.light_palette("blue", as_cmap=True), subset = ["rank_w",'rank_c', 'rank_cash'])
+    .background_gradient(cmap=sns.light_palette("blue", as_cmap=True), subset = ["rank_w",'rank_c','rank_q', 'rank_cash'])
     .background_gradient(cmap=sns.light_palette("orange", as_cmap=True), subset = ["rank_li",'rank_re', 'rank_sa', 'rank_at', 'rank_ap'])
 )
 ```
@@ -1377,6 +1419,7 @@ fig = px.parallel_coordinates(
      'cash_over_curasset_i',
      'working_capital_i',
      'current_ratio_i',
+            'quick_ratio_i',
      'cash_ratio_i',
      'liabilities_assets_i',
      'return_on_asset_i',
@@ -1391,6 +1434,7 @@ fig = px.parallel_coordinates(
         "working_capital_i": "working_capital_i",
         "working_capital_requirement_i": "working_capital_requirement_i",
         "current_ratio_i": "current_ratio_i",
+        "quick_ratio_i": "quick_ratio_i",
         "cash_ratio_i": "cash_ratio_i",
         "liabilities_assets_i": "liabilities_assets_i",
         "return_on_asset_i": "return_on_asset_i",
@@ -1415,6 +1459,7 @@ corr = output[['indu_2',
      'cash_over_curasset_i',
      'working_capital_i',
      'current_ratio_i',
+    'quick_ratio_i',
      'cash_ratio_i',
      'liabilities_assets_i',
      'return_on_asset_i',
@@ -1525,6 +1570,16 @@ FROM
     ), 
     0
   ) AS current_ratio_it, 
+  
+  CAST(
+    SUM(cuasset) - SUM(c81) AS DECIMAL(16, 5)
+  ) / NULLIF(
+    CAST(
+      SUM(c95) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS quick_ratio_it, 
+  
   CAST(
     SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) AS DECIMAL(16, 5)
   ) / NULLIF(CAST(
@@ -1667,6 +1722,7 @@ FROM test
             AVG(working_capital_it)/1000000 AS working_capital_i, 
             AVG(working_capital_requirement_it)/1000000 AS working_capital_requirement_i, 
             AVG(current_ratio_it) AS current_ratio_i, 
+            AVG(quick_ratio_it) AS quick_ratio_i,
             AVG(cash_ratio_it) AS cash_ratio_i, 
             
             AVG(liabilities_assets_it) AS liabilities_assets_i, 
@@ -1696,6 +1752,8 @@ FROM test
           val_2[ 'working_capital_requirement' ] AS std_working_capital_requirement_i, 
           val_1[ 'current_ratio' ] AS current_ratio_i, 
           val_2[ 'current_ratio' ] AS std_current_ratio_i, 
+          val_1[ 'quick_ratio' ] AS quick_ratio_i, 
+          val_2[ 'quick_ratio' ] AS std_quick_ratio_i,
           val_1[ 'cash_ratio' ] AS cash_ratio_i, 
           val_2[ 'cash_ratio' ] AS std_cash_ratio_i, 
           
@@ -1808,6 +1866,19 @@ FROM test
                               ARRAY_AGG(current_ratio_i) as array_w, 
                               ARRAY_AGG(indu_2) as array_indu_2, 
                               stddev(current_ratio_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'quick_ratio' as w, 
+                              AVG(quick_ratio_i) as avg, 
+                              ARRAY_AGG(quick_ratio_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              stddev(quick_ratio_i) as std_w 
                             FROM 
                               agg 
                             GROUP BY 
@@ -2019,6 +2090,8 @@ schema = [{'Name': 'indu_2', 'Type': 'string', 'Comment': 'Two digits industry. 
   'Comment': 'standaridzed values (x - x mean) / std)'},
  {'Name': 'current_ratio_i', 'Type': 'double', 'Comment': 'cuasset/流动负债合计 (c95)'},
  {'Name': 'std_current_ratio_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
+ {'Name': 'quick_ratio_i', 'Type': 'double', 'Comment': '(cuasset-存货 (c81) ) / 流动负债合计 (c95)'},
+ {'Name': 'std_quick_ratio_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
  {'Name': 'cash_ratio_i', 'Type': 'double', 'Comment': '(cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)/ 流动负债合计 (c95)'},
  {'Name': 'std_cash_ratio_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
  {'Name': 'liabilities_assets_i', 'Type': 'double', 'Comment': '(流动负债合计 (c95) + 长期负债合计 (c97)) / toasset'},
