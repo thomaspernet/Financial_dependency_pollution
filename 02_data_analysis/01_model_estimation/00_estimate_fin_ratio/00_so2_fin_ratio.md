@@ -155,7 +155,7 @@ for key, value in enumerate(schema):
 ```
 
 ```sos kernel="SoS"
-download_data = True
+download_data = False
 
 if download_data:
     filename = 'df_{}'.format(table)
@@ -1929,9 +1929,9 @@ t_14 <- felm(log(tso2) ~ account_paybable_to_asset_i * period * tso2_mandate_c +
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    
-    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("Time-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City-Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
@@ -2067,9 +2067,175 @@ t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_i * period * tso2_mandate
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    
-    c("Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("Time-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City-Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
+),
+    title="SO2 emission reduction, industry financial ratio and policy mandate (standardized values)",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the industry level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'Tight': 1,
+    'Loose': 5
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 280,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+### Standardized value & credit constraint
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 10
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ credit_constraint * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_1 <- felm(log(tso2) ~ 
+            credit_constraint * period * tso2_mandate_c +
+            std_rd_intensity_i * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            |fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ 
+            credit_constraint * period * tso2_mandate_c +
+            std_inventory_to_sales_i  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ 
+            credit_constraint * period * tso2_mandate_c +
+            std_cash_over_curasset_i  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ 
+            credit_constraint * period * tso2_mandate_c +
+            std_current_ratio_i   * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ 
+            credit_constraint * period * tso2_mandate_c +
+            std_quick_ratio_i   * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ 
+            credit_constraint * period * tso2_mandate_c +
+            std_cash_ratio_i  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_7 <- felm(log(tso2) ~ 
+            credit_constraint * period * tso2_mandate_c +
+            std_return_on_asset_i  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_8 <- felm(log(tso2) ~ 
+            credit_constraint * period * tso2_mandate_c +
+            std_receivable_curasset_i  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            |fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_9 <- felm(log(tso2) ~ 
+            credit_constraint * period * tso2_mandate_c +
+            std_working_capital_i  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_10 <- felm(log(tso2) ~ 
+             credit_constraint * period * tso2_mandate_c +
+             std_working_capital_requirement_i  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_11 <- felm(log(tso2) ~ 
+             credit_constraint * period * tso2_mandate_c +
+             std_sales_assets_i * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_12 <- felm(log(tso2) ~ 
+             credit_constraint * period * tso2_mandate_c +
+             std_liabilities_assets_i * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_13 <- felm(log(tso2) ~ 
+             credit_constraint * period * tso2_mandate_c +
+             std_asset_tangibility_i  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_14 <- felm(log(tso2) ~ 
+             credit_constraint * period * tso2_mandate_c +
+             std_account_paybable_to_asset_i * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            |fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("Time-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City-Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
