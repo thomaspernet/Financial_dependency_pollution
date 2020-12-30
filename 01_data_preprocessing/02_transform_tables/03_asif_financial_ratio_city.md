@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.2'
-      jupytext_version: 1.7.1
+      jupytext_version: 1.8.0
   kernel_info:
     name: python3
   kernelspec:
@@ -105,7 +105,7 @@ path = os.getcwd()
 parent_path = str(Path(path).parent.parent)
 
 
-name_credential = 'XX.csv'
+name_credential = 'financial_dep_SO2_accessKeys.csv'
 region = 'eu-west-3'
 bucket = 'datalake-datascience'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
@@ -135,21 +135,571 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
 
 # Steps
 
+Detail computation:
+
+| index | Metrics                        | comments                                           | variables                                                                                                                                                           | Roam_link                                       | Exepected sign | Comment                                                                                                                                                                                                                                  |
+|-------|--------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1     | % receivable                   | receivable account / current asset                 | 应收帐款 (c80) / cuasset                                                                                                                                            | #account-receivable #current-asset              | Positive       | Share of receivable over current asset. Larger value indicates longer time before collecting the money from the customers                                                                                                                |
+| 2     | % non cash                     | Current asset - cash / current asset               | (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset                                                                            | #current-asset #cash                            | Positive       | Share of non-cash asset over current asset. Larger value indicates longer time before selling and collecting money. The drivers are inventory and account receivable                                                                     |
+| 3     | Working capital                | Current asset - current liabilities                | cuasset- 流动负债合计 (c95)                                                                                                                                         | #working-capital-requirement                    | Negative       | Difference between current asset and current liabilities. Larger value indicates that assets are enough to cope with the short term need                                                                                                 |
+| 4     | working capital requirement    | Inventory + Accounts receivable - Accounts payable | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       | #working-capital                                | negative       |                                                                                                                                                                                                                                          |
+| 5     | current ratio                  | Current asset /current liabilities                 | cuasset/流动负债合计 (c95)                                                                                                                                          | #current-ratio                                  | negative       | Asset divided by liabilities. Value above 1 indicates there are more assets than liabilities                                                                                                                                             |
+| 6     | Quick ratio                    | (Current asset - Inventory)/current liabilities    | (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                                          | #quick-ratio                                    | negative       | The quick ratio is a measure of liquidity. The higher the more liquid the company is. To improve the ratio, company should reduce the account receivable (reduce payment time) and increase the account payable (negociate payment term) |
+| 7     | cash ratio                     | (Cash + marketable securities)/current liabilities | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)/ 流动负债合计 (c95)                                                                                  | #cash-asset #cash-ratio                         | negative       | Cash divided by liabilities. A portion of short-term debt that can be financed by cash. A larger value indicates the company generates enough cash to cope with the short term debt                                                      |
+| 8     | Total Debt to Total Assets     | (Short-Tern Debt + Long-Term Debt)/total asset     | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 | #total-debt-to-total-assets                     | negative       | Share of liabilities over total asset. Larger value indicates assets that are financed by external creditors                                                                                                                             |
+| 9     | Return on Asset                | Net income / Total assets                          | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset | #return-on-asset                                | negative       | Net income over total asset. Capacity of an asset to generate income. Larger value indicates that asset are used in an efficiente way to generate income                                                                                 |
+| 10    | Asset Turnover Ratio           | Total sales / ((delta total asset)/2)              | 全年营业收入合计 (c64) /($$\Delta$$ toasset/2)                                                                                                                      | #asset-turnover-ratio                           | negative       | Sales divided by the average changes in total asset. Larger value indicates better efficiency at using asset to generate revenue                                                                                                         |
+| 14    | Asset tangibility              | Total fixed assets - Intangible assets             | tofixed - 无形资产 (c92)                                                                                                                                            | #asset-tangibility                              | negative       | Difference between fixed sset and intangible asset. Larger value indicates more collateral, hence higher borrowing capacity                                                                                                              |
+| 15    | Account payable to total asset | (delta account payable)/ (delta total asset)       | ($$\Delta$$ 应付帐款  (c96))/ ($$\Delta$$ (toasset))                                                                                                                | #change-account-paybable-to-change-total-assets | ambiguous      | Variation of account payable over variation total asser                                                                                                                                                                                  |
+| 12    | R&D intensity                  | RD / Sales                                         | rdfee/sales                                                                                                                                                         | #rd-intensity                                   | positive       | Share of RD expenditure over sales. larger values indicates larger use of sales to spend on RD. Say differently, lower borrowing done toward RD                                                                                          |
+| 13    | Inventory to sales             | Inventory / sales                                  | 存货 (c81) / sales                                                                                                                                                  | #inventory-to-sales                             | positive       | Share of inventory over sales. Larger values indicates share of unsold or not consumed items. large values is a demonstration of tighter credit constraint                                                                               |
+| 11    | External finance dependence    |                                                    |                                                                                                                                                                     | #external-finance-dependence                    |                |                                                                                                                                                                                                                                          |
+
 
 ## Example step by step
 
+1. Computation ratio by industry
+
+As an average over year 2002 to 2006. As in Fan, compute directly at the industry, then get the average
+
+- Computed using the Chinese data
+    - The ExtFin based on Chinese data is calculated at the 2-digit Chinese Industrial Classification (CIC) level
+    - Data available in year 2004–2006 in the NBSC Database. We calculate the aggregate rather than the median external finance dependence at 2-digit industry level, because the median firm in Chinese database often has no capital expenditure
+    - In our sample, approximately 68.1% firms have zero capital expenditure
+
+4. General Accepted Accounting Principles to discard observations for which one of the following criteria is violated
+   
+    - (1) the key financial variables (such as total assets, net value of fixed assets, sales, gross value of industrial output) cannot be missing
+    - (2) the number of employees hired by a firm must not be less than 10
+    - (3) the total assets must be higher than the liquid assets
+    - (4) the total assets must be larger than the total fixed assets
+    - (5) the total assets must be larger than the net value of the fixed assets
+    - (6) a firm’s identification number cannot be missing and must be unique
+    - (7) the established time must be valid (e.g., the opening month cannot be later than December or earlier than January)
+
+![](https://cdn.corporatefinanceinstitute.com/assets/A-Balance-Sheet.png)
+
+To satisfy the equation, we compute the left hand side and the right and side. IF the equation is not satisfied, we add the difference to either the right or left part according to the following rules:
+
+- total asset (toasset) - total liabilities (c98) + total equity (c99) < 0 then add the difference to total asset (left part)
+- total asset (toasset) - total liabilities (c98) + total equity (c99) > 0 then add the difference to total liabilities and equity (right part)
+
 ```python
-DatabaseName = ''
+DatabaseName = 'firms_survey'
 s3_output_example = 'SQL_OUTPUT_ATHENA'
 ```
 
 ```python
 query= """
+WITH test AS (
+  SELECT 
+    *, 
+    CASE WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2) ELSE concat('0',substr(cic,1, 1)) END AS indu_2, 
+    c98 + c99 as total_asset 
+  FROM 
+    firms_survey.asif_firms_prepared
+  INNER JOIN 
+  (
+  SELECT extra_code, geocode4_corr
+  FROM chinese_lookup.china_city_code_normalised 
+  GROUP BY extra_code, geocode4_corr
+  ) as no_dup_citycode
+ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+) 
+SELECT 
+  * 
+FROM 
+  (
+    WITH ratio AS (
+      SELECT 
+        year, 
+        indu_2, 
+        geocode4_corr,
+        CAST(
+    SUM(c80) AS DECIMAL(16, 5)
+  ) / NULLIF(
+    CAST(
+      SUM(cuasset) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) as receivable_curasset_it,
+  
+  CAST(
+    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
+  ) / NULLIF(
+    CAST(
+      SUM(cuasset) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) as cash_over_curasset_it,
+  
+  SUM(cuasset) - SUM(c95) as working_capital_it,
+  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_requirement_it,   
+  CAST(
+    SUM(cuasset) AS DECIMAL(16, 5)
+  ) / NULLIF(
+    CAST(
+      SUM(c95) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS current_ratio_it, 
+  
+  CAST(
+    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) AS DECIMAL(16, 5)
+  ) / NULLIF(
+    CAST(
+      SUM(c95) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS quick_ratio_it, 
 
+  CAST(
+    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
+  ) / NULLIF(CAST(
+    SUM(c95) AS DECIMAL(16, 5)
+  ), 
+    0
+  ) AS cash_ratio_it,
+  
+  -- Need to add asset or debt when bs requirement not meet
+  CASE 
+  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN
+  CAST(
+     SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+     SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99)))  AS DECIMAL(16, 5)
+    ), 
+    0
+  ) 
+  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) > 0 THEN
+  CAST(
+     SUM(c95) + SUM(c97) + SUM(toasset) - (SUM(c98) + SUM(c99)) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+     SUM(toasset)  AS DECIMAL(16, 5)
+    ), 
+    0
+  )
+  ELSE
+  CAST(
+     SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+     SUM(toasset)  AS DECIMAL(16, 5)
+    ), 
+    0
+  )
+  END AS liabilities_assets_it, 
+
+  CASE 
+  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN
+  CAST(SUM(sales) - (SUM(c108) + SUM(c113) + SUM(c114) + SUM(c116) + SUM(c118) + SUM(c124) + SUM(wage)) AS DECIMAL(16, 5))/ 
+  NULLIF(CAST(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99)))  AS DECIMAL(16, 5)), 0) 
+  ELSE
+  CAST(SUM(sales) - (SUM(c108) + SUM(c113) + SUM(c114) + SUM(c116) + SUM(c118) + SUM(c124) + SUM(wage)) AS DECIMAL(16, 5))/ 
+  NULLIF(CAST(SUM(toasset)  AS DECIMAL(16, 5)), 0) 
+  END AS return_on_asset_it,
+  
+  CASE 
+  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN  
+  CAST(
+    SUM(sales) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      (
+          SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))) - lag(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))),
+          1
+        ) over(
+          partition by indu_2, geocode4_corr 
+          order by 
+            geocode4_corr,
+            indu_2, 
+            year
+        )
+      )/ 2 AS DECIMAL(16, 5)
+    ), 
+    0
+  )
+  ELSE 
+  CAST(
+    SUM(sales) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      (
+        SUM(toasset) - lag(
+          SUM(toasset), 
+          1
+        ) over(
+          partition by indu_2, geocode4_corr
+          order by
+            geocode4_corr,
+            indu_2, 
+            year
+        )
+      )/ 2 AS DECIMAL(16, 5)
+    ), 
+    0
+  )
+  
+  END AS sales_assets_it,
+  
+  CAST(SUM(rdfee) AS DECIMAL(16, 5))/ NULLIF(CAST(SUM(sales) AS DECIMAL(16, 5)),0) as rd_intensity_it,
+  CAST(SUM(c81)  AS DECIMAL(16, 5))/ NULLIF(CAST(SUM(sales) AS DECIMAL(16, 5)),0) as inventory_to_sales_it,
+  SUM(tofixed) - SUM(c92) AS asset_tangibility_it,
+  
+  CAST(
+      (
+        SUM(c96) - lag(
+          SUM(c96), 
+          1
+        ) over(
+          partition by indu_2, geocode4_corr 
+          order by 
+          geocode4_corr,
+            indu_2, 
+            year
+        )
+      ) AS DECIMAL(16, 5)
+      )/
+      NULLIF(
+    CAST(
+      (
+        SUM(total_asset) - lag(
+          SUM(total_asset), 
+          1
+        ) over(
+          partition by indu_2, geocode4_corr 
+          order by 
+          geocode4_corr,
+            indu_2, 
+            year
+        )
+      )/ 2 AS DECIMAL(16, 5)
+    ),0) as account_paybable_to_asset_it
+    
+FROM test
+      WHERE 
+        year in ('2004', '2005', '2006') 
+      GROUP BY 
+      geocode4_corr,
+        indu_2, 
+        year
+    ) 
+    SELECT 
+      *
+    FROM 
+      (
+        WITH agg AS (
+          SELECT 
+            indu_2, 
+            geocode4_corr,
+            'FAKE_GROUP' as fake, 
+            AVG(receivable_curasset_it) AS receivable_curasset_i, 
+            AVG(cash_over_curasset_it) AS cash_over_curasset_i, 
+            
+            AVG(working_capital_it)/1000000 AS working_capital_i, 
+            AVG(working_capital_requirement_it)/1000000 AS working_capital_requirement_i, 
+            AVG(current_ratio_it) AS current_ratio_i, 
+            AVG(quick_ratio_it) AS quick_ratio_i,
+            AVG(cash_ratio_it) AS cash_ratio_i, 
+            
+            AVG(liabilities_assets_it) AS liabilities_assets_i, 
+            AVG(return_on_asset_it) AS return_on_asset_i, 
+            AVG(sales_assets_it) AS sales_assets_i, 
+            AVG(account_paybable_to_asset_it) AS account_paybable_to_asset_i,
+            AVG(asset_tangibility_it)/1000000 AS asset_tangibility_i, 
+            
+            AVG(rd_intensity_it) AS rd_intensity_i, 
+            AVG(inventory_to_sales_it) AS inventory_to_sales_i
+
+          FROM 
+            ratio 
+          GROUP BY 
+            indu_2 ,
+            geocode4_corr
+        ) 
+        SELECT 
+          field0 AS indu_2, 
+          field1 as geocode4_corr,
+          val_1[ 'receivable_curasset' ] AS receivable_curasset_i, 
+          val_2[ 'receivable_curasset' ] AS std_receivable_curasset_i, 
+          val_1[ 'cash_over_curasset' ] AS cash_over_curasset_i, 
+          val_2[ 'cash_over_curasset' ] AS std_cash_over_curasset_i, 
+          
+          val_1[ 'workink_capital' ] AS working_capital_i, 
+          val_2[ 'workink_capital' ] AS std_working_capital_i, 
+          val_1[ 'working_capital_requirement' ] AS working_capital_requirement_i, 
+          val_2[ 'working_capital_requirement' ] AS std_working_capital_requirement_i, 
+          val_1[ 'current_ratio' ] AS current_ratio_i, 
+          val_2[ 'current_ratio' ] AS std_current_ratio_i, 
+          val_1[ 'quick_ratio' ] AS quick_ratio_i, 
+          val_2[ 'quick_ratio' ] AS quick_ratio_i,
+          val_1[ 'cash_ratio' ] AS cash_ratio_i, 
+          val_2[ 'cash_ratio' ] AS std_cash_ratio_i, 
+          
+          val_1[ 'liabilities_assets' ] AS liabilities_assets_i, 
+          val_2[ 'liabilities_assets' ] AS std_liabilities_assets_i, 
+          val_1[ 'return_on_asset' ] AS return_on_asset_i, 
+          val_2[ 'return_on_asset' ] AS std_return_on_asset_i, 
+          val_1[ 'sales_assets' ] AS sales_assets_i, 
+          val_2[ 'sales_assets' ] AS std_sales_assets_i, 
+          val_1[ 'account_paybable_to_asset' ] AS account_paybable_to_asset_i, 
+          val_2[ 'account_paybable_to_asset' ] AS std_account_paybable_to_asset_i,
+          val_1[ 'asset_tangibility' ] AS asset_tangibility_i, 
+          val_2[ 'asset_tangibility' ] AS std_asset_tangibility_i, 
+          
+          val_1[ 'rd_intensity' ] AS rd_intensity_i, 
+          val_2[ 'rd_intensity' ] AS std_rd_intensity_i, 
+          val_1[ 'inventory_to_sales' ] AS inventory_to_sales_i, 
+          val_2[ 'inventory_to_sales' ] AS std_inventory_to_sales_i
+         
+        FROM 
+          (
+            SELECT 
+              field0, 
+              field1,
+              map_agg(w, field2) AS val_1, 
+              map_agg(w, field3) AS val_2 
+            FROM 
+              (
+                SELECT 
+                  w, 
+                  names.field0, 
+                  names.field1, 
+                  names.field2,
+                  names.field3
+                  
+                FROM 
+                  (
+                    SELECT 
+                      w, 
+                      zip(
+                        array_indu_2, 
+                        array_geocode4_corr,
+                        array_w, 
+                        transform(
+                          array_w, 
+                          x -> (x - avg)/ std_w
+                        )
+                      ) as zip_values 
+                    FROM 
+                      (
+                        SELECT 
+                          w, 
+                          avg, 
+                          array_w, 
+                          array_indu_2, 
+                          array_geocode4_corr,
+                          std_w 
+                        FROM 
+                        (
+                            SELECT 
+                              'receivable_curasset' as w, 
+                              AVG(receivable_curasset_i) as avg, 
+                              ARRAY_AGG(receivable_curasset_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(receivable_curasset_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                        (
+                            SELECT 
+                              'cash_over_curasset' as w, 
+                              AVG(cash_over_curasset_i) as avg, 
+                              ARRAY_AGG(cash_over_curasset_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(cash_over_curasset_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'workink_capital' as w, 
+                              AVG(working_capital_i) as avg, 
+                              ARRAY_AGG(working_capital_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(working_capital_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'working_capital_requirement' as w, 
+                              AVG(working_capital_requirement_i) as avg, 
+                              ARRAY_AGG(working_capital_requirement_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(working_capital_requirement_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'current_ratio' as w, 
+                              AVG(current_ratio_i) as avg, 
+                              ARRAY_AGG(current_ratio_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(current_ratio_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'quick_ratio' as w, 
+                              AVG(quick_ratio_i) as avg, 
+                              ARRAY_AGG(quick_ratio_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(quick_ratio_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'cash_ratio' as w, 
+                              AVG(cash_ratio_i) as avg, 
+                              ARRAY_AGG(cash_ratio_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(cash_ratio_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'liabilities_assets' as w, 
+                              AVG(liabilities_assets_i) as avg, 
+                              ARRAY_AGG(liabilities_assets_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(liabilities_assets_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'return_on_asset' as w, 
+                              AVG(return_on_asset_i) as avg, 
+                              ARRAY_AGG(return_on_asset_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(return_on_asset_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'sales_assets' as w, 
+                              AVG(sales_assets_i) as avg, 
+                              ARRAY_AGG(sales_assets_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(sales_assets_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'rd_intensity' as w, 
+                              AVG(rd_intensity_i) as avg, 
+                              ARRAY_AGG(rd_intensity_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(rd_intensity_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'inventory_to_sales' as w, 
+                              AVG(inventory_to_sales_i) as avg, 
+                              ARRAY_AGG(inventory_to_sales_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(inventory_to_sales_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'asset_tangibility' as w, 
+                              AVG(asset_tangibility_i) as avg, 
+                              ARRAY_AGG(asset_tangibility_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(asset_tangibility_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'account_paybable_to_asset' as w, 
+                              AVG(account_paybable_to_asset_i) as avg, 
+                              ARRAY_AGG(account_paybable_to_asset_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(account_paybable_to_asset_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          )
+                      )
+                  ) CROSS 
+                  JOIN UNNEST(zip_values) as t(names)
+              ) 
+            GROUP BY 
+              field0, field1
+          )
+      )
+      ORDER BY indu_2, geocode4_corr
+      LIMIT 10
+  )
 """
-```
-
-```python
 output = s3.run_query(
                     query=query,
                     database=DatabaseName,
@@ -159,7 +709,7 @@ output = s3.run_query(
 output
 ```
 
-# Table `XX`
+# Table `asif_industry_financial_ratio_city`
 
 Since the table to create has missing value, please use the following at the top of the query
 
@@ -171,8 +721,8 @@ CREATE TABLE database.table_name WITH (format = 'PARQUET') AS
 Choose a location in S3 to save the CSV. It is recommended to save in it the `datalake-datascience` bucket. Locate an appropriate folder in the bucket, and make sure all output have the same format
 
 ```python
-s3_output = ''
-table_name = ''
+s3_output = 'DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/CITY'
+table_name = 'asif_industry_financial_ratio_city'
 ```
 
 First, we need to delete the table (if exist)
@@ -198,7 +748,513 @@ s3.remove_all_bucket(path_remove = s3_output)
 %%time
 query = """
 CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS
+WITH test AS (
+  SELECT 
+    *, 
+    CASE WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2) ELSE concat('0',substr(cic,1, 1)) END AS indu_2, 
+    c98 + c99 as total_asset 
+  FROM 
+    firms_survey.asif_firms_prepared
+  INNER JOIN 
+  (
+  SELECT extra_code, geocode4_corr
+  FROM chinese_lookup.china_city_code_normalised 
+  GROUP BY extra_code, geocode4_corr
+  ) as no_dup_citycode
+ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+) 
+SELECT 
+  * 
+FROM 
+  (
+    WITH ratio AS (
+      SELECT 
+        year, 
+        indu_2, 
+        geocode4_corr,
+        CAST(
+    SUM(c80) AS DECIMAL(16, 5)
+  ) / NULLIF(
+    CAST(
+      SUM(cuasset) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) as receivable_curasset_it,
+  
+  CAST(
+    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
+  ) / NULLIF(
+    CAST(
+      SUM(cuasset) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) as cash_over_curasset_it,
+  
+  SUM(cuasset) - SUM(c95) as working_capital_it,
+  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_requirement_it,   
+  CAST(
+    SUM(cuasset) AS DECIMAL(16, 5)
+  ) / NULLIF(
+    CAST(
+      SUM(c95) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS current_ratio_it, 
+  
+  CAST(
+    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) AS DECIMAL(16, 5)
+  ) / NULLIF(
+    CAST(
+      SUM(c95) AS DECIMAL(16, 5)
+    ), 
+    0
+  ) AS quick_ratio_it, 
 
+  CAST(
+    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
+  ) / NULLIF(CAST(
+    SUM(c95) AS DECIMAL(16, 5)
+  ), 
+    0
+  ) AS cash_ratio_it,
+  
+  -- Need to add asset or debt when bs requirement not meet
+  CASE 
+  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN
+  CAST(
+     SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+     SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99)))  AS DECIMAL(16, 5)
+    ), 
+    0
+  ) 
+  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) > 0 THEN
+  CAST(
+     SUM(c95) + SUM(c97) + SUM(toasset) - (SUM(c98) + SUM(c99)) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+     SUM(toasset)  AS DECIMAL(16, 5)
+    ), 
+    0
+  )
+  ELSE
+  CAST(
+     SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+     SUM(toasset)  AS DECIMAL(16, 5)
+    ), 
+    0
+  )
+  END AS liabilities_assets_it, 
+
+  CASE 
+  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN
+  CAST(SUM(sales) - (SUM(c108) + SUM(c113) + SUM(c114) + SUM(c116) + SUM(c118) + SUM(c124) + SUM(wage)) AS DECIMAL(16, 5))/ 
+  NULLIF(CAST(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99)))  AS DECIMAL(16, 5)), 0) 
+  ELSE
+  CAST(SUM(sales) - (SUM(c108) + SUM(c113) + SUM(c114) + SUM(c116) + SUM(c118) + SUM(c124) + SUM(wage)) AS DECIMAL(16, 5))/ 
+  NULLIF(CAST(SUM(toasset)  AS DECIMAL(16, 5)), 0) 
+  END AS return_on_asset_it,
+  
+  CASE 
+  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN  
+  CAST(
+    SUM(sales) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      (
+          SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))) - lag(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))),
+          1
+        ) over(
+          partition by indu_2, geocode4_corr 
+          order by 
+            geocode4_corr,
+            indu_2, 
+            year
+        )
+      )/ 2 AS DECIMAL(16, 5)
+    ), 
+    0
+  )
+  ELSE 
+  CAST(
+    SUM(sales) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+      (
+        SUM(toasset) - lag(
+          SUM(toasset), 
+          1
+        ) over(
+          partition by indu_2, geocode4_corr
+          order by
+            geocode4_corr,
+            indu_2, 
+            year
+        )
+      )/ 2 AS DECIMAL(16, 5)
+    ), 
+    0
+  )
+  
+  END AS sales_assets_it,
+  
+  CAST(SUM(rdfee) AS DECIMAL(16, 5))/ NULLIF(CAST(SUM(sales) AS DECIMAL(16, 5)),0) as rd_intensity_it,
+  CAST(SUM(c81)  AS DECIMAL(16, 5))/ NULLIF(CAST(SUM(sales) AS DECIMAL(16, 5)),0) as inventory_to_sales_it,
+  SUM(tofixed) - SUM(c92) AS asset_tangibility_it,
+  
+  CAST(
+      (
+        SUM(c96) - lag(
+          SUM(c96), 
+          1
+        ) over(
+          partition by indu_2, geocode4_corr 
+          order by 
+          geocode4_corr,
+            indu_2, 
+            year
+        )
+      ) AS DECIMAL(16, 5)
+      )/
+      NULLIF(
+    CAST(
+      (
+        SUM(total_asset) - lag(
+          SUM(total_asset), 
+          1
+        ) over(
+          partition by indu_2, geocode4_corr 
+          order by 
+          geocode4_corr,
+            indu_2, 
+            year
+        )
+      )/ 2 AS DECIMAL(16, 5)
+    ),0) as account_paybable_to_asset_it
+    
+FROM test
+      WHERE 
+        year in ('2004', '2005', '2006') 
+      GROUP BY 
+      geocode4_corr,
+        indu_2, 
+        year
+    ) 
+    SELECT 
+      *
+    FROM 
+      (
+        WITH agg AS (
+          SELECT 
+            indu_2, 
+            geocode4_corr,
+            'FAKE_GROUP' as fake, 
+            AVG(receivable_curasset_it) AS receivable_curasset_i, 
+            AVG(cash_over_curasset_it) AS cash_over_curasset_i, 
+            
+            AVG(working_capital_it)/1000000 AS working_capital_i, 
+            AVG(working_capital_requirement_it)/1000000 AS working_capital_requirement_i, 
+            AVG(current_ratio_it) AS current_ratio_i, 
+            AVG(quick_ratio_it) AS quick_ratio_i,
+            AVG(cash_ratio_it) AS cash_ratio_i, 
+            
+            AVG(liabilities_assets_it) AS liabilities_assets_i, 
+            AVG(return_on_asset_it) AS return_on_asset_i, 
+            AVG(sales_assets_it) AS sales_assets_i, 
+            AVG(account_paybable_to_asset_it) AS account_paybable_to_asset_i,
+            AVG(asset_tangibility_it)/1000000 AS asset_tangibility_i, 
+            
+            AVG(rd_intensity_it) AS rd_intensity_i, 
+            AVG(inventory_to_sales_it) AS inventory_to_sales_i
+
+          FROM 
+            ratio 
+          GROUP BY 
+            indu_2 ,
+            geocode4_corr
+        ) 
+        SELECT 
+          field0 AS indu_2, 
+          field1 as geocode4_corr,
+          val_1[ 'receivable_curasset' ] AS receivable_curasset_ci, 
+          val_2[ 'receivable_curasset' ] AS std_receivable_curasset_ci, 
+          val_1[ 'cash_over_curasset' ] AS cash_over_curasset_ci, 
+          val_2[ 'cash_over_curasset' ] AS std_cash_over_curasset_ci, 
+          
+          val_1[ 'workink_capital' ] AS working_capital_ci, 
+          val_2[ 'workink_capital' ] AS std_working_capital_ci, 
+          val_1[ 'working_capital_requirement' ] AS working_capital_requirement_ci, 
+          val_2[ 'working_capital_requirement' ] AS std_working_capital_requirement_ci, 
+          val_1[ 'current_ratio' ] AS current_ratio_ci, 
+          val_2[ 'current_ratio' ] AS std_current_ratio_ci, 
+          val_1[ 'quick_ratio' ] AS quick_ratio_ci, 
+          val_2[ 'quick_ratio' ] AS std_quick_ratio_ci,
+          val_1[ 'cash_ratio' ] AS cash_ratio_ci, 
+          val_2[ 'cash_ratio' ] AS std_cash_ratio_ci, 
+          
+          val_1[ 'liabilities_assets' ] AS liabilities_assets_ci, 
+          val_2[ 'liabilities_assets' ] AS std_liabilities_assets_ci, 
+          val_1[ 'return_on_asset' ] AS return_on_asset_ci, 
+          val_2[ 'return_on_asset' ] AS std_return_on_asset_ci, 
+          val_1[ 'sales_assets' ] AS sales_assets_ci, 
+          val_2[ 'sales_assets' ] AS std_sales_assets_ci, 
+          val_1[ 'account_paybable_to_asset' ] AS account_paybable_to_asset_ci, 
+          val_2[ 'account_paybable_to_asset' ] AS std_account_paybable_to_asset_ci,
+          val_1[ 'asset_tangibility' ] AS asset_tangibility_ci, 
+          val_2[ 'asset_tangibility' ] AS std_asset_tangibility_ci, 
+          
+          val_1[ 'rd_intensity' ] AS rd_intensity_ci, 
+          val_2[ 'rd_intensity' ] AS std_rd_intensity_ci, 
+          val_1[ 'inventory_to_sales' ] AS inventory_to_sales_ci, 
+          val_2[ 'inventory_to_sales' ] AS std_inventory_to_sales_ci
+         
+        FROM 
+          (
+            SELECT 
+              field0, 
+              field1,
+              map_agg(w, field2) AS val_1, 
+              map_agg(w, field3) AS val_2 
+            FROM 
+              (
+                SELECT 
+                  w, 
+                  names.field0, 
+                  names.field1, 
+                  names.field2,
+                  names.field3
+                  
+                FROM 
+                  (
+                    SELECT 
+                      w, 
+                      zip(
+                        array_indu_2, 
+                        array_geocode4_corr,
+                        array_w, 
+                        transform(
+                          array_w, 
+                          x -> (x - avg)/ std_w
+                        )
+                      ) as zip_values 
+                    FROM 
+                      (
+                        SELECT 
+                          w, 
+                          avg, 
+                          array_w, 
+                          array_indu_2, 
+                          array_geocode4_corr,
+                          std_w 
+                        FROM 
+                        (
+                            SELECT 
+                              'receivable_curasset' as w, 
+                              AVG(receivable_curasset_i) as avg, 
+                              ARRAY_AGG(receivable_curasset_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(receivable_curasset_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                        (
+                            SELECT 
+                              'cash_over_curasset' as w, 
+                              AVG(cash_over_curasset_i) as avg, 
+                              ARRAY_AGG(cash_over_curasset_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(cash_over_curasset_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'workink_capital' as w, 
+                              AVG(working_capital_i) as avg, 
+                              ARRAY_AGG(working_capital_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(working_capital_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'working_capital_requirement' as w, 
+                              AVG(working_capital_requirement_i) as avg, 
+                              ARRAY_AGG(working_capital_requirement_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(working_capital_requirement_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'current_ratio' as w, 
+                              AVG(current_ratio_i) as avg, 
+                              ARRAY_AGG(current_ratio_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(current_ratio_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'quick_ratio' as w, 
+                              AVG(quick_ratio_i) as avg, 
+                              ARRAY_AGG(quick_ratio_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(quick_ratio_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'cash_ratio' as w, 
+                              AVG(cash_ratio_i) as avg, 
+                              ARRAY_AGG(cash_ratio_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(cash_ratio_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'liabilities_assets' as w, 
+                              AVG(liabilities_assets_i) as avg, 
+                              ARRAY_AGG(liabilities_assets_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(liabilities_assets_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'return_on_asset' as w, 
+                              AVG(return_on_asset_i) as avg, 
+                              ARRAY_AGG(return_on_asset_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(return_on_asset_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'sales_assets' as w, 
+                              AVG(sales_assets_i) as avg, 
+                              ARRAY_AGG(sales_assets_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(sales_assets_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'rd_intensity' as w, 
+                              AVG(rd_intensity_i) as avg, 
+                              ARRAY_AGG(rd_intensity_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(rd_intensity_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'inventory_to_sales' as w, 
+                              AVG(inventory_to_sales_i) as avg, 
+                              ARRAY_AGG(inventory_to_sales_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(inventory_to_sales_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'asset_tangibility' as w, 
+                              AVG(asset_tangibility_i) as avg, 
+                              ARRAY_AGG(asset_tangibility_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(asset_tangibility_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          ) 
+                        UNION 
+                          (
+                            SELECT 
+                              'account_paybable_to_asset' as w, 
+                              AVG(account_paybable_to_asset_i) as avg, 
+                              ARRAY_AGG(account_paybable_to_asset_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(account_paybable_to_asset_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          )
+                      )
+                  ) CROSS 
+                  JOIN UNNEST(zip_values) as t(names)
+              ) 
+            GROUP BY 
+              field0, field1
+          )
+      )
+      ORDER BY indu_2, geocode4_corr
+  )
 """.format(DatabaseName, table_name)
 output = s3.run_query(
                     query=query,
@@ -239,13 +1295,13 @@ To validate the query, please fillin the json below. Don't forget to change the 
 1. Add a partition key
 
 ```python
-partition_keys = []
+partition_keys = ["geocode4_corr", "indu_2"]
 ```
 
 2. Add the steps number
 
 ```python
-step = 0
+step = 1
 ```
 
 3. Change the schema
@@ -259,25 +1315,71 @@ glue.get_table_information(
 ```
 
 ```python
-schema = [
-    {
-        "Name": "VAR1",
-        "Type": "",
-        "Comment": ""
-    },
-    {
-        "Name": "VAR2",
-        "Type": "",
-        "Comment": ""
-    }
-]
+schema = [{'Name': 'indu_2', 'Type': 'string', 'Comment': 'Two digits industry. If length cic equals to 3, then add 0 to indu_2'},
+          {'Name': 'geocode4_corr', 'Type': 'string', 'Comment': ''},
+          {'Name': 'receivable_curasset_ci', 'Type': 'double',
+              'Comment': '应收帐款 (c80) / cuasset'},
+          {'Name': 'std_receivable_curasset_ci', 'Type': 'double',
+           'Comment': 'standaridzed values (x - x mean) / std)'},
+          {'Name': 'cash_over_curasset_ci', 'Type': 'double',
+           'Comment': '(其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset'},
+          {'Name': 'std_cash_over_curasset_ci', 'Type': 'double',
+           'Comment': 'standaridzed values (x - x mean) / std)'},
+          {'Name': 'working_capital_ci', 'Type': 'double',
+           'Comment': 'cuasset- 流动负债合计 (c95)'},
+          {'Name': 'std_working_capital_ci', 'Type': 'double',
+           'Comment': 'standaridzed values (x - x mean) / std)'},
+          {'Name': 'working_capital_requirement_ci', 'Type': 'double',
+           'Comment': '存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)'},
+          {'Name': 'std_working_capital_requirement_ci',
+           'Type': 'double',
+           'Comment': 'standaridzed values (x - x mean) / std)'},
+          {'Name': 'current_ratio_ci', 'Type': 'double',
+           'Comment': 'cuasset/流动负债合计 (c95)'},
+          {'Name': 'std_current_ratio_ci', 'Type': 'double',
+           'Comment': 'standaridzed values (x - x mean) / std)'},
+          {'Name': 'quick_ratio_ci', 'Type': 'double',
+           'Comment': '(cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)) / 流动负债合计 (c95)'},
+          {'Name': 'std_quick_ratio_ci', 'Type': 'double',
+           'Comment': 'standaridzed values (x - x mean) / std)'},
+          {'Name': 'cash_ratio_ci', 'Type': 'double',
+           'Comment': '(cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)'},
+          {'Name': 'std_cash_ratio_ci', 'Type': 'double',
+           'Comment': 'standaridzed values (x - x mean) / std)'},
+          {'Name': 'liabilities_assets_ci', 'Type': 'double',
+           'Comment': '(流动负债合计 (c95) + 长期负债合计 (c97)) / toasset'},
+          {'Name': 'std_liabilities_assets_ci', 'Type': 'double',
+           'Comment': 'standaridzed values (x - x mean) / std)'},
+          {'Name': 'return_on_asset_ci', 'Type': 'double',
+           'Comment': 'sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset'},
+          {'Name': 'std_return_on_asset_ci', 'Type': 'double',
+           'Comment': 'standaridzed values (x - x mean) / std)'},
+          {'Name': 'sales_assets_ci', 'Type': 'double',
+           'Comment': '全年营业收入合计 (c64) /(\Delta toasset/2)'},
+          {'Name': 'std_sales_assets_ci', 'Type': 'double',
+           'Comment': 'standaridzed values (x - x mean) / std)'},
+          {'Name': 'account_paybable_to_asset_ci', 'Type': 'double',
+           'Comment': '(\Delta 应付帐款  (c96))/ (\Delta (toasset))'},
+          {'Name': 'std_account_paybable_to_asset_ci', 'Type': 'double',
+           'Comment': 'standaridzed values (x - x mean) / std)'},
+          {'Name': 'asset_tangibility_ci', 'Type': 'double',
+           'Comment': 'Total fixed assets - Intangible assets'},
+          {'Name': 'std_asset_tangibility_ci', 'Type': 'double',
+           'Comment': 'standaridzed values (x - x mean) / std)'},
+          {'Name': 'rd_intensity_ci', 'Type': 'double',
+           'Comment': 'rdfee/全年营业收入合计 (c64)'},
+          {'Name': 'std_rd_intensity_ci', 'Type': 'double',
+           'Comment': 'standaridzed values (x - x mean) / std)'},
+          {'Name': 'inventory_to_sales_ci', 'Type': 'double',
+           'Comment': '存货 (c81) / sales'},
+          {'Name': 'std_inventory_to_sales_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'}]
 ```
 
 4. Provide a description
 
 ```python
 description = """
-
+Compute the financial ratio by city-industry
 """
 ```
 
@@ -305,7 +1407,7 @@ json_etl
 ```
 
 ```python
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_TEMPLATE.json')) as json_file:
+with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
 
@@ -331,7 +1433,7 @@ parameters['TABLES']['PREPARATION']['STEPS'].append(json_etl)
 Save JSON
 
 ```python
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_TEMPLATE.json'), "w")as outfile:
+with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json'), "w")as outfile:
     json.dump(parameters, outfile)
 ```
 
@@ -377,9 +1479,9 @@ One of the most important step when creating a table is to check if the table co
 You are required to define the group(s) that Athena will use to compute the duplicate. For instance, your table can be grouped by COL1 and COL2 (need to be string or varchar), then pass the list ['COL1', 'COL2'] 
 
 ```python
-partition_keys = []
+partition_keys = ["geocode4_corr", "indu_2"]
 
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_TEMPLATE.json')) as json_file:
+with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
 
@@ -518,92 +1620,6 @@ with open(os.path.join(str(Path(path).parent.parent), '00_data_catalogue/README.
     outfile.write(README)
 ```
 
-# Analytics
-
-In this part, we are providing basic summary statistic. Since we have created the tables, we can parse the schema in Glue and use our json file to automatically generates the analysis.
-
-The cells below execute the job in the key `ANALYSIS`. You need to change the `primary_key` and `secondary_key` 
-
-
-For a full analysis of the table, please use the following Lambda function. Be patient, it can takes between 5 to 30 minutes. Times varies according to the number of columns in your dataset.
-
-Use the function as follow:
-
-- `output_prefix`:  s3://datalake-datascience/ANALYTICS/OUTPUT/TABLE_NAME/
-- `region`: region where the table is stored
-- `bucket`: Name of the bucket
-- `DatabaseName`: Name of the database
-- `table_name`: Name of the table
-- `group`: variables name to group to count the duplicates
-- `primary_key`: Variable name to perform the grouping -> Only one variable for now
-- `secondary_key`: Variable name to perform the secondary grouping -> Only one variable for now
-- `proba`: Chi-square analysis probabilitity
-- `y_var`: Continuous target variables
-
-Check the job processing in Sagemaker: https://eu-west-3.console.aws.amazon.com/sagemaker/home?region=eu-west-3#/processing-jobs
-
-The notebook is available: https://s3.console.aws.amazon.com/s3/buckets/datalake-datascience?region=eu-west-3&prefix=ANALYTICS/OUTPUT/&showversions=false
-
-Please, download the notebook on your local machine, and convert it to HTML:
-
-```
-cd "/Users/thomas/Downloads/Notebook"
-aws s3 cp s3://datalake-datascience/ANALYTICS/OUTPUT/asif_unzip_data_csv/Template_analysis_from_lambda-2020-11-22-08-12-20.ipynb .
-
-## convert HTML no code
-jupyter nbconvert --no-input --to html Template_analysis_from_lambda-2020-11-21-14-30-45.ipynb
-jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ipynb
-```
-
-Then upload the HTML to: https://s3.console.aws.amazon.com/s3/buckets/datalake-datascience?region=eu-west-3&prefix=ANALYTICS/HTML_OUTPUT/
-
-Add a new folder with the table name in upper case
-
-```python
-import boto3
-
-key, secret_ = con.load_credential()
-client_lambda = boto3.client(
-    'lambda',
-    aws_access_key_id=key,
-    aws_secret_access_key=secret_,
-    region_name = region)
-```
-
-```python
-primary_key = ''
-secondary_key = ''
-y_var = ''
-```
-
-```python
-payload = {
-    "input_path": "s3://datalake-datascience/ANALYTICS/TEMPLATE_NOTEBOOKS/template_analysis_from_lambda.ipynb",
-    "output_prefix": "s3://datalake-datascience/ANALYTICS/OUTPUT/{}/".format(table_name.upper()),
-    "parameters": {
-        "region": "{}".format(region),
-        "bucket": "{}".format(bucket),
-        "DatabaseName": "{}".format(DatabaseName),
-        "table_name": "{}".format(table_name),
-        "group": "{}".format(','.join(partition_keys)),
-        "keys": "{},{}".format(primary_key,secondary_key),
-        "y_var": "{}".format(y_var),
-        "threshold":0
-    },
-}
-payload
-```
-
-```python
-response = client_lambda.invoke(
-    FunctionName='RunNotebook',
-    InvocationType='RequestResponse',
-    LogType='Tail',
-    Payload=json.dumps(payload),
-)
-response
-```
-
 # Generation report
 
 ```python
@@ -613,7 +1629,7 @@ from notebook import notebookapp
 ```
 
 ```python
-def create_report(extension = "html", keep_code = False):
+def create_report(extension = "html", keep_code = False, notebookname = None):
     """
     Create a report from the current notebook and save it in the 
     Report folder (Parent-> child directory)
@@ -643,7 +1659,7 @@ def create_report(extension = "html", keep_code = False):
             sessions = json.load(req)
             notebookname = sessions[0]['name']
         except:
-            pass  
+            notebookname = notebookname
     
     sep = '.'
     path = os.getcwd()
@@ -673,5 +1689,5 @@ def create_report(extension = "html", keep_code = False):
 ```
 
 ```python
-create_report(extension = "html", keep_code = True)
+create_report(extension = "html", keep_code = True, notebookname = "03_asif_financial_ratio_city.ipynb")
 ```
