@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.2'
-      jupytext_version: 1.4.2
+      jupytext_version: 1.8.0
   kernel_info:
     name: python3
   kernelspec:
@@ -1499,8 +1499,8 @@ Choose a location in S3 to save the CSV. It is recommended to save in it the `da
 First, we need to delete the table (if exist)
 
 ```python
-table_name = 'asif_city_industry_financial_ratio'
-s3_output = 'DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO'
+table_name = 'asif_industry_financial_ratio_industry'
+s3_output = 'DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/INDUSTRY'
 ```
 
 ```python
@@ -2333,7 +2333,7 @@ from notebook import notebookapp
 ```
 
 ```python
-def create_report(extension = "html", keep_code = False):
+def create_report(extension = "html", keep_code = False, notebookname = None):
     """
     Create a report from the current notebook and save it in the 
     Report folder (Parent-> child directory)
@@ -2363,7 +2363,7 @@ def create_report(extension = "html", keep_code = False):
             sessions = json.load(req)
             notebookname = sessions[0]['name']
         except:
-            pass  
+            notebookname = notebookname  
     
     sep = '.'
     path = os.getcwd()
@@ -2393,5 +2393,5 @@ def create_report(extension = "html", keep_code = False):
 ```
 
 ```python
-create_report(extension = "html", keep_code = True)
+create_report(extension = "html", keep_code = True, notebookname ="00_asif_financial_ratio.ipynb")
 ```
