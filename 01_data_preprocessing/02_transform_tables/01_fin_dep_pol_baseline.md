@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.2'
-      jupytext_version: 1.4.2
+      jupytext_version: 1.8.0
   kernel_info:
     name: python3
   kernelspec:
@@ -59,11 +59,11 @@ We will clean the table by doing the following steps:
 Target
 * The file is saved in S3: 
   * bucket: datalake-datascience 
-  * path: DATA/ENVIRONMENT/CHINA/FYP/FINANCIAL_CONTRAINT/PAPER_FYP_FINANCE_POL/BASELINE 
+  * path: DATA/ENVIRONMENT/CHINA/FYP/FINANCIAL_CONTRAINT/PAPER_FYP_FINANCE_POL/BASELINE/INDUSTRY 
 * Glue data catalog should be updated
   * database: environment 
-  * table prefix: fin_dep_pollution 
-    * table name (prefix + last folder S3 path): fin_dep_pollution_baseline 
+  * table prefix: fin_dep_pollution_baseline 
+    * table name (prefix + last folder S3 path): fin_dep_pollution_baseline_industry
 * Analytics
   * HTML:  ANALYTICS/HTML_OUTPUT/FIN_DEP_POLLUTION_BASELINE 
   * Notebook:  ANALYTICS/OUTPUT/FIN_DEP_POLLUTION_BASELINE 
@@ -720,8 +720,8 @@ FROM
         coastal 
       FROM 
         aggregate_pol 
-        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON  
-         aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2
+        INNER JOIN firms_survey.asif_industry_financial_ratio_industry ON  
+         aggregate_pol.ind2 = asif_industry_financial_ratio_industry.indu_2
     ) 
     SELECT 
       CNT, 
@@ -819,7 +819,7 @@ FROM
         coastal 
       FROM 
         aggregate_pol 
-        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2
+        INNER JOIN firms_survey.asif_industry_financial_ratio_industry ON aggregate_pol.ind2 = asif_industry_financial_ratio_industry.indu_2
         INNER JOIN (
         
         SELECT geocode4_corr, tso2_mandate_c, in_10_000_tonnes
@@ -926,7 +926,7 @@ FROM
         coastal 
       FROM 
         aggregate_pol 
-        INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2
+        INNER JOIN firms_survey.asif_industry_financial_ratio_industry ON aggregate_pol.ind2 = asif_industry_financial_ratio_industry.indu_2
         INNER JOIN (
         
         SELECT geocode4_corr, tso2_mandate_c, in_10_000_tonnes
@@ -1023,8 +1023,8 @@ CREATE TABLE database.table_name WITH (format = 'PARQUET') AS
 Choose a location in S3 to save the CSV. It is recommended to save in it the `datalake-datascience` bucket. Locate an appropriate folder in the bucket, and make sure all output have the same format
 
 ```python
-s3_output = 'DATA/ENVIRONMENT/CHINA/FYP/FINANCIAL_CONTRAINT/PAPER_FYP_FINANCE_POL/BASELINE'
-table_name = 'fin_dep_pollution_baseline'
+s3_output = 'DATA/ENVIRONMENT/CHINA/FYP/FINANCIAL_CONTRAINT/PAPER_FYP_FINANCE_POL/BASELINE/INDUSTRY'
+table_name = 'fin_dep_pollution_baseline_industry'
 ```
 
 First, we need to delete the table (if exist)
@@ -1180,7 +1180,7 @@ SELECT
   ) AS fe_c_t 
 FROM 
   aggregate_pol 
-  INNER JOIN firms_survey.asif_city_industry_financial_ratio ON aggregate_pol.ind2 = asif_city_industry_financial_ratio.indu_2 
+  INNER JOIN firms_survey.asif_industry_financial_ratio_industry ON aggregate_pol.ind2 = asif_industry_financial_ratio_industry.indu_2 
   INNER JOIN (
     SELECT 
       geocode4_corr, 
@@ -1722,7 +1722,7 @@ from notebook import notebookapp
 ```
 
 ```python
-def create_report(extension = "html", keep_code = False):
+def create_report(extension = "html", keep_code = False, notebookname = None):
     """
     Create a report from the current notebook and save it in the 
     Report folder (Parent-> child directory)
@@ -1752,7 +1752,7 @@ def create_report(extension = "html", keep_code = False):
             sessions = json.load(req)
             notebookname = sessions[0]['name']
         except:
-            pass  
+            notebookname = notebookname  
     
     sep = '.'
     path = os.getcwd()
@@ -1782,5 +1782,5 @@ def create_report(extension = "html", keep_code = False):
 ```
 
 ```python
-create_report(extension = "html", keep_code = True)
+create_report(extension = "html", keep_code = True, notebookname = "01_fin_dep_pol_baseline.ipynb")
 ```
