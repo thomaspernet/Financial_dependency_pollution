@@ -104,7 +104,6 @@ if pandas_setting:
 
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
-
 ```
 
 <!-- #region kernel="SoS" -->
@@ -114,8 +113,8 @@ Since we load the data as a Pandas DataFrame, we want to pass the `dtypes`. We l
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-db = ''
-table = ''
+db = 'environment'
+table = 'fin_dep_pollution_baseline_city'
 ```
 
 ```sos kernel="SoS"
@@ -138,10 +137,13 @@ for key, value in enumerate(schema):
 
 ```sos kernel="SoS"
 download_data = True
-
+filename = 'df_{}'.format(table)
+full_path_filename = 'SQL_OUTPUT_ATHENA/CSV/{}.csv'.format(filename)
+path_local = os.path.join(str(Path(path).parent.parent.parent), 
+                              "00_data_catalogue/temporary_local_data")
+df_path = os.path.join(path_local, filename + '.csv')
 if download_data:
-    filename = 'df_{}'.format(table)
-    full_path_filename = 'SQL_OUTPUT_ATHENA/CSV/{}.csv'.format(filename)
+    
     s3 = service_s3.connect_S3(client = client,
                           bucket = bucket, verbose = False)
     query = """
@@ -160,8 +162,7 @@ if download_data:
     s3.download_file(
         key = full_path_filename
     )
-    path_local = os.path.join(str(Path(path).parent.parent.parent), 
-                              "00_data_catalogue/temporary_local_data")
+    
     shutil.move(
         filename + '.csv',
         os.path.join(path_local, filename + '.csv')
@@ -203,18 +204,180 @@ add_to_dic = False
 if add_to_dic:
     with open('schema_table.json') as json_file:
         data = json.load(json_file)
+    data['to_rename'] = []
     dic_rename = [
+        ### control variables
         {
-        'old':'working\_capital\_i',
-        'new':'\\text{working capital}_i'
+        'old':'output',
+        'new':'\\text{output}_{cit}'
         },
+        {
+        'old':'employment',
+        'new':'\\text{employment}_{cit}'
+        },
+        {
+        'old':'capital',
+        'new':'\\text{capital}_{cit}'
+        },
+       # {
+       # 'old':'sales',
+       # 'new':'\\text{sales}_{cit}'
+       # },
+        
+        ### Polluted sector
+        {
+        'old':'polluted_di',
+        'new':'\\text{polluted sector, decile}_{ci}'
+        },
+        {
+        'old':'polluted\_diABOVE',
+        'new':'\\text{polluted sector, decile}_{ci}'
+        },
+        {
+        'old':'polluted_mi',
+        'new':'\\text{polluted sector, mean}_{ci}'
+        },
+        {
+        'old':'polluted\_miABOVE',
+        'new':'\\text{polluted sector, mean}_{ci}'
+        },
+        {
+        'old':'polluted_mei',
+        'new':'\\text{polluted sector, median}_{ci}'
+        },
+        {
+        'old':'polluted\_meiABOVE',
+        'new':'\\text{polluted sector, median}_{ci}'
+        },
+
+        ### financial ratio
+        #### Industry
+        {
+        'old':'credit\_constraint',
+        'new':'\\text{credit constraint}_i'
+        },
+        {
+        'old':'std\_receivable\_curasset\_ci',
+        'new':'\\text{std receivable asset ratio}_ci'
+        },
+        {
+        'old':'receivable\_curasset\_ci',
+        'new':'\\text{receivable asset ratio}_ci'
+        },
+        {
+        'old':'std\_cash\_over\_curasset\_ci',
+        'new':'\\text{std cash over asset}_ci'
+        },
+        {
+        'old':'cash\_over\_curasset\_ci',
+        'new':'\\text{cash over asset}_ci'
+        },
+        {
+        'old':'std\_working\_capital\_ci',
+        'new':'\\text{std working capital}_ci'
+        },
+        {
+        'old':'working\_capital\_ci',
+        'new':'\\text{working capital}_ci'
+        },
+        {
+        'old':'std\_working\_capital\_requirement\_ci',
+        'new':'\\text{std working capital requirement}_ci'
+        },
+        {
+        'old':'working\_capital\_requirement\_ci',
+        'new':'\\text{working capital requirement}_ci'
+        },
+        {
+        'old':'std\_current\_ratio\_ci',
+        'new':'\\text{std current ratio}_ci'
+        },
+        {
+        'old':'current\_ratio\_ci',
+        'new':'\\text{current ratio}_ci'
+        },
+        {
+        'old':'std\_quick\_ratio\_ci',
+        'new':'\\text{std quick ratio}_ci'
+        },
+        {
+        'old':'quick\_ratio\_ci',
+        'new':'\\text{quick ratio}_ci'
+        },
+        {
+        'old':'std\_cash\_ratio\_ci',
+        'new':'\\text{std cash ratio}_ci'
+        },
+        {
+        'old':'cash\_ratio\_ci',
+        'new':'\\text{cash ratio}_ci'
+        },
+        {
+        'old':'std\_liabilities\_assets\_ci',
+        'new':'\\text{std liabilities assets}_ci'
+        },{
+        'old':'liabilities\_assets\_ci',
+        'new':'\\text{liabilities assets}_ci'
+        },
+        {
+        'old':'std\_return\_on\_asset\_ci',
+        'new':'\\text{std return on asset}_ci'
+        },{
+        'old':'return\_on\_asset\_ci',
+        'new':'\\text{return on asset}_ci'
+        },
+        {
+        'old':'std\_sales\_assets\_ci',
+        'new':'\\text{std sales assets}_ci'
+        },
+        {
+        'old':'sales\_assets\_ci',
+        'new':'\\text{sales assets}_ci'
+        },
+        {
+        'old':'std\_rd\_intensity\_ci',
+        'new':'\\text{std rd intensity}_ci'
+        },
+        {
+        'old':'rd\_intensity\_ci',
+        'new':'\\text{rd intensity}_ci'
+        },
+        {
+        'old':'std\_inventory\_to\_sales\_ci',
+        'new':'\\text{std inventory to sales}_ci'
+        },
+        {
+        'old':'inventory\_to\_sales\_ci',
+        'new':'\\text{inventory to sales}_ci'
+        },
+        {
+        'old':'std\_asset\_tangibility\_ci',
+        'new':'\\text{std asset tangibility}_ci'
+        },
+        {
+        'old':'asset\_tangibility\_ci',
+        'new':'\\text{asset tangibility}_ci'
+        },
+        {
+        'old':'std\_account\_paybable\_to\_asset\_ci',
+        'new':'\\text{std account paybable to asset}_ci'
+        },
+        {
+        'old':'account\_paybable\_to\_asset\_ci',
+        'new':'\\text{account paybable to asset}_ci'
+        },
+        #### 
         {
         'old':'periodTRUE',
         'new':'\\text{period}'
         },
         {
+        'old':'period',
+        'new':'\\text{period}'
+        },
+        {
         'old':'tso2\_mandate\_c',
-        'new':'\\text{policy mandate}_'
+        'new':'\\text{policy mandate}_c'
         },
     ]
 
@@ -241,43 +404,31 @@ source(path)
 ```
 
 ```sos kernel="R"
-path = '../../../00_Data_catalogue/temporary_local_data/XX.csv'
-df_final <- read_csv(path) %>%
+%get df_path
+df_final <- read_csv(df_path) %>%
 mutate_if(is.character, as.factor) %>%
     mutate_at(vars(starts_with("fe")), as.factor) %>%
-mutate(VAR_TO_RELEVEL = relevel(XX, ref='XX'))
+mutate(
+    period = relevel(as.factor(period), ref='FALSE'),
+    polluted_di = relevel(as.factor(polluted_di), ref='BELOW'),
+    polluted_mi = relevel(as.factor(polluted_mi), ref='BELOW'),
+    polluted_mei = relevel(as.factor(polluted_mei), ref='BELOW'),
+    #working_capital_i = working_capital_i /1000000,
+    #working_capital_requirement_i = working_capital_requirement_i /1000000,
+    #liabilities_assets_m2_i = liabilities_assets_m2_i /1000000,
+    #asset_tangibility_i = asset_tangibility_i /1000000,
+    #polluted_thre = relevel(as.factor(polluted_thre), ref='BELOW'),
+    
+)
 ```
 
 <!-- #region kernel="SoS" -->
 ## Table 0:XXX
 
-$$
-\begin{aligned}
-\text{Write your equation}
-\end{aligned}
-$$
+$$ \begin{aligned} \text{SO2}{cit} &= \alpha \text{Financial ratio}_{ci} \times \text{Period} \times \text{policy mandate}_c + \gamma{c} + \gamma{t} + \epsilon_{cit} \end{aligned} $$
 
+For each industry
 
-* Column 1: XXX
-    * FE: 
-        - fe 1: `XX`
-        - fe 2: `XX`
-        - fe 3: `XX`
-* Column 2: XXX
-    * FE: 
-        - fe 1: `XX`
-        - fe 2: `XX`
-        - fe 3: `XX`
-* Column 3: XXX
-    * FE: 
-        - fe 1: `XX`
-        - fe 2: `XX`
-        - fe 3: `XX`
-* Column 4: XXX
-    * FE: 
-        - fe 1: `XX`
-        - fe 2: `XX`
-        - fe 3: `XX`
 <!-- #endregion -->
 
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}
@@ -294,41 +445,29 @@ for ext in ['.txt', '.tex', '.pdf']:
 
 ```sos kernel="R"
 %get path table
-t_0 <- felm(YYY ~XXX
-            | FE|0 | CLUSTER, df_final %>% filter(XXX == 'YYY'),
+t_0 <- felm(log(tso2) ~ rd_intensity_ci * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
-t_0 <- felm(YYY ~XXX
-            | FE|0 | CLUSTER, df_final %>% filter(XXX != 'YYY'),
-            exactDOF = TRUE)
-
-t_2 <- felm(kYYY ~XXX
-            | FE|0 | CLUSTER, df_final,
-            exactDOF = TRUE)
-
-t_3 <- felm(kYYY ~XXX
-            | FE|0 | CLUSTER, df_final,
+t_1 <- felm(log(tso2) ~ inventory_to_sales_ci * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
             
 dep <- "Dependent variable: YYYY"
 fe1 <- list(
-    c("XXXXX", "Yes", "Yes", "No", "No"),
+    c("City-industry", "Yes", "Yes"),
     
-    c("XXXXX", "Yes", "Yes", "No", "No"),
+    c("Time-industry", "Yes", "Yes"),
     
-    c("XXXXX","Yes", "Yes", "Yes", "No"),
-    
-    c("XXXXX","No", "No", "Yes", "Yes"),
-    
-    c("XXXXX","No", "No", "Yes", "Yes"),
-    
-    c("XXXXX", "No", "No", "No", "Yes")
+    c("City-Time","Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3
+    t_0,t_1
 ),
-    title="TITLE",
+    title="SO2 emission reduction, industry financial ratio and policy mandate",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
