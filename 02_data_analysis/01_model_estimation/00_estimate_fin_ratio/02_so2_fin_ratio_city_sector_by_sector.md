@@ -445,11 +445,21 @@ mutate(
 <!-- #endregion -->
 
 <!-- #region kernel="SoS" -->
-## Table 1: Determinant of SO2 emission: so2 and financial ratio
+## Tables
+
+Estimate the following equations for each industry
+
+**Table 1: Determinant of SO2 emission: so2 and financial ratio**
 
 $$ \begin{aligned} \text{SO2}{cit} &= \alpha \text{Financial ratio}_{ci} + \text{X}_{cit} + \gamma{t} + \epsilon_{cit} \end{aligned} $$
 
-For each industry
+**Table 2: Variation of SO2 emission: so2 and and financial ratio**
+
+$$ \begin{aligned} \text{SO2}{cit} &= \alpha \text{Financial ratio}_{ci} \times \text{Period} + \text{X}_{cit} + \gamma{t} + \gamma{c} + \epsilon_{cit} \end{aligned} $$
+
+**Table 3: Baseline Estimate, so2 and financial ratio**
+
+$$ \begin{aligned} \text{SO2}{cit} &= \alpha \text{Financial ratio}_{ci} \times \text{Period} \times \text{policy mandate}_c  + \text{X}_{cit} + \gamma{t} + \gamma{c} + \epsilon_{cit} \end{aligned} $$
 
 <!-- #endregion -->
 
@@ -475,12 +485,13 @@ for ext in ['.txt', '.tex', '.pdf']:
 
 ```sos kernel="R"
 %get folder
+t <- 1
 for (i in 1:nrow(industries)){
     
     sector_name <- industries[i, 'short']$short
     
-    path = paste0(folder,"/table_",i,".txt")
-    title = paste0("Determinant of SO2 emission so2 and financial ratio ",sector_name)
+    title_1 = paste0("Determinant of SO2 emission, so2 and financial ratio ",sector_name)
+    path_1 = paste0(folder,"/table_",t ,".txt")
     t_1 <- felm(log(tso2) ~ 
             #credit_constraint * period * tso2_mandate_c +
             std_rd_intensity_ci  +
@@ -591,71 +602,19 @@ for (i in 1:nrow(industries)){
     table_1 <- go_latex(list(
         t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
     ),
-        title=title,
+        title=title_1,
         dep_var = dep,
         addFE=fe1,
         save=TRUE,
         note = FALSE,
-        name=path
+        name=path_1
     ) 
-}
-```
-
-```sos kernel="SoS"
-tbe1  = "This table estimates eq(3). " \
-"Heteroskedasticity-robust standard errors" \
-"clustered at the product level appear inparentheses."\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-multicolumn ={
-    'Negative': 1,
-    'Positive': 13,
-    #'Ambiguous': 12,
-}
-
-#multi_lines_dep = '(city/product/trade regime/year)'
-#new_r = ['& test1', 'test2']
-for i in range(1, 30):
-    print('\n\nRank {} in term of credit constraint\n\n'.format(i))
-    lb.beautify(table_number = i,
-                #reorder_var = reorder,
-                #multi_lines_dep = multi_lines_dep,
-                #new_row= new_r,
-                multicolumn = multicolumn,
-                table_nte = tbe1,
-                jupyter_preview = True,
-                resolution = 280,
-                folder = folder)
-```
-
-<!-- #region kernel="SoS" -->
-## Table 2: Variation of SO2 emission: so2 and and financial ratio 
-
-$$ \begin{aligned} \text{SO2}{cit} &= \alpha \text{Financial ratio}_{ci} \times \text{Period} + \text{X}_{cit} + \gamma{t} + \gamma{c} + \epsilon_{cit} \end{aligned} $$
-
-For each industry
-<!-- #endregion -->
-
-```sos kernel="SoS"
-folder = 'Tables_0'
-table_nb = 1
-table = 'table_{}'.format(table_nb)
-path = os.path.join(folder, table + '.txt')
-if os.path.exists(folder) == False:
-        os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
-```
-
-```sos kernel="R"
-%get folder
-for (i in 1:nrow(industries)){
     
-    sector_name <- industries[i, 'short']$short
+    #### Table 2
     
-    path = paste0(folder,"/table_",i,".txt")
-    title = paste0("Determinant of SO2 emission so2 and financial ratio ",sector_name)
+    title_2 = paste0("Variation of SO2 emission, so2 and and financial ratio  ",sector_name)
+    path_2 = paste0(folder,"/table_",t +1 ,".txt")
+    
     t_1 <- felm(log(tso2) ~ 
             #credit_constraint * period * tso2_mandate_c +
             std_rd_intensity_ci* period  +
@@ -766,71 +725,20 @@ for (i in 1:nrow(industries)){
     table_1 <- go_latex(list(
         t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
     ),
-        title=title,
+        title=title_2,
         dep_var = dep,
         addFE=fe1,
         save=TRUE,
         note = FALSE,
-        name=path
+        name=path_2
     ) 
-}
-```
-
-```sos kernel="SoS"
-tbe1  = "This table estimates eq(3). " \
-"Heteroskedasticity-robust standard errors" \
-"clustered at the product level appear inparentheses."\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-multicolumn ={
-    'Negative': 1,
-    'Positive': 13,
-    #'Ambiguous': 12,
-}
-
-#multi_lines_dep = '(city/product/trade regime/year)'
-#new_r = ['& test1', 'test2']
-for i in range(1, 30):
-    print('\n\nRank {} in term of credit constraint\n\n'.format(i))
-    lb.beautify(table_number = i,
-                #reorder_var = reorder,
-                #multi_lines_dep = multi_lines_dep,
-                #new_row= new_r,
-                multicolumn = multicolumn,
-                table_nte = tbe1,
-                jupyter_preview = True,
-                resolution = 280,
-                folder = folder)
-```
-
-<!-- #region kernel="SoS" -->
-## Table 3: Baseline Estimate, so2 and financial ratio
-
-$$ \begin{aligned} \text{SO2}{cit} &= \alpha \text{Financial ratio}_{ci} \times \text{Period} \times \text{policy mandate}_c  + \text{X}_{cit} + \gamma{t} + \gamma{c} + \epsilon_{cit} \end{aligned} $$
-
-For each industry
-<!-- #endregion -->
-
-```sos kernel="SoS"
-folder = 'Tables_0'
-table_nb = 1
-table = 'table_{}'.format(table_nb)
-path = os.path.join(folder, table + '.txt')
-if os.path.exists(folder) == False:
-        os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
-```
-
-```sos kernel="R"
-%get folder
-for (i in 1:nrow(industries)){
     
-    sector_name <- industries[i, 'short']$short
     
-    path = paste0(folder,"/table_",i,".txt")
-    title = paste0("Determinant of SO2 emission so2 and financial ratio ",sector_name)
+     #### Table 3
+    
+    title_3 = paste0("Baseline Estimate, so2 and financial ratio ",sector_name)
+    path_3 = paste0(folder,"/table_",t +2,".txt")
+    
     t_1 <- felm(log(tso2) ~ 
             #credit_constraint * period * tso2_mandate_c +
             std_rd_intensity_ci* period * tso2_mandate_c +
@@ -941,13 +849,17 @@ for (i in 1:nrow(industries)){
     table_1 <- go_latex(list(
         t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
     ),
-        title=title,
+        title=title_3,
         dep_var = dep,
         addFE=fe1,
         save=TRUE,
         note = FALSE,
-        name=path
+        name=path_3
     ) 
+    
+    t <- t+3
+    
+    
 }
 ```
 
@@ -983,33 +895,28 @@ reorder = {
 
 #multi_lines_dep = '(city/product/trade regime/year)'
 #new_r = ['& test1', 'test2']
-for i in range(1, 30):
+for i in range(1, 88):
     print('\n\nRank {} in term of credit constraint\n\n'.format(i))
-    lb.beautify(table_number = i,
-                reorder_var = reorder,
-                #multi_lines_dep = multi_lines_dep,
-                #new_row= new_r,
-                multicolumn = multicolumn,
-                table_nte = tbe1,
-                jupyter_preview = True,
-                resolution = 280,
-                folder = folder)
-```
-
-<!-- #region kernel="SoS" -->
-Remove tables
-<!-- #endregion -->
-
-```sos kernel="SoS"
-folder = 'Tables_0'
-table_nb = 1
-table = 'table_{}'.format(table_nb)
-path = os.path.join(folder, table + '.txt')
-if os.path.exists(folder) == False:
-        os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
+    if i % 3 == 0:
+        lb.beautify(table_number = i,
+                    reorder_var = reorder,
+                    #multi_lines_dep = multi_lines_dep,
+                    #new_row= new_r,
+                    multicolumn = multicolumn,
+                    table_nte = tbe1,
+                    jupyter_preview = True,
+                    resolution = 280,
+                    folder = folder)
+    else:
+        lb.beautify(table_number = i,
+                    #reorder_var = reorder,
+                    #multi_lines_dep = multi_lines_dep,
+                    #new_row= new_r,
+                    multicolumn = multicolumn,
+                    table_nte = tbe1,
+                    jupyter_preview = True,
+                    resolution = 280,
+                    folder = folder)
 ```
 
 <!-- #region kernel="SoS" nteract={"transient": {"deleting": false}} -->
