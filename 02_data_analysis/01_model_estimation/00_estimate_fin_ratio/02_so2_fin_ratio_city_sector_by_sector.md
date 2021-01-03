@@ -484,6 +484,15 @@ for ext in ['.txt', '.tex', '.pdf']:
 ```
 
 ```sos kernel="R"
+summary(felm(log(tso2) ~ 
+            #credit_constraint * period * tso2_mandate_c +
+            std_rd_intensity_ci* period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            |fe_c_t |0 | geocode4_corr, df_final %>% filter(short == 'Machinery'),
+            exactDOF = TRUE))
+```
+
+```sos kernel="R"
 %get folder
 t <- 1
 for (i in 1:nrow(industries)){
