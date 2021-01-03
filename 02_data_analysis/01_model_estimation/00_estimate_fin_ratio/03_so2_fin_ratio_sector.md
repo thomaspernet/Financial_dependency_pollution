@@ -608,72 +608,72 @@ path
 %get path table
 t_1 <- felm(log(tso2) ~ std_rd_intensity_ci  * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | + geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_2 <- felm(log(tso2) ~ std_inventory_to_sales_ci  * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | + geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 |ind2, df_final,
             exactDOF = TRUE)
 
 t_3 <- felm(log(tso2) ~ std_receivable_curasset_ci  * period  +
             log(output) + log(employment) + log(capital)
-            |fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            |fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_4 <- felm(log(tso2) ~ std_cash_over_curasset_ci  * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_5 <- felm(log(tso2) ~ std_current_ratio_ci   * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_6 <- felm(log(tso2) ~ std_quick_ratio_ci   * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_7 <- felm(log(tso2) ~ std_cash_ratio_ci   * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_8 <- felm(log(tso2) ~ std_working_capital_ci   * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_9 <- felm(log(tso2) ~ std_working_capital_requirement_ci   * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_10 <- felm(log(tso2) ~ std_return_on_asset_ci  * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_11 <- felm(log(tso2) ~ std_sales_assets_ci  * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_12 <- felm(log(tso2) ~ std_liabilities_assets_ci   * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_13 <- felm(log(tso2) ~ std_asset_tangibility_ci  * period  +
             log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            | fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
 t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_ci  * period  +
             log(output) + log(employment) + log(capital)
-            |fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            |fe_c_t + fe_c_i|0 | ind2, df_final,
             exactDOF = TRUE)
 
 dep <- "Dependent variable: SO2 emission"
