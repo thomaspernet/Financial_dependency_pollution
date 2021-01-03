@@ -139,9 +139,9 @@ for key, value in enumerate(schema):
 ```
 
 ```sos kernel="SoS"
-download_data = False
+download_data = True
 filename = 'df_{}'.format(table)
-    full_path_filename = 'SQL_OUTPUT_ATHENA/CSV/{}.csv'.format(filename)
+full_path_filename = 'SQL_OUTPUT_ATHENA/CSV/{}.csv'.format(filename)
 path_local = os.path.join(str(Path(path).parent.parent.parent), 
                               "00_data_catalogue/temporary_local_data")
 df_path = os.path.join(path_local, filename + '.csv')
@@ -449,7 +449,7 @@ mutate(
 <!-- #region kernel="SoS" -->
 ## Table 1: Determinant of SO2 emission: so2 and financial ratio
 
-$$ \begin{aligned} \text{SO2}{cit} &= \alpha \text{Financial ratio}_{ci} + \text{X}_{cit} + \gamma{t} + \epsilon_{cit} \end{aligned} $$
+$$ \begin{aligned} \text{SO2}{cit} &= \alpha \text{Financial ratio}_{ci} + \text{X}_{cit} + \gamma{c} + \gamma{t} + \epsilon_{cit} \end{aligned} $$
 <!-- #endregion -->
 
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}
@@ -466,47 +466,94 @@ for ext in ['.txt', '.tex', '.pdf']:
 
 ```sos kernel="R"
 %get path table
-t_0 <- felm(YYY ~XXX
-            | FE|0 | CLUSTER, df_final %>% filter(XXX == 'YYY'),
+t_1 <- felm(log(tso2) ~ std_rd_intensity_ci +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-t_0 <- felm(YYY ~XXX
-            | FE|0 | CLUSTER, df_final %>% filter(XXX != 'YYY'),
+t_2 <- felm(log(tso2) ~ std_inventory_to_sales_ci +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-t_2 <- felm(kYYY ~XXX
-            | FE|0 | CLUSTER, df_final,
+t_3 <- felm(log(tso2) ~ std_receivable_curasset_ci +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-t_3 <- felm(kYYY ~XXX
-            | FE|0 | CLUSTER, df_final,
+t_4 <- felm(log(tso2) ~ std_cash_over_curasset_ci +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
-            
-dep <- "Dependent variable: YYYY"
+
+t_5 <- felm(log(tso2) ~ std_current_ratio_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ std_quick_ratio_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_7 <- felm(log(tso2) ~ std_cash_ratio_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_8 <- felm(log(tso2) ~ std_working_capital_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_9 <- felm(log(tso2) ~ std_working_capital_requirement_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_10 <- felm(log(tso2) ~ std_return_on_asset_ci +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_11 <- felm(log(tso2) ~ std_sales_assets_ci +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_12 <- felm(log(tso2) ~ std_liabilities_assets_ci  +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_13 <- felm(log(tso2) ~ std_asset_tangibility_ci +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_ci +
+            log(output) + log(employment) + log(capital)
+            | geocode4_corr + year|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+
+dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("XXXXX", "Yes", "Yes", "No", "No"),
+    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("XXXXX", "Yes", "Yes", "No", "No"),
-    
-    c("XXXXX","Yes", "Yes", "Yes", "No"),
-    
-    c("XXXXX","No", "No", "Yes", "Yes"),
-    
-    c("XXXXX","No", "No", "Yes", "Yes"),
-    
-    c("XXXXX", "No", "No", "No", "Yes")
+    c("Time","Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3
+    t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
 ),
-    title="TITLE",
+    title="Determinant of SO2 emission, financial ratio",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
     note = FALSE,
     name=path
-) 
+)
 ```
 
 ```sos kernel="SoS"
@@ -531,21 +578,617 @@ lb.beautify(table_number = table_nb,
             #multicolumn = multicolumn,
             table_nte = tbe1,
             jupyter_preview = True,
-            resolution = 150,
+            resolution = 280,
             folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+# Table 2: S02 emission reduction, financial ratio and period
+
+$$
+\begin{aligned}
+\text{SO2}_{cit}  &= \alpha \text{Financial ratio}_{ci} \times \text{Period}  + \gamma_{ct} + \gamma_{ci}  + \epsilon_{cit}
+\end{aligned}
+$$
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 2
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_1 <- felm(log(tso2) ~ std_rd_intensity_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | + geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ std_inventory_to_sales_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | + geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ std_receivable_curasset_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            |fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ std_cash_over_curasset_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ std_current_ratio_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ std_quick_ratio_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_7 <- felm(log(tso2) ~ std_cash_ratio_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_8 <- felm(log(tso2) ~ std_working_capital_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_9 <- felm(log(tso2) ~ std_working_capital_requirement_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_10 <- felm(log(tso2) ~ std_return_on_asset_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_11 <- felm(log(tso2) ~ std_sales_assets_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_12 <- felm(log(tso2) ~ std_liabilities_assets_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_13 <- felm(log(tso2) ~ std_asset_tangibility_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            |fe_c_t + fe_c_i|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
+),
+    title="S02 emission reduction, financial ratio and period (standardized values)",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'Tight': 1,
+    'Loose': 5
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 280,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+# Table 3:S02 emission reduction, financial ratio, Filter polluted sector
+
+$$
+\begin{aligned}
+\text{SO2}_{cit}  &= \alpha \text{Financial ratio}_{ci} \times \text{Period} + \gamma_{ct} + \gamma_{ci}  + \epsilon_{cit}
+\end{aligned}
+$$
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 3
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_1 <- felm(log(tso2) ~ std_rd_intensity_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ std_inventory_to_sales_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ std_receivable_curasset_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            |fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ std_cash_over_curasset_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ std_current_ratio_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ std_quick_ratio_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_7 <- felm(log(tso2) ~ std_cash_ratio_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_8 <- felm(log(tso2) ~ std_working_capital_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_9 <- felm(log(tso2) ~ std_working_capital_requirement_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_10 <- felm(log(tso2) ~ std_sales_assets_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_11 <- felm(log(tso2) ~ std_return_on_asset_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2,df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_12 <- felm(log(tso2) ~ std_liabilities_assets_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_13 <- felm(log(tso2) ~ std_asset_tangibility_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            |fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
+),
+    title="Baseline estimate, S02 emission reduction, financial ratio, Filter polluted sector (standardized)",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'Tight': 1,
+    'Loose': 5
+}
+
+reorder = {
+    # Old, New
+    10:3, ## Working capital
+    11:5, 
+    12:7,
+    13:9,
+    14:11,
+    15:13,
+    16:15
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 280,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+# Table 3: S02 emission reduction, financial ratio, Filter no polluted sector
+
+$$
+\begin{aligned}
+\text{SO2}_{cit}  &= \alpha \text{Financial ratio}_ci \times \text{Period} + \gamma_{c} + \gamma_{t}  + \epsilon_{cit}
+\end{aligned}
+$$
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 4
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_1 <- felm(log(tso2) ~ std_rd_intensity_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ std_inventory_to_sales_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ std_receivable_curasset_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            |fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ std_cash_over_curasset_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ std_current_ratio_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ std_quick_ratio_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_7 <- felm(log(tso2) ~ std_cash_ratio_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_8 <- felm(log(tso2) ~ std_working_capital_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_9 <- felm(log(tso2) ~ std_working_capital_requirement_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_10 <- felm(log(tso2) ~ std_return_on_asset_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2,df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_11 <- felm(log(tso2) ~ std_sales_assets_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_12 <- felm(log(tso2) ~ std_liabilities_assets_ci   * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_13 <- felm(log(tso2) ~ std_asset_tangibility_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_ci  * period  +
+            log(output) + log(employment) + log(capital)
+            |fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    
+    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
+),
+    title="S02 emission reduction, financial ratio, Filter no polluted sector (standardized values)",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'Tight': 1,
+    'Loose': 5
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 280,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+# Table 5: SO2 emission reduction, industry financial ratio and policy mandate
+
+$$
+\begin{aligned}
+\text{SO2}_{cit}  &= \alpha \text{Financial ratio}_ci \times \text{Period} \times \text{policy mandate}_c  + \gamma_{c} + \gamma_{t}   + \epsilon_{cit}
+\end{aligned}
+$$
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 5
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+t_1 <- felm(log(tso2) ~ std_rd_intensity_ci * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            |fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ std_inventory_to_sales_ci  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ std_cash_over_curasset_ci  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ std_receivable_curasset_ci  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            |fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ std_current_ratio_ci   * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ std_quick_ratio_ci   * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_7 <- felm(log(tso2) ~ std_cash_ratio_ci  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_8 <- felm(log(tso2) ~ std_working_capital_ci  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_9 <- felm(log(tso2) ~ std_working_capital_requirement_ci  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_10 <- felm(log(tso2) ~ std_return_on_asset_ci  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_11 <- felm(log(tso2) ~ std_sales_assets_ci * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_12 <- felm(log(tso2) ~ std_liabilities_assets_ci * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_13 <- felm(log(tso2) ~ std_asset_tangibility_ci  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_ci * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            |fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("Time-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City-Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
+),
+    title="SO2 emission reduction, industry financial ratio and policy mandate (standardized values)",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the industry level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'Tight': 1,
+    'Loose': 5
+}
+
+reorder = {
+    # Old, New
+    17:4,
+    18:6,
+    19:8,
+    20:10,
+    21:12,
+    22:14,
+    23:16,
+    24:18,
+    25:20,
+    26:22,
+    27:24,
+    28:26,
+    29:28,
+
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 280,
+           folder = folder)
+```
+
+```sos kernel="SoS"
+table_nb = 5
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
 ```
 
 <!-- #region kernel="SoS" nteract={"transient": {"deleting": false}} -->
 # Generate reports
 <!-- #endregion -->
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
+```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
 import os, time, shutil, urllib, ipykernel, json
 from pathlib import Path
 from notebook import notebookapp
 ```
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
+```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
 def create_report(extension = "html", keep_code = False, notebookname = None):
     """
     Create a report from the current notebook and save it in the 
@@ -605,6 +1248,6 @@ def create_report(extension = "html", keep_code = False, notebookname = None):
     print("Report Available at this adress:\n {}".format(dest))
 ```
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
-create_report(extension = "html", keep_code = False, notebookname = None)
+```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
+create_report(extension = "html", keep_code = False, notebookname = "03_so2_fin_ratio_sector.ipynb")
 ```
