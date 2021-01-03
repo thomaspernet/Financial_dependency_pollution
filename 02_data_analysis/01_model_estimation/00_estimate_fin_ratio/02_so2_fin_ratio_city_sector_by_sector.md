@@ -136,7 +136,7 @@ for key, value in enumerate(schema):
 ```
 
 ```sos kernel="SoS"
-download_data = False
+download_data = True
 filename = 'df_{}'.format(table)
 full_path_filename = 'SQL_OUTPUT_ATHENA/CSV/{}.csv'.format(filename)
 path_local = os.path.join(str(Path(path).parent.parent.parent), 
@@ -200,7 +200,7 @@ Then add it to the key `to_rename`
 <!-- #endregion -->
 
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}
-add_to_dic = True
+add_to_dic = False
 if add_to_dic:
     with open('schema_table.json') as json_file:
         data = json.load(json_file)
@@ -258,113 +258,113 @@ if add_to_dic:
         },
         {
         'old':'std\_receivable\_curasset\_ci',
-        'new':'\\text{std receivable asset ratio}_{ci}'
+        'new':'\\text{std receivable asset ratio}_ci'
         },
         {
         'old':'receivable\_curasset\_ci',
-        'new':'\\text{receivable asset ratio}_{ci}'
+        'new':'\\text{receivable asset ratio}_ci'
         },
         {
         'old':'std\_cash\_over\_curasset\_ci',
-        'new':'\\text{std cash over asset}_{ci}'
+        'new':'\\text{std cash over asset}_ci'
         },
         {
         'old':'cash\_over\_curasset\_ci',
-        'new':'\\text{cash over asset}_{ci}'
+        'new':'\\text{cash over asset}_ci'
         },
         {
         'old':'std\_working\_capital\_ci',
-        'new':'\\text{std working capital}_{ci}'
+        'new':'\\text{std working capital}_ci'
         },
         {
         'old':'working\_capital\_ci',
-        'new':'\\text{working capital}_{ci}'
+        'new':'\\text{working capital}_ci'
         },
         {
         'old':'std\_working\_capital\_requirement\_ci',
-        'new':'\\text{std working capital requirement}_{ci}'
+        'new':'\\text{std working capital requirement}_ci'
         },
         {
         'old':'working\_capital\_requirement\_ci',
-        'new':'\\text{working capital requirement}_{ci}'
+        'new':'\\text{working capital requirement}_ci'
         },
         {
         'old':'std\_current\_ratio\_ci',
-        'new':'\\text{std current ratio}_{ci}'
+        'new':'\\text{std current ratio}_ci'
         },
         {
         'old':'current\_ratio\_ci',
-        'new':'\\text{current ratio}_{ci}'
+        'new':'\\text{current ratio}_ci'
         },
         {
         'old':'std\_quick\_ratio\_ci',
-        'new':'\\text{std quick ratio}_{ci}'
+        'new':'\\text{std quick ratio}_ci'
         },
         {
         'old':'quick\_ratio\_ci',
-        'new':'\\text{quick ratio}_{ci}'
+        'new':'\\text{quick ratio}_ci'
         },
         {
         'old':'std\_cash\_ratio\_ci',
-        'new':'\\text{std cash ratio}_{ci}'
+        'new':'\\text{std cash ratio}_ci'
         },
         {
         'old':'cash\_ratio\_ci',
-        'new':'\\text{cash ratio}_{ci}'
+        'new':'\\text{cash ratio}_ci'
         },
         {
         'old':'std\_liabilities\_assets\_ci',
-        'new':'\\text{std liabilities assets}_{ci}'
+        'new':'\\text{std liabilities assets}_ci'
         },{
         'old':'liabilities\_assets\_ci',
-        'new':'\\text{liabilities assets}_{ci}'
+        'new':'\\text{liabilities assets}_ci'
         },
         {
         'old':'std\_return\_on\_asset\_ci',
-        'new':'\\text{std return on asset}_{ci}'
+        'new':'\\text{std return on asset}_ci'
         },{
         'old':'return\_on\_asset\_ci',
-        'new':'\\text{return on asset}_{ci}'
+        'new':'\\text{return on asset}_ci'
         },
         {
         'old':'std\_sales\_assets\_ci',
-        'new':'\\text{std sales assets}_{ci}'
+        'new':'\\text{std sales assets}_ci'
         },
         {
         'old':'sales\_assets\_ci',
-        'new':'\\text{sales assets}_{ci}'
+        'new':'\\text{sales assets}_ci'
         },
         {
         'old':'std\_rd\_intensity\_ci',
-        'new':'\\text{std rd intensity}_{ci}'
+        'new':'\\text{std rd intensity}_ci'
         },
         {
         'old':'rd\_intensity\_ci',
-        'new':'\\text{rd intensity}_{ci}'
+        'new':'\\text{rd intensity}_ci'
         },
         {
         'old':'std\_inventory\_to\_sales\_ci',
-        'new':'\\text{std inventory to sales}_{ci}'
+        'new':'\\text{std inventory to sales}_ci'
         },
         {
         'old':'inventory\_to\_sales\_ci',
-        'new':'\\text{inventory to sales}_{ci}'
+        'new':'\\text{inventory to sales}_ci'
         },
         {
         'old':'std\_asset\_tangibility\_ci',
-        'new':'\\text{std asset tangibility}_{ci}'
+        'new':'\\text{std asset tangibility}_ci'
         },
         {
         'old':'asset\_tangibility\_ci',
-        'new':'\\text{asset tangibility}_{ci}'
+        'new':'\\text{asset tangibility}_ci'
         },
         {
         'old':'std\_account\_paybable\_to\_asset\_ci',
-        'new':'\\text{std account paybable to asset}_{ci}'
+        'new':'\\text{std account paybable to asset}_ci'
         },
         {
         'old':'account\_paybable\_to\_asset\_ci',
-        'new':'\\text{account paybable to asset}_{ci}'
+        'new':'\\text{account paybable to asset}_ci'
         },
         #### 
         {
@@ -422,44 +422,14 @@ mutate(
 )
 ```
 
-<!-- #region kernel="R" -->
-# Expected signs
-
-| Metrics                        | comments                                           | variables                                                                                                                                                           | Roam_link                                       | Exepected sign |
-|--------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|----------------|
-| External finance dependence    |                                                    |                                                                                                                                                                     | #external-finance-dependence                    | Negative       |
-| R&D intensity                  | RD / Sales                                         | rdfee/sales                                                                                                                                                         | #rd-intensity                                   | Negative       |
-| Inventory to sales             | Inventory / sales                                  | 存货 (c81) / sales                                                                                                                                                  | #inventory-to-sales                             | Negative       |
-| % cash                         | Current asset - cash / current asset               | (cuasset- 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset                                                                   | #current-asset #cash                            | Negative       |
-| current ratio                  | Current asset /current liabilities                 | cuasset/流动负债合计 (c95)                                                                                                                                          | #current-ratio                                  | Negative       |
-| Quick ratio                    | (Current asset - Inventory)/current liabilities    | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)) / 流动负债合计 (c95)                                                                                | #quick-ratio                                    | Negative       |
-| cash ratio                     | (Cash + marketable securities)/current liabilities | (cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)                                                             | #cash-asset #cash-ratio                         | Negative       |
-| Working capital                | Current asset - current liabilities                | cuasset- 流动负债合计 (c95)                                                                                                                                         | #working-capital-requirement                    | Negative       |
-| Total Debt to Total Assets     | (Short-Tern Debt + Long-Term Debt)/total asset     | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 | #total-debt-to-total-assets                     | Negative       |
-| % receivable                   | receivable account / current asset                 | 应收帐款 (c80) / cuasset                                                                                                                                            | #account-receivable #current-asset              | Negative       |
-| working capital requirement    | Inventory + Accounts receivable - Accounts payable | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       | #working-capital                                | Positive       |
-| Return on Asset                | Net income / Total assets                          | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset | #return-on-asset                                | Ambiguous      |
-| Asset Turnover Ratio           | Total sales / ((delta total asset)/2)              | 全年营业收入合计 (c64) /($\Delta$ toasset/2)                                                                                                                        | #asset-turnover-ratio                           | Ambiguous      |
-| Asset tangibility              | Total fixed assets - Intangible assets             | tofixed - 无形资产 (c92)                                                                                                                                            | #asset-tangibility                              | Ambiguous      |
-| Account payable to total asset | (delta account payable)/ (delta total asset)       | ($\Delta$ 应付帐款  (c96))/ ($\Delta$$ (toasset))                                                                                                                   | #change-account-paybable-to-change-total-assets | Ambiguous      |
-<!-- #endregion -->
-
 <!-- #region kernel="SoS" -->
-## Table 1: Determinant of SO2 emission: so2 and financial ratio
+## Table 0:XXX
 
-$$ \begin{aligned} \text{SO2}{cit} &= \alpha \text{Financial ratio}_{ci} + \text{X}_{cit} + \gamma{t} + \epsilon_{cit} \end{aligned} $$
+$$ \begin{aligned} \text{SO2}{cit} &= \alpha \text{Financial ratio}_{ci} \times \text{Period} \times \text{policy mandate}_c + \gamma{c} + \gamma{t} + \epsilon_{cit} \end{aligned} $$
 
 For each industry
 
 <!-- #endregion -->
-
-```sos kernel="R"
-industries <- df_final %>% 
-group_by(short) %>% 
-summarise(credit_constraint = unique(credit_constraint)) %>%
-arrange(desc(credit_constraint))
-industries
-```
 
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}
 folder = 'Tables_0'
@@ -474,131 +444,36 @@ for ext in ['.txt', '.tex', '.pdf']:
 ```
 
 ```sos kernel="R"
-%get folder
-for (i in 1:nrow(industries)){
-    
-    sector_name <- industries[i, 'short']$short
-    
-    path = paste0(folder,"/table_",i,".txt")
-    title = paste0("Determinant of SO2 emission so2 and financial ratio ",sector_name)
-    t_1 <- felm(log(tso2) ~ 
-            #credit_constraint * period * tso2_mandate_c +
-            std_rd_intensity_ci  +
+%get path table
+t_0 <- felm(log(tso2) ~ rd_intensity_ci * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
-            |year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
             exactDOF = TRUE)
 
-    t_2 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_inventory_to_sales_ci   +
-                log(output) + log(employment) + log(capital)
-                | year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ inventory_to_sales_ci * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+            
+dep <- "Dependent variable: YYYY"
+fe1 <- list(
+    c("City-industry", "Yes", "Yes"),
     
-    t_3 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_receivable_curasset_ci  +
-                log(output) + log(employment) + log(capital)
-                |year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_4 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_cash_over_curasset_ci +
-                log(output) + log(employment) + log(capital)
-                | year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_5 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_current_ratio_ci  +
-                log(output) + log(employment) + log(capital)
-                | year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_6 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_quick_ratio_ci  +
-                log(output) + log(employment) + log(capital)
-                |year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_7 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_cash_ratio_ci   +
-                log(output) + log(employment) + log(capital)
-                | year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
+    c("Time-industry", "Yes", "Yes"),
     
+    c("City-Time","Yes", "Yes", "Yes")
+             )
 
-    t_8 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_working_capital_ci   +
-                log(output) + log(employment) + log(capital)
-                | year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-    
-    t_9 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_liabilities_assets_ci  +
-                log(output) + log(employment) + log(capital)
-                | year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_10 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_working_capital_requirement_ci  +
-                log(output) + log(employment) + log(capital)
-                | year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-    
-    t_11 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_return_on_asset_ci   +
-                log(output) + log(employment) + log(capital)
-                | year |0 | geocode4_corr, df_final %>% filter(short ==  sector_name),
-                exactDOF = TRUE)
-
-    t_12 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_sales_assets_ci  +
-                log(output) + log(employment) + log(capital)
-                | year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_13 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_asset_tangibility_ci +
-                log(output) + log(employment) + log(capital)
-                | year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_14 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_account_paybable_to_asset_ci  +
-                log(output) + log(employment) + log(capital)
-                |year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    dep <- "Dependent variable: SO2 emission"
-    fe1 <- list(
-        c("Time","Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-        #c("Time-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-        #c("City-Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-                 )
-
-    table_1 <- go_latex(list(
-        t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
-    ),
-        title=title,
-        dep_var = dep,
-        addFE=fe1,
-        save=TRUE,
-        note = FALSE,
-        name=path
-    ) 
-}
+table_1 <- go_latex(list(
+    t_0,t_1
+),
+    title="SO2 emission reduction, industry financial ratio and policy mandate",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+) 
 ```
 
 ```sos kernel="SoS"
@@ -607,422 +482,37 @@ tbe1  = "This table estimates eq(3). " \
 "clustered at the product level appear inparentheses."\
 "\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
 
-multicolumn ={
-    'Negative': 1,
-    'Positive': 13,
-    #'Ambiguous': 12,
-}
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
 
 #multi_lines_dep = '(city/product/trade regime/year)'
 #new_r = ['& test1', 'test2']
-for i in range(1, 30):
-    print('\n\nRank {} in term of credit constraint\n\n'.format(i))
-    lb.beautify(table_number = i,
-                #reorder_var = reorder,
-                #multi_lines_dep = multi_lines_dep,
-                #new_row= new_r,
-                multicolumn = multicolumn,
-                table_nte = tbe1,
-                jupyter_preview = True,
-                resolution = 280,
-                folder = folder)
-```
-
-<!-- #region kernel="SoS" -->
-## Table 2: Variation of SO2 emission: so2 and and financial ratio 
-
-$$ \begin{aligned} \text{SO2}{cit} &= \alpha \text{Financial ratio}_{ci} \times \text{Period} + \text{X}_{cit} + \gamma{t} + \gamma{c} + \epsilon_{cit} \end{aligned} $$
-
-For each industry
-<!-- #endregion -->
-
-```sos kernel="SoS"
-folder = 'Tables_0'
-table_nb = 1
-table = 'table_{}'.format(table_nb)
-path = os.path.join(folder, table + '.txt')
-if os.path.exists(folder) == False:
-        os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
-```
-
-```sos kernel="R"
-%get folder
-for (i in 1:nrow(industries)){
-    
-    sector_name <- industries[i, 'short']$short
-    
-    path = paste0(folder,"/table_",i,".txt")
-    title = paste0("Determinant of SO2 emission so2 and financial ratio ",sector_name)
-    t_1 <- felm(log(tso2) ~ 
-            #credit_constraint * period * tso2_mandate_c +
-            std_rd_intensity_ci* period  +
-            log(output) + log(employment) + log(capital)
-            |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-            exactDOF = TRUE)
-
-    t_2 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_inventory_to_sales_ci* period   +
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-    
-    t_3 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_receivable_curasset_ci* period  +
-                log(output) + log(employment) + log(capital)
-                |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_4 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_cash_over_curasset_ci* period +
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_5 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_current_ratio_ci* period  +
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_6 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_quick_ratio_ci* period  +
-                log(output) + log(employment) + log(capital)
-                |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_7 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_cash_ratio_ci * period  +
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    
-
-    t_8 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_working_capital_ci * period  +
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-    
-    t_9 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_liabilities_assets_ci * period +
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_10 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_working_capital_requirement_ci * period +
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-    
-    t_11 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_return_on_asset_ci * period +
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short ==  sector_name),
-                exactDOF = TRUE)
-
-    t_12 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_sales_assets_ci * period +
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_13 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_asset_tangibility_ci* period +
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_14 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_account_paybable_to_asset_ci* period  +
-                log(output) + log(employment) + log(capital)
-                |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    dep <- "Dependent variable: SO2 emission"
-    fe1 <- list(
-        c("Time","Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-        c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-        #c("City-Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-                 )
-
-    table_1 <- go_latex(list(
-        t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
-    ),
-        title=title,
-        dep_var = dep,
-        addFE=fe1,
-        save=TRUE,
-        note = FALSE,
-        name=path
-    ) 
-}
-```
-
-```sos kernel="SoS"
-tbe1  = "This table estimates eq(3). " \
-"Heteroskedasticity-robust standard errors" \
-"clustered at the product level appear inparentheses."\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-multicolumn ={
-    'Negative': 1,
-    'Positive': 13,
-    #'Ambiguous': 12,
-}
-
-#multi_lines_dep = '(city/product/trade regime/year)'
-#new_r = ['& test1', 'test2']
-for i in range(1, 30):
-    print('\n\nRank {} in term of credit constraint\n\n'.format(i))
-    lb.beautify(table_number = i,
-                #reorder_var = reorder,
-                #multi_lines_dep = multi_lines_dep,
-                #new_row= new_r,
-                multicolumn = multicolumn,
-                table_nte = tbe1,
-                jupyter_preview = True,
-                resolution = 280,
-                folder = folder)
-```
-
-<!-- #region kernel="SoS" -->
-## Table 3: Baseline Estimate, so2 and financial ratio
-
-$$ \begin{aligned} \text{SO2}{cit} &= \alpha \text{Financial ratio}_{ci} \times \text{Period} \times \text{policy mandate}_c  + \text{X}_{cit} + \gamma{t} + \gamma{c} + \epsilon_{cit} \end{aligned} $$
-
-For each industry
-<!-- #endregion -->
-
-```sos kernel="SoS"
-folder = 'Tables_0'
-table_nb = 1
-table = 'table_{}'.format(table_nb)
-path = os.path.join(folder, table + '.txt')
-if os.path.exists(folder) == False:
-        os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
-```
-
-```sos kernel="R"
-%get folder
-for (i in 1:nrow(industries)){
-    
-    sector_name <- industries[i, 'short']$short
-    
-    path = paste0(folder,"/table_",i,".txt")
-    title = paste0("Determinant of SO2 emission so2 and financial ratio ",sector_name)
-    t_1 <- felm(log(tso2) ~ 
-            #credit_constraint * period * tso2_mandate_c +
-            std_rd_intensity_ci* period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-            exactDOF = TRUE)
-
-    t_2 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_inventory_to_sales_ci* period  * tso2_mandate_c +
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-    
-    t_3 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_receivable_curasset_ci* period * tso2_mandate_c +
-                log(output) + log(employment) + log(capital)
-                |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_4 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_cash_over_curasset_ci* period * tso2_mandate_c+
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_5 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_current_ratio_ci* period * tso2_mandate_c +
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_6 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_quick_ratio_ci* period * tso2_mandate_c +
-                log(output) + log(employment) + log(capital)
-                |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_7 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_cash_ratio_ci * period * tso2_mandate_c +
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    
-
-    t_8 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_working_capital_ci * period * tso2_mandate_c +
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-    
-    t_9 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_liabilities_assets_ci * period * tso2_mandate_c+
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_10 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_working_capital_requirement_ci * period * tso2_mandate_c+
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-    
-    t_11 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_return_on_asset_ci * period * tso2_mandate_c+
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short ==  sector_name),
-                exactDOF = TRUE)
-
-    t_12 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_sales_assets_ci * period * tso2_mandate_c+
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_13 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_asset_tangibility_ci* period * tso2_mandate_c+
-                log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    t_14 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_account_paybable_to_asset_ci* period * tso2_mandate_c +
-                log(output) + log(employment) + log(capital)
-                |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
-                exactDOF = TRUE)
-
-    dep <- "Dependent variable: SO2 emission"
-    fe1 <- list(
-        c("Time","Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-        c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-        #c("City-Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-                 )
-
-    table_1 <- go_latex(list(
-        t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
-    ),
-        title=title,
-        dep_var = dep,
-        addFE=fe1,
-        save=TRUE,
-        note = FALSE,
-        name=path
-    ) 
-}
-```
-
-```sos kernel="SoS"
-tbe1  = "This table estimates eq(3). " \
-"Heteroskedasticity-robust standard errors" \
-"clustered at the product level appear inparentheses."\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-multicolumn ={
-    'Negative': 1,
-    'Positive': 13,
-    #'Ambiguous': 12,
-}
-
-reorder = {
-    # Old, New
-    17:3, ## Working capital
-    18:5,
-    19:7,
-    20:9,
-    21:11,
-    22:13,
-    23:15,
-    24:17,
-    25:19,
-    26:21,
-    27:23,
-    28:25,
-    29:27,
-    30:29
-}
-
-#multi_lines_dep = '(city/product/trade regime/year)'
-#new_r = ['& test1', 'test2']
-for i in range(1, 30):
-    print('\n\nRank {} in term of credit constraint\n\n'.format(i))
-    lb.beautify(table_number = i,
-                reorder_var = reorder,
-                #multi_lines_dep = multi_lines_dep,
-                #new_row= new_r,
-                multicolumn = multicolumn,
-                table_nte = tbe1,
-                jupyter_preview = True,
-                resolution = 280,
-                folder = folder)
-```
-
-<!-- #region kernel="SoS" -->
-Remove tables
-<!-- #endregion -->
-
-```sos kernel="SoS"
-folder = 'Tables_0'
-table_nb = 1
-table = 'table_{}'.format(table_nb)
-path = os.path.join(folder, table + '.txt')
-if os.path.exists(folder) == False:
-        os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+            folder = folder)
 ```
 
 <!-- #region kernel="SoS" nteract={"transient": {"deleting": false}} -->
 # Generate reports
 <!-- #endregion -->
 
-```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
+```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
 import os, time, shutil, urllib, ipykernel, json
 from pathlib import Path
 from notebook import notebookapp
 ```
 
-```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
+```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
 def create_report(extension = "html", keep_code = False, notebookname = None):
     """
     Create a report from the current notebook and save it in the 
@@ -1082,6 +572,6 @@ def create_report(extension = "html", keep_code = False, notebookname = None):
     print("Report Available at this adress:\n {}".format(dest))
 ```
 
-```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
-create_report(extension = "html", keep_code = False, notebookname = "02_so2_fin_ratio_city_sector_by_sector.ipynb")
+```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
+create_report(extension = "html", keep_code = False, notebookname = None)
 ```
