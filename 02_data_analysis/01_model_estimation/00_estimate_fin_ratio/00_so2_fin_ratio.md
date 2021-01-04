@@ -155,7 +155,12 @@ for key, value in enumerate(schema):
 ```
 
 ```sos kernel="SoS"
-download_data = True
+download_data = False
+filename = 'df_{}'.format(table)
+full_path_filename = 'SQL_OUTPUT_ATHENA/CSV/{}.csv'.format(filename)
+path_local = os.path.join(str(Path(path).parent.parent.parent), 
+                              "00_data_catalogue/temporary_local_data")
+df_path = os.path.join(path_local, filename + '.csv')
 
 if download_data:
     filename = 'df_{}'.format(table)
@@ -627,8 +632,8 @@ source(path)
 ```
 
 ```sos kernel="R"
-path = '../../../00_Data_catalogue/temporary_local_data/df_fin_dep_pollution_baseline.csv'
-df_final <- read_csv(path) %>%
+%get df_path
+df_final <- read_csv(df_path) %>%
 mutate_if(is.character, as.factor) %>%
     mutate_at(vars(starts_with("fe")), as.factor) %>%
 mutate(
@@ -2293,14 +2298,14 @@ for ext in ['.txt', '.tex', '.pdf']:
 path
 ```
 
-```sos nteract={"transient": {"deleting": false}} outputExpanded=false kernel="Python 3"
+```sos nteract={"transient": {"deleting": false}} outputExpanded=false kernel="python3"
 import os, time, shutil, urllib, ipykernel, json
 from pathlib import Path
 from notebook import notebookapp
 ```
 
-```sos nteract={"transient": {"deleting": false}} outputExpanded=false kernel="Python 3"
-def create_report(extension = "html", keep_code = False):
+```sos nteract={"transient": {"deleting": false}} outputExpanded=false kernel="python3"
+def create_report(extension = "html", keep_code = False, notebookname = None):
     """
     Create a report from the current notebook and save it in the 
     Report folder (Parent-> child directory)
@@ -2330,7 +2335,7 @@ def create_report(extension = "html", keep_code = False):
             sessions = json.load(req)
             notebookname = sessions[0]['name']
         except:
-            pass  
+            notebookname = notebookname    
     
     sep = '.'
     path = os.getcwd()
@@ -2359,6 +2364,6 @@ def create_report(extension = "html", keep_code = False):
     print("Report Available at this adress:\n {}".format(dest))
 ```
 
-```sos nteract={"transient": {"deleting": false}} outputExpanded=false kernel="Python 3"
-create_report(extension = "html", keep_code = False)
+```sos nteract={"transient": {"deleting": false}} outputExpanded=false kernel="python3"
+create_report(extension = "html", keep_code = False, notebookname = "00_so2_fin_ratio.ipynb")
 ```
