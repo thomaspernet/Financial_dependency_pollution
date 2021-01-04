@@ -195,7 +195,7 @@ Detail computation:
 | 4     | working capital requirement    | Inventory + Accounts receivable - Accounts payable | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       | #working-capital                                | negative       |                                                                                                                                                                                                                                          |
 | 5     | current ratio                  | Current asset /current liabilities                 | cuasset/流动负债合计 (c95)                                                                                                                                          | #current-ratio                                  | negative       | Asset divided by liabilities. Value above 1 indicates there are more assets than liabilities                                                                                                                                             |
 | 6     | Quick ratio                    | (Current asset - Inventory)/current liabilities    | (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                                          | #quick-ratio                                    | negative       | The quick ratio is a measure of liquidity. The higher the more liquid the company is. To improve the ratio, company should reduce the account receivable (reduce payment time) and increase the account payable (negociate payment term) |
-| 7     | cash ratio                     | (Cash + marketable securities)/current liabilities | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)/ 流动负债合计 (c95)                                                                                  | #cash-asset #cash-ratio                         | negative       | Cash divided by liabilities. A portion of short-term debt that can be financed by cash. A larger value indicates the company generates enough cash to cope with the short term debt                                                      |
+| 7     | cash ratio                     | 1-(Cash + marketable securities)/current liabilities | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)/ 流动负债合计 (c95)                                                                                  | #cash-asset #cash-ratio                         | negative       | Cash divided by liabilities. A portion of short-term debt that can be financed by cash. A larger value indicates the company generates enough cash to cope with the short term debt                                                      |
 | 8     | Total Debt to Total Assets     | (Short-Tern Debt + Long-Term Debt)/total asset     | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 | #total-debt-to-total-assets                     | negative       | Share of liabilities over total asset. Larger value indicates assets that are financed by external creditors                                                                                                                             |
 | 9     | Return on Asset                | Net income / Total assets                          | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset | #return-on-asset                                | negative       | Net income over total asset. Capacity of an asset to generate income. Larger value indicates that asset are used in an efficiente way to generate income                                                                                 |
 | 10    | Asset Turnover Ratio           | Total sales / ((delta total asset)/2)              | 全年营业收入合计 (c64) /($$\Delta$$ toasset/2)                                                                                                                      | #asset-turnover-ratio                           | negative       | Sales divided by the average changes in total asset. Larger value indicates better efficiency at using asset to generate revenue                                                                                                         |
@@ -589,7 +589,7 @@ SELECT
     0
   ) AS quick_ratio_it, 
 
-  CAST(
+  1 - CAST(
     SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
   ) / NULLIF(CAST(
     SUM(c95) AS DECIMAL(16, 5)
@@ -933,7 +933,7 @@ FROM
     0
   ) AS quick_ratio_it, 
 
-  CAST(
+  1- CAST(
     SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
   ) / NULLIF(CAST(
     SUM(c95) AS DECIMAL(16, 5)
@@ -1753,8 +1753,8 @@ FROM test
           val_2[ 'current_ratio' ] AS std_current_ratio_i, 
           val_1[ 'quick_ratio' ] AS quick_ratio_i, 
           val_2[ 'quick_ratio' ] AS std_quick_ratio_i,
-          val_1[ 'cash_ratio' ] AS cash_ratio_i, 
-          val_2[ 'cash_ratio' ] AS std_cash_ratio_i, 
+          1 - val_1[ 'cash_ratio' ] AS cash_ratio_i, 
+          1 - val_2[ 'cash_ratio' ] AS std_cash_ratio_i, 
           
           val_1[ 'liabilities_assets' ] AS liabilities_assets_i, 
           val_2[ 'liabilities_assets' ] AS std_liabilities_assets_i, 
@@ -2091,7 +2091,7 @@ schema = [{'Name': 'indu_2', 'Type': 'string', 'Comment': 'Two digits industry. 
  {'Name': 'std_current_ratio_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
  {'Name': 'quick_ratio_i', 'Type': 'double', 'Comment': '(cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)) / 流动负债合计 (c95)'},
  {'Name': 'std_quick_ratio_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'cash_ratio_i', 'Type': 'double', 'Comment': '(cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)'},
+ {'Name': 'cash_ratio_i', 'Type': 'double', 'Comment': '(1 - cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)'},
  {'Name': 'std_cash_ratio_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
  {'Name': 'liabilities_assets_i', 'Type': 'double', 'Comment': '(流动负债合计 (c95) + 长期负债合计 (c97)) / toasset'},
  {'Name': 'std_liabilities_assets_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
