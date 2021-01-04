@@ -136,7 +136,7 @@ for key, value in enumerate(schema):
 ```
 
 ```sos kernel="SoS"
-download_data = False
+download_data = True
 filename = 'df_{}'.format(table)
 full_path_filename = 'SQL_OUTPUT_ATHENA/CSV/{}.csv'.format(filename)
 path_local = os.path.join(str(Path(path).parent.parent.parent), 
@@ -481,15 +481,6 @@ if os.path.exists(folder) == False:
 for ext in ['.txt', '.tex', '.pdf']:
     x = [a for a in os.listdir(folder) if a.endswith(ext)]
     [os.remove(os.path.join(folder, i)) for i in x]
-```
-
-```sos kernel="R"
-summary(felm(log(tso2) ~ 
-            #credit_constraint * period * tso2_mandate_c +
-            std_rd_intensity_ci* period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            |fe_c_t |0 | geocode4_corr, df_final %>% filter(short == 'Machinery'),
-            exactDOF = TRUE))
 ```
 
 ```sos kernel="R"
