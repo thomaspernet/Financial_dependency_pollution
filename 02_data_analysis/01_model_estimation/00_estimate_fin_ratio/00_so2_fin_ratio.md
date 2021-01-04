@@ -155,7 +155,7 @@ for key, value in enumerate(schema):
 ```
 
 ```sos kernel="SoS"
-download_data = False
+download_data = True
 filename = 'df_{}'.format(table)
 full_path_filename = 'SQL_OUTPUT_ATHENA/CSV/{}.csv'.format(filename)
 path_local = os.path.join(str(Path(path).parent.parent.parent), 
@@ -198,27 +198,23 @@ pd.DataFrame(schema)
 ```
 
 <!-- #region kernel="SoS" -->
-# Correlation matrix indicator
-
-Summary of the ratio definition
-
-| Metrics                        | comments                                           | variables                                                                                                                                                           | Roam_link                                       | Exepected sign |
-|--------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|----------------|
-| External finance dependence    |                                                    |                                                                                                                                                                     | #external-finance-dependence                    | Negative       |
-| R&D intensity                  | RD / Sales                                         | rdfee/sales                                                                                                                                                         | #rd-intensity                                   | Negative       |
-| Inventory to sales             | Inventory / sales                                  | 存货 (c81) / sales                                                                                                                                                  | #inventory-to-sales                             | Negative       |
-| % cash                         | Current asset - cash / current asset               | (cuasset- 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset                                                                   | #current-asset #cash                            | Negative       |
-| current ratio                  | Current asset /current liabilities                 | cuasset/流动负债合计 (c95)                                                                                                                                          | #current-ratio                                  | Negative       |
-| Quick ratio                    | (Current asset - Inventory)/current liabilities    | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)) / 流动负债合计 (c95)                                                                                | #quick-ratio                                    | Negative       |
-| cash ratio                     | (Cash + marketable securities)/current liabilities | (cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)                                                             | #cash-asset #cash-ratio                         | Negative       |
-| Working capital                | Current asset - current liabilities                | cuasset- 流动负债合计 (c95)                                                                                                                                         | #working-capital-requirement                    | Negative       |
-| Total Debt to Total Assets     | (Short-Tern Debt + Long-Term Debt)/total asset     | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 | #total-debt-to-total-assets                     | Negative       |
-| % receivable                   | receivable account / current asset                 | 应收帐款 (c80) / cuasset                                                                                                                                            | #account-receivable #current-asset              | Negative       |
-| working capital requirement    | Inventory + Accounts receivable - Accounts payable | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       | #working-capital                                | Positive       |
-| Return on Asset                | Net income / Total assets                          | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset | #return-on-asset                                | Ambiguous      |
-| Asset Turnover Ratio           | Total sales / ((delta total asset)/2)              | 全年营业收入合计 (c64) /($\Delta$ toasset/2)                                                                                                                        | #asset-turnover-ratio                           | Ambiguous      |
-| Asset tangibility              | Total fixed assets - Intangible assets             | tofixed - 无形资产 (c92)                                                                                                                                            | #asset-tangibility                              | Ambiguous      |
-| Account payable to total asset | (delta account payable)/ (delta total asset)       | ($\Delta$ 应付帐款  (c96))/ ($\Delta$$ (toasset))                                                                                                                   | #change-account-paybable-to-change-total-assets | Ambiguous      |
+| Metrics                        | comments                                           | variables                                                                                                                                                           | Roam_link                                       | Exepected sign              |
+|--------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|-----------------------------|
+| External finance dependence    |                                                    |                                                                                                                                                                     | #external-finance-dependence                    | Negative                    |
+| R&D intensity                  | RD / Sales                                         | rdfee/sales                                                                                                                                                         | #rd-intensity                                   | Negative                    |
+| Inventory to sales             | Inventory / sales                                  | 存货 (c81) / sales                                                                                                                                                  | #inventory-to-sales                             | Negative                    |
+| % cash                         | Current asset - cash / current asset               | (cuasset- 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset                                                                   | #current-asset #cash                            | Negative                    |
+| current ratio                  | Current asset /current liabilities                 | cuasset/流动负债合计 (c95)                                                                                                                                          | #current-ratio                                  | Negative                    |
+| Quick ratio                    | (Current asset - Inventory)/current liabilities    | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)) / 流动负债合计 (c95)                                                                                | #quick-ratio                                    | Negative                    |
+| Liabilities over asset         | (Short-Tern Debt + Long-Term Debt)/total asset     | 1- (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                              | #total-debt-to-total-assets                     | Negative                    |
+| % receivable                   | receivable account / current asset                 | 应收帐款 (c80) / cuasset                                                                                                                                            | #account-receivable #current-asset              | Negative                    |
+| cash ratio                     | (Cash + marketable securities)/current liabilities | 1-(cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)                                                           | #cash-asset #cash-ratio                         | Positive                    |
+| Working capital                | Current asset - current liabilities                | cuasset- 流动负债合计 (c95)                                                                                                                                         | #working-capital-requirement                    | Positive                    |
+| working capital requirement    | Inventory + Accounts receivable - Accounts payable | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       | #working-capital                                | Positive                    |
+| Return on Asset                | Net income / Total assets                          | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset | #return-on-asset                                | Ambiguous                   |
+| Asset Turnover Ratio           | Total sales / ((delta total asset)/2)              | 全年营业收入合计 (c64) /($\Delta$ toasset/2)                                                                                                                        | #asset-turnover-ratio                           | Ambiguous                   |
+| Asset tangibility              | Total fixed assets - Intangible assets             | tofixed - 无形资产 (c92)                                                                                                                                            | #asset-tangibility                              | Ambiguous                   |
+| Account payable to total asset | (delta account payable)/ (delta total asset)       | ($\Delta$ 应付帐款  (c96))/ ($\Delta$$ (toasset))                                                                                                                   | #change-account-paybable-to-change-total-assets | Ambiguous (favour positive) |
 <!-- #endregion -->
 
 ```sos kernel="SoS"
@@ -641,6 +637,7 @@ mutate(
     polluted_di = relevel(as.factor(polluted_di), ref='BELOW'),
     polluted_mi = relevel(as.factor(polluted_mi), ref='BELOW'),
     polluted_mei = relevel(as.factor(polluted_mei), ref='BELOW'),
+    #std_cash_ratio_i = 1 - std_cash_ratio_i
     #working_capital_i = working_capital_i /1000000,
     #working_capital_requirement_i = working_capital_requirement_i /1000000,
     #liabilities_assets_m2_i = liabilities_assets_m2_i /1000000,
@@ -2282,8 +2279,8 @@ lb.beautify(table_number = table_nb,
            folder = folder)
 ```
 
-<!-- #region nteract={"transient": {"deleting": false}} kernel="SoS" -->
-# Generate reports
+<!-- #region kernel="SoS" -->
+# Table 13 & 14: SO2 emission reduction, industry financial ratio and policy mandate (clean)
 <!-- #endregion -->
 
 ```sos kernel="SoS"
@@ -2297,6 +2294,119 @@ for ext in ['.txt', '.tex', '.pdf']:
     [os.remove(os.path.join(folder, i)) for i in x]
 path
 ```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ credit_constraint * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_1 <- felm(log(tso2) ~ 
+            credit_constraint * period * tso2_mandate_c +
+            std_quick_ratio_i   * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ 
+            credit_constraint * period * tso2_mandate_c +
+            std_return_on_asset_i  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ 
+             credit_constraint * period * tso2_mandate_c +
+             std_liabilities_assets_i * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+
+t_4 <- felm(log(tso2) ~ 
+            credit_constraint * period * tso2_mandate_c +
+            std_receivable_curasset_i  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            |fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~ 
+            credit_constraint * period * tso2_mandate_c +
+            std_cash_ratio_i  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_6 <- felm(log(tso2) ~ 
+            credit_constraint * period * tso2_mandate_c +
+            std_working_capital_i  * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_7 <- felm(log(tso2) ~ 
+             credit_constraint * period * tso2_mandate_c +
+             std_sales_assets_i * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+t_8 <- felm(log(tso2) ~ 
+             credit_constraint * period * tso2_mandate_c +
+             std_account_paybable_to_asset_i * period * tso2_mandate_c +
+            log(output) + log(employment) + log(capital)
+            |fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
+            exactDOF = TRUE)
+
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("Time-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("City-Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8
+),
+    title="SO2 emission reduction, industry financial ratio and policy mandate (standardized values)",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the industry level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'Tight': 1,
+    'Loose': 5
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 250,
+           folder = folder)
+```
+
+<!-- #region nteract={"transient": {"deleting": false}} kernel="SoS" -->
+# Generate reports
+<!-- #endregion -->
 
 ```sos nteract={"transient": {"deleting": false}} outputExpanded=false kernel="python3"
 import os, time, shutil, urllib, ipykernel, json
