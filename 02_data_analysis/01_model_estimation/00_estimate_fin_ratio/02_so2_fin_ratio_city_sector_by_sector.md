@@ -425,23 +425,23 @@ mutate(
 <!-- #region kernel="R" -->
 # Expected signs
 
-| Metrics                        | comments                                           | variables                                                                                                                                                           | Roam_link                                       | Exepected sign              |
-|--------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|-----------------------------|
-| External finance dependence    |                                                    |                                                                                                                                                                     | #external-finance-dependence                    | Negative                    |
-| R&D intensity                  | RD / Sales                                         | rdfee/sales                                                                                                                                                         | #rd-intensity                                   | Negative                    |
-| Inventory to sales             | Inventory / sales                                  | 存货 (c81) / sales                                                                                                                                                  | #inventory-to-sales                             | Negative                    |
-| % cash                         | Current asset - cash / current asset               | (cuasset- 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset                                                                   | #current-asset #cash                            | Negative                    |
-| current ratio                  | Current asset /current liabilities                 | cuasset/流动负债合计 (c95)                                                                                                                                          | #current-ratio                                  | Negative                    |
-| Quick ratio                    | (Current asset - Inventory)/current liabilities    | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)) / 流动负债合计 (c95)                                                                                | #quick-ratio                                    | Negative                    |
-| Liabilities over asset         | (Short-Tern Debt + Long-Term Debt)/total asset     | 1- (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                              | #total-debt-to-total-assets                     | Negative                    |
-| % receivable                   | receivable account / current asset                 | 应收帐款 (c80) / cuasset                                                                                                                                            | #account-receivable #current-asset              | Negative                    |
-| cash ratio                     | (Cash + marketable securities)/current liabilities | 1-(cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)                                                           | #cash-asset #cash-ratio                         | Positive                    |
-| Working capital                | Current asset - current liabilities                | cuasset- 流动负债合计 (c95)                                                                                                                                         | #working-capital-requirement                    | Positive                    |
-| working capital requirement    | Inventory + Accounts receivable - Accounts payable | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       | #working-capital                                | Positive                    |
-| Return on Asset                | Net income / Total assets                          | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset | #return-on-asset                                | Ambiguous                   |
-| Asset Turnover Ratio           | Total sales / ((delta total asset)/2)              | 全年营业收入合计 (c64) /($\Delta$ toasset/2)                                                                                                                        | #asset-turnover-ratio                           | Ambiguous                   |
-| Asset tangibility              | Total fixed assets - Intangible assets             | tofixed - 无形资产 (c92)                                                                                                                                            | #asset-tangibility                              | Ambiguous                   |
-| Account payable to total asset | (delta account payable)/ (delta total asset)       | ($\Delta$ 应付帐款  (c96))/ ($\Delta$$ (toasset))                                                                                                                   | #change-account-paybable-to-change-total-assets | Ambiguous (favour positive) |
+| index | Metrics                        | comments                                                                                                    | variables                                                                                                                                                           | Roam_link                                       | Exepected sign              | Comment                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+|-------|--------------------------------|-------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1     | External finance dependence    | From #[[Fan et al. 2015 - Credit constraints, quality, and export prices - Theory and evidence from China]] |                                                                                                                                                                     | #external-finance-dependence                    | Negative                    | An industry’s external finance dependence (ExtFini) is defined as the share of capital expenditure not financed with cash flows from operations. If external finance dependence is high, the industry is more financially vulnerable and have higher credit needs                                                                                                                                                                                                                                                                              |
+| 2     | R&D intensity                  | RD / Sales                                                                                                  | rdfee/sales                                                                                                                                                         | #rd-intensity                                   | Negative                    | Share of RD expenditure over sales. larger values indicates larger use of sales to spend on RD. Say differently, lower borrowing done toward RD                                                                                                                                                                                                                                                                                                                                                                                                |
+| 3     | Inventory to sales             | Inventory / sales                                                                                           | 存货 (c81) / sales                                                                                                                                                  | #inventory-to-sales                             | Negative                    | Share of inventory over sales. Larger values indicates share of unsold or not consumed items. large values is a demonstration of tighter credit constraint                                                                                                                                                                                                                                                                                                                                                                                     |
+| 4     | % receivable                   | receivable account / current asset                                                                          | 应收帐款 (c80) / cuasset                                                                                                                                            | #account-receivable #current-asset              | Negative                    | Share of receivable over current asset. Larger value indicates longer time before collecting the money from the customers                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| 5     | Liabilities over asset         | (Short-Tern Debt + Long-Term Debt)/total asset                                                              | 1- (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                              | #total-debt-to-total-assets                     | Negative                    | Share of liabilities over total asset. Larger value indicates assets that are financed by external creditors                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| 6     | working capital requirement    | Inventory + Accounts receivable - Accounts payable                                                          | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       | #working-capital                                | Negative                    | Working Capital Requirement is the amount of money needed to finance the gap between disbursements (payments to suppliers) and receipts (payments from customers). Larger values indicate the amount of money needed to meet the debt.                                                                                                                                                                                                                                                                                                         |
+| 7     | % cash                         | Current asset - cash / current asset                                                                        | (cuasset- 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset                                                                   | #current-asset #cash                            | Positive                    | Share of cash asset over current asset. Larger values indicate more cash in hand.                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| 8     | cash ratio                     | (Cash + marketable securities)/current liabilities                                                          | 1-(cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)                                                           | #cash-asset #cash-ratio                         | Positive                    | Cash divided by liabilities. A portion of short-term debt that can be financed by cash. A larger value indicates the company generates enough cash to cope with the short term debt                                                                                                                                                                                                                                                                                                                                                            |
+| 9     | Working capital                | Current asset - current liabilities                                                                         | cuasset- 流动负债合计 (c95)                                                                                                                                         | #working-capital-requirement                    | Positive                    | Difference between current asset and current liabilities. Larger value indicates that assets are enough to cope with the short term need                                                                                                                                                                                                                                                                                                                                                                                                       |
+| 10    | current ratio                  | Current asset /current liabilities                                                                          | cuasset/流动负债合计 (c95)                                                                                                                                          | #current-ratio                                  | Ambiguous                   | Asset divided by liabilities. Values above 1 indicate there are more assets than liabilities. There are two effects on the liquidity constraint. Larger values imply the company has more liquidity, hence they may be less dependent on the formal financial market. By analogy, the financial market prefers to invest or provide money to the more liquid company (reduce the risk default)                                                                                                                                                 |
+| 11    | Quick ratio                    | (Current asset - Inventory)/current liabilities                                                             | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)) / 流动负债合计 (c95)                                                                                | #quick-ratio                                    | Ambiguous                   | The quick ratio is a measure of liquidity. The higher the more liquid the company is. To improve the ratio, the company should reduce the account receivable (reduce payment time) and increase the account payable (negotiate payment term). There are two effects on the liquidity constraint. Larger values imply the company has more liquidity, hence they may be less dependent on the formal financial market. By analogy, the financial market prefers to invest or provide money to the more liquid company (reduce the risk default) |
+| 12    | Return on Asset                | Net income / Total assets                                                                                   | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset | #return-on-asset                                | Ambiguous                   | Net income over total asset. Capacity of an asset to generate income. Larger value indicates that asset are used in an efficiente way to generate income                                                                                                                                                                                                                                                                                                                                                                                       |
+| 13    | Asset Turnover Ratio           | Total sales / ((delta total asset)/2)                                                                       | 全年营业收入合计 (c64) /($\Delta$ toasset/2)                                                                                                                        | #asset-turnover-ratio                           | Ambiguous                   | Sales divided by the average changes in total asset. Larger value indicates better efficiency at using asset to generate revenue                                                                                                                                                                                                                                                                                                                                                                                                               |
+| 14    | Asset tangibility              | Total fixed assets - Intangible assets                                                                      | tofixed - 无形资产 (c92)                                                                                                                                            | #asset-tangibility                              | Ambiguous                   | Difference between fixed sset and intangible asset. Larger value indicates more collateral, hence higher borrowing capacity                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| 15    | Account payable to total asset | (delta account payable)/ (delta total asset)                                                                | ($\Delta$ 应付帐款  (c96))/ ($\Delta$$ (toasset))                                                                                                                   | #change-account-paybable-to-change-total-assets | Ambiguous (favour positive) | Variation of account payable over variation total asset. If the nominator larger than the denominator, it means the account payable grew larger than an asset, or more time is given to pay back the supplier relative to the total asset.  Say differently,  companies can more easily access buyer or supplier trade credit, they may be less dependent on the formal financial market                                                                                                                                                       |
 <!-- #endregion -->
 
 <!-- #region kernel="SoS" -->
@@ -512,57 +512,56 @@ for (i in 1:nrow(industries)){
                 log(output) + log(employment) + log(capital)
                 |year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
-
+    
     t_4 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_cash_over_curasset_ci +
+                 #credit_constraint * period * tso2_mandate_c +
+                 std_liabilities_assets_ci  +
                 log(output) + log(employment) + log(capital)
                 | year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
-
+    
     t_5 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_current_ratio_ci  +
+                 #credit_constraint * period * tso2_mandate_c +
+                 std_working_capital_requirement_ci  +
                 log(output) + log(employment) + log(capital)
                 | year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
 
     t_6 <- felm(log(tso2) ~ 
                 #credit_constraint * period * tso2_mandate_c +
-                std_quick_ratio_ci  +
+                std_cash_over_curasset_ci +
                 log(output) + log(employment) + log(capital)
-                |year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
+                | year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
-
+    
     t_7 <- felm(log(tso2) ~ 
                 #credit_constraint * period * tso2_mandate_c +
                 std_cash_ratio_ci   +
                 log(output) + log(employment) + log(capital)
                 | year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
-
     
-
     t_8 <- felm(log(tso2) ~ 
                 #credit_constraint * period * tso2_mandate_c +
                 std_working_capital_ci   +
                 log(output) + log(employment) + log(capital)
                 | year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
-    
+
     t_9 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_liabilities_assets_ci  +
+                #credit_constraint * period * tso2_mandate_c +
+                std_current_ratio_ci  +
                 log(output) + log(employment) + log(capital)
                 | year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
 
     t_10 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_working_capital_requirement_ci  +
+                #credit_constraint * period * tso2_mandate_c +
+                std_quick_ratio_ci  +
                 log(output) + log(employment) + log(capital)
-                | year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
+                |year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
+
     
     t_11 <- felm(log(tso2) ~ 
                 #credit_constraint * period * tso2_mandate_c +
@@ -617,75 +616,74 @@ for (i in 1:nrow(industries)){
     
     t_1 <- felm(log(tso2) ~ 
             #credit_constraint * period * tso2_mandate_c +
-            std_rd_intensity_ci* period  +
+            std_rd_intensity_ci * period +
             log(output) + log(employment) + log(capital)
             |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
             exactDOF = TRUE)
 
     t_2 <- felm(log(tso2) ~ 
                 #credit_constraint * period * tso2_mandate_c +
-                std_inventory_to_sales_ci* period   +
+                std_inventory_to_sales_ci * period  +
                 log(output) + log(employment) + log(capital)
                 | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
     
     t_3 <- felm(log(tso2) ~ 
                 #credit_constraint * period * tso2_mandate_c +
-                std_receivable_curasset_ci* period  +
+                std_receivable_curasset_ci * period +
                 log(output) + log(employment) + log(capital)
                 |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
-
+    
     t_4 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_cash_over_curasset_ci* period +
+                 #credit_constraint * period * tso2_mandate_c +
+                 std_liabilities_assets_ci * period +
                 log(output) + log(employment) + log(capital)
                 | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
-
+    
     t_5 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_current_ratio_ci* period  +
+                 #credit_constraint * period * tso2_mandate_c +
+                 std_working_capital_requirement_ci * period +
                 log(output) + log(employment) + log(capital)
                 | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
 
     t_6 <- felm(log(tso2) ~ 
                 #credit_constraint * period * tso2_mandate_c +
-                std_quick_ratio_ci* period  +
+                std_cash_over_curasset_ci * period +
                 log(output) + log(employment) + log(capital)
-                |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
+                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
-
+    
     t_7 <- felm(log(tso2) ~ 
                 #credit_constraint * period * tso2_mandate_c +
-                std_cash_ratio_ci * period  +
+                std_cash_ratio_ci * period +
                 log(output) + log(employment) + log(capital)
                 | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
-
     
-
     t_8 <- felm(log(tso2) ~ 
                 #credit_constraint * period * tso2_mandate_c +
-                std_working_capital_ci * period  +
+                std_working_capital_ci * period +
                 log(output) + log(employment) + log(capital)
                 | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
-    
+
     t_9 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_liabilities_assets_ci * period +
+                #credit_constraint * period * tso2_mandate_c +
+                std_current_ratio_ci * period +
                 log(output) + log(employment) + log(capital)
                 | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
 
     t_10 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_working_capital_requirement_ci * period +
+                #credit_constraint * period * tso2_mandate_c +
+                std_quick_ratio_ci * period +
                 log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
+                |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
+
     
     t_11 <- felm(log(tso2) ~ 
                 #credit_constraint * period * tso2_mandate_c +
@@ -696,21 +694,21 @@ for (i in 1:nrow(industries)){
 
     t_12 <- felm(log(tso2) ~ 
                  #credit_constraint * period * tso2_mandate_c +
-                 std_sales_assets_ci * period +
+                 std_sales_assets_ci* period +
                 log(output) + log(employment) + log(capital)
                 | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
 
     t_13 <- felm(log(tso2) ~ 
                  #credit_constraint * period * tso2_mandate_c +
-                 std_asset_tangibility_ci* period +
+                 std_asset_tangibility_ci * period+
                 log(output) + log(employment) + log(capital)
                 | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
 
     t_14 <- felm(log(tso2) ~ 
                  #credit_constraint * period * tso2_mandate_c +
-                 std_account_paybable_to_asset_ci* period  +
+                 std_account_paybable_to_asset_ci * period +
                 log(output) + log(employment) + log(capital)
                 |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
@@ -741,75 +739,74 @@ for (i in 1:nrow(industries)){
     
     t_1 <- felm(log(tso2) ~ 
             #credit_constraint * period * tso2_mandate_c +
-            std_rd_intensity_ci* period * tso2_mandate_c +
+            std_rd_intensity_ci * period * tso2_mandate_c +
             log(output) + log(employment) + log(capital)
             |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
             exactDOF = TRUE)
 
     t_2 <- felm(log(tso2) ~ 
                 #credit_constraint * period * tso2_mandate_c +
-                std_inventory_to_sales_ci* period  * tso2_mandate_c +
+                std_inventory_to_sales_ci * period * tso2_mandate_c +
                 log(output) + log(employment) + log(capital)
                 | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
     
     t_3 <- felm(log(tso2) ~ 
                 #credit_constraint * period * tso2_mandate_c +
-                std_receivable_curasset_ci* period * tso2_mandate_c +
+                std_receivable_curasset_ci * period * tso2_mandate_c+
                 log(output) + log(employment) + log(capital)
                 |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
-
+    
     t_4 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_cash_over_curasset_ci* period * tso2_mandate_c+
+                 #credit_constraint * period * tso2_mandate_c +
+                 std_liabilities_assets_ci * period * tso2_mandate_c+
                 log(output) + log(employment) + log(capital)
                 | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
-
+    
     t_5 <- felm(log(tso2) ~ 
-                #credit_constraint * period * tso2_mandate_c +
-                std_current_ratio_ci* period * tso2_mandate_c +
+                 #credit_constraint * period * tso2_mandate_c +
+                 std_working_capital_requirement_ci * period * tso2_mandate_c+
                 log(output) + log(employment) + log(capital)
                 | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
 
     t_6 <- felm(log(tso2) ~ 
                 #credit_constraint * period * tso2_mandate_c +
-                std_quick_ratio_ci* period * tso2_mandate_c +
+                std_cash_over_curasset_ci * period * tso2_mandate_c+
                 log(output) + log(employment) + log(capital)
-                |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
+                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
-
+    
     t_7 <- felm(log(tso2) ~ 
                 #credit_constraint * period * tso2_mandate_c +
-                std_cash_ratio_ci * period * tso2_mandate_c +
+                std_cash_ratio_ci * period * tso2_mandate_c  +
                 log(output) + log(employment) + log(capital)
                 | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
-
     
-
     t_8 <- felm(log(tso2) ~ 
                 #credit_constraint * period * tso2_mandate_c +
-                std_working_capital_ci * period * tso2_mandate_c +
+                std_working_capital_ci * period * tso2_mandate_c+
                 log(output) + log(employment) + log(capital)
                 | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
-    
+
     t_9 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_liabilities_assets_ci * period * tso2_mandate_c+
+                #credit_constraint * period * tso2_mandate_c +
+                std_current_ratio_ci * period * tso2_mandate_c+
                 log(output) + log(employment) + log(capital)
                 | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
 
     t_10 <- felm(log(tso2) ~ 
-                 #credit_constraint * period * tso2_mandate_c +
-                 std_working_capital_requirement_ci * period * tso2_mandate_c+
+                #credit_constraint * period * tso2_mandate_c +
+                std_quick_ratio_ci * period * tso2_mandate_c+
                 log(output) + log(employment) + log(capital)
-                | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
+                |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
+
     
     t_11 <- felm(log(tso2) ~ 
                 #credit_constraint * period * tso2_mandate_c +
@@ -820,21 +817,21 @@ for (i in 1:nrow(industries)){
 
     t_12 <- felm(log(tso2) ~ 
                  #credit_constraint * period * tso2_mandate_c +
-                 std_sales_assets_ci * period * tso2_mandate_c+
+                 std_sales_assets_ci* period * tso2_mandate_c+
                 log(output) + log(employment) + log(capital)
                 | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
 
     t_13 <- felm(log(tso2) ~ 
                  #credit_constraint * period * tso2_mandate_c +
-                 std_asset_tangibility_ci* period * tso2_mandate_c+
+                 std_asset_tangibility_ci * period* tso2_mandate_c+
                 log(output) + log(employment) + log(capital)
                 | geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
 
     t_14 <- felm(log(tso2) ~ 
                  #credit_constraint * period * tso2_mandate_c +
-                 std_account_paybable_to_asset_ci* period * tso2_mandate_c +
+                 std_account_paybable_to_asset_ci * period * tso2_mandate_c+
                 log(output) + log(employment) + log(capital)
                 |geocode4_corr + year |0 | geocode4_corr, df_final %>% filter(short == sector_name),
                 exactDOF = TRUE)
@@ -858,8 +855,7 @@ for (i in 1:nrow(industries)){
     ) 
     
     t <- t+3
-    
-    
+       
 }
 ```
 
@@ -871,8 +867,8 @@ tbe1  = "This table estimates eq(3). " \
 
 multicolumn ={
     'Negative': 1,
-    'Positive': 13,
-    #'Ambiguous': 12,
+    'Positive': 9,
+    #'Ambiguous': 10,
 }
 
 reorder = {
@@ -902,7 +898,7 @@ for i in range(1, 88):
                     reorder_var = reorder,
                     #multi_lines_dep = multi_lines_dep,
                     #new_row= new_r,
-                    multicolumn = multicolumn,
+                    #multicolumn = multicolumn,
                     table_nte = tbe1,
                     jupyter_preview = True,
                     resolution = 280,
@@ -912,7 +908,7 @@ for i in range(1, 88):
                     #reorder_var = reorder,
                     #multi_lines_dep = multi_lines_dep,
                     #new_row= new_r,
-                    multicolumn = multicolumn,
+                    #multicolumn = multicolumn,
                     table_nte = tbe1,
                     jupyter_preview = True,
                     resolution = 280,
