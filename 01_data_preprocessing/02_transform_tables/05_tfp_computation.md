@@ -518,6 +518,8 @@ WHERE (
   asif_firms_prepared.year >= '2001'
   AND
   asif_firms_prepared.year <= '2007'
+  AND output > midput 
+  AND midput > 0
   )
   )
   SELECT 
@@ -640,6 +642,8 @@ WITH test as (
       AND output < captal_upper_bound 
       AND asif_firms_prepared.year >= '2001' 
       AND asif_firms_prepared.year <= '2007'
+      AND output > midput 
+      AND midput > 0
     )
 ) 
 SELECT 
@@ -751,8 +755,55 @@ df_input %>% head()
 Prepare R code for transformation, rename the final table `df_output`. Make sure there is no missing values, the crawler cannot handle missing values, neither any econometrics or machine learning model
 <!-- #endregion -->
 
-```sos kernel="R"
+<!-- #region kernel="R" -->
+Note that, we change the program to make sure we can use it within our environment. The original file can be found here https://github.com/GabrieleRovigatti/prodest/tree/master/prodest/R
 
+We bring together the file https://github.com/GabrieleRovigatti/prodest/blob/master/prodest/R/auxFun.R and https://github.com/GabrieleRovigatti/prodest/blob/master/prodest/R/prodestOPLP.R. We change a few lines of codes to avoid issue with the data preparation. 
+<!-- #endregion -->
+
+```sos kernel="R"
+path = "TFP_R_PROGRAM/program_OP_TFP.R"
+source(path)
+```
+
+```sos kernel="python3"
+import time
+start_time = time.time()
+```
+
+```sos kernel="R"
+df_input$id_1 <- df_input %>% group_indices(firm) 
+OP.fit <- prodestOP(Y = log(df_input$output),
+                    fX = log(df_input$employ),
+                    sX= log(df_input$captal),
+                    pX = log(df_input$midput),
+                    idvar = df_input$id_1,
+                    timevar = df_input$year)
+```
+
+```sos kernel="python3"
+(time.time() - start_time)/60
+```
+
+```sos kernel="R"
+OP.fit
+```
+
+<!-- #region kernel="R" -->
+Compute the TFP using the coefficients of employment and capital
+<!-- #endregion -->
+
+```sos kernel="R"
+df_input$tfp_OP <- log(df_input$output) - (log(df_input$employ) * OP.fit$pars[1] +
+                                      log(df_input$captal) * OP.fit$pars[2])
+```
+
+```sos kernel="R"
+df_output <- df_input %>% select (-id_1)
+```
+
+```sos kernel="R"
+glimpse(df_output)
 ```
 
 <!-- #region kernel="R" -->
@@ -767,7 +818,7 @@ write.csv(df_output, path_temporary_file_out, row.names=FALSE)
 ```
 
 <!-- #region kernel="SoS" -->
-Save the data back in the S3 folder using Python 
+Save the data back in the S3 folder using Python
 <!-- #endregion -->
 
 ```sos kernel="python3"
@@ -795,7 +846,7 @@ To validate the query, please fillin the json below. Don't forget to change the 
 <!-- #endregion -->
 
 ```sos kernel="python3"
-partition_keys = []
+partition_keys = ['year', 'ownership']
 ```
 
 <!-- #region kernel="SoS" -->
@@ -803,7 +854,7 @@ partition_keys = []
 <!-- #endregion -->
 
 ```sos kernel="python3"
-step = 0
+step = 3
 ```
 
 <!-- #region kernel="SoS" -->
@@ -821,14 +872,49 @@ Bear in mind that CSV SerDe (OpenCSVSerDe) does not support empty fields in colu
 ```sos kernel="python3"
 schema = [
     {
-        "Name": "VAR1",
-        "Type": "",
+        "Name": "firm",
+        "Type": "string",
+        "Comment": "Firm ID"
+    },
+    {
+        "Name": "year",
+        "Type": "string",
         "Comment": ""
     },
     {
-        "Name": "VAR2",
-        "Type": "",
+        "Name": "output",
+        "Type": "double",
+        "Comment": "output"
+    },
+    {
+        "Name": "employ",
+        "Type": "double",
+        "Comment": "employement"
+    },
+    {
+        "Name": "captal",
+        "Type": "double",
+        "Comment": "Capital"
+    },
+    {
+        "Name": "midput",
+        "Type": "double",
+        "Comment": "Intermediate input"
+    },
+    {
+        "Name": "ownership",
+        "Type": "string",
+        "Comment": "firm s ownership"
+    },
+    {
+        "Name": "geocode4_corr",
+        "Type": "string",
         "Comment": ""
+    },
+    {
+        "Name": "tfp_OP",
+        "Type": "double",
+        "Comment": "Estimate TFP using Olley and Pakes approach"
     }
 ]
 ```
@@ -839,7 +925,7 @@ schema = [
 
 ```sos kernel="python3"
 description = """
-
+Compute TFP using Olley and Pakes approach at the firm level
 """
 ```
 
@@ -852,8 +938,8 @@ description = """
 <!-- #endregion -->
 
 ```sos kernel="python3"
-DatabaseName = ''
-TablePrefix = ''
+DatabaseName = 'firms_survey'
+TablePrefix = 'asif_tfp_'
 ```
 
 ```sos kernel="python3"
@@ -874,7 +960,7 @@ json_etl
 ```
 
 ```sos kernel="python3"
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_TEMPLATE.json')) as json_file:
+with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
 
@@ -886,17 +972,17 @@ Remove the step number from the current file (if exist)
 index_to_remove = next(
                 (
                     index
-                    for (index, d) in enumerate(parameters['TABLES']['PREPARATION']['STEPS'])
+                    for (index, d) in enumerate(parameters['TABLES']['TRANSFORMATION']['STEPS'])
                     if d["step"] == step
                 ),
                 None,
             )
 if index_to_remove != None:
-    parameters['TABLES']['PREPARATION']['STEPS'].pop(index_to_remove)
+    parameters['TABLES']['TRANSFORMATION']['STEPS'].pop(index_to_remove)
 ```
 
 ```sos kernel="python3"
-parameters['TABLES']['PREPARATION']['STEPS'].append(json_etl)
+parameters['TABLES']['TRANSFORMATION']['STEPS'].append(json_etl)
 ```
 
 <!-- #region kernel="SoS" -->
@@ -904,7 +990,7 @@ Save JSON
 <!-- #endregion -->
 
 ```sos kernel="python3"
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_TEMPLATE.json'), "w")as outfile:
+with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json'), "w")as outfile:
     json.dump(parameters, outfile)
 ```
 
@@ -940,16 +1026,14 @@ schema = [
 
 ```sos kernel="python3"
 name_crawler = 'table-test-parser'
-Role = ''
-DatabaseName = ''
-TablePrefix = 'table_test_'
+Role = 'arn:aws:iam::468786073381:role/AWSGlueServiceRole-crawler-datalake'
+#DatabaseName = 'firms_survey'
+#TablePrefix = 'asif_tfp_'
 ```
 
 ```sos kernel="python3"
 target_S3URI = os.path.join('s3://',bucket, s3_output)
 table_name = '{}{}'.format(TablePrefix, os.path.basename(target_S3URI).lower())
-
-
 ```
 
 ```sos kernel="python3"
@@ -987,9 +1071,9 @@ You are required to define the group(s) that Athena will use to compute the dupl
 <!-- #endregion -->
 
 ```sos kernel="python3"
-partition_keys = []
+partition_keys = ['firm', 'year']
 
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_TEMPLATE.json')) as json_file:
+with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
 
@@ -1071,6 +1155,10 @@ Bear in mind the code will erase the previous README.
 <!-- #endregion -->
 
 ```sos kernel="python3"
+table_name
+```
+
+```sos kernel="python3"
 README = """
 # Data Catalogue
 
@@ -1115,7 +1203,13 @@ for key, value in parameters['TABLES'].items():
                 os.path.basename(schema['metadata']['target_S3URI']).lower()
             )
         else:
-            table_name = schema['metadata']['TableName']
+            try:
+                table_name = schema['metadata']['TableName']
+            except:
+                table_name = '{}{}'.format(
+                schema['metadata']['TablePrefix'],
+                os.path.basename(schema['metadata']['target_S3URI']).lower()
+            )
         
         tb = pd.json_normalize(schema['schema']).to_markdown()
         toc = "{}{}".format(github_link, table_name)
@@ -1188,9 +1282,9 @@ client_lambda = boto3.client(
 ```
 
 ```sos kernel="python3"
-primary_key = ''
-secondary_key = ''
-y_var = ''
+primary_key = 'year'
+secondary_key = 'ownership'
+y_var = 'tfp_OP'
 ```
 
 ```sos kernel="python3"
@@ -1232,7 +1326,7 @@ from notebook import notebookapp
 ```
 
 ```sos kernel="python3"
-def create_report(extension = "html", keep_code = False):
+def create_report(extension = "html", keep_code = False, notebookname = None):
     """
     Create a report from the current notebook and save it in the 
     Report folder (Parent-> child directory)
@@ -1262,7 +1356,7 @@ def create_report(extension = "html", keep_code = False):
             sessions = json.load(req)
             notebookname = sessions[0]['name']
         except:
-            pass  
+            notebookname = notebookname  
     
     sep = '.'
     path = os.getcwd()
@@ -1292,5 +1386,5 @@ def create_report(extension = "html", keep_code = False):
 ```
 
 ```sos kernel="python3"
-create_report(extension = "html", keep_code = True)
+create_report(extension = "html", keep_code = True, notebookname = '05_tfp_computation.ipynb')
 ```

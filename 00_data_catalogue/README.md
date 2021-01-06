@@ -20,6 +20,7 @@
 - [china_sector_pollution_threshold](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-china_sector_pollution_threshold)
 - [asif_industry_financial_ratio_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_financial_ratio_industry)
 - [fin_dep_pollution_baseline_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_industry)
+- [asif_tfp_firm_level](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_tfp_firm_level)
 
     
 
@@ -633,5 +634,25 @@
 | 52 | fe_c_i                            | bigint        | City industry fixed effect                                                                                                                                          |
 | 53 | fe_t_i                            | bigint        | year industry fixed effect                                                                                                                                          |
 | 54 | fe_c_t                            | bigint        | city industry fixed effect                                                                                                                                          |
+
+    
+
+## Table asif_tfp_firm_level
+
+- Database: firms_survey
+- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/TFP/FIRM_LEVEL`
+- Partitition: ['year', 'ownership']
+
+|    | Name          | Type   | Comment                                     |
+|---:|:--------------|:-------|:--------------------------------------------|
+|  0 | firm          | string | Firm ID                                     |
+|  1 | year          | string |                                             |
+|  2 | output        | double | output                                      |
+|  3 | employ        | double | employement                                 |
+|  4 | captal        | double | Capital                                     |
+|  5 | midput        | double | Intermediate input                          |
+|  6 | ownership     | string | firm s ownership                            |
+|  7 | geocode4_corr | string |                                             |
+|  8 | tfp_OP        | double | Estimate TFP using Olley and Pakes approach |
 
     
