@@ -484,6 +484,331 @@ for ext in ['.txt', '.tex', '.pdf']:
 ```
 
 ```sos kernel="R"
+df_final <- df_final %>% mutate(q_tso2_mandate_c = ntile(tso2_mandate_c, 3))
+df_final %>% 
+mutate(q_tso2_mandate_c = ntile(tso2_mandate_c, 3)) %>% 
+select(tso2_mandate_c, q_tso2_mandate_c, ) %>%
+distinct() %>% 
+arrange(q_tso2_mandate_c, tso2_mandate_c)
+```
+
+<!-- #region kernel="R" -->
+Test filter policy mandate
+<!-- #endregion -->
+
+```sos kernel="R"
+#summary(felm(log(tso2) ~ 
+            #credit_constraint * period * tso2_mandate_c +
+#            std_rd_intensity_ci * period +
+#            log(output) + log(employment) + log(capital)
+#            |fe_c_t + fe_t_i + fe_c_i|0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == 3),
+#            exactDOF = TRUE))
+```
+
+```sos kernel="R"
+%get folder
+t <- 1
+for (i in 1:3){
+    
+    #sector_name <- industries[i, 'short']$short
+    
+    title_1 = paste0("Determinant of SO2 emission, so2 and financial ratio quantile",i)
+    path_1 = paste0(folder,"/table_",t ,".txt")
+    t_1 <- felm(log(tso2) ~ 
+            #credit_constraint * period * tso2_mandate_c +
+            std_rd_intensity_ci  +
+            log(output) + log(employment) + log(capital)
+            |fe_c_t + fe_t_i|0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+            exactDOF = TRUE)
+
+    t_2 <- felm(log(tso2) ~ 
+                #credit_constraint * period * tso2_mandate_c +
+                std_inventory_to_sales_ci   +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i|0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+    
+    t_3 <- felm(log(tso2) ~ 
+                #credit_constraint * period * tso2_mandate_c +
+                std_receivable_curasset_ci  +
+                log(output) + log(employment) + log(capital)
+                |fe_c_t + fe_t_i|0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+    
+    t_4 <- felm(log(tso2) ~ 
+                 #credit_constraint * period * tso2_mandate_c +
+                 std_liabilities_assets_ci  +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i|0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+    
+    t_5 <- felm(log(tso2) ~ 
+                 #credit_constraint * period * tso2_mandate_c +
+                 std_working_capital_requirement_ci  +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i|0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+
+    t_6 <- felm(log(tso2) ~ 
+                #credit_constraint * period * tso2_mandate_c +
+                std_cash_over_curasset_ci +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i |0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+    
+    t_7 <- felm(log(tso2) ~ 
+                #credit_constraint * period * tso2_mandate_c +
+                std_cash_ratio_ci   +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i|0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+    
+    t_8 <- felm(log(tso2) ~ 
+                #credit_constraint * period * tso2_mandate_c +
+                std_working_capital_ci   +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i |0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+
+    t_9 <- felm(log(tso2) ~ 
+                #credit_constraint * period * tso2_mandate_c +
+                std_current_ratio_ci  +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i|0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+
+    t_10 <- felm(log(tso2) ~ 
+                #credit_constraint * period * tso2_mandate_c +
+                std_quick_ratio_ci  +
+                log(output) + log(employment) + log(capital)
+                |fe_c_t + fe_t_i|0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+
+    
+    t_11 <- felm(log(tso2) ~ 
+                #credit_constraint * period * tso2_mandate_c +
+                std_return_on_asset_ci   +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i |0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+
+    t_12 <- felm(log(tso2) ~ 
+                 #credit_constraint * period * tso2_mandate_c +
+                 std_sales_assets_ci  +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i |0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+
+    t_13 <- felm(log(tso2) ~ 
+                 #credit_constraint * period * tso2_mandate_c +
+                 std_asset_tangibility_ci +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i|0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+
+    t_14 <- felm(log(tso2) ~ 
+                 #credit_constraint * period * tso2_mandate_c +
+                 std_account_paybable_to_asset_ci  +
+                log(output) + log(employment) + log(capital)
+                |fe_c_t + fe_t_i|0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+
+    dep <- "Dependent variable: SO2 emission"
+    fe1 <- list(
+        c("city-Time","Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+        c("Time-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+        #c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+                 )
+
+    table_1 <- go_latex(list(
+        t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
+    ),
+        title=title_1,
+        dep_var = dep,
+        addFE=fe1,
+        save=TRUE,
+        note = FALSE,
+        name=path_1
+    ) 
+    
+    #### Table 2
+    
+    title_2 = paste0("Variation of SO2 emission, so2 and and financial ratio  quantile",i)
+    path_2 = paste0(folder,"/table_",t + 1 ,".txt")
+    
+    t_1 <- felm(log(tso2) ~ 
+            #credit_constraint * period * tso2_mandate_c +
+            std_rd_intensity_ci * period +
+            log(output) + log(employment) + log(capital)
+            |fe_c_t + fe_t_i + fe_c_i |0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+            exactDOF = TRUE)
+
+    t_2 <- felm(log(tso2) ~ 
+                #credit_constraint * period * tso2_mandate_c +
+                std_inventory_to_sales_ci * period  +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i + fe_c_i |0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+    
+    t_3 <- felm(log(tso2) ~ 
+                #credit_constraint * period * tso2_mandate_c +
+                std_receivable_curasset_ci * period +
+                log(output) + log(employment) + log(capital)
+                |fe_c_t + fe_t_i + fe_c_i |0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+    
+    t_4 <- felm(log(tso2) ~ 
+                 #credit_constraint * period * tso2_mandate_c +
+                 std_liabilities_assets_ci * period +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i + fe_c_i |0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+    
+    t_5 <- felm(log(tso2) ~ 
+                 #credit_constraint * period * tso2_mandate_c +
+                 std_working_capital_requirement_ci * period +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i + fe_c_i |0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+
+    t_6 <- felm(log(tso2) ~ 
+                #credit_constraint * period * tso2_mandate_c +
+                std_cash_over_curasset_ci * period +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i + fe_c_i |0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+    
+    t_7 <- felm(log(tso2) ~ 
+                #credit_constraint * period * tso2_mandate_c +
+                std_cash_ratio_ci * period +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i + fe_c_i |0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+    
+    t_8 <- felm(log(tso2) ~ 
+                #credit_constraint * period * tso2_mandate_c +
+                std_working_capital_ci * period +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i + fe_c_i |0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+
+    t_9 <- felm(log(tso2) ~ 
+                #credit_constraint * period * tso2_mandate_c +
+                std_current_ratio_ci * period +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i + fe_c_i |0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+
+    t_10 <- felm(log(tso2) ~ 
+                #credit_constraint * period * tso2_mandate_c +
+                std_quick_ratio_ci * period +
+                log(output) + log(employment) + log(capital)
+                |fe_c_t + fe_t_i + fe_c_i|0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+
+    
+    t_11 <- felm(log(tso2) ~ 
+                #credit_constraint * period * tso2_mandate_c +
+                std_return_on_asset_ci * period +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i + fe_c_i |0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+
+    t_12 <- felm(log(tso2) ~ 
+                 #credit_constraint * period * tso2_mandate_c +
+                 std_sales_assets_ci* period +
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i + fe_c_i |0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+
+    t_13 <- felm(log(tso2) ~ 
+                 #credit_constraint * period * tso2_mandate_c +
+                 std_asset_tangibility_ci * period+
+                log(output) + log(employment) + log(capital)
+                | fe_c_t + fe_t_i + fe_c_i|0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+
+    t_14 <- felm(log(tso2) ~ 
+                 #credit_constraint * period * tso2_mandate_c +
+                 std_account_paybable_to_asset_ci * period +
+                log(output) + log(employment) + log(capital)
+                |fe_c_t + fe_t_i + fe_c_i |0 | geocode4_corr, df_final %>% filter(q_tso2_mandate_c == i),
+                exactDOF = TRUE)
+
+    dep <- "Dependent variable: SO2 emission"
+    fe1 <- list(
+        c("City-Time","Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+        c("Indutry-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+        c("City-Indutry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+                 )
+    
+    table_1 <- go_latex(list(
+        t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
+    ),
+        title=title_2,
+        dep_var = dep,
+        addFE=fe1,
+        save=TRUE,
+        note = FALSE,
+        name=path_2
+    )
+
+
+    t <- t+2
+       
+}
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors" \
+"clustered at the product level appear inparentheses."\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'Negative': 1,
+    'Positive': 9,
+    #'Ambiguous': 10,
+}
+
+reorder = {
+    # Old, New
+    17:3, ## Working capital
+    18:5,
+    19:7,
+    20:9,
+    21:11,
+    22:13,
+    23:15,
+    24:17,
+    25:19,
+    26:21,
+    27:23,
+    28:25,
+    29:27,
+    30:29
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+for i in range(1, 7):
+    print('\n\nRank {} in term of credit constraint\n\n'.format(i))
+    lb.beautify(table_number = i,
+                    #reorder_var = reorder,
+                    #multi_lines_dep = multi_lines_dep,
+                    #new_row= new_r,
+                    #multicolumn = multicolumn,
+                    table_nte = tbe1,
+                    jupyter_preview = True,
+                    resolution = 280,
+                    folder = folder)
+```
+
+<!-- #region kernel="R" -->
+Sector by sector
+<!-- #endregion -->
+
+```sos kernel="R"
 %get folder
 t <- 1
 for (i in 1:nrow(industries)){
