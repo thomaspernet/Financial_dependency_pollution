@@ -37,7 +37,10 @@ Use existing table asif firms prepared to construct ZZ
 
 ### Steps 
 
-1. 
+1. Remove outliers
+2. Remove firm with different:
+  1. ownership, cities and industries over time
+3. Compute TFP using OP methodology
 
 
 **Cautious**
@@ -90,7 +93,7 @@ from awsPy.aws_s3 import service_s3
 from awsPy.aws_glue import service_glue
 from pathlib import Path
 import pandas as pd
-import numpy as np
+#import numpy as np
 import seaborn as sns
 import os, shutil, json
 
@@ -129,6 +132,23 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
 
 <!-- #region kernel="SoS" -->
 # Steps
+
+1. Remove outliers: Remove 5 and 95% of the firms's output, employ and captal by year
+2. Remove when Input >= Output
+3. Remove firm with different:
+    - ownership, cities and industries over time
+
+Variables needed:
+
+- ID: `firm`
+- year: `year`
+- Output: `output`
+- Employement: `employ`
+- Capital: `captal`
+- Input: `midput` 
+
+
+
 <!-- #endregion -->
 
 <!-- #region kernel="SoS" -->
@@ -140,9 +160,18 @@ DatabaseName = 'firms_survey'
 s3_output_example = 'SQL_OUTPUT_ATHENA'
 ```
 
+<!-- #region kernel="python3" -->
+Check all firm ID are digits. 
+<!-- #endregion -->
+
 ```sos kernel="python3"
 query= """
-
+SELECT test, COUNT(test) as count
+FROM (
+SELECT regexp_like(firm, '[a-zA-Z]') as test
+FROM "firms_survey"."asif_firms_prepared"
+  )
+  GROUP BY test
 """
 output = s3.run_query(
                     query=query,
@@ -153,8 +182,384 @@ output = s3.run_query(
 output
 ```
 
+<!-- #region kernel="python3" -->
+Example firm with multiple cities, or ownerships or industries
+<!-- #endregion -->
+
+```sos kernel="python3"
+query = """
+WITH test as (
+  SELECT 
+    firm, 
+    asif_firms_prepared.year, 
+    output, 
+    employ, 
+    captal, 
+    midput, 
+    ownership, 
+    geocode4_corr, 
+    cic 
+  FROM 
+    asif_firms_prepared 
+    INNER JOIN (
+      SELECT 
+        year, 
+        approx_percentile(output,.05) AS output_lower_bound, 
+        approx_percentile(output,.98) AS output_upper_bound, 
+        approx_percentile(employ,.05) AS employ_lower_bound, 
+        approx_percentile(employ,.98) AS employ_upper_bound, 
+        approx_percentile(captal,.05) AS captal_lower_bound, 
+        approx_percentile(captal,.98) AS captal_upper_bound 
+      FROM 
+        "firms_survey"."asif_firms_prepared" 
+      GROUP BY 
+        year
+    ) as outliers ON asif_firms_prepared.year = outliers.year 
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code 
+  WHERE 
+    (
+      output > output_lower_bound 
+      AND output < output_upper_bound 
+      AND employ > employ_lower_bound 
+      AND employ < employ_upper_bound 
+      AND captal > captal_lower_bound 
+      AND output < captal_upper_bound 
+      AND asif_firms_prepared.year >= '2001' 
+      AND asif_firms_prepared.year <= '2007'
+    )
+) 
+SELECT 
+  test.firm, 
+  year, 
+  output, 
+  employ, 
+  captal, 
+  midput, 
+  ownership, 
+  geocode4_corr,
+  count_city,
+  count_ownership,
+  count_industry
+FROM 
+  test 
+  INNER JOIN (
+    SELECT 
+      firm, 
+      COUNT(
+        DISTINCT(geocode4_corr)
+      ) AS count_city 
+    FROM 
+      test 
+    GROUP BY 
+      firm
+  ) as multi_cities ON test.firm = multi_cities.firm 
+  INNER JOIN (
+    SELECT 
+      firm, 
+      COUNT(
+        DISTINCT(ownership)
+      ) AS count_ownership 
+    FROM 
+      test 
+    GROUP BY 
+      firm
+  ) as multi_ownership ON test.firm = multi_ownership.firm 
+  INNER JOIN (
+    SELECT 
+      firm, 
+      COUNT(
+        DISTINCT(cic)
+      ) AS count_industry 
+    FROM 
+      test 
+    GROUP BY 
+      firm
+  ) as multi_industry ON test.firm = multi_industry.firm 
+WHERE 
+  test.firm  = '255463' 
+  ORDER BY year
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_2'
+                )
+output
+```
+
+<!-- #region kernel="python3" -->
+Make sure the number of observations before filtering is higher than after
+<!-- #endregion -->
+
+```sos kernel="python3"
+query = """
+WITH test as (
+  SELECT 
+    firm, 
+    asif_firms_prepared.year, 
+    output, 
+    employ, 
+    captal, 
+    midput, 
+    ownership, 
+    geocode4_corr, 
+    cic 
+  FROM 
+    asif_firms_prepared 
+    INNER JOIN (
+      SELECT 
+        year, 
+        approx_percentile(output,.05) AS output_lower_bound, 
+        approx_percentile(output,.98) AS output_upper_bound, 
+        approx_percentile(employ,.05) AS employ_lower_bound, 
+        approx_percentile(employ,.98) AS employ_upper_bound, 
+        approx_percentile(captal,.05) AS captal_lower_bound, 
+        approx_percentile(captal,.98) AS captal_upper_bound 
+      FROM 
+        "firms_survey"."asif_firms_prepared" 
+      GROUP BY 
+        year
+    ) as outliers ON asif_firms_prepared.year = outliers.year 
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code 
+  WHERE 
+    (
+      output > output_lower_bound 
+      AND output < output_upper_bound 
+      AND employ > employ_lower_bound 
+      AND employ < employ_upper_bound 
+      AND captal > captal_lower_bound 
+      AND output < captal_upper_bound 
+      AND asif_firms_prepared.year >= '2001' 
+      AND asif_firms_prepared.year <= '2007'
+    )
+) 
+SELECT 
+  COUNT(*) as count
+FROM 
+  test 
+
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_3'
+                )
+output
+```
+
+```sos kernel="python3"
+query = """
+WITH test as (
+  SELECT 
+    firm, 
+    asif_firms_prepared.year, 
+    output, 
+    employ, 
+    captal, 
+    midput, 
+    ownership, 
+    geocode4_corr, 
+    cic 
+  FROM 
+    asif_firms_prepared 
+    INNER JOIN (
+      SELECT 
+        year, 
+        approx_percentile(output,.05) AS output_lower_bound, 
+        approx_percentile(output,.98) AS output_upper_bound, 
+        approx_percentile(employ,.05) AS employ_lower_bound, 
+        approx_percentile(employ,.98) AS employ_upper_bound, 
+        approx_percentile(captal,.05) AS captal_lower_bound, 
+        approx_percentile(captal,.98) AS captal_upper_bound 
+      FROM 
+        "firms_survey"."asif_firms_prepared" 
+      GROUP BY 
+        year
+    ) as outliers ON asif_firms_prepared.year = outliers.year 
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code 
+  WHERE 
+    (
+      output > output_lower_bound 
+      AND output < output_upper_bound 
+      AND employ > employ_lower_bound 
+      AND employ < employ_upper_bound 
+      AND captal > captal_lower_bound 
+      AND output < captal_upper_bound 
+      AND asif_firms_prepared.year >= '2001' 
+      AND asif_firms_prepared.year <= '2007'
+    )
+) 
+SELECT 
+  COUNT(*) AS count 
+FROM 
+  test 
+  INNER JOIN (
+    SELECT 
+      firm, 
+      COUNT(
+        DISTINCT(geocode4_corr)
+      ) AS count_city 
+    FROM 
+      test 
+    GROUP BY 
+      firm
+  ) as multi_cities ON test.firm = multi_cities.firm 
+  INNER JOIN (
+    SELECT 
+      firm, 
+      COUNT(
+        DISTINCT(ownership)
+      ) AS count_ownership 
+    FROM 
+      test 
+    GROUP BY 
+      firm
+  ) as multi_ownership ON test.firm = multi_ownership.firm 
+  INNER JOIN (
+    SELECT 
+      firm, 
+      COUNT(
+        DISTINCT(cic)
+      ) AS count_industry 
+    FROM 
+      test 
+    GROUP BY 
+      firm
+  ) as multi_industry ON test.firm = multi_industry.firm 
+WHERE 
+  count_ownership = 1 
+  AND count_city = 1 
+  AND count_industry = 1 
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_4'
+                )
+output
+```
+
+<!-- #region kernel="python3" -->
+Count by year
+<!-- #endregion -->
+
+```sos kernel="python3"
+query ="""
+WITH test as ( 
+  SELECT 
+firm,
+asif_firms_prepared.year, 
+output,
+employ,
+captal,
+midput,
+ownership,
+geocode4_corr,cic
+FROM asif_firms_prepared 
+INNER JOIN (
+SELECT year,
+approx_percentile(output, .05) AS output_lower_bound,
+approx_percentile(output, .98) AS output_upper_bound,
+approx_percentile(employ, .05) AS employ_lower_bound,
+approx_percentile(employ, .98) AS employ_upper_bound,
+approx_percentile(captal, .05) AS captal_lower_bound,
+approx_percentile(captal, .98) AS captal_upper_bound
+FROM "firms_survey"."asif_firms_prepared"
+GROUP BY year
+  ) as outliers 
+  ON asif_firms_prepared.year = outliers.year
+INNER JOIN (
+            SELECT 
+              extra_code, 
+              geocode4_corr 
+            FROM 
+              chinese_lookup.china_city_code_normalised 
+            GROUP BY 
+              extra_code, 
+              geocode4_corr
+          ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+WHERE (
+  output > output_lower_bound AND output < output_upper_bound
+  AND 
+  employ > employ_lower_bound AND employ < employ_upper_bound
+  AND 
+  captal > captal_lower_bound AND output <  captal_upper_bound
+  AND 
+  asif_firms_prepared.year >= '2001'
+  AND
+  asif_firms_prepared.year <= '2007'
+  )
+  )
+  SELECT 
+  year, COUNT(*) as count
+  FROM test
+  INNER JOIN (
+  SELECT firm,COUNT(DISTINCT(geocode4_corr)) AS count_city
+  FROM test
+  GROUP BY firm 
+    ) as multi_cities
+    ON test.firm = multi_cities.firm 
+  INNER JOIN (
+  SELECT firm, COUNT(DISTINCT(ownership)) AS count_ownership
+  FROM test
+  GROUP BY firm  
+    ) as multi_ownership
+    ON test.firm = multi_ownership.firm
+  INNER JOIN (
+  SELECT firm, COUNT(DISTINCT(cic)) AS count_industry
+  FROM test
+  GROUP BY firm  
+    ) as multi_industry
+  ON test.firm = multi_industry.firm
+WHERE 
+  count_ownership = 1 
+  AND count_city = 1 
+  AND count_industry = 1
+ GROUP BY year
+ ORDER BY year
+
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_5'
+                )
+output
+```
+
 <!-- #region kernel="SoS" -->
-# Table `XX`
+# Table `asif_tfp_firm_level`
 
 <!-- #endregion -->
 
@@ -188,7 +593,103 @@ s3.remove_all_bucket(path_remove = s3_output)
 
 ```sos kernel="python3"
 query = """
-
+WITH test as (
+  SELECT 
+    firm, 
+    asif_firms_prepared.year, 
+    output, 
+    employ, 
+    captal, 
+    midput, 
+    ownership, 
+    geocode4_corr, 
+    cic 
+  FROM 
+    asif_firms_prepared 
+    INNER JOIN (
+      SELECT 
+        year, 
+        approx_percentile(output,.05) AS output_lower_bound, 
+        approx_percentile(output,.98) AS output_upper_bound, 
+        approx_percentile(employ,.05) AS employ_lower_bound, 
+        approx_percentile(employ,.98) AS employ_upper_bound, 
+        approx_percentile(captal,.05) AS captal_lower_bound, 
+        approx_percentile(captal,.98) AS captal_upper_bound 
+      FROM 
+        "firms_survey"."asif_firms_prepared" 
+      GROUP BY 
+        year
+    ) as outliers ON asif_firms_prepared.year = outliers.year 
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code 
+  WHERE 
+    (
+      output > output_lower_bound 
+      AND output < output_upper_bound 
+      AND employ > employ_lower_bound 
+      AND employ < employ_upper_bound 
+      AND captal > captal_lower_bound 
+      AND output < captal_upper_bound 
+      AND asif_firms_prepared.year >= '2001' 
+      AND asif_firms_prepared.year <= '2007'
+    )
+) 
+SELECT 
+  test.firm, 
+  year, 
+  output, 
+  employ, 
+  captal, 
+  midput, 
+  ownership, 
+  geocode4_corr 
+FROM 
+  test 
+  INNER JOIN (
+    SELECT 
+      firm, 
+      COUNT(
+        DISTINCT(geocode4_corr)
+      ) AS count_city 
+    FROM 
+      test 
+    GROUP BY 
+      firm
+  ) as multi_cities ON test.firm = multi_cities.firm 
+  INNER JOIN (
+    SELECT 
+      firm, 
+      COUNT(
+        DISTINCT(ownership)
+      ) AS count_ownership 
+    FROM 
+      test 
+    GROUP BY 
+      firm
+  ) as multi_ownership ON test.firm = multi_ownership.firm 
+  INNER JOIN (
+    SELECT 
+      firm, 
+      COUNT(
+        DISTINCT(cic)
+      ) AS count_industry 
+    FROM 
+      test 
+    GROUP BY 
+      firm
+  ) as multi_industry ON test.firm = multi_industry.firm 
+WHERE 
+  count_ownership = 1 
+  AND count_city = 1 
+  AND count_industry = 1 
 """
 
 output = s3.run_query(
