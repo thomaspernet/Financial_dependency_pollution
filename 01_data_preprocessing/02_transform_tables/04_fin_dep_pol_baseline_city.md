@@ -957,7 +957,13 @@ for key, value in parameters['TABLES'].items():
                 os.path.basename(schema['metadata']['target_S3URI']).lower()
             )
         else:
-            table_name_git = schema['metadata']['TableName']
+            try:
+                table_name = schema['metadata']['TableName']
+            except:
+                table_name = '{}{}'.format(
+                schema['metadata']['TablePrefix'],
+                os.path.basename(schema['metadata']['target_S3URI']).lower()
+            )
         
         tb = pd.json_normalize(schema['schema']).to_markdown()
         toc = "{}{}".format(github_link, table_name_git)
