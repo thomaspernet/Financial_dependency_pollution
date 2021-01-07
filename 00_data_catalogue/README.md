@@ -18,9 +18,9 @@
 - [asif_industry_financial_ratio_city](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_financial_ratio_city)
 - [fin_dep_pollution_baseline_city](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_city)
 - [china_sector_pollution_threshold](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-china_sector_pollution_threshold)
+- [asif_tfp_firm_level](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_tfp_firm_level)
 - [asif_industry_financial_ratio_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_financial_ratio_industry)
 - [fin_dep_pollution_baseline_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_industry)
-- [asif_tfp_firm_level](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_tfp_firm_level)
 
     
 
@@ -531,6 +531,26 @@
 
     
 
+## Table asif_tfp_firm_level
+
+- Database: firms_survey
+- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/TFP/FIRM_LEVEL`
+- Partitition: ['year', 'ownership']
+
+|    | Name          | Type   | Comment                                     |
+|---:|:--------------|:-------|:--------------------------------------------|
+|  0 | firm          | string | Firm ID                                     |
+|  1 | year          | string |                                             |
+|  2 | output        | double | output                                      |
+|  3 | employ        | double | employement                                 |
+|  4 | captal        | double | Capital                                     |
+|  5 | midput        | double | Intermediate input                          |
+|  6 | ownership     | string | firm s ownership                            |
+|  7 | geocode4_corr | string |                                             |
+|  8 | tfp_OP        | double | Estimate TFP using Olley and Pakes approach |
+
+    
+
 ## Table asif_industry_financial_ratio_industry
 
 - Database: firms_survey
@@ -554,7 +574,7 @@
 | 12 | std_quick_ratio_i                 | double | standaridzed values (x - x mean) / std)                                                                                                                             |
 | 13 | cash_ratio_i                      | double | (1 - cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)                                                         |
 | 14 | std_cash_ratio_i                  | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 15 | liabilities_assets_i              | double | 1-(流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                               |
+| 15 | liabilities_assets_i              | double | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 |
 | 16 | std_liabilities_assets_i          | double | standaridzed values (x - x mean) / std)                                                                                                                             |
 | 17 | return_on_asset_i                 | double | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset |
 | 18 | std_return_on_asset_i             | double | standaridzed values (x - x mean) / std)                                                                                                                             |
@@ -634,25 +654,5 @@
 | 52 | fe_c_i                            | bigint        | City industry fixed effect                                                                                                                                          |
 | 53 | fe_t_i                            | bigint        | year industry fixed effect                                                                                                                                          |
 | 54 | fe_c_t                            | bigint        | city industry fixed effect                                                                                                                                          |
-
-    
-
-## Table asif_tfp_firm_level
-
-- Database: firms_survey
-- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/TFP/FIRM_LEVEL`
-- Partitition: ['year', 'ownership']
-
-|    | Name          | Type   | Comment                                     |
-|---:|:--------------|:-------|:--------------------------------------------|
-|  0 | firm          | string | Firm ID                                     |
-|  1 | year          | string |                                             |
-|  2 | output        | double | output                                      |
-|  3 | employ        | double | employement                                 |
-|  4 | captal        | double | Capital                                     |
-|  5 | midput        | double | Intermediate input                          |
-|  6 | ownership     | string | firm s ownership                            |
-|  7 | geocode4_corr | string |                                             |
-|  8 | tfp_OP        | double | Estimate TFP using Olley and Pakes approach |
 
     
