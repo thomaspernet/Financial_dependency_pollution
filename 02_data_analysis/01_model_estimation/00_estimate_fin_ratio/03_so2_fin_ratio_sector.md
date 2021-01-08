@@ -139,7 +139,7 @@ for key, value in enumerate(schema):
 ```
 
 ```sos kernel="SoS"
-download_data = True
+download_data = False
 filename = 'df_{}'.format(table)
 full_path_filename = 'SQL_OUTPUT_ATHENA/CSV/{}.csv'.format(filename)
 path_local = os.path.join(str(Path(path).parent.parent.parent), 
@@ -221,11 +221,14 @@ if add_to_dic:
         'old':'capital',
         'new':'\\text{capital}_{cit}'
         },
-       # {
-       # 'old':'sales',
-       # 'new':'\\text{sales}_{cit}'
-       # },
-        
+        {
+        'old':'sales',
+        'new':'\\text{sales}_{cit}'
+        },
+        {
+        'old':'total\_asset',
+        'new':'\\text{total asset}_{cit}'
+        },
         ### Polluted sector
         {
         'old':'polluted_di',
@@ -251,7 +254,6 @@ if add_to_dic:
         'old':'polluted\_meiABOVE',
         'new':'\\text{polluted sector, median}_{ci}'
         },
-
         ### financial ratio
         #### Industry
         {
@@ -260,7 +262,7 @@ if add_to_dic:
         },
         {
         'old':'std\_receivable\_curasset\_ci',
-        'new':'\\text{std receivable asset ratio}_{ci}'
+        'new':'\\text{receivable asset ratio}_{ci}'
         },
         {
         'old':'receivable\_curasset\_ci',
@@ -268,15 +270,23 @@ if add_to_dic:
         },
         {
         'old':'std\_cash\_over\_curasset\_ci',
-        'new':'\\text{std cash over asset}_{ci}'
+        'new':'\\text{cash over asset}_{ci}'
         },
         {
         'old':'cash\_over\_curasset\_ci',
         'new':'\\text{cash over asset}_{ci}'
+        },  
+        {
+        'old':'std\_cash_over_totasset_ci',
+        'new':'\\text{cash over asset}_{ci}'
+        },
+        {
+        'old':'cash\_over\_totasset\_ci',
+        'new':'\\text{cash over asset}_{ci}'
         },
         {
         'old':'std\_working\_capital\_ci',
-        'new':'\\text{std working capital}_{ci}'
+        'new':'\\text{working capital}_{ci}'
         },
         {
         'old':'working\_capital\_ci',
@@ -284,7 +294,7 @@ if add_to_dic:
         },
         {
         'old':'std\_working\_capital\_requirement\_ci',
-        'new':'\\text{std working capital requirement}_{ci}'
+        'new':'\\text{working capital requirement}_{ci}'
         },
         {
         'old':'working\_capital\_requirement\_ci',
@@ -292,7 +302,7 @@ if add_to_dic:
         },
         {
         'old':'std\_current\_ratio\_ci',
-        'new':'\\text{std current ratio}_{ci}'
+        'new':'\\text{current ratio}_{ci}'
         },
         {
         'old':'current\_ratio\_ci',
@@ -300,7 +310,7 @@ if add_to_dic:
         },
         {
         'old':'std\_quick\_ratio\_ci',
-        'new':'\\text{std quick ratio}_{ci}'
+        'new':'\\text{quick ratio}_{ci}'
         },
         {
         'old':'quick\_ratio\_ci',
@@ -308,7 +318,7 @@ if add_to_dic:
         },
         {
         'old':'std\_cash\_ratio\_ci',
-        'new':'\\text{std cash ratio}_{ci}'
+        'new':'\\text{cash ratio}_{ci}'
         },
         {
         'old':'cash\_ratio\_ci',
@@ -316,14 +326,14 @@ if add_to_dic:
         },
         {
         'old':'std\_liabilities\_assets\_ci',
-        'new':'\\text{std liabilities assets}_{ci}'
+        'new':'\\text{liabilities assets}_{ci}'
         },{
         'old':'liabilities\_assets\_ci',
         'new':'\\text{liabilities assets}_{ci}'
         },
         {
         'old':'std\_return\_on\_asset\_ci',
-        'new':'\\text{std return on asset}_{ci}'
+        'new':'\\text{return on asset}_{ci}'
         },{
         'old':'return\_on\_asset\_ci',
         'new':'\\text{return on asset}_{ci}'
@@ -336,9 +346,17 @@ if add_to_dic:
         'old':'sales\_assets\_ci',
         'new':'\\text{sales assets}_{ci}'
         },
+         {
+        'old':'std\_sales\_assets\_andersen\_ci',
+        'new':'\\text{sales over assets}_{ci}'
+        },
+        {
+        'old':'sales\_assets\_andersen\_ci',
+        'new':'\\text{sales over assets}_{ci}'
+        },
         {
         'old':'std\_rd\_intensity\_ci',
-        'new':'\\text{std rd intensity}_{ci}'
+        'new':'\\text{rd intensity}_{ci}'
         },
         {
         'old':'rd\_intensity\_ci',
@@ -346,7 +364,7 @@ if add_to_dic:
         },
         {
         'old':'std\_inventory\_to\_sales\_ci',
-        'new':'\\text{std inventory to sales}_{ci}'
+        'new':'\\text{inventory to sales}_{ci}'
         },
         {
         'old':'inventory\_to\_sales\_ci',
@@ -354,7 +372,7 @@ if add_to_dic:
         },
         {
         'old':'std\_asset\_tangibility\_ci',
-        'new':'\\text{std asset tangibility}_{ci}'
+        'new':'\\text{asset tangibility}_{ci}'
         },
         {
         'old':'asset\_tangibility\_ci',
@@ -362,11 +380,19 @@ if add_to_dic:
         },
         {
         'old':'std\_account\_paybable\_to\_asset\_ci',
-        'new':'\\text{std account paybable to asset}_{ci}'
+        'new':'\\text{account paybable to asset}_{ci}'
         },
         {
         'old':'account\_paybable\_to\_asset\_ci',
         'new':'\\text{account paybable to asset}_{ci}'
+        },
+        {
+        'old':'std\_reverse\_liabilities\_assets\_ci',
+        'new':'\\text{inverse liabilites to asset}_{ci}'
+        },
+        {
+        'old':'reverse\_liabilities\_assets\_ci',
+        'new':'\\text{inverse liabilites to asset}_{ci}'
         },
         #### 
         {
@@ -380,7 +406,7 @@ if add_to_dic:
         {
         'old':'tso2\_mandate\_c',
         'new':'\\text{policy mandate}_c'
-        },
+        }
     ]
 
     data['to_rename'].extend(dic_rename)
@@ -433,17 +459,19 @@ mutate(
 | 2     | R&D intensity                  | RD / Sales                                                                                                  | rdfee/sales                                                                                                                                                         | #rd-intensity                                   | Negative                    | Share of RD expenditure over sales. larger values indicates larger use of sales to spend on RD. Say differently, lower borrowing done toward RD                                                                                                                                                                                                                                                                                                                                                                                                |
 | 3     | Inventory to sales             | Inventory / sales                                                                                           | 存货 (c81) / sales                                                                                                                                                  | #inventory-to-sales                             | Negative                    | Share of inventory over sales. Larger values indicates share of unsold or not consumed items. large values is a demonstration of tighter credit constraint                                                                                                                                                                                                                                                                                                                                                                                     |
 | 4     | % receivable                   | receivable account / current asset                                                                          | 应收帐款 (c80) / cuasset                                                                                                                                            | #account-receivable #current-asset              | Negative                    | Share of receivable over current asset. Larger value indicates longer time before collecting the money from the customers                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| 5     | Liabilities over asset         | (Short-Tern Debt + Long-Term Debt)/total asset                                                              | 1- (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                              | #total-debt-to-total-assets                     | Negative                    | Share of liabilities over total asset. Larger value indicates assets that are financed by external creditors                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| 5     | Liabilities over asset         | (Short-Tern Debt + Long-Term Debt)/total asset                                                              | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 | #total-debt-to-total-assets                     | Negative                    | Share of liabilities over total asset. Larger value indicates assets that are financed by external creditors                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | 6     | working capital requirement    | Inventory + Accounts receivable - Accounts payable                                                          | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       | #working-capital                                | Negative                    | Working Capital Requirement is the amount of money needed to finance the gap between disbursements (payments to suppliers) and receipts (payments from customers). Larger values indicate the amount of money needed to meet the debt.                                                                                                                                                                                                                                                                                                         |
 | 7     | % cash                         | Current asset - cash / current asset                                                                        | (cuasset- 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset                                                                   | #current-asset #cash                            | Positive                    | Share of cash asset over current asset. Larger values indicate more cash in hand.                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|       | Cash over asset                | Current asset - cash / total asset                                                                          | (cuasset- 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /toasset                                                                         | #current-asset #cash                            | Positive                    | Share of cash asset over total asset. Larger values indicate more cash in hand.                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | 8     | cash ratio                     | (Cash + marketable securities)/current liabilities                                                          | 1-(cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)                                                           | #cash-asset #cash-ratio                         | Positive                    | Cash divided by liabilities. A portion of short-term debt that can be financed by cash. A larger value indicates the company generates enough cash to cope with the short term debt                                                                                                                                                                                                                                                                                                                                                            |
 | 9     | Working capital                | Current asset - current liabilities                                                                         | cuasset- 流动负债合计 (c95)                                                                                                                                         | #working-capital-requirement                    | Positive                    | Difference between current asset and current liabilities. Larger value indicates that assets are enough to cope with the short term need                                                                                                                                                                                                                                                                                                                                                                                                       |
 | 10    | current ratio                  | Current asset /current liabilities                                                                          | cuasset/流动负债合计 (c95)                                                                                                                                          | #current-ratio                                  | Ambiguous                   | Asset divided by liabilities. Values above 1 indicate there are more assets than liabilities. There are two effects on the liquidity constraint. Larger values imply the company has more liquidity, hence they may be less dependent on the formal financial market. By analogy, the financial market prefers to invest or provide money to the more liquid company (reduce the risk default)                                                                                                                                                 |
 | 11    | Quick ratio                    | (Current asset - Inventory)/current liabilities                                                             | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)) / 流动负债合计 (c95)                                                                                | #quick-ratio                                    | Ambiguous                   | The quick ratio is a measure of liquidity. The higher the more liquid the company is. To improve the ratio, the company should reduce the account receivable (reduce payment time) and increase the account payable (negotiate payment term). There are two effects on the liquidity constraint. Larger values imply the company has more liquidity, hence they may be less dependent on the formal financial market. By analogy, the financial market prefers to invest or provide money to the more liquid company (reduce the risk default) |
 | 12    | Return on Asset                | Net income / Total assets                                                                                   | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset | #return-on-asset                                | Ambiguous                   | Net income over total asset. Capacity of an asset to generate income. Larger value indicates that asset are used in an efficiente way to generate income                                                                                                                                                                                                                                                                                                                                                                                       |
 | 13    | Asset Turnover Ratio           | Total sales / ((delta total asset)/2)                                                                       | 全年营业收入合计 (c64) /($\Delta$ toasset/2)                                                                                                                        | #asset-turnover-ratio                           | Ambiguous                   | Sales divided by the average changes in total asset. Larger value indicates better efficiency at using asset to generate revenue                                                                                                                                                                                                                                                                                                                                                                                                               |
-| 14    | Asset tangibility              | Total fixed assets - Intangible assets                                                                      | tofixed - 无形资产 (c92)                                                                                                                                            | #asset-tangibility                              | Ambiguous                   | Difference between fixed sset and intangible asset. Larger value indicates more collateral, hence higher borrowing capacity                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| 15    | Account payable to total asset | (delta account payable)/ (delta total asset)                                                                | ($\Delta$ 应付帐款  (c96))/ ($\Delta$$ (toasset))                                                                                                                   | #change-account-paybable-to-change-total-assets | Ambiguous (favour positive) | Variation of account payable over variation total asset. If the nominator larger than the denominator, it means the account payable grew larger than an asset, or more time is given to pay back the supplier relative to the total asset.  Say differently,  companies can more easily access buyer or supplier trade credit, they may be less dependent on the formal financial market                                                                                                                                                       |
+| 14    | Sale over asset                | Total sales /total asset                                                                                    | 全年营业收入合计 (c64) /(toasset)                                                                                                                                   | #sale-over-asset                                | Ambiguous                   | Sales divided by total asset. Larger value indicates better efficiency at using asset to generate revenue                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| 15    | Asset tangibility              | Total fixed assets - Intangible assets                                                                      | tofixed - 无形资产 (c92)                                                                                                                                            | #asset-tangibility                              | Ambiguous                   | Difference between fixed sset and intangible asset. Larger value indicates more collateral, hence higher borrowing capacity                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| 16    | Account payable to total asset | (delta account payable)/ (delta total asset)                                                                | ($\Delta$ 应付帐款  (c96))/ ($\Delta$$ (toasset))                                                                                                                   | #change-account-paybable-to-change-total-assets | Ambiguous (favour positive) | Variation of account payable over variation total asset. If the nominator larger than the denominator, it means the account payable grew larger than an asset, or more time is given to pay back the supplier relative to the total asset.  Say differently,  companies can more easily access buyer or supplier trade credit, they may be less dependent on the formal financial market                                                                                                                                                       |
 <!-- #endregion -->
 
 <!-- #region kernel="SoS" -->
@@ -476,29 +504,38 @@ for ext in ['.txt', '.tex', '.pdf']:
 ```sos kernel="R"
 %get path table
 t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
-            log(output) + log(capital)
+            log(sales) + log(total_asset)
             | fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
-t_1 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci +
-            log(output) +  log(capital)
+t_1 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+            log(sales) + log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
-t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_ratio_ci +
-            log(output)  + log(capital)
+t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+            log(sales) + log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
-t_3 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_ratio_ci+liabilities_assets_ci + sales_assets_ci +
-            log(output) + log(capital)
+
+t_3 <- felm(log(so2_intensity) ~ asset_tangibility_ci  +
+            log(sales) + log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+t_4 <- felm(log(so2_intensity) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+t_5 <- felm(log(so2_intensity) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+            log(sales) + log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("industry-year", "Yes", "Yes", "Yes", "Yes"),
-    c("city-year", "Yes", "Yes", "Yes", "Yes")
+    c("industry-year", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes")
              )
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3
+    t_0,t_1, t_2, t_3, t_4, t_5
 ),
     title="Determinant of SO2 emission, financial ratio",
     dep_var = dep,
@@ -516,8 +553,8 @@ tbe1  = "This table estimates eq(3). " \
 "\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
 
 multicolumn ={
-    'Tight': 1,
-    'Loose': 12
+    'SO2': 1,
+    'SO2 intensity': 5
 }
 
 #reorder = {
@@ -533,153 +570,19 @@ lb.beautify(table_number = table_nb,
             #reorder_var = reorder,
             #multi_lines_dep = multi_lines_dep,
             #new_row= new_r,
-            #multicolumn = multicolumn,
+            multicolumn = multicolumn,
             table_nte = tbe1,
             jupyter_preview = True,
             resolution = 150,
            folder = folder)
 ```
 
-<!-- #region kernel="R" -->
-### Base value
-<!-- #endregion -->
-
-```sos kernel="SoS" nteract={"transient": {"deleting": false}}
-folder = 'Tables_0'
-table_nb = 1
-table = 'table_{}'.format(table_nb)
-path = os.path.join(folder, table + '.txt')
-if os.path.exists(folder) == False:
-        os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
-```
-
-```sos kernel="R"
-%get path table
-t_1 <- felm(log(tso2) ~ std_rd_intensity_ci +
-            log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_2 <- felm(log(tso2) ~ std_inventory_to_sales_ci +
-            log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_3 <- felm(log(tso2) ~ std_receivable_curasset_ci +
-            log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_4 <- felm(log(tso2) ~ std_cash_over_curasset_ci +
-            log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_5 <- felm(log(tso2) ~ std_current_ratio_ci  +
-            log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_6 <- felm(log(tso2) ~ std_quick_ratio_ci  +
-            log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_7 <- felm(log(tso2) ~ std_cash_ratio_ci  +
-            log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_8 <- felm(log(tso2) ~ std_working_capital_ci  +
-            log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_9 <- felm(log(tso2) ~ std_working_capital_requirement_ci  +
-            log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_10 <- felm(log(tso2) ~ std_return_on_asset_ci +
-            log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_11 <- felm(log(tso2) ~ std_sales_assets_ci +
-            log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_12 <- felm(log(tso2) ~ std_liabilities_assets_ci  +
-            log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_13 <- felm(log(tso2) ~ std_asset_tangibility_ci +
-            log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_ci +
-            log(output) + log(employment) + log(capital)
-            | geocode4_corr + year|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-
-dep <- "Dependent variable: SO2 emission"
-fe1 <- list(
-    c("City", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    
-    c("Time","Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-             )
-
-table_1 <- go_latex(list(
-    t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
-),
-    title="Determinant of SO2 emission, financial ratio",
-    dep_var = dep,
-    addFE=fe1,
-    save=TRUE,
-    note = FALSE,
-    name=path
-)
-```
-
-```sos kernel="SoS"
-tbe1  = "This table estimates eq(3). " \
-"Heteroskedasticity-robust standard errors" \
-"clustered at the product level appear inparentheses."\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-#multicolumn ={
-#    'Eligible': 2,
-#    'Non-Eligible': 1,
-#    'All': 1,
-#    'All benchmark': 1,
-#}
-
-#multi_lines_dep = '(city/product/trade regime/year)'
-#new_r = ['& test1', 'test2']
-lb.beautify(table_number = table_nb,
-            #reorder_var = reorder,
-            #multi_lines_dep = multi_lines_dep,
-            #new_row= new_r,
-            #multicolumn = multicolumn,
-            table_nte = tbe1,
-            jupyter_preview = True,
-            resolution = 280,
-            folder = folder)
-```
-
 <!-- #region kernel="SoS" -->
-# Table 2: S02 emission reduction, financial ratio and period
+# Table 2:S02 emission reduction, financial ratio, Filter polluted sector
 
 $$
 \begin{aligned}
-\text{SO2}_{cit}  &= \alpha \text{Financial ratio}_{ci} \times \text{Period}  + \gamma_{ct} + \gamma_{ci}  + \epsilon_{cit}
+\text{SO2}_{cit}  &= \alpha \text{Financial ratio}_{ci} + \gamma_{ct} + \gamma_{ci}  + \epsilon_{cit}
 \end{aligned}
 $$
 <!-- #endregion -->
@@ -698,94 +601,47 @@ path
 
 ```sos kernel="R"
 %get path table
-t_1 <- felm(log(tso2) ~ std_rd_intensity_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final,
+t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
+            log(sales) + log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_2 <- felm(log(tso2) ~ std_inventory_to_sales_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 |ind2, df_final,
+t_3 <- felm(log(so2_intensity) ~ asset_tangibility_ci  +
+            log(sales) + log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
-
-t_3 <- felm(log(tso2) ~ std_receivable_curasset_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            |fe_c_t + fe_c_i|0 | ind2, df_final,
+t_4 <- felm(log(so2_intensity) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
-
-t_4 <- felm(log(tso2) ~ std_cash_over_curasset_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_5 <- felm(log(tso2) ~ std_current_ratio_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_6 <- felm(log(tso2) ~ std_quick_ratio_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_7 <- felm(log(tso2) ~ std_cash_ratio_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_8 <- felm(log(tso2) ~ std_working_capital_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_9 <- felm(log(tso2) ~ std_working_capital_requirement_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_10 <- felm(log(tso2) ~ std_return_on_asset_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_11 <- felm(log(tso2) ~ std_sales_assets_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_12 <- felm(log(tso2) ~ std_liabilities_assets_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_13 <- felm(log(tso2) ~ std_asset_tangibility_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            |fe_c_t + fe_c_i|0 | ind2, df_final,
+t_5 <- felm(log(so2_intensity) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    
-    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("industry-year", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes")
              )
-
 table_1 <- go_latex(list(
-    t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
+    t_0,t_1, t_2, t_3, t_4, t_5
 ),
-    title="S02 emission reduction, financial ratio and period (standardized values)",
+    title="Baseline estimate, S02 emission reduction, financial ratio, Filter polluted sector",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
     note = FALSE,
     name=path
 )
-
 ```
 
 ```sos kernel="SoS"
@@ -795,159 +651,16 @@ tbe1  = "This table estimates eq(3). " \
 "\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
 
 multicolumn ={
-    'Tight': 1,
-    'Loose': 5
+    'SO2': 1,
+    'SO2 intensity': 5
 }
 
-#multi_lines_dep = '(city/product/trade regime/year)'
-#new_r = ['& test1', 'test2']
-lb.beautify(table_number = table_nb,
-            #reorder_var = reorder,
-            #multi_lines_dep = multi_lines_dep,
-            #new_row= new_r,
-            #multicolumn = multicolumn,
-            table_nte = tbe1,
-            jupyter_preview = True,
-            resolution = 280,
-           folder = folder)
-```
-
-<!-- #region kernel="SoS" -->
-# Table 3:S02 emission reduction, financial ratio, Filter polluted sector
-
-$$
-\begin{aligned}
-\text{SO2}_{cit}  &= \alpha \text{Financial ratio}_{ci} \times \text{Period} + \gamma_{ct} + \gamma_{ci}  + \epsilon_{cit}
-\end{aligned}
-$$
-<!-- #endregion -->
-
-```sos kernel="SoS"
-table_nb = 3
-table = 'table_{}'.format(table_nb)
-path = os.path.join(folder, table + '.txt')
-if os.path.exists(folder) == False:
-        os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
-path
-```
-
-```sos kernel="R"
-%get path table
-t_1 <- felm(log(tso2) ~ std_rd_intensity_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-
-t_2 <- felm(log(tso2) ~ std_inventory_to_sales_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-
-t_3 <- felm(log(tso2) ~ std_receivable_curasset_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            |fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-
-t_4 <- felm(log(tso2) ~ std_cash_over_curasset_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-
-t_5 <- felm(log(tso2) ~ std_current_ratio_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-
-t_6 <- felm(log(tso2) ~ std_quick_ratio_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-
-t_7 <- felm(log(tso2) ~ std_cash_ratio_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-
-t_8 <- felm(log(tso2) ~ std_working_capital_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-
-t_9 <- felm(log(tso2) ~ std_working_capital_requirement_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-
-t_10 <- felm(log(tso2) ~ std_sales_assets_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-
-t_11 <- felm(log(tso2) ~ std_return_on_asset_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2,df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-
-t_12 <- felm(log(tso2) ~ std_liabilities_assets_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-
-t_13 <- felm(log(tso2) ~ std_asset_tangibility_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-
-t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            |fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-
-
-dep <- "Dependent variable: SO2 emission"
-fe1 <- list(
-    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+#reorder = {
     
-    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-             )
-
-table_1 <- go_latex(list(
-    t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
-),
-    title="Baseline estimate, S02 emission reduction, financial ratio, Filter polluted sector (standardized)",
-    dep_var = dep,
-    addFE=fe1,
-    save=TRUE,
-    note = FALSE,
-    name=path
-)
-
-```
-
-```sos kernel="SoS"
-tbe1  = "This table estimates eq(3). " \
-"Heteroskedasticity-robust standard errors " \
-"clustered at the city level appear inp arentheses. "\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-multicolumn ={
-    'Tight': 1,
-    'Loose': 5
-}
-
-reorder = {
-    # Old, New
-    10:3, ## Working capital
-    11:5, 
-    12:7,
-    13:9,
-    14:11,
-    15:13,
-    16:15
-}
+#    7:0,
+#    8:1,
+    #9:2
+#}
 
 #multi_lines_dep = '(city/product/trade regime/year)'
 #new_r = ['& test1', 'test2']
@@ -958,7 +671,7 @@ lb.beautify(table_number = table_nb,
             multicolumn = multicolumn,
             table_nte = tbe1,
             jupyter_preview = True,
-            resolution = 280,
+            resolution = 150,
            folder = folder)
 ```
 
@@ -986,95 +699,47 @@ path
 
 ```sos kernel="R"
 %get path table
-t_1 <- felm(log(tso2) ~ std_rd_intensity_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
+            log(sales) + log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_2 <- felm(log(tso2) ~ std_inventory_to_sales_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+t_3 <- felm(log(so2_intensity) ~ asset_tangibility_ci  +
+            log(sales) + log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
-
-t_3 <- felm(log(tso2) ~ std_receivable_curasset_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            |fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+t_4 <- felm(log(so2_intensity) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
-
-t_4 <- felm(log(tso2) ~ std_cash_over_curasset_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
+t_5 <- felm(log(so2_intensity) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
-
-t_5 <- felm(log(tso2) ~ std_current_ratio_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
-            exactDOF = TRUE)
-
-t_6 <- felm(log(tso2) ~ std_quick_ratio_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
-            exactDOF = TRUE)
-
-t_7 <- felm(log(tso2) ~ std_cash_ratio_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
-            exactDOF = TRUE)
-
-t_8 <- felm(log(tso2) ~ std_working_capital_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
-            exactDOF = TRUE)
-
-t_9 <- felm(log(tso2) ~ std_working_capital_requirement_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
-            exactDOF = TRUE)
-
-t_10 <- felm(log(tso2) ~ std_return_on_asset_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2,df_final %>% filter(polluted_di == 'BELOW'),
-            exactDOF = TRUE)
-
-t_11 <- felm(log(tso2) ~ std_sales_assets_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
-            exactDOF = TRUE)
-
-t_12 <- felm(log(tso2) ~ std_liabilities_assets_ci   * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
-            exactDOF = TRUE)
-
-t_13 <- felm(log(tso2) ~ std_asset_tangibility_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            | fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
-            exactDOF = TRUE)
-
-t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_ci  * period  +
-            log(output) + log(employment) + log(capital)
-            |fe_c_t + fe_c_i|0 | ind2, df_final %>% filter(polluted_di == 'BELOW'),
-            exactDOF = TRUE)
-
 
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("City-time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    
-    c("city-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("industry-year", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes")
              )
-
 table_1 <- go_latex(list(
-    t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
+    t_0,t_1, t_2, t_3, t_4, t_5
 ),
-    title="S02 emission reduction, financial ratio, Filter no polluted sector (standardized values)",
+    title="Baseline estimate, S02 emission reduction, financial ratio, Filter no polluted sector",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
     note = FALSE,
     name=path
 )
-
 ```
 
 ```sos kernel="SoS"
@@ -1084,9 +749,16 @@ tbe1  = "This table estimates eq(3). " \
 "\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
 
 multicolumn ={
-    'Tight': 1,
-    'Loose': 5
+    'SO2': 1,
+    'SO2 intensity': 5
 }
+
+#reorder = {
+    
+#    7:0,
+#    8:1,
+    #9:2
+#}
 
 #multi_lines_dep = '(city/product/trade regime/year)'
 #new_r = ['& test1', 'test2']
@@ -1094,172 +766,15 @@ lb.beautify(table_number = table_nb,
             #reorder_var = reorder,
             #multi_lines_dep = multi_lines_dep,
             #new_row= new_r,
-            #multicolumn = multicolumn,
+            multicolumn = multicolumn,
             table_nte = tbe1,
             jupyter_preview = True,
-            resolution = 280,
-           folder = folder)
-```
-
-<!-- #region kernel="SoS" -->
-# Table 5: SO2 emission reduction, industry financial ratio and policy mandate
-
-$$
-\begin{aligned}
-\text{SO2}_{cit}  &= \alpha \text{Financial ratio}_ci \times \text{Period} \times \text{policy mandate}_c  + \gamma_{c} + \gamma_{t}   + \epsilon_{cit}
-\end{aligned}
-$$
-<!-- #endregion -->
-
-```sos kernel="SoS"
-table_nb = 5
-table = 'table_{}'.format(table_nb)
-path = os.path.join(folder, table + '.txt')
-if os.path.exists(folder) == False:
-        os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
-path
-```
-
-```sos kernel="R"
-%get path table
-t_1 <- felm(log(tso2) ~ std_rd_intensity_ci * period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            |fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_2 <- felm(log(tso2) ~ std_inventory_to_sales_ci  * period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_3 <- felm(log(tso2) ~ std_cash_over_curasset_ci  * period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_4 <- felm(log(tso2) ~ std_receivable_curasset_ci  * period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            |fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_5 <- felm(log(tso2) ~ std_current_ratio_ci   * period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_6 <- felm(log(tso2) ~ std_quick_ratio_ci   * period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_7 <- felm(log(tso2) ~ std_cash_ratio_ci  * period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_8 <- felm(log(tso2) ~ std_working_capital_ci  * period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_9 <- felm(log(tso2) ~ std_working_capital_requirement_ci  * period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_10 <- felm(log(tso2) ~ std_return_on_asset_ci  * period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_11 <- felm(log(tso2) ~ std_sales_assets_ci * period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_12 <- felm(log(tso2) ~ std_liabilities_assets_ci * period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_13 <- felm(log(tso2) ~ std_asset_tangibility_ci  * period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            | fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
-            exactDOF = TRUE)
-
-t_14 <- felm(log(tso2) ~ std_account_paybable_to_asset_ci * period * tso2_mandate_c +
-            log(output) + log(employment) + log(capital)
-            |fe_c_i + fe_t_i + fe_c_t |0 | ind2, df_final,
-            exactDOF = TRUE)
-
-
-dep <- "Dependent variable: SO2 emission"
-fe1 <- list(
-    c("City-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("Time-industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("City-Time", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-             )
-
-table_1 <- go_latex(list(
-    t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11, t_12, t_13, t_14
-),
-    title="SO2 emission reduction, industry financial ratio and policy mandate (standardized values)",
-    dep_var = dep,
-    addFE=fe1,
-    save=TRUE,
-    note = FALSE,
-    name=path
-)
-
-```
-
-```sos kernel="SoS"
-tbe1  = "This table estimates eq(3). " \
-"Heteroskedasticity-robust standard errors " \
-"clustered at the industry level appear inp arentheses. "\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-multicolumn ={
-    'Tight': 1,
-    'Loose': 5
-}
-
-reorder = {
-    # Old, New
-    17:4,
-    18:6,
-    19:8,
-    20:10,
-    21:12,
-    22:14,
-    23:16,
-    24:18,
-    25:20,
-    26:22,
-    27:24,
-    28:26,
-    29:28,
-
-}
-
-#multi_lines_dep = '(city/product/trade regime/year)'
-#new_r = ['& test1', 'test2']
-lb.beautify(table_number = table_nb,
-            reorder_var = reorder,
-            #multi_lines_dep = multi_lines_dep,
-            #new_row= new_r,
-            #multicolumn = multicolumn,
-            table_nte = tbe1,
-            jupyter_preview = True,
-            resolution = 280,
+            resolution = 150,
            folder = folder)
 ```
 
 ```sos kernel="SoS"
-table_nb = 5
+table_nb = 4
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
