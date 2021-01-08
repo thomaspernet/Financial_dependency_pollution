@@ -15600,7 +15600,7 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">try</span><span class="p">:</span>
@@ -15630,7 +15630,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;8f6f00e0-d003-49d4-8ca7-6fa248fe3a04&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Fri, 08 Jan 2021 14:43:31 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;8f6f00e0-d003-49d4-8ca7-6fa248fe3a04&#39;}, &#39;RetryAttempts&#39;: 0}}
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;b98cb3ce-8da7-4155-927a-704e1c796636&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Fri, 08 Jan 2021 15:24:30 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;b98cb3ce-8da7-4155-927a-704e1c796636&#39;}, &#39;RetryAttempts&#39;: 0}}
 </pre>
 </div>
 </div>
@@ -15648,7 +15648,7 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[30]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s3</span><span class="o">.</span><span class="n">remove_all_bucket</span><span class="p">(</span><span class="n">path_remove</span> <span class="o">=</span> <span class="n">s3_output</span><span class="p">)</span>
@@ -15667,7 +15667,7 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[30]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
 
 
 
@@ -15685,7 +15685,7 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[31]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%time</span>
@@ -15962,10 +15962,10 @@ a.anchor-link {
 <span class="s2">          field1 as geocode4_corr,</span>
 <span class="s2">          val_1[ &#39;receivable_curasset&#39; ] AS receivable_curasset_ci, </span>
 <span class="s2">          val_2[ &#39;receivable_curasset&#39; ] AS std_receivable_curasset_ci, </span>
-<span class="s2">          val_1[ &#39;cash_over_curasset&#39; ] AS cash_over_curasset_ci, </span>
-<span class="s2">          val_2[ &#39;cash_over_curasset&#39; ] AS std_cash_over_curasset_ci, </span>
-<span class="s2">          val_1[ &#39;cash_over_totasset&#39; ] AS cash_over_totasset_ci, </span>
-<span class="s2">          val_2[ &#39;cash_over_totasset&#39; ] AS std_cash_over_totasset_ci,</span>
+<span class="s2">          1 - val_1[ &#39;cash_over_curasset&#39; ] AS cash_over_curasset_ci, </span>
+<span class="s2">          1 - val_2[ &#39;cash_over_curasset&#39; ] AS std_cash_over_curasset_ci, </span>
+<span class="s2">          1 - val_1[ &#39;cash_over_totasset&#39; ] AS cash_over_totasset_ci, </span>
+<span class="s2">          1 - val_2[ &#39;cash_over_totasset&#39; ] AS std_cash_over_totasset_ci,</span>
 <span class="s2">          </span>
 <span class="s2">          val_1[ &#39;workink_capital&#39; ] AS working_capital_ci, </span>
 <span class="s2">          val_2[ &#39;workink_capital&#39; ] AS std_working_capital_ci, </span>
@@ -16294,8 +16294,8 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>CPU times: user 1.14 s, sys: 52.3 ms, total: 1.19 s
-Wall time: 33.3 s
+<pre>CPU times: user 914 ms, sys: 76.4 ms, total: 990 ms
+Wall time: 27.9 s
 </pre>
 </div>
 </div>
@@ -16303,16 +16303,16 @@ Wall time: 33.3 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[31]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
 <pre>{&#39;Results&#39;: {&#39;State&#39;: &#39;SUCCEEDED&#39;,
-  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 8, 14, 43, 40, 361000, tzinfo=tzlocal()),
-  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 8, 14, 44, 13, 389000, tzinfo=tzlocal())},
- &#39;QueryID&#39;: &#39;5630324d-8c69-495a-abe9-2933d210384b&#39;}</pre>
+  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 8, 15, 24, 30, 693000, tzinfo=tzlocal()),
+  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 8, 15, 24, 58, 229000, tzinfo=tzlocal())},
+ &#39;QueryID&#39;: &#39;5741d1bc-692c-420f-8a62-9c94722834fe&#39;}</pre>
 </div>
 
 </div>
@@ -16324,7 +16324,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[32]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_count</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -16353,7 +16353,7 @@ Wall time: 33.3 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[32]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
 
 
 
@@ -16427,7 +16427,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[33]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;geocode4_corr&quot;</span><span class="p">,</span> <span class="s2">&quot;indu_2&quot;</span><span class="p">]</span>
@@ -16449,7 +16449,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[34]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">step</span> <span class="o">=</span> <span class="mi">1</span>
@@ -16472,7 +16472,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[35]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">get_table_information</span><span class="p">(</span>
@@ -16493,7 +16493,7 @@ Wall time: 33.3 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[35]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
 
 
 
@@ -16546,7 +16546,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[36]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;indu_2&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Two digits industry. If length cic equals to 3, then add 0 to indu_2&#39;</span><span class="p">},</span>
@@ -16556,10 +16556,10 @@ Wall time: 33.3 s
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;std_receivable_curasset_ci&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span>
            <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;standaridzed values (x - x mean) / std)&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;cash_over_curasset_ci&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span>
-           <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;(其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset&#39;</span><span class="p">},</span>
+           <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;1 - (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;std_cash_over_curasset_ci&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span>
            <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;standaridzed values (x - x mean) / std)&#39;</span><span class="p">},</span>
-          <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;cash_over_totasset_ci&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;(其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /toasset&#39;</span><span class="p">},</span>
+          <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;1 - cash_over_totasset_ci&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;(其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /toasset&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;std_cash_over_totasset_ci&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;standaridzed values (x - x mean) / std)&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;working_capital_ci&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span>
            <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;cuasset- 流动负债合计 (c95)&#39;</span><span class="p">},</span>
@@ -16629,7 +16629,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[37]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -16658,7 +16658,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[38]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">json_etl</span> <span class="o">=</span> <span class="p">{</span>
@@ -16690,7 +16690,7 @@ Wall time: 33.3 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[38]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[16]:</div>
 
 
 
@@ -16698,7 +16698,7 @@ Wall time: 33.3 s
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
 <pre>{&#39;step&#39;: 1,
  &#39;description&#39;: &#39;\nCompute the financial ratio by city-industry\n&#39;,
- &#39;query&#39;: &#34;\nCREATE TABLE firms_survey.asif_industry_financial_ratio_city WITH (format = &#39;PARQUET&#39;) AS\nWITH test AS (\n  SELECT \n    *, \n    CASE WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2) ELSE concat(&#39;0&#39;,substr(cic,1, 1)) END AS indu_2, \n    c98 + c99 as total_asset \n  FROM \n    firms_survey.asif_firms_prepared\n  INNER JOIN \n  (\n  SELECT extra_code, geocode4_corr\n  FROM chinese_lookup.china_city_code_normalised \n  GROUP BY extra_code, geocode4_corr\n  ) as no_dup_citycode\nON asif_firms_prepared.citycode = no_dup_citycode.extra_code\n) \nSELECT \n  * \nFROM \n  (\n    WITH ratio AS (\n      SELECT \n        year, \n        indu_2, \n        geocode4_corr,\n        CAST(\n    SUM(c80) AS DECIMAL(16, 5)\n  ) / NULLIF(\n    CAST(\n      SUM(cuasset) AS DECIMAL(16, 5)\n    ), \n    0\n  ) as receivable_curasset_it,\n  \n  CAST(\n    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)\n  ) / NULLIF(\n    CAST(\n      SUM(cuasset) AS DECIMAL(16, 5)\n    ), \n    0\n  ) as cash_over_curasset_it,\n  \n  SUM(cuasset) - SUM(c95) as working_capital_it,\n  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_requirement_it,   \n  CAST(\n    SUM(cuasset) AS DECIMAL(16, 5)\n  ) / NULLIF(\n    CAST(\n      SUM(c95) AS DECIMAL(16, 5)\n    ), \n    0\n  ) AS current_ratio_it, \n  \n  CAST(\n    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) AS DECIMAL(16, 5)\n  ) / NULLIF(\n    CAST(\n      SUM(c95) AS DECIMAL(16, 5)\n    ), \n    0\n  ) AS quick_ratio_it, \n\n  CAST(\n    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)\n  ) / NULLIF(CAST(\n    SUM(c95) AS DECIMAL(16, 5)\n  ), \n    0\n  ) AS cash_ratio_it,\n  \n  -- Need to add asset or debt when bs requirement not meet\n  CASE \n  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) &lt; 0 THEN\n  CAST(\n     SUM(c95) + SUM(c97) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(\n     SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99)))  AS DECIMAL(16, 5)\n    ), \n    0\n  ) \n  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) &gt; 0 THEN\n  CAST(\n     SUM(c95) + SUM(c97) + SUM(toasset) - (SUM(c98) + SUM(c99)) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(\n     SUM(toasset)  AS DECIMAL(16, 5)\n    ), \n    0\n  )\n  ELSE\n  CAST(\n     SUM(c95) + SUM(c97) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(\n     SUM(toasset)  AS DECIMAL(16, 5)\n    ), \n    0\n  )\n  END AS liabilities_assets_it, \n\n  CASE \n  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) &lt; 0 THEN\n  CAST(SUM(sales) - (SUM(c108) + SUM(c113) + SUM(c114) + SUM(c116) + SUM(c118) + SUM(c124) + SUM(wage)) AS DECIMAL(16, 5))/ \n  NULLIF(CAST(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99)))  AS DECIMAL(16, 5)), 0) \n  ELSE\n  CAST(SUM(sales) - (SUM(c108) + SUM(c113) + SUM(c114) + SUM(c116) + SUM(c118) + SUM(c124) + SUM(wage)) AS DECIMAL(16, 5))/ \n  NULLIF(CAST(SUM(toasset)  AS DECIMAL(16, 5)), 0) \n  END AS return_on_asset_it,\n  \n  CASE \n  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) &lt; 0 THEN  \n  CAST(\n    SUM(sales) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(\n      (\n          SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))) - lag(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))),\n          1\n        ) over(\n          partition by indu_2, geocode4_corr \n          order by \n            geocode4_corr,\n            indu_2, \n            year\n        )\n      )/ 2 AS DECIMAL(16, 5)\n    ), \n    0\n  )\n  ELSE \n  CAST(\n    SUM(sales) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(\n      (\n        SUM(toasset) - lag(\n          SUM(toasset), \n          1\n        ) over(\n          partition by indu_2, geocode4_corr\n          order by\n            geocode4_corr,\n            indu_2, \n            year\n        )\n      )/ 2 AS DECIMAL(16, 5)\n    ), \n    0\n  )\n  \n  END AS sales_assets_it,\n  \n  CASE \n  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) &lt; 0 THEN  \n  CAST(\n    SUM(sales) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))) AS DECIMAL(16, 5)), \n    0\n  )\n  ELSE \n  CAST(\n    SUM(sales) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(\n    SUM(toasset) AS DECIMAL(16, 5)), \n    0\n  )\n  END AS sales_assets_andersen_it,\n  \n  CASE \n  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) &lt; 0 THEN  \n  CAST(\n    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))) AS DECIMAL(16, 5)), \n    0\n  )\n  ELSE \n  CAST(\n    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(\n    SUM(toasset) AS DECIMAL(16, 5)), \n    0\n  )\n  END AS cash_over_totasset_it,\n  \n  CAST(SUM(rdfee) AS DECIMAL(16, 5))/ NULLIF(CAST(SUM(sales) AS DECIMAL(16, 5)),0) as rd_intensity_it,\n  CAST(SUM(c81)  AS DECIMAL(16, 5))/ NULLIF(CAST(SUM(sales) AS DECIMAL(16, 5)),0) as inventory_to_sales_it,\n  SUM(tofixed) - SUM(c92) AS asset_tangibility_it,\n  \n  CAST(\n      (\n        SUM(c96) - lag(\n          SUM(c96), \n          1\n        ) over(\n          partition by indu_2, geocode4_corr \n          order by \n          geocode4_corr,\n            indu_2, \n            year\n        )\n      ) AS DECIMAL(16, 5)\n      )/\n      NULLIF(\n    CAST(\n      (\n        SUM(total_asset) - lag(\n          SUM(total_asset), \n          1\n        ) over(\n          partition by indu_2, geocode4_corr \n          order by \n          geocode4_corr,\n            indu_2, \n            year\n        )\n      )/ 2 AS DECIMAL(16, 5)\n    ),0) as account_paybable_to_asset_it\n    \nFROM test\n      WHERE \n        year in (&#39;2004&#39;, &#39;2005&#39;, &#39;2006&#39;) \n      GROUP BY \n      geocode4_corr,\n        indu_2, \n        year\n    ) \n    SELECT \n      *\n    FROM \n      (\n        WITH agg AS (\n          SELECT \n            indu_2, \n            geocode4_corr,\n            &#39;FAKE_GROUP&#39; as fake, \n            AVG(receivable_curasset_it) AS receivable_curasset_i, \n            AVG(cash_over_curasset_it) AS cash_over_curasset_i, \n            AVG(cash_over_totasset_it) AS cash_over_totasset_i, \n            \n            AVG(working_capital_it)/1000000 AS working_capital_i, \n            AVG(working_capital_requirement_it)/1000000 AS working_capital_requirement_i, \n            AVG(current_ratio_it) AS current_ratio_i, \n            AVG(quick_ratio_it) AS quick_ratio_i,\n            AVG(cash_ratio_it) AS cash_ratio_i, \n            \n            AVG(liabilities_assets_it) AS liabilities_assets_i, \n            AVG(return_on_asset_it) AS return_on_asset_i, \n            AVG(sales_assets_it) AS sales_assets_i,\n            AVG(sales_assets_andersen_it) AS sales_assets_andersen_i,\n            AVG(account_paybable_to_asset_it) AS account_paybable_to_asset_i,\n            AVG(asset_tangibility_it)/1000000 AS asset_tangibility_i, \n            \n            AVG(rd_intensity_it) AS rd_intensity_i, \n            AVG(inventory_to_sales_it) AS inventory_to_sales_i\n\n          FROM \n            ratio \n          GROUP BY \n            indu_2 ,\n            geocode4_corr\n        ) \n        SELECT \n          field0 AS indu_2, \n          field1 as geocode4_corr,\n          val_1[ &#39;receivable_curasset&#39; ] AS receivable_curasset_ci, \n          val_2[ &#39;receivable_curasset&#39; ] AS std_receivable_curasset_ci, \n          val_1[ &#39;cash_over_curasset&#39; ] AS cash_over_curasset_ci, \n          val_2[ &#39;cash_over_curasset&#39; ] AS std_cash_over_curasset_ci, \n          val_1[ &#39;cash_over_totasset&#39; ] AS cash_over_totasset_ci, \n          val_2[ &#39;cash_over_totasset&#39; ] AS std_cash_over_totasset_ci,\n          \n          val_1[ &#39;workink_capital&#39; ] AS working_capital_ci, \n          val_2[ &#39;workink_capital&#39; ] AS std_working_capital_ci, \n          val_1[ &#39;working_capital_requirement&#39; ] AS working_capital_requirement_ci, \n          val_2[ &#39;working_capital_requirement&#39; ] AS std_working_capital_requirement_ci, \n          val_1[ &#39;current_ratio&#39; ] AS current_ratio_ci, \n          val_2[ &#39;current_ratio&#39; ] AS std_current_ratio_ci, \n          val_1[ &#39;quick_ratio&#39; ] AS quick_ratio_ci, \n          val_2[ &#39;quick_ratio&#39; ] AS std_quick_ratio_ci,\n          1-val_1[ &#39;cash_ratio&#39; ] AS cash_ratio_ci, \n          1-val_2[ &#39;cash_ratio&#39; ] AS std_cash_ratio_ci, \n          \n          val_1[ &#39;liabilities_assets&#39; ] AS liabilities_assets_ci, \n          val_2[ &#39;liabilities_assets&#39; ] AS std_liabilities_assets_ci, \n          val_1[ &#39;return_on_asset&#39; ] AS return_on_asset_ci, \n          val_2[ &#39;return_on_asset&#39; ] AS std_return_on_asset_ci, \n          val_1[ &#39;sales_assets&#39; ] AS sales_assets_ci, \n          val_2[ &#39;sales_assets&#39; ] AS std_sales_assets_ci, \n          val_1[ &#39;sales_assets_andersen&#39; ] AS sales_assets_andersen_ci, \n          val_2[ &#39;sales_assets_andersen&#39; ] AS std_sales_assets_andersen_ci, \n          val_1[ &#39;account_paybable_to_asset&#39; ] AS account_paybable_to_asset_ci, \n          val_2[ &#39;account_paybable_to_asset&#39; ] AS std_account_paybable_to_asset_ci,\n          val_1[ &#39;asset_tangibility&#39; ] AS asset_tangibility_ci, \n          val_2[ &#39;asset_tangibility&#39; ] AS std_asset_tangibility_ci, \n          \n          val_1[ &#39;rd_intensity&#39; ] AS rd_intensity_ci, \n          val_2[ &#39;rd_intensity&#39; ] AS std_rd_intensity_ci, \n          val_1[ &#39;inventory_to_sales&#39; ] AS inventory_to_sales_ci, \n          val_2[ &#39;inventory_to_sales&#39; ] AS std_inventory_to_sales_ci\n         \n        FROM \n          (\n            SELECT \n              field0, \n              field1,\n              map_agg(w, field2) AS val_1, \n              map_agg(w, field3) AS val_2 \n            FROM \n              (\n                SELECT \n                  w, \n                  names.field0, \n                  names.field1, \n                  names.field2,\n                  names.field3\n                  \n                FROM \n                  (\n                    SELECT \n                      w, \n                      zip(\n                        array_indu_2, \n                        array_geocode4_corr,\n                        array_w, \n                        transform(\n                          array_w, \n                          x -&gt; (x - avg)/ std_w\n                        )\n                      ) as zip_values \n                    FROM \n                      (\n                        SELECT \n                          w, \n                          avg, \n                          array_w, \n                          array_indu_2, \n                          array_geocode4_corr,\n                          std_w \n                        FROM \n                        (\n                            SELECT \n                              &#39;receivable_curasset&#39; as w, \n                              AVG(receivable_curasset_i) as avg, \n                              ARRAY_AGG(receivable_curasset_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(receivable_curasset_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                        (\n                            SELECT \n                              &#39;cash_over_curasset&#39; as w, \n                              AVG(cash_over_curasset_i) as avg, \n                              ARRAY_AGG(cash_over_curasset_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(cash_over_curasset_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                        (\n                            SELECT \n                              &#39;cash_over_totasset&#39; as w, \n                              AVG(cash_over_totasset_i) as avg, \n                              ARRAY_AGG(cash_over_totasset_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(cash_over_totasset_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          )\n                        UNION \n                          (\n                            SELECT \n                              &#39;workink_capital&#39; as w, \n                              AVG(working_capital_i) as avg, \n                              ARRAY_AGG(working_capital_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(working_capital_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;working_capital_requirement&#39; as w, \n                              AVG(working_capital_requirement_i) as avg, \n                              ARRAY_AGG(working_capital_requirement_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(working_capital_requirement_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;current_ratio&#39; as w, \n                              AVG(current_ratio_i) as avg, \n                              ARRAY_AGG(current_ratio_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(current_ratio_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;quick_ratio&#39; as w, \n                              AVG(quick_ratio_i) as avg, \n                              ARRAY_AGG(quick_ratio_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(quick_ratio_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;cash_ratio&#39; as w, \n                              AVG(cash_ratio_i) as avg, \n                              ARRAY_AGG(cash_ratio_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(cash_ratio_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;liabilities_assets&#39; as w, \n                              AVG(liabilities_assets_i) as avg, \n                              ARRAY_AGG(liabilities_assets_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(liabilities_assets_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;return_on_asset&#39; as w, \n                              AVG(return_on_asset_i) as avg, \n                              ARRAY_AGG(return_on_asset_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(return_on_asset_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;sales_assets&#39; as w, \n                              AVG(sales_assets_i) as avg, \n                              ARRAY_AGG(sales_assets_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(sales_assets_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;sales_assets_andersen&#39; as w, \n                              AVG(sales_assets_andersen_i) as avg, \n                              ARRAY_AGG(sales_assets_andersen_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(sales_assets_andersen_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          )\n                        UNION \n                          (\n                            SELECT \n                              &#39;rd_intensity&#39; as w, \n                              AVG(rd_intensity_i) as avg, \n                              ARRAY_AGG(rd_intensity_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(rd_intensity_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;inventory_to_sales&#39; as w, \n                              AVG(inventory_to_sales_i) as avg, \n                              ARRAY_AGG(inventory_to_sales_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(inventory_to_sales_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;asset_tangibility&#39; as w, \n                              AVG(asset_tangibility_i) as avg, \n                              ARRAY_AGG(asset_tangibility_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(asset_tangibility_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;account_paybable_to_asset&#39; as w, \n                              AVG(account_paybable_to_asset_i) as avg, \n                              ARRAY_AGG(account_paybable_to_asset_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(account_paybable_to_asset_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          )\n                      )\n                  ) CROSS \n                  JOIN UNNEST(zip_values) as t(names)\n              ) \n            GROUP BY \n              field0, field1\n          )\n      )\n      ORDER BY indu_2, geocode4_corr\n  )\n&#34;,
+ &#39;query&#39;: &#34;\nCREATE TABLE firms_survey.asif_industry_financial_ratio_city WITH (format = &#39;PARQUET&#39;) AS\nWITH test AS (\n  SELECT \n    *, \n    CASE WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2) ELSE concat(&#39;0&#39;,substr(cic,1, 1)) END AS indu_2, \n    c98 + c99 as total_asset \n  FROM \n    firms_survey.asif_firms_prepared\n  INNER JOIN \n  (\n  SELECT extra_code, geocode4_corr\n  FROM chinese_lookup.china_city_code_normalised \n  GROUP BY extra_code, geocode4_corr\n  ) as no_dup_citycode\nON asif_firms_prepared.citycode = no_dup_citycode.extra_code\n) \nSELECT \n  * \nFROM \n  (\n    WITH ratio AS (\n      SELECT \n        year, \n        indu_2, \n        geocode4_corr,\n        CAST(\n    SUM(c80) AS DECIMAL(16, 5)\n  ) / NULLIF(\n    CAST(\n      SUM(cuasset) AS DECIMAL(16, 5)\n    ), \n    0\n  ) as receivable_curasset_it,\n  \n  CAST(\n    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)\n  ) / NULLIF(\n    CAST(\n      SUM(cuasset) AS DECIMAL(16, 5)\n    ), \n    0\n  ) as cash_over_curasset_it,\n  \n  SUM(cuasset) - SUM(c95) as working_capital_it,\n  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_requirement_it,   \n  CAST(\n    SUM(cuasset) AS DECIMAL(16, 5)\n  ) / NULLIF(\n    CAST(\n      SUM(c95) AS DECIMAL(16, 5)\n    ), \n    0\n  ) AS current_ratio_it, \n  \n  CAST(\n    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) AS DECIMAL(16, 5)\n  ) / NULLIF(\n    CAST(\n      SUM(c95) AS DECIMAL(16, 5)\n    ), \n    0\n  ) AS quick_ratio_it, \n\n  CAST(\n    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)\n  ) / NULLIF(CAST(\n    SUM(c95) AS DECIMAL(16, 5)\n  ), \n    0\n  ) AS cash_ratio_it,\n  \n  -- Need to add asset or debt when bs requirement not meet\n  CASE \n  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) &lt; 0 THEN\n  CAST(\n     SUM(c95) + SUM(c97) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(\n     SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99)))  AS DECIMAL(16, 5)\n    ), \n    0\n  ) \n  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) &gt; 0 THEN\n  CAST(\n     SUM(c95) + SUM(c97) + SUM(toasset) - (SUM(c98) + SUM(c99)) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(\n     SUM(toasset)  AS DECIMAL(16, 5)\n    ), \n    0\n  )\n  ELSE\n  CAST(\n     SUM(c95) + SUM(c97) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(\n     SUM(toasset)  AS DECIMAL(16, 5)\n    ), \n    0\n  )\n  END AS liabilities_assets_it, \n\n  CASE \n  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) &lt; 0 THEN\n  CAST(SUM(sales) - (SUM(c108) + SUM(c113) + SUM(c114) + SUM(c116) + SUM(c118) + SUM(c124) + SUM(wage)) AS DECIMAL(16, 5))/ \n  NULLIF(CAST(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99)))  AS DECIMAL(16, 5)), 0) \n  ELSE\n  CAST(SUM(sales) - (SUM(c108) + SUM(c113) + SUM(c114) + SUM(c116) + SUM(c118) + SUM(c124) + SUM(wage)) AS DECIMAL(16, 5))/ \n  NULLIF(CAST(SUM(toasset)  AS DECIMAL(16, 5)), 0) \n  END AS return_on_asset_it,\n  \n  CASE \n  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) &lt; 0 THEN  \n  CAST(\n    SUM(sales) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(\n      (\n          SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))) - lag(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))),\n          1\n        ) over(\n          partition by indu_2, geocode4_corr \n          order by \n            geocode4_corr,\n            indu_2, \n            year\n        )\n      )/ 2 AS DECIMAL(16, 5)\n    ), \n    0\n  )\n  ELSE \n  CAST(\n    SUM(sales) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(\n      (\n        SUM(toasset) - lag(\n          SUM(toasset), \n          1\n        ) over(\n          partition by indu_2, geocode4_corr\n          order by\n            geocode4_corr,\n            indu_2, \n            year\n        )\n      )/ 2 AS DECIMAL(16, 5)\n    ), \n    0\n  )\n  \n  END AS sales_assets_it,\n  \n  CASE \n  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) &lt; 0 THEN  \n  CAST(\n    SUM(sales) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))) AS DECIMAL(16, 5)), \n    0\n  )\n  ELSE \n  CAST(\n    SUM(sales) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(\n    SUM(toasset) AS DECIMAL(16, 5)), \n    0\n  )\n  END AS sales_assets_andersen_it,\n  \n  CASE \n  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) &lt; 0 THEN  \n  CAST(\n    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))) AS DECIMAL(16, 5)), \n    0\n  )\n  ELSE \n  CAST(\n    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)\n  )/ NULLIF(\n    CAST(\n    SUM(toasset) AS DECIMAL(16, 5)), \n    0\n  )\n  END AS cash_over_totasset_it,\n  \n  CAST(SUM(rdfee) AS DECIMAL(16, 5))/ NULLIF(CAST(SUM(sales) AS DECIMAL(16, 5)),0) as rd_intensity_it,\n  CAST(SUM(c81)  AS DECIMAL(16, 5))/ NULLIF(CAST(SUM(sales) AS DECIMAL(16, 5)),0) as inventory_to_sales_it,\n  SUM(tofixed) - SUM(c92) AS asset_tangibility_it,\n  \n  CAST(\n      (\n        SUM(c96) - lag(\n          SUM(c96), \n          1\n        ) over(\n          partition by indu_2, geocode4_corr \n          order by \n          geocode4_corr,\n            indu_2, \n            year\n        )\n      ) AS DECIMAL(16, 5)\n      )/\n      NULLIF(\n    CAST(\n      (\n        SUM(total_asset) - lag(\n          SUM(total_asset), \n          1\n        ) over(\n          partition by indu_2, geocode4_corr \n          order by \n          geocode4_corr,\n            indu_2, \n            year\n        )\n      )/ 2 AS DECIMAL(16, 5)\n    ),0) as account_paybable_to_asset_it\n    \nFROM test\n      WHERE \n        year in (&#39;2004&#39;, &#39;2005&#39;, &#39;2006&#39;) \n      GROUP BY \n      geocode4_corr,\n        indu_2, \n        year\n    ) \n    SELECT \n      *\n    FROM \n      (\n        WITH agg AS (\n          SELECT \n            indu_2, \n            geocode4_corr,\n            &#39;FAKE_GROUP&#39; as fake, \n            AVG(receivable_curasset_it) AS receivable_curasset_i, \n            AVG(cash_over_curasset_it) AS cash_over_curasset_i, \n            AVG(cash_over_totasset_it) AS cash_over_totasset_i, \n            \n            AVG(working_capital_it)/1000000 AS working_capital_i, \n            AVG(working_capital_requirement_it)/1000000 AS working_capital_requirement_i, \n            AVG(current_ratio_it) AS current_ratio_i, \n            AVG(quick_ratio_it) AS quick_ratio_i,\n            AVG(cash_ratio_it) AS cash_ratio_i, \n            \n            AVG(liabilities_assets_it) AS liabilities_assets_i, \n            AVG(return_on_asset_it) AS return_on_asset_i, \n            AVG(sales_assets_it) AS sales_assets_i,\n            AVG(sales_assets_andersen_it) AS sales_assets_andersen_i,\n            AVG(account_paybable_to_asset_it) AS account_paybable_to_asset_i,\n            AVG(asset_tangibility_it)/1000000 AS asset_tangibility_i, \n            \n            AVG(rd_intensity_it) AS rd_intensity_i, \n            AVG(inventory_to_sales_it) AS inventory_to_sales_i\n\n          FROM \n            ratio \n          GROUP BY \n            indu_2 ,\n            geocode4_corr\n        ) \n        SELECT \n          field0 AS indu_2, \n          field1 as geocode4_corr,\n          val_1[ &#39;receivable_curasset&#39; ] AS receivable_curasset_ci, \n          val_2[ &#39;receivable_curasset&#39; ] AS std_receivable_curasset_ci, \n          1 - val_1[ &#39;cash_over_curasset&#39; ] AS cash_over_curasset_ci, \n          1 - val_2[ &#39;cash_over_curasset&#39; ] AS std_cash_over_curasset_ci, \n          1 - val_1[ &#39;cash_over_totasset&#39; ] AS cash_over_totasset_ci, \n          1 - val_2[ &#39;cash_over_totasset&#39; ] AS std_cash_over_totasset_ci,\n          \n          val_1[ &#39;workink_capital&#39; ] AS working_capital_ci, \n          val_2[ &#39;workink_capital&#39; ] AS std_working_capital_ci, \n          val_1[ &#39;working_capital_requirement&#39; ] AS working_capital_requirement_ci, \n          val_2[ &#39;working_capital_requirement&#39; ] AS std_working_capital_requirement_ci, \n          val_1[ &#39;current_ratio&#39; ] AS current_ratio_ci, \n          val_2[ &#39;current_ratio&#39; ] AS std_current_ratio_ci, \n          val_1[ &#39;quick_ratio&#39; ] AS quick_ratio_ci, \n          val_2[ &#39;quick_ratio&#39; ] AS std_quick_ratio_ci,\n          1-val_1[ &#39;cash_ratio&#39; ] AS cash_ratio_ci, \n          1-val_2[ &#39;cash_ratio&#39; ] AS std_cash_ratio_ci, \n          \n          val_1[ &#39;liabilities_assets&#39; ] AS liabilities_assets_ci, \n          val_2[ &#39;liabilities_assets&#39; ] AS std_liabilities_assets_ci, \n          val_1[ &#39;return_on_asset&#39; ] AS return_on_asset_ci, \n          val_2[ &#39;return_on_asset&#39; ] AS std_return_on_asset_ci, \n          val_1[ &#39;sales_assets&#39; ] AS sales_assets_ci, \n          val_2[ &#39;sales_assets&#39; ] AS std_sales_assets_ci, \n          val_1[ &#39;sales_assets_andersen&#39; ] AS sales_assets_andersen_ci, \n          val_2[ &#39;sales_assets_andersen&#39; ] AS std_sales_assets_andersen_ci, \n          val_1[ &#39;account_paybable_to_asset&#39; ] AS account_paybable_to_asset_ci, \n          val_2[ &#39;account_paybable_to_asset&#39; ] AS std_account_paybable_to_asset_ci,\n          val_1[ &#39;asset_tangibility&#39; ] AS asset_tangibility_ci, \n          val_2[ &#39;asset_tangibility&#39; ] AS std_asset_tangibility_ci, \n          \n          val_1[ &#39;rd_intensity&#39; ] AS rd_intensity_ci, \n          val_2[ &#39;rd_intensity&#39; ] AS std_rd_intensity_ci, \n          val_1[ &#39;inventory_to_sales&#39; ] AS inventory_to_sales_ci, \n          val_2[ &#39;inventory_to_sales&#39; ] AS std_inventory_to_sales_ci\n         \n        FROM \n          (\n            SELECT \n              field0, \n              field1,\n              map_agg(w, field2) AS val_1, \n              map_agg(w, field3) AS val_2 \n            FROM \n              (\n                SELECT \n                  w, \n                  names.field0, \n                  names.field1, \n                  names.field2,\n                  names.field3\n                  \n                FROM \n                  (\n                    SELECT \n                      w, \n                      zip(\n                        array_indu_2, \n                        array_geocode4_corr,\n                        array_w, \n                        transform(\n                          array_w, \n                          x -&gt; (x - avg)/ std_w\n                        )\n                      ) as zip_values \n                    FROM \n                      (\n                        SELECT \n                          w, \n                          avg, \n                          array_w, \n                          array_indu_2, \n                          array_geocode4_corr,\n                          std_w \n                        FROM \n                        (\n                            SELECT \n                              &#39;receivable_curasset&#39; as w, \n                              AVG(receivable_curasset_i) as avg, \n                              ARRAY_AGG(receivable_curasset_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(receivable_curasset_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                        (\n                            SELECT \n                              &#39;cash_over_curasset&#39; as w, \n                              AVG(cash_over_curasset_i) as avg, \n                              ARRAY_AGG(cash_over_curasset_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(cash_over_curasset_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                        (\n                            SELECT \n                              &#39;cash_over_totasset&#39; as w, \n                              AVG(cash_over_totasset_i) as avg, \n                              ARRAY_AGG(cash_over_totasset_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(cash_over_totasset_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          )\n                        UNION \n                          (\n                            SELECT \n                              &#39;workink_capital&#39; as w, \n                              AVG(working_capital_i) as avg, \n                              ARRAY_AGG(working_capital_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(working_capital_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;working_capital_requirement&#39; as w, \n                              AVG(working_capital_requirement_i) as avg, \n                              ARRAY_AGG(working_capital_requirement_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(working_capital_requirement_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;current_ratio&#39; as w, \n                              AVG(current_ratio_i) as avg, \n                              ARRAY_AGG(current_ratio_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(current_ratio_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;quick_ratio&#39; as w, \n                              AVG(quick_ratio_i) as avg, \n                              ARRAY_AGG(quick_ratio_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(quick_ratio_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;cash_ratio&#39; as w, \n                              AVG(cash_ratio_i) as avg, \n                              ARRAY_AGG(cash_ratio_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(cash_ratio_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;liabilities_assets&#39; as w, \n                              AVG(liabilities_assets_i) as avg, \n                              ARRAY_AGG(liabilities_assets_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(liabilities_assets_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;return_on_asset&#39; as w, \n                              AVG(return_on_asset_i) as avg, \n                              ARRAY_AGG(return_on_asset_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(return_on_asset_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;sales_assets&#39; as w, \n                              AVG(sales_assets_i) as avg, \n                              ARRAY_AGG(sales_assets_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(sales_assets_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;sales_assets_andersen&#39; as w, \n                              AVG(sales_assets_andersen_i) as avg, \n                              ARRAY_AGG(sales_assets_andersen_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(sales_assets_andersen_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          )\n                        UNION \n                          (\n                            SELECT \n                              &#39;rd_intensity&#39; as w, \n                              AVG(rd_intensity_i) as avg, \n                              ARRAY_AGG(rd_intensity_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(rd_intensity_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;inventory_to_sales&#39; as w, \n                              AVG(inventory_to_sales_i) as avg, \n                              ARRAY_AGG(inventory_to_sales_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(inventory_to_sales_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;asset_tangibility&#39; as w, \n                              AVG(asset_tangibility_i) as avg, \n                              ARRAY_AGG(asset_tangibility_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(asset_tangibility_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          ) \n                        UNION \n                          (\n                            SELECT \n                              &#39;account_paybable_to_asset&#39; as w, \n                              AVG(account_paybable_to_asset_i) as avg, \n                              ARRAY_AGG(account_paybable_to_asset_i) as array_w, \n                              ARRAY_AGG(indu_2) as array_indu_2, \n                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, \n                              stddev(account_paybable_to_asset_i) as std_w \n                            FROM \n                              agg \n                            GROUP BY \n                              fake\n                          )\n                      )\n                  ) CROSS \n                  JOIN UNNEST(zip_values) as t(names)\n              ) \n            GROUP BY \n              field0, field1\n          )\n      )\n      ORDER BY indu_2, geocode4_corr\n  )\n&#34;,
  &#39;schema&#39;: [{&#39;Name&#39;: &#39;indu_2&#39;,
    &#39;Type&#39;: &#39;string&#39;,
    &#39;Comment&#39;: &#39;Two digits industry. If length cic equals to 3, then add 0 to indu_2&#39;},
@@ -16711,11 +16711,11 @@ Wall time: 33.3 s
    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
   {&#39;Name&#39;: &#39;cash_over_curasset_ci&#39;,
    &#39;Type&#39;: &#39;double&#39;,
-   &#39;Comment&#39;: &#39;(其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset&#39;},
+   &#39;Comment&#39;: &#39;1 - (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset&#39;},
   {&#39;Name&#39;: &#39;std_cash_over_curasset_ci&#39;,
    &#39;Type&#39;: &#39;double&#39;,
    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
-  {&#39;Name&#39;: &#39;cash_over_totasset_ci&#39;,
+  {&#39;Name&#39;: &#39;1 - cash_over_totasset_ci&#39;,
    &#39;Type&#39;: &#39;double&#39;,
    &#39;Comment&#39;: &#39;(其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /toasset&#39;},
   {&#39;Name&#39;: &#39;std_cash_over_totasset_ci&#39;,
@@ -16815,7 +16815,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[39]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
@@ -16836,7 +16836,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[40]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">index_to_remove</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
@@ -16859,7 +16859,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[41]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;TABLES&#39;</span><span class="p">][</span><span class="s1">&#39;PREPARATION&#39;</span><span class="p">][</span><span class="s1">&#39;STEPS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">json_etl</span><span class="p">)</span>
@@ -16879,7 +16879,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[42]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span><span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
@@ -16918,10 +16918,10 @@ Wall time: 33.3 s
 ]</code></pre>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[43]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">update_schema_table</span><span class="p">(</span>
@@ -16935,36 +16935,6 @@ Wall time: 33.3 s
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[43]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;3259f261-3eb9-442d-8ffa-848e5aa80cd0&#39;,
-  &#39;HTTPStatusCode&#39;: 200,
-  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Fri, 08 Jan 2021 14:45:41 GMT&#39;,
-   &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;,
-   &#39;content-length&#39;: &#39;2&#39;,
-   &#39;connection&#39;: &#39;keep-alive&#39;,
-   &#39;x-amzn-requestid&#39;: &#39;3259f261-3eb9-442d-8ffa-848e5aa80cd0&#39;},
-  &#39;RetryAttempts&#39;: 0}}</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
@@ -16975,7 +16945,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[44]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[21]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;geocode4_corr&quot;</span><span class="p">,</span> <span class="s2">&quot;indu_2&quot;</span><span class="p">]</span>
@@ -16992,7 +16962,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[45]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[22]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### COUNT DUPLICATES</span>
@@ -17075,7 +17045,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[46]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[23]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#table = &#39;XX&#39;</span>
@@ -17099,7 +17069,7 @@ Wall time: 33.3 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[46]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[23]:</div>
 
 
 
@@ -17108,111 +17078,51 @@ Wall time: 33.3 s
 <pre>{&#39;Name&#39;: &#39;asif_industry_financial_ratio_city&#39;,
  &#39;DatabaseName&#39;: &#39;firms_survey&#39;,
  &#39;Owner&#39;: &#39;468786073381&#39;,
- &#39;CreateTime&#39;: datetime.datetime(2021, 1, 8, 14, 44, 13, tzinfo=tzlocal()),
- &#39;UpdateTime&#39;: datetime.datetime(2021, 1, 8, 14, 45, 41, tzinfo=tzlocal()),
+ &#39;CreateTime&#39;: datetime.datetime(2021, 1, 8, 15, 24, 58, tzinfo=tzlocal()),
+ &#39;UpdateTime&#39;: datetime.datetime(2021, 1, 8, 15, 24, 58, tzinfo=tzlocal()),
  &#39;LastAccessTime&#39;: datetime.datetime(1970, 1, 1, 0, 0, tzinfo=tzlocal()),
  &#39;Retention&#39;: 0,
  &#39;StorageDescriptor&#39;: {&#39;Columns&#39;: [{&#39;Name&#39;: &#39;indu_2&#39;,
     &#39;Type&#39;: &#39;string&#39;,
-    &#39;Comment&#39;: &#39;Two digits industry. If length cic equals to 3, then add 0 to indu_2&#39;},
+    &#39;Comment&#39;: &#39;&#39;},
    {&#39;Name&#39;: &#39;geocode4_corr&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
-   {&#39;Name&#39;: &#39;receivable_curasset_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;应收帐款 (c80) / cuasset&#39;},
-   {&#39;Name&#39;: &#39;std_receivable_curasset_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
-   {&#39;Name&#39;: &#39;cash_over_curasset_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;(其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset&#39;},
-   {&#39;Name&#39;: &#39;std_cash_over_curasset_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
-   {&#39;Name&#39;: &#39;cash_over_totasset_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;(其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /toasset&#39;},
-   {&#39;Name&#39;: &#39;std_cash_over_totasset_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
-   {&#39;Name&#39;: &#39;working_capital_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;cuasset- 流动负债合计 (c95)&#39;},
-   {&#39;Name&#39;: &#39;std_working_capital_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
-   {&#39;Name&#39;: &#39;working_capital_requirement_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)&#39;},
+   {&#39;Name&#39;: &#39;receivable_curasset_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;std_receivable_curasset_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;cash_over_curasset_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;std_cash_over_curasset_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;cash_over_totasset_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;std_cash_over_totasset_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;working_capital_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;std_working_capital_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;working_capital_requirement_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
    {&#39;Name&#39;: &#39;std_working_capital_requirement_ci&#39;,
     &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
-   {&#39;Name&#39;: &#39;current_ratio_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;cuasset/流动负债合计 (c95)&#39;},
-   {&#39;Name&#39;: &#39;std_current_ratio_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
-   {&#39;Name&#39;: &#39;quick_ratio_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;(cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)) / 流动负债合计 (c95)&#39;},
-   {&#39;Name&#39;: &#39;std_quick_ratio_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
-   {&#39;Name&#39;: &#39;cash_ratio_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;(cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)&#39;},
-   {&#39;Name&#39;: &#39;std_cash_ratio_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
-   {&#39;Name&#39;: &#39;liabilities_assets_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;(流动负债合计 (c95) + 长期负债合计 (c97)) / toasset&#39;},
-   {&#39;Name&#39;: &#39;std_liabilities_assets_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
-   {&#39;Name&#39;: &#39;return_on_asset_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset&#39;},
-   {&#39;Name&#39;: &#39;std_return_on_asset_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
-   {&#39;Name&#39;: &#39;sales_assets_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;全年营业收入合计 (c64) /(\\Delta toasset/2)&#39;},
-   {&#39;Name&#39;: &#39;std_sales_assets_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
-   {&#39;Name&#39;: &#39;sales_assets_andersen_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;Sales over asset&#39;},
-   {&#39;Name&#39;: &#39;std_sales_assets_andersen_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
-   {&#39;Name&#39;: &#39;account_paybable_to_asset_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;(\\Delta 应付帐款  (c96))/ (\\Delta (toasset))&#39;},
+    &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;current_ratio_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;std_current_ratio_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;quick_ratio_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;std_quick_ratio_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;cash_ratio_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;std_cash_ratio_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;liabilities_assets_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;std_liabilities_assets_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;return_on_asset_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;std_return_on_asset_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;sales_assets_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;std_sales_assets_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;sales_assets_andersen_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;std_sales_assets_andersen_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;account_paybable_to_asset_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
    {&#39;Name&#39;: &#39;std_account_paybable_to_asset_ci&#39;,
     &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
-   {&#39;Name&#39;: &#39;asset_tangibility_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;Total fixed assets - Intangible assets&#39;},
-   {&#39;Name&#39;: &#39;std_asset_tangibility_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
-   {&#39;Name&#39;: &#39;rd_intensity_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;rdfee/全年营业收入合计 (c64)&#39;},
-   {&#39;Name&#39;: &#39;std_rd_intensity_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;},
-   {&#39;Name&#39;: &#39;inventory_to_sales_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;存货 (c81) / sales&#39;},
-   {&#39;Name&#39;: &#39;std_inventory_to_sales_ci&#39;,
-    &#39;Type&#39;: &#39;double&#39;,
-    &#39;Comment&#39;: &#39;standaridzed values (x - x mean) / std)&#39;}],
-  &#39;Location&#39;: &#39;s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/CITY/tables/5630324d-8c69-495a-abe9-2933d210384b&#39;,
+    &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;asset_tangibility_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;std_asset_tangibility_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;rd_intensity_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;std_rd_intensity_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;inventory_to_sales_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;std_inventory_to_sales_ci&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;}],
+  &#39;Location&#39;: &#39;s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/CITY/tables/5741d1bc-692c-420f-8a62-9c94722834fe&#39;,
   &#39;InputFormat&#39;: &#39;org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat&#39;,
   &#39;OutputFormat&#39;: &#39;org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat&#39;,
   &#39;Compressed&#39;: False,
@@ -17243,7 +17153,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[47]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
@@ -17258,7 +17168,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[48]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[25]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">table_top</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;ANALYSIS&quot;</span><span class="p">][</span><span class="s2">&quot;COUNT_MISSING&quot;</span><span class="p">][</span><span class="s2">&quot;top&quot;</span><span class="p">]</span>
@@ -17313,204 +17223,204 @@ Wall time: 33.3 s
 
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output " data-mime-type="text/html">
 <style  type="text/css" >
-#T_3556de50_51c0_11eb_8fee_eb18078f8e29row0_col1{
+#T_d0837ab4_51c5_11eb_adab_790aa962a639row0_col1{
             width:  10em;
              height:  80%;
             background:  linear-gradient(90deg,#d65f5f 100.0%, transparent 100.0%);
-        }#T_3556de50_51c0_11eb_8fee_eb18078f8e29row1_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row2_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row3_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row4_col1{
+        }#T_d0837ab4_51c5_11eb_adab_790aa962a639row1_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row2_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row3_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row4_col1{
             width:  10em;
              height:  80%;
             background:  linear-gradient(90deg,#d65f5f 5.2%, transparent 5.2%);
-        }#T_3556de50_51c0_11eb_8fee_eb18078f8e29row5_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row6_col1{
+        }#T_d0837ab4_51c5_11eb_adab_790aa962a639row5_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row6_col1{
             width:  10em;
              height:  80%;
             background:  linear-gradient(90deg,#d65f5f 2.0%, transparent 2.0%);
-        }#T_3556de50_51c0_11eb_8fee_eb18078f8e29row7_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row8_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row9_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row10_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row11_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row12_col1{
+        }#T_d0837ab4_51c5_11eb_adab_790aa962a639row7_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row8_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row9_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row10_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row11_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row12_col1{
             width:  10em;
              height:  80%;
             background:  linear-gradient(90deg,#d65f5f 0.1%, transparent 0.1%);
-        }#T_3556de50_51c0_11eb_8fee_eb18078f8e29row13_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row14_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row15_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row16_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row17_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row18_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row19_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row20_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row21_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row22_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row23_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row24_col1{
+        }#T_d0837ab4_51c5_11eb_adab_790aa962a639row13_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row14_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row15_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row16_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row17_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row18_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row19_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row20_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row21_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row22_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row23_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row24_col1{
             width:  10em;
              height:  80%;
             background:  linear-gradient(90deg,#d65f5f 0.0%, transparent 0.0%);
-        }#T_3556de50_51c0_11eb_8fee_eb18078f8e29row25_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row26_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row27_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row28_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row29_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row30_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row31_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row32_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row33_col1,#T_3556de50_51c0_11eb_8fee_eb18078f8e29row34_col1{
+        }#T_d0837ab4_51c5_11eb_adab_790aa962a639row25_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row26_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row27_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row28_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row29_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row30_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row31_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row32_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row33_col1,#T_d0837ab4_51c5_11eb_adab_790aa962a639row34_col1{
             width:  10em;
              height:  80%;
-        }</style><table id="T_3556de50_51c0_11eb_8fee_eb18078f8e29" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >total_missing</th>        <th class="col_heading level0 col1" >total_missing_pct</th>    </tr></thead><tbody>
+        }</style><table id="T_d0837ab4_51c5_11eb_adab_790aa962a639" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >total_missing</th>        <th class="col_heading level0 col1" >total_missing_pct</th>    </tr></thead><tbody>
                 <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row0" class="row_heading level0 row0" >nb_obs</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row0_col0" class="data row0 col0" >8678</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row0_col1" class="data row0 col1" >100.00%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row0" class="row_heading level0 row0" >nb_obs</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row0_col0" class="data row0 col0" >8678</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row0_col1" class="data row0 col1" >100.00%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row1" class="row_heading level0 row1" >std_sales_assets_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row1_col0" class="data row1 col0" >454</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row1_col1" class="data row1 col1" >5.23%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row1" class="row_heading level0 row1" >std_sales_assets_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row1_col0" class="data row1 col0" >454</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row1_col1" class="data row1 col1" >5.23%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row2" class="row_heading level0 row2" >sales_assets_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row2_col0" class="data row2 col0" >454</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row2_col1" class="data row2 col1" >5.23%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row2" class="row_heading level0 row2" >sales_assets_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row2_col0" class="data row2 col0" >454</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row2_col1" class="data row2 col1" >5.23%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row3" class="row_heading level0 row3" >std_account_paybable_to_asset_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row3_col0" class="data row3 col0" >452</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row3_col1" class="data row3 col1" >5.21%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row3" class="row_heading level0 row3" >std_account_paybable_to_asset_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row3_col0" class="data row3 col0" >452</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row3_col1" class="data row3 col1" >5.21%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row4" class="row_heading level0 row4" >account_paybable_to_asset_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row4_col0" class="data row4 col0" >452</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row4_col1" class="data row4 col1" >5.21%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row4" class="row_heading level0 row4" >account_paybable_to_asset_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row4_col0" class="data row4 col0" >452</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row4_col1" class="data row4 col1" >5.21%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row5" class="row_heading level0 row5" >std_rd_intensity_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row5_col0" class="data row5 col0" >174</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row5_col1" class="data row5 col1" >2.01%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row5" class="row_heading level0 row5" >std_rd_intensity_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row5_col0" class="data row5 col0" >174</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row5_col1" class="data row5 col1" >2.01%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row6" class="row_heading level0 row6" >rd_intensity_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row6_col0" class="data row6 col0" >174</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row6_col1" class="data row6 col1" >2.01%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row6" class="row_heading level0 row6" >rd_intensity_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row6_col0" class="data row6 col0" >174</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row6_col1" class="data row6 col1" >2.01%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row7" class="row_heading level0 row7" >current_ratio_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row7_col0" class="data row7 col0" >9</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row7_col1" class="data row7 col1" >0.10%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row7" class="row_heading level0 row7" >current_ratio_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row7_col0" class="data row7 col0" >9</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row7_col1" class="data row7 col1" >0.10%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row8" class="row_heading level0 row8" >std_cash_ratio_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row8_col0" class="data row8 col0" >9</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row8_col1" class="data row8 col1" >0.10%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row8" class="row_heading level0 row8" >std_cash_ratio_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row8_col0" class="data row8 col0" >9</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row8_col1" class="data row8 col1" >0.10%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row9" class="row_heading level0 row9" >std_quick_ratio_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row9_col0" class="data row9 col0" >9</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row9_col1" class="data row9 col1" >0.10%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row9" class="row_heading level0 row9" >std_quick_ratio_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row9_col0" class="data row9 col0" >9</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row9_col1" class="data row9 col1" >0.10%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row10" class="row_heading level0 row10" >quick_ratio_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row10_col0" class="data row10 col0" >9</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row10_col1" class="data row10 col1" >0.10%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row10" class="row_heading level0 row10" >quick_ratio_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row10_col0" class="data row10 col0" >9</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row10_col1" class="data row10 col1" >0.10%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row11" class="row_heading level0 row11" >std_current_ratio_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row11_col0" class="data row11 col0" >9</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row11_col1" class="data row11 col1" >0.10%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row11" class="row_heading level0 row11" >std_current_ratio_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row11_col0" class="data row11 col0" >9</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row11_col1" class="data row11 col1" >0.10%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row12" class="row_heading level0 row12" >cash_ratio_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row12_col0" class="data row12 col0" >9</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row12_col1" class="data row12 col1" >0.10%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row12" class="row_heading level0 row12" >cash_ratio_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row12_col0" class="data row12 col0" >9</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row12_col1" class="data row12 col1" >0.10%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row13" class="row_heading level0 row13" >std_cash_over_curasset_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row13_col0" class="data row13 col0" >1</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row13_col1" class="data row13 col1" >0.01%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row13" class="row_heading level0 row13" >std_cash_over_curasset_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row13_col0" class="data row13 col0" >1</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row13_col1" class="data row13 col1" >0.01%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row14" class="row_heading level0 row14" >receivable_curasset_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row14_col0" class="data row14 col0" >1</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row14_col1" class="data row14 col1" >0.01%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row14" class="row_heading level0 row14" >receivable_curasset_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row14_col0" class="data row14 col0" >1</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row14_col1" class="data row14 col1" >0.01%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row15" class="row_heading level0 row15" >std_cash_over_totasset_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row15_col0" class="data row15 col0" >1</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row15_col1" class="data row15 col1" >0.01%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row15" class="row_heading level0 row15" >std_cash_over_totasset_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row15_col0" class="data row15 col0" >1</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row15_col1" class="data row15 col1" >0.01%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row16" class="row_heading level0 row16" >liabilities_assets_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row16_col0" class="data row16 col0" >1</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row16_col1" class="data row16 col1" >0.01%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row16" class="row_heading level0 row16" >liabilities_assets_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row16_col0" class="data row16 col0" >1</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row16_col1" class="data row16 col1" >0.01%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row17" class="row_heading level0 row17" >std_liabilities_assets_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row17_col0" class="data row17 col0" >1</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row17_col1" class="data row17 col1" >0.01%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row17" class="row_heading level0 row17" >std_liabilities_assets_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row17_col0" class="data row17 col0" >1</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row17_col1" class="data row17 col1" >0.01%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row18" class="row_heading level0 row18" >return_on_asset_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row18_col0" class="data row18 col0" >1</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row18_col1" class="data row18 col1" >0.01%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row18" class="row_heading level0 row18" >return_on_asset_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row18_col0" class="data row18 col0" >1</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row18_col1" class="data row18 col1" >0.01%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row19" class="row_heading level0 row19" >std_return_on_asset_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row19_col0" class="data row19 col0" >1</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row19_col1" class="data row19 col1" >0.01%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row19" class="row_heading level0 row19" >std_return_on_asset_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row19_col0" class="data row19 col0" >1</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row19_col1" class="data row19 col1" >0.01%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row20" class="row_heading level0 row20" >cash_over_totasset_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row20_col0" class="data row20 col0" >1</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row20_col1" class="data row20 col1" >0.01%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row20" class="row_heading level0 row20" >cash_over_totasset_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row20_col0" class="data row20 col0" >1</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row20_col1" class="data row20 col1" >0.01%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row21" class="row_heading level0 row21" >sales_assets_andersen_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row21_col0" class="data row21 col0" >1</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row21_col1" class="data row21 col1" >0.01%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row21" class="row_heading level0 row21" >sales_assets_andersen_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row21_col0" class="data row21 col0" >1</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row21_col1" class="data row21 col1" >0.01%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row22" class="row_heading level0 row22" >std_sales_assets_andersen_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row22_col0" class="data row22 col0" >1</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row22_col1" class="data row22 col1" >0.01%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row22" class="row_heading level0 row22" >std_sales_assets_andersen_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row22_col0" class="data row22 col0" >1</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row22_col1" class="data row22 col1" >0.01%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row23" class="row_heading level0 row23" >cash_over_curasset_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row23_col0" class="data row23 col0" >1</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row23_col1" class="data row23 col1" >0.01%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row23" class="row_heading level0 row23" >cash_over_curasset_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row23_col0" class="data row23 col0" >1</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row23_col1" class="data row23 col1" >0.01%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row24" class="row_heading level0 row24" >std_receivable_curasset_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row24_col0" class="data row24 col0" >1</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row24_col1" class="data row24 col1" >0.01%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row24" class="row_heading level0 row24" >std_receivable_curasset_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row24_col0" class="data row24 col0" >1</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row24_col1" class="data row24 col1" >0.01%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row25" class="row_heading level0 row25" >asset_tangibility_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row25_col0" class="data row25 col0" >0</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row25_col1" class="data row25 col1" >0.00%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row25" class="row_heading level0 row25" >asset_tangibility_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row25_col0" class="data row25 col0" >0</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row25_col1" class="data row25 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row26" class="row_heading level0 row26" >inventory_to_sales_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row26_col0" class="data row26 col0" >0</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row26_col1" class="data row26 col1" >0.00%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row26" class="row_heading level0 row26" >inventory_to_sales_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row26_col0" class="data row26 col0" >0</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row26_col1" class="data row26 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row27" class="row_heading level0 row27" >geocode4_corr</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row27_col0" class="data row27 col0" >0</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row27_col1" class="data row27 col1" >0.00%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row27" class="row_heading level0 row27" >geocode4_corr</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row27_col0" class="data row27 col0" >0</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row27_col1" class="data row27 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row28" class="row_heading level0 row28" >std_asset_tangibility_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row28_col0" class="data row28 col0" >0</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row28_col1" class="data row28 col1" >0.00%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row28" class="row_heading level0 row28" >std_asset_tangibility_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row28_col0" class="data row28 col0" >0</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row28_col1" class="data row28 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row29" class="row_heading level0 row29" >std_working_capital_requirement_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row29_col0" class="data row29 col0" >0</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row29_col1" class="data row29 col1" >0.00%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row29" class="row_heading level0 row29" >std_working_capital_requirement_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row29_col0" class="data row29 col0" >0</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row29_col1" class="data row29 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row30" class="row_heading level0 row30" >working_capital_requirement_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row30_col0" class="data row30 col0" >0</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row30_col1" class="data row30 col1" >0.00%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row30" class="row_heading level0 row30" >working_capital_requirement_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row30_col0" class="data row30 col0" >0</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row30_col1" class="data row30 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row31" class="row_heading level0 row31" >indu_2</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row31_col0" class="data row31 col0" >0</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row31_col1" class="data row31 col1" >0.00%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row31" class="row_heading level0 row31" >indu_2</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row31_col0" class="data row31 col0" >0</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row31_col1" class="data row31 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row32" class="row_heading level0 row32" >working_capital_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row32_col0" class="data row32 col0" >0</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row32_col1" class="data row32 col1" >0.00%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row32" class="row_heading level0 row32" >working_capital_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row32_col0" class="data row32 col0" >0</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row32_col1" class="data row32 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row33" class="row_heading level0 row33" >std_working_capital_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row33_col0" class="data row33 col0" >0</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row33_col1" class="data row33 col1" >0.00%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row33" class="row_heading level0 row33" >std_working_capital_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row33_col0" class="data row33 col0" >0</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row33_col1" class="data row33 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3556de50_51c0_11eb_8fee_eb18078f8e29level0_row34" class="row_heading level0 row34" >std_inventory_to_sales_ci</th>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row34_col0" class="data row34 col0" >0</td>
-                        <td id="T_3556de50_51c0_11eb_8fee_eb18078f8e29row34_col1" class="data row34 col1" >0.00%</td>
+                        <th id="T_d0837ab4_51c5_11eb_adab_790aa962a639level0_row34" class="row_heading level0 row34" >std_inventory_to_sales_ci</th>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row34_col0" class="data row34 col0" >0</td>
+                        <td id="T_d0837ab4_51c5_11eb_adab_790aa962a639row34_col1" class="data row34 col1" >0.00%</td>
             </tr>
     </tbody></table>
 </div>
@@ -17531,7 +17441,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[49]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">README</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -17614,7 +17524,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[50]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">urllib</span><span class="o">,</span> <span class="nn">ipykernel</span><span class="o">,</span> <span class="nn">json</span>
@@ -17630,7 +17540,7 @@ Wall time: 33.3 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[51]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[28]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">create_report</span><span class="p">(</span><span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">keep_code</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">notebookname</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
