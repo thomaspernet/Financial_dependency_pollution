@@ -377,11 +377,16 @@ SELECT
   CAST(
     capital AS DECIMAL(16, 5)
   ) AS capital, 
+  CAST(
+    toasset AS DECIMAL(16, 5)
+  ) AS total_asset, 
   credit_constraint, 
   receivable_curasset_ci,
   std_receivable_curasset_ci,
   cash_over_curasset_ci,
   std_cash_over_curasset_ci,
+  cash_over_totasset_ci,
+  std_cash_over_totasset_ci,
   working_capital_ci,
   std_working_capital_ci,
   working_capital_requirement_ci,
@@ -394,6 +399,10 @@ SELECT
   std_cash_ratio_ci,
   liabilities_assets_ci,
   std_liabilities_assets_ci,
+  1 - liabilities_assets_ci as reverse_liabilities_assets_ci,
+  1-std_liabilities_assets_ci as reverse_std_liabilities_assets_ci,
+  sales_assets_andersen_ci,
+  std_sales_assets_andersen_ci,
   return_on_asset_ci,
   std_return_on_asset_ci,
   sales_assets_ci,
@@ -468,7 +477,8 @@ FROM
       SUM(output) AS output, 
       SUM(employ) AS employment, 
       SUM(captal) AS capital,
-      SUM(sales) as sales
+      SUM(sales) as sales,
+      SUM(toasset) as toasset
     FROM 
       (
         SELECT 
@@ -481,7 +491,8 @@ FROM
           output, 
           employ, 
           captal,
-          sales
+          sales,
+          toasset
         FROM 
           firms_survey.asif_firms_prepared 
           INNER JOIN (
@@ -689,11 +700,14 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
  {'Name': 'employment', 'Type': 'decimal(16,5)', 'Comment': 'Employemnt'},
  {'Name': 'sales', 'Type': 'decimal(16,5)', 'Comment': 'Sales'},
  {'Name': 'capital', 'Type': 'decimal(16,5)', 'Comment': 'Capital'},
+ {'Name': 'total_asset', 'Type': 'decimal(16,5)', 'Comment': 'Total asset'},
  {'Name': 'credit_constraint', 'Type': 'float', 'Comment': 'Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311'},
  {'Name': 'receivable_curasset_ci', 'Type': 'double', 'Comment': '应收帐款 (c80) / cuasset'},
  {'Name': 'std_receivable_curasset_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'cash_over_curasset_ci', 'Type': 'double', 'Comment': '(其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset'},
+ {'Name': 'cash_over_curasset_ci', 'Type': 'double', 'Comment': '1 - (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset'},
  {'Name': 'std_cash_over_curasset_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
+ {'Name': 'cash_over_totasset_ci', 'Type': 'double', 'Comment': '1 - (cuasset- 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /toasset'},
+ {'Name': 'std_cash_over_totasset_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},         
  {'Name': 'working_capital_ci', 'Type': 'double', 'Comment': 'cuasset- 流动负债合计 (c95)'},
  {'Name': 'std_working_capital_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
  {'Name': 'working_capital_requirement_ci', 'Type': 'double', 'Comment': '存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)'},
@@ -708,6 +722,12 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
  {'Name': 'std_cash_ratio_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
  {'Name': 'liabilities_assets_ci', 'Type': 'double', 'Comment': '1- (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset'},
  {'Name': 'std_liabilities_assets_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
+{'Name': 'reverse_liabilities_assets_ci', 'Type': 'double', 'Comment': '1 - liabilities_assets_ci'},
+ {'Name': 'reverse_std_liabilities_assets_ci',
+  'Type': 'double',
+  'Comment': '1-standaridzed values (x - x mean) / std)'},
+{'Name': 'sales_assets_andersen_ci', 'Type': 'double', 'Comment': '全年营业收入合计 (c64) /(toasset)'},
+ {'Name': 'std_sales_assets_andersen_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
  {'Name': 'return_on_asset_ci', 'Type': 'double', 'Comment': 'sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset'},
  {'Name': 'std_return_on_asset_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
  {'Name': 'sales_assets_ci', 'Type': 'double', 'Comment': '全年营业收入合计 (c64) /(\Delta toasset/2)'},
@@ -957,7 +977,13 @@ for key, value in parameters['TABLES'].items():
                 os.path.basename(schema['metadata']['target_S3URI']).lower()
             )
         else:
-            table_name_git = schema['metadata']['TableName']
+            try:
+                table_name_git = schema['metadata']['TableName']
+            except:
+                table_name_git = '{}{}'.format(
+                schema['metadata']['TablePrefix'],
+                os.path.basename(schema['metadata']['target_S3URI']).lower()
+            )
         
         tb = pd.json_normalize(schema['schema']).to_markdown()
         toc = "{}{}".format(github_link, table_name_git)

@@ -1131,6 +1131,9 @@ SELECT
   CAST(
     capital AS DECIMAL(16, 5)
   ) AS capital, 
+  CAST(
+    toasset AS DECIMAL(16, 5)
+  ) AS total_asset, 
   credit_constraint, 
   receivable_curasset_i,
   std_receivable_curasset_i,
@@ -1148,10 +1151,14 @@ SELECT
   std_cash_ratio_i,
   liabilities_assets_i,
   std_liabilities_assets_i,
+  1 - liabilities_assets_i as reverse_liabilities_assets_i,
+  1 - std_liabilities_assets_i as std_reverse_liabilities_assets_i,
   return_on_asset_i,
   std_return_on_asset_i,
   sales_assets_i,
   std_sales_assets_i,
+  sales_assets_andersen_i,
+  std_sales_assets_andersen_i,
   account_paybable_to_asset_i,
   std_account_paybable_to_asset_i,
   asset_tangibility_i,
@@ -1220,7 +1227,8 @@ FROM
       SUM(output) AS output, 
       SUM(employ) AS employment, 
       SUM(captal) AS capital,
-      SUM(sales) as sales
+      SUM(sales) as sales,
+      SUM(toasset) as toasset
     FROM 
       (
         SELECT 
@@ -1233,7 +1241,8 @@ FROM
           output, 
           employ, 
           captal,
-          sales
+          sales,
+          toasset
         FROM 
           firms_survey.asif_firms_prepared 
           INNER JOIN (
@@ -1294,7 +1303,7 @@ Check scale
 ```python
 query_ = """
 SELECT COUNT(*) AS output_null
-FROM fin_dep_pollution_baseline 
+FROM fin_dep_pollution_baseline_industry 
 WHERE output = 0
 """
 output = s3.run_query(
@@ -1309,7 +1318,7 @@ output
 ```python
 query_ = """
 SELECT COUNT(*) AS capital_null
-FROM fin_dep_pollution_baseline 
+FROM fin_dep_pollution_baseline_industry 
 WHERE capital = 0
 """
 output = s3.run_query(
@@ -1324,7 +1333,7 @@ output
 ```python
 query_ = """
 SELECT COUNT(*) AS employment_null
-FROM fin_dep_pollution_baseline 
+FROM fin_dep_pollution_baseline_industry 
 WHERE employment = 0
 """
 output = s3.run_query(
@@ -1393,6 +1402,7 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
  {'Name': 'employment', 'Type': 'decimal(16,5)', 'Comment': 'Employemnt'},
  {'Name': 'sales', 'Type': 'decimal(16,5)', 'Comment': 'Sales'},
  {'Name': 'capital', 'Type': 'decimal(16,5)', 'Comment': 'Capital'},
+{'Name': 'total_asset', 'Type': 'decimal(16,5)', 'Comment': 'Total asset'},
  {'Name': 'credit_constraint', 'Type': 'float', 'Comment': 'Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311'},
  {'Name': 'receivable_curasset_i', 'Type': 'double', 'Comment': '应收帐款 (c80) / cuasset'},
  {'Name': 'std_receivable_curasset_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
@@ -1412,10 +1422,14 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
  {'Name': 'std_cash_ratio_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
  {'Name': 'liabilities_assets_i', 'Type': 'double', 'Comment': '(流动负债合计 (c95) + 长期负债合计 (c97)) / toasset'},
  {'Name': 'std_liabilities_assets_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
+ {'Name': 'reverse_liabilities_assets_i', 'Type': 'double', 'Comment': '1-liabilities_assets_i'},
+ {'Name': 'std_reverse_liabilities_assets_i', 'Type': 'double', 'Comment': '1 - standaridzed values (x - x mean) / std)'},
  {'Name': 'return_on_asset_i', 'Type': 'double', 'Comment': 'sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset'},
  {'Name': 'std_return_on_asset_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
  {'Name': 'sales_assets_i', 'Type': 'double', 'Comment': '全年营业收入合计 (c64) /(\Delta toasset/2)'},
  {'Name': 'std_sales_assets_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
+ {'Name': 'sales_assets_andersen_i', 'Type': 'double', 'Comment': '全年营业收入合计 (c64) /(toasset)'},
+ {'Name': 'std_sales_assets_andersen_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
  {'Name': 'account_paybable_to_asset_i', 'Type': 'double', 'Comment': '(\Delta 应付帐款  (c96))/ (\Delta (toasset))'},
  {'Name': 'std_account_paybable_to_asset_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
  {'Name': 'asset_tangibility_i', 'Type': 'double', 'Comment': 'Total fixed assets - Intangible assets'},
@@ -1605,18 +1619,24 @@ for key, value in parameters['TABLES'].items():
         partition = schema['partition_keys']
         
         if param =='ALL_SCHEMA':
-            table_name = '{}{}'.format(
+            table_name_git = '{}{}'.format(
                 schema['metadata']['TablePrefix'],
                 os.path.basename(schema['metadata']['target_S3URI']).lower()
             )
         else:
-            table_name = schema['metadata']['TableName']
+            try:
+                table_name_git = schema['metadata']['TableName']
+            except:
+                table_name_git = '{}{}'.format(
+                schema['metadata']['TablePrefix'],
+                os.path.basename(schema['metadata']['target_S3URI']).lower()
+            )
         
         tb = pd.json_normalize(schema['schema']).to_markdown()
         toc = "{}{}".format(github_link, table_name)
-        top_readme += '\n- [{0}]({1})'.format(table_name, toc)
+        top_readme += '\n- [{0}]({1})'.format(table_name_git, toc)
 
-        README += template.format(table_name,
+        README += template.format(table_name_git,
                                   DatabaseName,
                                   target_S3URI,
                                   partition,
