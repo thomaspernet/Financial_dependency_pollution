@@ -938,6 +938,24 @@ FROM
   )
   END AS sales_assets_andersen_it,
   
+  CASE 
+  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN  
+  CAST(
+    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))) AS DECIMAL(16, 5)), 
+    0
+  )
+  ELSE 
+  CAST(
+    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
+  )/ NULLIF(
+    CAST(
+    SUM(toasset) AS DECIMAL(16, 5)), 
+    0
+  )
+  END AS cash_over_totasset_it,
+  
   CAST(SUM(rdfee) AS DECIMAL(16, 5))/ NULLIF(CAST(SUM(sales) AS DECIMAL(16, 5)),0) as rd_intensity_it,
   CAST(SUM(c81)  AS DECIMAL(16, 5))/ NULLIF(CAST(SUM(sales) AS DECIMAL(16, 5)),0) as inventory_to_sales_it,
   SUM(tofixed) - SUM(c92) AS asset_tangibility_it,
@@ -991,6 +1009,7 @@ FROM test
             'FAKE_GROUP' as fake, 
             AVG(receivable_curasset_it) AS receivable_curasset_i, 
             AVG(cash_over_curasset_it) AS cash_over_curasset_i, 
+            AVG(cash_over_totasset_it) AS cash_over_totasset_i, 
             
             AVG(working_capital_it)/1000000 AS working_capital_i, 
             AVG(working_capital_requirement_it)/1000000 AS working_capital_requirement_i, 
@@ -1021,6 +1040,8 @@ FROM test
           val_2[ 'receivable_curasset' ] AS std_receivable_curasset_ci, 
           val_1[ 'cash_over_curasset' ] AS cash_over_curasset_ci, 
           val_2[ 'cash_over_curasset' ] AS std_cash_over_curasset_ci, 
+          val_1[ 'cash_over_totasset' ] AS cash_over_totasset_ci, 
+          val_2[ 'cash_over_totasset' ] AS std_cash_over_totasset_ci,
           
           val_1[ 'workink_capital' ] AS working_capital_ci, 
           val_2[ 'workink_capital' ] AS std_working_capital_ci, 
@@ -1117,6 +1138,20 @@ FROM test
                             GROUP BY 
                               fake
                           ) 
+                        UNION 
+                        (
+                            SELECT 
+                              'cash_over_totasset' as w, 
+                              AVG(cash_over_totasset_i) as avg, 
+                              ARRAY_AGG(cash_over_totasset_i) as array_w, 
+                              ARRAY_AGG(indu_2) as array_indu_2, 
+                              ARRAY_AGG(geocode4_corr) as array_geocode4_corr, 
+                              stddev(cash_over_totasset_i) as std_w 
+                            FROM 
+                              agg 
+                            GROUP BY 
+                              fake
+                          )
                         UNION 
                           (
                             SELECT 
@@ -1379,6 +1414,8 @@ schema = [{'Name': 'indu_2', 'Type': 'string', 'Comment': 'Two digits industry. 
            'Comment': '(其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset'},
           {'Name': 'std_cash_over_curasset_ci', 'Type': 'double',
            'Comment': 'standaridzed values (x - x mean) / std)'},
+          {'Name': 'cash_over_totasset_ci', 'Type': 'double', 'Comment': '(其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /toasset'},
+          {'Name': 'std_cash_over_totasset_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
           {'Name': 'working_capital_ci', 'Type': 'double',
            'Comment': 'cuasset- 流动负债合计 (c95)'},
           {'Name': 'std_working_capital_ci', 'Type': 'double',
@@ -1654,24 +1691,24 @@ for key, value in parameters['TABLES'].items():
         partition = schema['partition_keys']
         
         if param =='ALL_SCHEMA':
-            table_name = '{}{}'.format(
+            table_name_git = '{}{}'.format(
                 schema['metadata']['TablePrefix'],
                 os.path.basename(schema['metadata']['target_S3URI']).lower()
             )
         else:
             try:
-                table_name = schema['metadata']['TableName']
+                table_name_git = schema['metadata']['TableName']
             except:
-                table_name = '{}{}'.format(
+                table_name_git = '{}{}'.format(
                 schema['metadata']['TablePrefix'],
                 os.path.basename(schema['metadata']['target_S3URI']).lower()
             )
         
         tb = pd.json_normalize(schema['schema']).to_markdown()
-        toc = "{}{}".format(github_link, table_name)
-        top_readme += '\n- [{0}]({1})'.format(table_name, toc)
+        toc = "{}{}".format(github_link, table_name_git)
+        top_readme += '\n- [{0}]({1})'.format(table_name_git, toc)
 
-        README += template.format(table_name,
+        README += template.format(table_name_git,
                                   DatabaseName,
                                   target_S3URI,
                                   partition,
