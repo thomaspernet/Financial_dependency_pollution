@@ -974,9 +974,9 @@ for key, value in parameters['TABLES'].items():
             )
         else:
             try:
-                table_name = schema['metadata']['TableName']
+                table_name_git = schema['metadata']['TableName']
             except:
-                table_name = '{}{}'.format(
+                table_name_git = '{}{}'.format(
                 schema['metadata']['TablePrefix'],
                 os.path.basename(schema['metadata']['target_S3URI']).lower()
             )

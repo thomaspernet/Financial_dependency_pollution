@@ -1619,24 +1619,24 @@ for key, value in parameters['TABLES'].items():
         partition = schema['partition_keys']
         
         if param =='ALL_SCHEMA':
-            table_name = '{}{}'.format(
+            table_name_git = '{}{}'.format(
                 schema['metadata']['TablePrefix'],
                 os.path.basename(schema['metadata']['target_S3URI']).lower()
             )
         else:
             try:
-                table_name = schema['metadata']['TableName']
+                table_name_git = schema['metadata']['TableName']
             except:
-                table_name = '{}{}'.format(
+                table_name_git = '{}{}'.format(
                 schema['metadata']['TablePrefix'],
                 os.path.basename(schema['metadata']['target_S3URI']).lower()
             )
         
         tb = pd.json_normalize(schema['schema']).to_markdown()
         toc = "{}{}".format(github_link, table_name)
-        top_readme += '\n- [{0}]({1})'.format(table_name, toc)
+        top_readme += '\n- [{0}]({1})'.format(table_name_git, toc)
 
-        README += template.format(table_name,
+        README += template.format(table_name_git,
                                   DatabaseName,
                                   target_S3URI,
                                   partition,
