@@ -19,8 +19,8 @@
 - [asif_industry_financial_ratio_city](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_financial_ratio_city)
 - [china_sector_pollution_threshold](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-china_sector_pollution_threshold)
 - [asif_tfp_firm_level](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_tfp_firm_level)
-- [fin_dep_pollution_baseline_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_industry)
 - [asif_industry_financial_ratio_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_financial_ratio_industry)
+- [fin_dep_pollution_baseline_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_industry)
 
     
 
@@ -553,72 +553,6 @@
 
     
 
-## Table fin_dep_pollution_baseline_industry
-
-- Database: environment
-- S3uri: `s3://datalake-datascience/DATA/ENVIRONMENT/CHINA/FYP/FINANCIAL_CONTRAINT/PAPER_FYP_FINANCE_POL/BASELINE/INDUSTRY`
-- Partitition: ['geocode4_corr', 'year', 'ind2']
-
-|    | Name                              | Type          | Comment                                                                                                                                                             |
-|---:|:----------------------------------|:--------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|  0 | year                              | string        | year from 2001 to 2007                                                                                                                                              |
-|  1 | period                            | varchar(5)    | False if year before 2005 included, True if year 2006 and 2007                                                                                                      |
-|  2 | provinces                         | string        |                                                                                                                                                                     |
-|  3 | cityen                            | string        |                                                                                                                                                                     |
-|  4 | geocode4_corr                     | string        |                                                                                                                                                                     |
-|  5 | tcz                               | string        | Two control zone policy city                                                                                                                                        |
-|  6 | spz                               | string        | Special policy zone policy city                                                                                                                                     |
-|  7 | ind2                              | string        | 2 digits industry                                                                                                                                                   |
-|  8 | short                             | string        |                                                                                                                                                                     |
-|  9 | polluted_di                       | varchar(5)    | Sectors with values above Yearly 75th percentile of SO2 label as ABOVE else BELOW                                                                                   |
-| 10 | polluted_mi                       | varchar(5)    | Sectors with values above Yearly average of SO2 label as ABOVE else BELOW                                                                                           |
-| 11 | polluted_mei                      | varchar(5)    | Sectors with values above Yearly median of SO2 label as ABOVE else BELOW                                                                                            |
-| 12 | tso2                              | bigint        | Total so2 city sector. Filtered values above  4863 (5% of the distribution)                                                                                         |
-| 13 | so2_intensity                     | decimal(21,5) | SO2 divided by output                                                                                                                                               |
-| 14 | tso2_mandate_c                    | float         | city reduction mandate in tonnes                                                                                                                                    |
-| 15 | in_10_000_tonnes                  | float         | city reduction mandate in 10k tonnes                                                                                                                                |
-| 16 | output                            | decimal(16,5) | Output                                                                                                                                                              |
-| 17 | employment                        | decimal(16,5) | Employemnt                                                                                                                                                          |
-| 18 | sales                             | decimal(16,5) | Sales                                                                                                                                                               |
-| 19 | capital                           | decimal(16,5) | Capital                                                                                                                                                             |
-| 20 | credit_constraint                 | float         | Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311                                                                |
-| 21 | receivable_curasset_i             | double        | 应收帐款 (c80) / cuasset                                                                                                                                            |
-| 22 | std_receivable_curasset_i         | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 23 | cash_over_curasset_i              | double        | (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset                                                                            |
-| 24 | std_cash_over_curasset_i          | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 25 | working_capital_i                 | double        | cuasset- 流动负债合计 (c95)                                                                                                                                         |
-| 26 | std_working_capital_i             | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 27 | working_capital_requirement_i     | double        | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       |
-| 28 | std_working_capital_requirement_i | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 29 | current_ratio_i                   | double        | cuasset/流动负债合计 (c95)                                                                                                                                          |
-| 30 | std_current_ratio_i               | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 31 | quick_ratio_i                     | double        | (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                                          |
-| 32 | std_quick_ratio_i                 | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 33 | cash_ratio_i                      | double        | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)/ 流动负债合计 (c95)                                                                                  |
-| 34 | std_cash_ratio_i                  | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 35 | liabilities_assets_i              | double        | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 |
-| 36 | std_liabilities_assets_i          | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 37 | return_on_asset_i                 | double        | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset |
-| 38 | std_return_on_asset_i             | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 39 | sales_assets_i                    | double        | 全年营业收入合计 (c64) /(\Delta toasset/2)                                                                                                                          |
-| 40 | std_sales_assets_i                | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 41 | account_paybable_to_asset_i       | double        | (\Delta 应付帐款  (c96))/ (\Delta (toasset))                                                                                                                        |
-| 42 | std_account_paybable_to_asset_i   | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 43 | asset_tangibility_i               | double        | Total fixed assets - Intangible assets                                                                                                                              |
-| 44 | std_asset_tangibility_i           | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 45 | rd_intensity_i                    | double        | rdfee/全年营业收入合计 (c64)                                                                                                                                        |
-| 46 | std_rd_intensity_i                | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 47 | inventory_to_sales_i              | double        | 存货 (c81) / sales                                                                                                                                                  |
-| 48 | std_inventory_to_sales_i          | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 49 | lower_location                    | string        | Location city. one of Coastal, Central, Northwest, Northeast, Southwest                                                                                             |
-| 50 | larger_location                   | string        | Location city. one of Eastern, Central, Western                                                                                                                     |
-| 51 | coastal                           | string        | City is bordered by sea or not                                                                                                                                      |
-| 52 | fe_c_i                            | bigint        | City industry fixed effect                                                                                                                                          |
-| 53 | fe_t_i                            | bigint        | year industry fixed effect                                                                                                                                          |
-| 54 | fe_c_t                            | bigint        | city industry fixed effect                                                                                                                                          |
-
-    
-
 ## Table asif_industry_financial_ratio_industry
 
 - Database: firms_survey
@@ -658,5 +592,76 @@
 | 28 | std_rd_intensity_i                | double | standaridzed values (x - x mean) / std)                                                                                                                             |
 | 29 | inventory_to_sales_i              | double | 存货 (c81) / sales                                                                                                                                                  |
 | 30 | std_inventory_to_sales_i          | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+
+    
+
+## Table fin_dep_pollution_baseline_industry
+
+- Database: environment
+- S3uri: `s3://datalake-datascience/DATA/ENVIRONMENT/CHINA/FYP/FINANCIAL_CONTRAINT/PAPER_FYP_FINANCE_POL/BASELINE/INDUSTRY`
+- Partitition: ['geocode4_corr', 'year', 'ind2']
+
+|    | Name                              | Type          | Comment                                                                                                                                                             |
+|---:|:----------------------------------|:--------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|  0 | year                              | string        | year from 2001 to 2007                                                                                                                                              |
+|  1 | period                            | varchar(5)    | False if year before 2005 included, True if year 2006 and 2007                                                                                                      |
+|  2 | provinces                         | string        |                                                                                                                                                                     |
+|  3 | cityen                            | string        |                                                                                                                                                                     |
+|  4 | geocode4_corr                     | string        |                                                                                                                                                                     |
+|  5 | tcz                               | string        | Two control zone policy city                                                                                                                                        |
+|  6 | spz                               | string        | Special policy zone policy city                                                                                                                                     |
+|  7 | ind2                              | string        | 2 digits industry                                                                                                                                                   |
+|  8 | short                             | string        |                                                                                                                                                                     |
+|  9 | polluted_di                       | varchar(5)    | Sectors with values above Yearly 75th percentile of SO2 label as ABOVE else BELOW                                                                                   |
+| 10 | polluted_mi                       | varchar(5)    | Sectors with values above Yearly average of SO2 label as ABOVE else BELOW                                                                                           |
+| 11 | polluted_mei                      | varchar(5)    | Sectors with values above Yearly median of SO2 label as ABOVE else BELOW                                                                                            |
+| 12 | tso2                              | bigint        | Total so2 city sector. Filtered values above  4863 (5% of the distribution)                                                                                         |
+| 13 | so2_intensity                     | decimal(21,5) | SO2 divided by output                                                                                                                                               |
+| 14 | tso2_mandate_c                    | float         | city reduction mandate in tonnes                                                                                                                                    |
+| 15 | in_10_000_tonnes                  | float         | city reduction mandate in 10k tonnes                                                                                                                                |
+| 16 | output                            | decimal(16,5) | Output                                                                                                                                                              |
+| 17 | employment                        | decimal(16,5) | Employemnt                                                                                                                                                          |
+| 18 | sales                             | decimal(16,5) | Sales                                                                                                                                                               |
+| 19 | capital                           | decimal(16,5) | Capital                                                                                                                                                             |
+| 20 | total_asset                       | decimal(16,5) | Total asset                                                                                                                                                         |
+| 21 | credit_constraint                 | float         | Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311                                                                |
+| 22 | receivable_curasset_i             | double        | 应收帐款 (c80) / cuasset                                                                                                                                            |
+| 23 | std_receivable_curasset_i         | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 24 | cash_over_curasset_i              | double        | (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset                                                                            |
+| 25 | std_cash_over_curasset_i          | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 26 | working_capital_i                 | double        | cuasset- 流动负债合计 (c95)                                                                                                                                         |
+| 27 | std_working_capital_i             | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 28 | working_capital_requirement_i     | double        | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       |
+| 29 | std_working_capital_requirement_i | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 30 | current_ratio_i                   | double        | cuasset/流动负债合计 (c95)                                                                                                                                          |
+| 31 | std_current_ratio_i               | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 32 | quick_ratio_i                     | double        | (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                                          |
+| 33 | std_quick_ratio_i                 | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 34 | cash_ratio_i                      | double        | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)/ 流动负债合计 (c95)                                                                                  |
+| 35 | std_cash_ratio_i                  | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 36 | liabilities_assets_i              | double        | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 |
+| 37 | std_liabilities_assets_i          | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 38 | reverse_liabilities_assets_i      | double        | 1-liabilities_assets_i                                                                                                                                              |
+| 39 | std_reverse_liabilities_assets_i  | double        | 1 - standaridzed values (x - x mean) / std)                                                                                                                         |
+| 40 | return_on_asset_i                 | double        | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset |
+| 41 | std_return_on_asset_i             | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 42 | sales_assets_i                    | double        | 全年营业收入合计 (c64) /(\Delta toasset/2)                                                                                                                          |
+| 43 | std_sales_assets_i                | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 44 | sales_assets_andersen_i           | double        | 全年营业收入合计 (c64) /(toasset)                                                                                                                                   |
+| 45 | std_sales_assets_andersen_i       | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 46 | account_paybable_to_asset_i       | double        | (\Delta 应付帐款  (c96))/ (\Delta (toasset))                                                                                                                        |
+| 47 | std_account_paybable_to_asset_i   | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 48 | asset_tangibility_i               | double        | Total fixed assets - Intangible assets                                                                                                                              |
+| 49 | std_asset_tangibility_i           | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 50 | rd_intensity_i                    | double        | rdfee/全年营业收入合计 (c64)                                                                                                                                        |
+| 51 | std_rd_intensity_i                | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 52 | inventory_to_sales_i              | double        | 存货 (c81) / sales                                                                                                                                                  |
+| 53 | std_inventory_to_sales_i          | double        | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 54 | lower_location                    | string        | Location city. one of Coastal, Central, Northwest, Northeast, Southwest                                                                                             |
+| 55 | larger_location                   | string        | Location city. one of Eastern, Central, Western                                                                                                                     |
+| 56 | coastal                           | string        | City is bordered by sea or not                                                                                                                                      |
+| 57 | fe_c_i                            | bigint        | City industry fixed effect                                                                                                                                          |
+| 58 | fe_t_i                            | bigint        | year industry fixed effect                                                                                                                                          |
+| 59 | fe_c_t                            | bigint        | city industry fixed effect                                                                                                                                          |
 
     
