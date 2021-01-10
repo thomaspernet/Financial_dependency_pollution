@@ -417,13 +417,11 @@ output = s3.run_query(
 output
 ```
 
-# Table `XX`
+# Table `asif_city_characteristics_ownership`
 
 Since the table to create has missing value, please use the following at the top of the query
 
-```
-CREATE TABLE database.table_name WITH (format = 'PARQUET') AS
-```
+Since we need to make the computation for domestic vs foreign and public vs private, we will save two csv and use the crawler
 
 
 Choose a location in S3 to save the CSV. It is recommended to save in it the `datalake-datascience` bucket. Locate an appropriate folder in the bucket, and make sure all output have the same format
@@ -439,7 +437,7 @@ First, we need to delete the table (if exist)
 try:
     response = glue.delete_table(
         database=DatabaseName,
-        table=table_name
+       table=table_name
     )
     print(response)
 except Exception as e:
@@ -459,8 +457,8 @@ CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS
 WITH test AS (
   SELECT 
     *, 
-    CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri
-    -- CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
+    CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri,
+    CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
   FROM 
     firms_survey.asif_firms_prepared 
     INNER JOIN (
@@ -476,7 +474,15 @@ WITH test AS (
   
 ) 
 SELECT 
-  *
+  soe_private.geocode4_corr,
+  dominated_output_soe,
+  dominated_employment_soe,
+  dominated_sales_soe,
+  dominated_capital_soe,
+  dominated_output_for,
+  dominated_employment_for,
+  dominated_sales_for,
+  dominated_capital_for
 FROM 
   (
     WITH mapping AS (
@@ -519,7 +525,7 @@ FROM
     )
     SELECT 
     geocode4_corr,
-    map(
+     map(
         ARRAY[
           .5, 
           .75, 
@@ -535,7 +541,7 @@ FROM
           )
         )
       ) AS dominated_output_soe,
-    map(
+     map(
         ARRAY[
           .5, 
           .75, 
@@ -551,7 +557,7 @@ FROM
           )
         )
       ) AS dominated_employment_soe,
-    map(
+     map(
         ARRAY[
           .5, 
           .75, 
@@ -567,7 +573,7 @@ FROM
           )
         )
       ) AS dominated_sales_soe,
-    map(
+     map(
         ARRAY[
           .5, 
           .75, 
@@ -584,8 +590,120 @@ FROM
         )
       ) AS dominated_capital_soe
     FROM mapping
+   ) AS soe_private
+LEFT JOIN (
+SELECT 
+  *
+FROM 
+  (
+    WITH mapping AS (
+      SELECT 
+        geocode4_corr, 
+        map_agg(for_vs_dom, output_pct) AS output_pct, 
+        map_agg(for_vs_dom, employ_pct) AS employ_pct, 
+        map_agg(for_vs_dom, sales_pct) AS sales_pct, 
+        map_agg(for_vs_dom, captal_pct) AS captal_pct 
+      FROM 
+        (
+          SELECT 
+            geocode4_corr, 
+            for_vs_dom, 
+            approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, 
+            approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, 
+            approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, 
+            approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct 
+          FROM 
+            (
+              SELECT
+              firm,
+              geocode4_corr,
+              for_vs_dom,
+              SUM(output) as output,
+              SUM(employ) as employ,
+              SUM(sales) as sales,
+              SUM(captal) as captal
+              FROM test
+              GROUP BY firm, geocode4_corr, for_vs_dom
+              ) 
+          GROUP BY 
+            geocode4_corr, 
+            for_vs_dom
+          ORDER BY 
+            geocode4_corr 
+        ) 
+      GROUP BY 
+        geocode4_corr
+    )
+    SELECT 
+    geocode4_corr,
+     map(
+        ARRAY[
+          .5, 
+          .75, 
+          .90, 
+          .95
+          ], 
+        map_values(
+          transform_values(
+            MAP(
+              output_pct[ 'FOREIGN' ], output_pct[ 'DOMESTIC' ]
+            ), 
+            (k, v) -> k > v
+          )
+        )
+      ) AS dominated_output_for,
+     map(
+        ARRAY[
+          .5, 
+          .75, 
+          .90, 
+          .95
+          ], 
+        map_values(
+          transform_values(
+            MAP(
+              employ_pct[ 'FOREIGN' ], employ_pct[ 'DOMESTIC' ]
+            ), 
+            (k, v) -> k > v
+          )
+        )
+      ) AS dominated_employment_for,
+     map(
+        ARRAY[
+          .5, 
+          .75, 
+          .90, 
+          .95
+          ], 
+        map_values(
+          transform_values(
+            MAP(
+              sales_pct[ 'FOREIGN' ], sales_pct[ 'DOMESTIC' ]
+            ), 
+            (k, v) -> k > v
+          )
+        )
+      ) AS dominated_sales_for,
+     map(
+        ARRAY[
+          .5, 
+          .75, 
+          .90, 
+          .95
+          ], 
+        map_values(
+          transform_values(
+            MAP(
+              captal_pct[ 'FOREIGN' ], captal_pct[ 'DOMESTIC' ]
+            ), 
+            (k, v) -> k > v
+          )
+        )
+      ) AS dominated_capital_for
+    FROM mapping
    )
-
+) AS foreign_dom
+ON soe_private.geocode4_corr = foreign_dom.geocode4_corr
 """.format(DatabaseName, table_name)
 output = s3.run_query(
                     query=query,
@@ -673,7 +791,20 @@ schema = [
     {'Name': 'dominated_sales_soe', 'Type': 'map<double,boolean>', 'Comment': 'map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of sales'},
     {'Name': 'dominated_capital_soe',
         'Type': 'map<double,boolean>',
-        'Comment': 'map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of capital'}]
+        'Comment': 'map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of capital'},
+    
+    {'Name': 'dominated_output_for',
+        'Type': 'map<double,boolean>',
+        'Comment': 'map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of output'},
+    {'Name': 'dominated_employment_for',
+        'Type': 'map<double,boolean>',
+        'Comment': 'map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of employment'},
+    {'Name': 'dominated_sales_for', 'Type': 'map<double,boolean>', 'Comment': 'map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of sales'},
+    {'Name': 'dominated_capital_for',
+        'Type': 'map<double,boolean>',
+        'Comment': 'map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of capital'},
+
+]
 ```
 
 4. Provide a description

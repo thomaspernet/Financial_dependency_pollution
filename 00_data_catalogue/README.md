@@ -724,12 +724,16 @@
 - S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/CITY_CHARACTERISTICS/OWNERSHIP`
 - Partitition: ['geocode4_corr']
 
-|    | Name                     | Type                | Comment                                                                                      |
-|---:|:-------------------------|:--------------------|:---------------------------------------------------------------------------------------------|
-|  0 | geocode4_corr            | string              | City ID                                                                                      |
-|  1 | dominated_output_soe     | map<double,boolean> | map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of output     |
-|  2 | dominated_employment_soe | map<double,boolean> | map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of employment |
-|  3 | dominated_sales_soe      | map<double,boolean> | map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of sales      |
-|  4 | dominated_capital_soe    | map<double,boolean> | map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of capital    |
+|    | Name                     | Type   | Comment                                                                                          |
+|---:|:-------------------------|:-------|:-------------------------------------------------------------------------------------------------|
+|  0 | geocode4_corr            | string | City ID                                                                                          |
+|  1 | dominated_output_soe     | map    | map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of output         |
+|  2 | dominated_employment_soe | map    | map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of employment     |
+|  3 | dominated_sales_soe      | map    | map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of sales          |
+|  4 | dominated_capital_soe    | map    | map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of capital        |
+|  5 | dominated_output_for     | map    | map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of output     |
+|  6 | dominated_employment_for | map    | map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of employment |
+|  7 | dominated_sales_for      | map    | map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of sales      |
+|  8 | dominated_capital_for    | map    | map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of capital    |
 
     
