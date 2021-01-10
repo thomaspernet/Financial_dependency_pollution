@@ -14433,7 +14433,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span><span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -14614,21 +14614,12 @@ Make sure there is no duplicates</p>
 <span class="s2">      CASE WHEN tcz IS NULL THEN &#39;0&#39; ELSE tcz END AS tcz, </span>
 <span class="s2">      CASE WHEN spz IS NULL </span>
 <span class="s2">      OR spz = &#39;#N/A&#39; THEN &#39;0&#39; ELSE spz END AS spz, </span>
-<span class="s2">      lower_location, </span>
-<span class="s2">      larger_location, </span>
-<span class="s2">      coastal, </span>
 <span class="s2">      ratio.ownership,</span>
 <span class="s2">      soe_vs_pri, </span>
 <span class="s2">      for_vs_dom,</span>
 <span class="s2">      count_ownership, </span>
 <span class="s2">      count_city, </span>
 <span class="s2">      count_industry, </span>
-<span class="s2">      tso2, </span>
-<span class="s2">      CAST(</span>
-<span class="s2">        tso2 AS DECIMAL(16, 5)</span>
-<span class="s2">      ) / CAST(</span>
-<span class="s2">        output AS DECIMAL(16, 5)</span>
-<span class="s2">      ) AS so2_intensity, </span>
 <span class="s2">      tso2_mandate_c, </span>
 <span class="s2">      in_10_000_tonnes, </span>
 <span class="s2">      output, </span>
@@ -14693,56 +14684,7 @@ Make sure there is no duplicates</p>
 <span class="s2">          ratio </span>
 <span class="s2">        GROUP BY </span>
 <span class="s2">          firm</span>
-<span class="s2">      ) as multi_industry ON ratio.firm = multi_industry.firm -- Pollution</span>
-<span class="s2">      INNER JOIN (</span>
-<span class="s2">        SELECT </span>
-<span class="s2">          year, </span>
-<span class="s2">          geocode4_corr, </span>
-<span class="s2">          provinces, </span>
-<span class="s2">          cityen, </span>
-<span class="s2">          indus_code AS cic, </span>
-<span class="s2">          SUM(tso2) as tso2, </span>
-<span class="s2">          lower_location, </span>
-<span class="s2">          larger_location, </span>
-<span class="s2">          coastal </span>
-<span class="s2">        FROM </span>
-<span class="s2">          (</span>
-<span class="s2">            SELECT </span>
-<span class="s2">              year, </span>
-<span class="s2">              provinces, </span>
-<span class="s2">              citycode, </span>
-<span class="s2">              geocode4_corr, </span>
-<span class="s2">              china_city_sector_pollution.cityen, </span>
-<span class="s2">              indus_code, </span>
-<span class="s2">              tso2, </span>
-<span class="s2">              lower_location, </span>
-<span class="s2">              larger_location, </span>
-<span class="s2">              coastal </span>
-<span class="s2">            FROM </span>
-<span class="s2">              environment.china_city_sector_pollution </span>
-<span class="s2">              INNER JOIN (</span>
-<span class="s2">                SELECT </span>
-<span class="s2">                  extra_code, </span>
-<span class="s2">                  geocode4_corr </span>
-<span class="s2">                FROM </span>
-<span class="s2">                  chinese_lookup.china_city_code_normalised </span>
-<span class="s2">                GROUP BY </span>
-<span class="s2">                  extra_code, </span>
-<span class="s2">                  geocode4_corr</span>
-<span class="s2">              ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code</span>
-<span class="s2">          ) </span>
-<span class="s2">        GROUP BY </span>
-<span class="s2">          year, </span>
-<span class="s2">          provinces, </span>
-<span class="s2">          geocode4_corr, </span>
-<span class="s2">          cityen, </span>
-<span class="s2">          indus_code, </span>
-<span class="s2">          lower_location, </span>
-<span class="s2">          larger_location, </span>
-<span class="s2">          coastal</span>
-<span class="s2">      ) as aggregate_pol ON ratio.year = aggregate_pol.year </span>
-<span class="s2">      AND ratio.geocode4_corr = aggregate_pol.geocode4_corr </span>
-<span class="s2">      AND ratio.cic = aggregate_pol.cic </span>
+<span class="s2">      ) as multi_industry ON ratio.firm = multi_industry.firm </span>
 <span class="s2">      INNER JOIN (</span>
 <span class="s2">        SELECT </span>
 <span class="s2">          geocode4_corr, </span>
@@ -14767,7 +14709,6 @@ Make sure there is no duplicates</p>
 <span class="s2">      count_ownership = 1 </span>
 <span class="s2">      AND count_city = 1 </span>
 <span class="s2">      AND count_industry = 1 </span>
-<span class="s2">      AND tso2 &gt;0</span>
 <span class="s2">      AND output &gt; 0 </span>
 <span class="s2">      and capital &gt; 0 </span>
 <span class="s2">      and employment &gt; 0 </span>
@@ -14808,7 +14749,7 @@ Make sure there is no duplicates</p>
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
 
 
 
@@ -14840,17 +14781,12 @@ Make sure there is no duplicates</p>
       <th>geocode4_corr</th>
       <th>tcz</th>
       <th>spz</th>
-      <th>lower_location</th>
-      <th>larger_location</th>
-      <th>coastal</th>
       <th>ownership</th>
       <th>soe_vs_pri</th>
       <th>for_vs_dom</th>
       <th>count_ownership</th>
       <th>count_city</th>
       <th>count_industry</th>
-      <th>tso2</th>
-      <th>so2_intensity</th>
       <th>tso2_mandate_c</th>
       <th>in_10_000_tonnes</th>
       <th>output</th>
@@ -14874,412 +14810,362 @@ Make sure there is no duplicates</p>
   <tbody>
     <tr>
       <th>0</th>
-      <td>170613</td>
+      <td>144475</td>
       <td>2001</td>
       <td>False</td>
-      <td>4254</td>
-      <td>42</td>
-      <td>Artwork</td>
+      <td>3782</td>
+      <td>37</td>
+      <td>Transport Equipment</td>
       <td>1101</td>
       <td>1</td>
       <td>1</td>
-      <td>Coastal</td>
-      <td>Eastern</td>
-      <td>No</td>
-      <td>FOREIGN</td>
-      <td>PRIVATE</td>
-      <td>FOREIGN</td>
+      <td>SOE</td>
+      <td>SOE</td>
+      <td>DOMESTIC</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
-      <td>38400</td>
-      <td>4.61538</td>
       <td>0.381358</td>
       <td>3.813583</td>
-      <td>8320.0</td>
-      <td>407.0</td>
-      <td>37670.0</td>
-      <td>9843.0</td>
-      <td>68459.0</td>
-      <td>-0.62</td>
-      <td>20878.0</td>
-      <td>-0.04280</td>
-      <td>0.14378</td>
-      <td>-0.06732</td>
-      <td>0.60273</td>
-      <td>0.10271</td>
-      <td>1.23215</td>
-      <td>293</td>
-      <td>423</td>
+      <td>1873.0</td>
+      <td>39.0</td>
+      <td>1003.0</td>
+      <td>1873.0</td>
+      <td>2478.0</td>
+      <td>-0.72</td>
+      <td>2061.0</td>
+      <td>0.04520</td>
+      <td>0.75585</td>
+      <td>-0.16142</td>
+      <td>0.61098</td>
+      <td>0.07398</td>
+      <td>0.61691</td>
+      <td>438</td>
+      <td>436</td>
       <td>1</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>152545</td>
+      <td>183331</td>
       <td>2001</td>
       <td>False</td>
-      <td>4260</td>
-      <td>42</td>
-      <td>Artwork</td>
+      <td>3782</td>
+      <td>37</td>
+      <td>Transport Equipment</td>
       <td>1101</td>
       <td>1</td>
       <td>1</td>
-      <td>Coastal</td>
-      <td>Eastern</td>
-      <td>No</td>
-      <td>COLLECTIVE</td>
-      <td>PRIVATE</td>
+      <td>SOE</td>
+      <td>SOE</td>
       <td>DOMESTIC</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
-      <td>33704</td>
-      <td>2.83775</td>
       <td>0.381358</td>
       <td>3.813583</td>
-      <td>11877.0</td>
-      <td>10.0</td>
-      <td>100.0</td>
-      <td>9996.0</td>
-      <td>2428.0</td>
-      <td>-0.62</td>
-      <td>140.0</td>
-      <td>-0.65157</td>
-      <td>4.11697</td>
-      <td>0.40898</td>
-      <td>0.16474</td>
-      <td>0.07000</td>
-      <td>5.77000</td>
-      <td>294</td>
-      <td>424</td>
+      <td>657.0</td>
+      <td>20.0</td>
+      <td>466.0</td>
+      <td>657.0</td>
+      <td>744.0</td>
+      <td>-0.72</td>
+      <td>521.0</td>
+      <td>0.55242</td>
+      <td>0.88306</td>
+      <td>-0.26747</td>
+      <td>0.54570</td>
+      <td>1.01232</td>
+      <td>1.08374</td>
+      <td>438</td>
+      <td>436</td>
       <td>1</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>83094</td>
+      <td>127913</td>
       <td>2001</td>
       <td>False</td>
-      <td>4260</td>
-      <td>42</td>
-      <td>Artwork</td>
+      <td>3090</td>
+      <td>30</td>
+      <td>Plastics</td>
       <td>1101</td>
       <td>1</td>
       <td>1</td>
-      <td>Coastal</td>
-      <td>Eastern</td>
-      <td>No</td>
-      <td>SOE</td>
-      <td>SOE</td>
+      <td>PRIVATE</td>
+      <td>PRIVATE</td>
       <td>DOMESTIC</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
-      <td>33704</td>
-      <td>11.47956</td>
       <td>0.381358</td>
       <td>3.813583</td>
-      <td>2936.0</td>
-      <td>341.0</td>
-      <td>13026.0</td>
-      <td>4103.0</td>
-      <td>21623.0</td>
-      <td>-0.62</td>
-      <td>12045.0</td>
-      <td>-0.05920</td>
-      <td>0.18975</td>
-      <td>-0.33081</td>
-      <td>0.31961</td>
-      <td>0.82347</td>
-      <td>1.96585</td>
-      <td>294</td>
-      <td>424</td>
+      <td>5133.0</td>
+      <td>55.0</td>
+      <td>500.0</td>
+      <td>5133.0</td>
+      <td>1163.0</td>
+      <td>-0.47</td>
+      <td>511.0</td>
+      <td>0.09544</td>
+      <td>4.41359</td>
+      <td>-0.28805</td>
+      <td>0.35426</td>
+      <td>0.58495</td>
+      <td>1.96602</td>
+      <td>218</td>
+      <td>258</td>
       <td>1</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>241788</td>
+      <td>41268</td>
       <td>2001</td>
       <td>False</td>
-      <td>4260</td>
-      <td>42</td>
-      <td>Artwork</td>
+      <td>3782</td>
+      <td>37</td>
+      <td>Transport Equipment</td>
       <td>1101</td>
       <td>1</td>
       <td>1</td>
-      <td>Coastal</td>
-      <td>Eastern</td>
-      <td>No</td>
       <td>SOE</td>
       <td>SOE</td>
       <td>DOMESTIC</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
-      <td>33704</td>
-      <td>203.03614</td>
       <td>0.381358</td>
       <td>3.813583</td>
-      <td>166.0</td>
-      <td>9.0</td>
-      <td>300.0</td>
-      <td>308.0</td>
-      <td>1649.0</td>
-      <td>-0.62</td>
-      <td>54.0</td>
-      <td>0.48150</td>
-      <td>0.18678</td>
-      <td>-0.05337</td>
-      <td>0.74591</td>
-      <td>0.74309</td>
-      <td>1.32439</td>
-      <td>294</td>
-      <td>424</td>
+      <td>800.0</td>
+      <td>27.0</td>
+      <td>870.0</td>
+      <td>800.0</td>
+      <td>1738.0</td>
+      <td>-0.72</td>
+      <td>1006.0</td>
+      <td>0.16283</td>
+      <td>0.46030</td>
+      <td>-0.11105</td>
+      <td>0.40276</td>
+      <td>0.51455</td>
+      <td>2.42000</td>
+      <td>438</td>
+      <td>436</td>
       <td>1</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>85898</td>
+      <td>163070</td>
       <td>2001</td>
       <td>False</td>
-      <td>4290</td>
-      <td>42</td>
-      <td>Artwork</td>
+      <td>3499</td>
+      <td>34</td>
+      <td>Metals</td>
       <td>1101</td>
       <td>1</td>
       <td>1</td>
-      <td>Coastal</td>
-      <td>Eastern</td>
-      <td>No</td>
       <td>SOE</td>
       <td>SOE</td>
       <td>DOMESTIC</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
-      <td>2400</td>
-      <td>2.31214</td>
       <td>0.381358</td>
       <td>3.813583</td>
-      <td>1038.0</td>
-      <td>30.0</td>
-      <td>1316.0</td>
-      <td>1631.0</td>
-      <td>1509.0</td>
-      <td>-0.62</td>
-      <td>779.0</td>
-      <td>-0.15971</td>
-      <td>1.08085</td>
-      <td>-0.40689</td>
-      <td>0.12856</td>
-      <td>0.67010</td>
-      <td>6.74227</td>
-      <td>295</td>
-      <td>425</td>
+      <td>487.0</td>
+      <td>17.0</td>
+      <td>321.0</td>
+      <td>411.0</td>
+      <td>489.0</td>
+      <td>-0.93</td>
+      <td>160.0</td>
+      <td>0.31902</td>
+      <td>0.84049</td>
+      <td>-0.20041</td>
+      <td>0.31084</td>
+      <td>1.75281</td>
+      <td>4.44944</td>
+      <td>309</td>
+      <td>329</td>
       <td>1</td>
     </tr>
     <tr>
       <th>5</th>
-      <td>206993</td>
+      <td>243240</td>
       <td>2001</td>
       <td>False</td>
-      <td>2661</td>
-      <td>26</td>
-      <td>Raw Chemical Materials</td>
+      <td>3090</td>
+      <td>30</td>
+      <td>Plastics</td>
       <td>1101</td>
       <td>1</td>
       <td>1</td>
-      <td>Coastal</td>
-      <td>Eastern</td>
-      <td>No</td>
       <td>COLLECTIVE</td>
       <td>PRIVATE</td>
       <td>DOMESTIC</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
-      <td>1499455</td>
-      <td>56.45326</td>
       <td>0.381358</td>
       <td>3.813583</td>
-      <td>26561.0</td>
-      <td>196.0</td>
-      <td>22800.0</td>
-      <td>20784.0</td>
-      <td>35538.0</td>
-      <td>-0.23</td>
-      <td>29781.0</td>
-      <td>0.01818</td>
-      <td>0.58484</td>
-      <td>-0.04770</td>
-      <td>0.35553</td>
-      <td>0.07654</td>
-      <td>0.64880</td>
-      <td>104</td>
-      <td>160</td>
+      <td>11188.0</td>
+      <td>64.0</td>
+      <td>300.0</td>
+      <td>11173.0</td>
+      <td>12590.0</td>
+      <td>-0.47</td>
+      <td>7408.0</td>
+      <td>0.46259</td>
+      <td>0.88745</td>
+      <td>0.07212</td>
+      <td>0.80500</td>
+      <td>0.58707</td>
+      <td>0.83148</td>
+      <td>218</td>
+      <td>258</td>
       <td>1</td>
     </tr>
     <tr>
       <th>6</th>
-      <td>212022</td>
+      <td>133313</td>
       <td>2001</td>
       <td>False</td>
-      <td>2662</td>
-      <td>26</td>
-      <td>Raw Chemical Materials</td>
+      <td>3487</td>
+      <td>34</td>
+      <td>Metals</td>
       <td>1101</td>
       <td>1</td>
       <td>1</td>
-      <td>Coastal</td>
-      <td>Eastern</td>
-      <td>No</td>
-      <td>SOE</td>
-      <td>SOE</td>
+      <td>COLLECTIVE</td>
+      <td>PRIVATE</td>
       <td>DOMESTIC</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
-      <td>4000</td>
-      <td>8.88889</td>
       <td>0.381358</td>
       <td>3.813583</td>
-      <td>450.0</td>
-      <td>7.0</td>
-      <td>200.0</td>
-      <td>642.0</td>
-      <td>1000.0</td>
-      <td>-0.23</td>
-      <td>206.0</td>
-      <td>0.02500</td>
-      <td>0.64200</td>
-      <td>-0.08400</td>
-      <td>0.82400</td>
-      <td>0.27306</td>
-      <td>0.54126</td>
-      <td>105</td>
-      <td>161</td>
+      <td>14221.0</td>
+      <td>149.0</td>
+      <td>14193.0</td>
+      <td>12500.0</td>
+      <td>20732.0</td>
+      <td>-0.93</td>
+      <td>14981.0</td>
+      <td>0.01592</td>
+      <td>0.60293</td>
+      <td>-0.01534</td>
+      <td>0.31541</td>
+      <td>0.45129</td>
+      <td>1.65499</td>
+      <td>306</td>
+      <td>324</td>
       <td>1</td>
     </tr>
     <tr>
       <th>7</th>
-      <td>207212</td>
+      <td>57960</td>
       <td>2001</td>
       <td>False</td>
-      <td>2664</td>
-      <td>26</td>
-      <td>Raw Chemical Materials</td>
+      <td>3090</td>
+      <td>30</td>
+      <td>Plastics</td>
       <td>1101</td>
       <td>1</td>
       <td>1</td>
-      <td>Coastal</td>
-      <td>Eastern</td>
-      <td>No</td>
-      <td>SOE</td>
-      <td>SOE</td>
+      <td>PRIVATE</td>
+      <td>PRIVATE</td>
       <td>DOMESTIC</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
-      <td>10944</td>
-      <td>13.80076</td>
       <td>0.381358</td>
       <td>3.813583</td>
-      <td>793.0</td>
-      <td>29.0</td>
-      <td>1.0</td>
-      <td>793.0</td>
-      <td>5291.0</td>
-      <td>-0.23</td>
-      <td>5083.0</td>
-      <td>0.16367</td>
-      <td>0.14988</td>
-      <td>-0.04479</td>
-      <td>0.65602</td>
-      <td>0.33160</td>
-      <td>0.43532</td>
-      <td>106</td>
-      <td>163</td>
+      <td>16001.0</td>
+      <td>61.0</td>
+      <td>6600.0</td>
+      <td>15647.0</td>
+      <td>10040.0</td>
+      <td>-0.47</td>
+      <td>6498.0</td>
+      <td>0.01683</td>
+      <td>1.55847</td>
+      <td>-0.07470</td>
+      <td>0.34263</td>
+      <td>0.72151</td>
+      <td>1.48721</td>
+      <td>218</td>
+      <td>258</td>
       <td>1</td>
     </tr>
     <tr>
       <th>8</th>
-      <td>223847</td>
+      <td>53367</td>
       <td>2001</td>
       <td>False</td>
-      <td>2669</td>
-      <td>26</td>
-      <td>Raw Chemical Materials</td>
+      <td>3090</td>
+      <td>30</td>
+      <td>Plastics</td>
       <td>1101</td>
       <td>1</td>
       <td>1</td>
-      <td>Coastal</td>
-      <td>Eastern</td>
-      <td>No</td>
-      <td>SOE</td>
-      <td>SOE</td>
-      <td>DOMESTIC</td>
+      <td>HTM</td>
+      <td>PRIVATE</td>
+      <td>FOREIGN</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
-      <td>30840</td>
-      <td>8.61934</td>
       <td>0.381358</td>
       <td>3.813583</td>
-      <td>3578.0</td>
-      <td>154.0</td>
-      <td>978.0</td>
-      <td>3926.0</td>
-      <td>3867.0</td>
-      <td>-0.23</td>
-      <td>2559.0</td>
-      <td>-0.23662</td>
-      <td>1.01526</td>
-      <td>-0.80347</td>
-      <td>0.75019</td>
-      <td>0.16029</td>
-      <td>0.82902</td>
-      <td>108</td>
-      <td>167</td>
+      <td>15869.0</td>
+      <td>109.0</td>
+      <td>17087.0</td>
+      <td>16147.0</td>
+      <td>31933.0</td>
+      <td>-0.47</td>
+      <td>15231.0</td>
+      <td>0.33022</td>
+      <td>0.50565</td>
+      <td>-0.00413</td>
+      <td>0.29625</td>
+      <td>1.12294</td>
+      <td>1.23340</td>
+      <td>218</td>
+      <td>258</td>
       <td>1</td>
     </tr>
     <tr>
       <th>9</th>
-      <td>133515</td>
+      <td>138995</td>
       <td>2001</td>
       <td>False</td>
-      <td>4254</td>
-      <td>42</td>
-      <td>Artwork</td>
+      <td>3782</td>
+      <td>37</td>
+      <td>Transport Equipment</td>
       <td>1101</td>
       <td>1</td>
       <td>1</td>
-      <td>Coastal</td>
-      <td>Eastern</td>
-      <td>No</td>
-      <td>SOE</td>
-      <td>SOE</td>
+      <td>COLLECTIVE</td>
+      <td>PRIVATE</td>
       <td>DOMESTIC</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
-      <td>38400</td>
-      <td>1200.00000</td>
       <td>0.381358</td>
       <td>3.813583</td>
-      <td>32.0</td>
-      <td>24.0</td>
-      <td>2548.0</td>
-      <td>473.0</td>
-      <td>6614.0</td>
-      <td>-0.62</td>
-      <td>384.0</td>
-      <td>0.15482</td>
-      <td>0.07151</td>
-      <td>-0.06955</td>
-      <td>0.55640</td>
-      <td>0.57255</td>
-      <td>1.10217</td>
-      <td>293</td>
-      <td>423</td>
+      <td>922.0</td>
+      <td>16.0</td>
+      <td>424.0</td>
+      <td>922.0</td>
+      <td>784.0</td>
+      <td>-0.72</td>
+      <td>709.0</td>
+      <td>0.46811</td>
+      <td>1.17602</td>
+      <td>-0.28316</td>
+      <td>0.85842</td>
+      <td>0.54532</td>
+      <td>0.93759</td>
+      <td>438</td>
+      <td>436</td>
       <td>1</td>
     </tr>
   </tbody>
@@ -15310,7 +15196,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s3_output</span> <span class="o">=</span> <span class="s1">&#39;DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/FIRM&#39;</span>
@@ -15331,7 +15217,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">try</span><span class="p">:</span>
@@ -15361,7 +15247,7 @@ Make sure there is no duplicates</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;8c95a4dd-ff43-4635-bcc7-8d7eb2669160&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 10 Jan 2021 07:37:26 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;8c95a4dd-ff43-4635-bcc7-8d7eb2669160&#39;}, &#39;RetryAttempts&#39;: 0}}
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;648cb0c3-33c7-4d4e-a942-06173eebe055&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 10 Jan 2021 08:09:18 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;648cb0c3-33c7-4d4e-a942-06173eebe055&#39;}, &#39;RetryAttempts&#39;: 0}}
 </pre>
 </div>
 </div>
@@ -15379,7 +15265,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s3</span><span class="o">.</span><span class="n">remove_all_bucket</span><span class="p">(</span><span class="n">path_remove</span> <span class="o">=</span> <span class="n">s3_output</span><span class="p">)</span>
@@ -15398,7 +15284,7 @@ Make sure there is no duplicates</p>
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[16]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
 
 
 
@@ -15416,7 +15302,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%time</span>
@@ -15599,18 +15485,9 @@ Make sure there is no duplicates</p>
 <span class="s2">      CASE WHEN tcz IS NULL THEN &#39;0&#39; ELSE tcz END AS tcz, </span>
 <span class="s2">      CASE WHEN spz IS NULL </span>
 <span class="s2">      OR spz = &#39;#N/A&#39; THEN &#39;0&#39; ELSE spz END AS spz, </span>
-<span class="s2">      lower_location, </span>
-<span class="s2">      larger_location, </span>
-<span class="s2">      coastal, </span>
 <span class="s2">      ratio.ownership, </span>
 <span class="s2">      soe_vs_pri, </span>
 <span class="s2">      for_vs_dom, </span>
-<span class="s2">      tso2, </span>
-<span class="s2">      CAST(</span>
-<span class="s2">        tso2 AS DECIMAL(16, 5)</span>
-<span class="s2">      ) / CAST(</span>
-<span class="s2">        output AS DECIMAL(16, 5)</span>
-<span class="s2">      ) AS so2_intensity, </span>
 <span class="s2">      tso2_mandate_c, </span>
 <span class="s2">      in_10_000_tonnes, </span>
 <span class="s2">      output, </span>
@@ -15749,7 +15626,6 @@ Make sure there is no duplicates</p>
 <span class="s2">      count_ownership = 1 </span>
 <span class="s2">      AND count_city = 1 </span>
 <span class="s2">      AND count_industry = 1 </span>
-<span class="s2">      AND tso2 &gt;0</span>
 <span class="s2">      AND output &gt; 0 </span>
 <span class="s2">      and capital &gt; 0 </span>
 <span class="s2">      and employment &gt; 0 </span>
@@ -15792,8 +15668,8 @@ Make sure there is no duplicates</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>CPU times: user 508 ms, sys: 28.5 ms, total: 537 ms
-Wall time: 18.4 s
+<pre>CPU times: user 472 ms, sys: 15.7 ms, total: 488 ms
+Wall time: 17.4 s
 </pre>
 </div>
 </div>
@@ -15801,16 +15677,16 @@ Wall time: 18.4 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[17]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
 <pre>{&#39;Results&#39;: {&#39;State&#39;: &#39;SUCCEEDED&#39;,
-  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 10, 7, 37, 36, 70000, tzinfo=tzlocal()),
-  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 10, 7, 37, 53, 934000, tzinfo=tzlocal())},
- &#39;QueryID&#39;: &#39;9bf0acc6-f810-45ea-95aa-79635cf7a065&#39;}</pre>
+  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 10, 8, 9, 26, 719000, tzinfo=tzlocal()),
+  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 10, 8, 9, 43, 796000, tzinfo=tzlocal())},
+ &#39;QueryID&#39;: &#39;499a3b14-60ec-4316-adb8-6c99cc3ad5f5&#39;}</pre>
 </div>
 
 </div>
@@ -15822,7 +15698,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_count</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -15851,7 +15727,7 @@ Wall time: 18.4 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[18]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[15]:</div>
 
 
 
@@ -15880,7 +15756,7 @@ Wall time: 18.4 s
   <tbody>
     <tr>
       <th>0</th>
-      <td>326929</td>
+      <td>384608</td>
     </tr>
   </tbody>
 </table>
@@ -15925,7 +15801,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;firm&quot;</span><span class="p">,</span><span class="s2">&quot;year&quot;</span><span class="p">,</span><span class="s2">&quot;cic&quot;</span><span class="p">,</span><span class="s2">&quot;geocode4_corr&quot;</span><span class="p">]</span>
@@ -15947,7 +15823,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">step</span> <span class="o">=</span> <span class="mi">5</span>
@@ -15970,7 +15846,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[21]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">get_table_information</span><span class="p">(</span>
@@ -15991,7 +15867,7 @@ Wall time: 18.4 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[21]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[18]:</div>
 
 
 
@@ -16006,14 +15882,9 @@ Wall time: 18.4 s
  {&#39;Name&#39;: &#39;geocode4_corr&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;tcz&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;spz&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
- {&#39;Name&#39;: &#39;lower_location&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
- {&#39;Name&#39;: &#39;larger_location&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
- {&#39;Name&#39;: &#39;coastal&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;ownership&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;soe_vs_pri&#39;, &#39;Type&#39;: &#39;varchar(7)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;for_vs_dom&#39;, &#39;Type&#39;: &#39;varchar(8)&#39;, &#39;Comment&#39;: &#39;&#39;},
- {&#39;Name&#39;: &#39;tso2&#39;, &#39;Type&#39;: &#39;bigint&#39;, &#39;Comment&#39;: &#39;&#39;},
- {&#39;Name&#39;: &#39;so2_intensity&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;tso2_mandate_c&#39;, &#39;Type&#39;: &#39;float&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;in_10_000_tonnes&#39;, &#39;Type&#39;: &#39;float&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;output&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
@@ -16045,7 +15916,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[22]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;firm&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Firms ID&#39;</span><span class="p">},</span>
@@ -16057,14 +15928,9 @@ Wall time: 18.4 s
  <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;geocode4_corr&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;city code&#39;</span><span class="p">},</span>
  <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;tcz&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Two control zone policy&#39;</span><span class="p">},</span>
  <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;spz&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Special policy zone&#39;</span><span class="p">},</span>
- <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;lower_location&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Location city. one of Coastal, Central, Northwest, Northeast, Southwest&#39;</span><span class="p">},</span>
- <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;larger_location&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Location city. one of Eastern, Central, Western&#39;</span><span class="p">},</span>
- <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;coastal&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;City is bordered by sea or not&#39;</span><span class="p">},</span>
  <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;ownership&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Firms ownership&#39;</span><span class="p">},</span>
  <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;soe_vs_pri&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;varchar(7)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;SOE vs PRIVATE&#39;</span><span class="p">},</span>
  <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;for_vs_dom&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;varchar(8)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39; FOREIGN vs DOMESTICT if ownership is HTM then FOREIGN&#39;</span><span class="p">},</span>
- <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;tso2&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;bigint&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Total so2 city sector. Filtered values above 0&#39;</span><span class="p">},</span>
- <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;so2_intensity&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;SO2 divided by output&#39;</span><span class="p">},</span>
  <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;tso2_mandate_c&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;city reduction mandate in tonnes&#39;</span><span class="p">},</span>
  <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;in_10_000_tonnes&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;city reduction mandate in 10k tonnes&#39;</span><span class="p">},</span>
  <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(16,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Output&#39;</span><span class="p">},</span>
@@ -16103,7 +15969,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[23]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -16132,7 +15998,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[21]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">json_etl</span> <span class="o">=</span> <span class="p">{</span>
@@ -16164,7 +16030,7 @@ Wall time: 18.4 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[24]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[21]:</div>
 
 
 
@@ -16172,7 +16038,7 @@ Wall time: 18.4 s
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
 <pre>{&#39;step&#39;: 5,
  &#39;description&#39;: &#39;\nTransform asif firms prepared data by merging china tcz spz, china city reduction mandate, china city code normalised, china credit constraint, ind cic 2 name data by constructing financial ratio, city-industry FE, city-year FE, industry-year FE, soe_vs_private, foreign_vs_domestic (add firms ownership soe and private and domestic and foreign, keep capital, output, sales and employment) to asif financial ratio baseline firm\n&#39;,
- &#39;query&#39;: &#34;\nCREATE TABLE firms_survey.asif_financial_ratio_baseline_firm WITH (format = &#39;PARQUET&#39;) AS\nWITH test AS (\n  SELECT \n    *, \n    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(\n      &#39;0&#39;, \n      substr(cic, 1, 1)\n    ) END AS indu_2, \n    c98 + c99 as total_asset, \n    CASE WHEN c79 IS NULL THEN 0 ELSE c79 END AS short_term_investment \n  FROM \n    firms_survey.asif_firms_prepared \n    INNER JOIN (\n      SELECT \n        extra_code, \n        geocode4_corr \n      FROM \n        chinese_lookup.china_city_code_normalised \n      GROUP BY \n        extra_code, \n        geocode4_corr\n    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code\n) \nSELECT \n  * \nFROM \n  (\n    WITH ratio AS (\n      SELECT \n        firm, \n        year, \n        cic, \n        indu_2, \n        geocode4_corr, \n        ownership,\n        CASE WHEN ownership = &#39;SOE&#39; THEN &#39;SOE&#39; ELSE &#39;PRIVATE&#39; END AS soe_vs_pri,\n        CASE WHEN ownership in (\n        &#39;HTM&#39;, &#39;FOREIGN&#39;\n      ) THEN &#39;FOREIGN&#39; ELSE &#39;DOMESTIC&#39; END AS for_vs_dom,\n        CAST(\n          output AS DECIMAL(16, 5)\n        ) AS output, \n        CAST(\n          sales AS DECIMAL(16, 5)\n        ) AS sales, \n        CAST(\n          employ AS DECIMAL(16, 5)\n        ) AS employment, \n        CAST(\n          captal AS DECIMAL(16, 5)\n        ) AS capital, \n        CAST(\n          toasset AS DECIMAL(16, 5)\n        ) AS total_asset, \n        CAST(\n          cuasset AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            c95 AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS current_ratio_fcit,\n      \n        CAST(\n          cuasset - short_term_investment - c80 - c81 AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            c95 AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS quick_ratio_fcit, \n        -- Need to add asset or debt when bs requirement not meet\n        CASE WHEN toasset - (c98 + c99) &lt; 0 THEN CAST(\n          c95 + c97 AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset + ABS(\n              toasset - (c98 + c99)\n            ) AS DECIMAL(16, 5)\n          ), \n          0\n        ) WHEN toasset - (c98 + c99) &gt; 0 THEN CAST(\n          c95 + c97 + toasset - (c98 + c99) AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset AS DECIMAL(16, 5)\n          ), \n          0\n        ) ELSE CAST(\n          c95 + c97 AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset AS DECIMAL(16, 5)\n          ), \n          0\n        ) END AS liabilities_assets_fcit, \n        CASE WHEN toasset - (c98 + c99) &lt; 0 THEN CAST(\n          sales - (\n            c108 + c113 + c114 + c116 + c118 + c124 + wage\n          ) AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset + ABS(\n              toasset - (c98 + c99)\n            ) AS DECIMAL(16, 5)\n          ), \n          0\n        ) ELSE CAST(\n          sales - (\n            c108 + c113 + c114 + c116 + c118 + c124 + wage\n          ) AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset AS DECIMAL(16, 5)\n          ), \n          0\n        ) END AS return_on_asset_fcit, \n      \n        CASE WHEN toasset - (c98 + c99) &lt; 0 THEN CAST(\n          sales AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset + ABS(\n              toasset - (c98 + c99)\n            ) AS DECIMAL(16, 5)\n          ), \n          0\n        ) ELSE CAST(\n          sales AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset AS DECIMAL(16, 5)\n          ), \n          0\n        ) END AS sales_assets_andersen_fcit,\n      \n        CASE WHEN toasset - (c98 + c99) &lt; 0 THEN CAST(\n          cuasset - short_term_investment - c80 - c81 - c82 AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset + ABS(\n              toasset - (c98 + c99)\n            ) AS DECIMAL(16, 5)\n          ), \n          0\n        ) ELSE CAST(\n          cuasset - short_term_investment - c80 - c81 - c82 AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset AS DECIMAL(16, 5)\n          ), \n          0\n        ) END AS cash_over_totasset_fcit, \n      \n        CAST(\n          tofixed - c92 AS DECIMAL(16, 5)\n        ) AS asset_tangibility_fcit \n      FROM \n        test \n      WHERE \n        year in (\n          &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;, \n          &#39;2006&#39;, &#39;2007&#39;\n        )\n    ) \n    SELECT \n      ratio.firm, \n      ratio.year, \n      CASE WHEN ratio.year in (\n        &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;\n      ) THEN &#39;FALSE&#39; WHEN ratio.year in (&#39;2006&#39;, &#39;2007&#39;) THEN &#39;TRUE&#39; END AS period, \n      ratio.cic, \n      indu_2, \n      CASE WHEN short IS NULL THEN &#39;Unknown&#39; ELSE short END AS short, \n      ratio.geocode4_corr, \n      CASE WHEN tcz IS NULL THEN &#39;0&#39; ELSE tcz END AS tcz, \n      CASE WHEN spz IS NULL \n      OR spz = &#39;#N/A&#39; THEN &#39;0&#39; ELSE spz END AS spz, \n      lower_location, \n      larger_location, \n      coastal, \n      ratio.ownership, \n      soe_vs_pri, \n      for_vs_dom, \n      tso2, \n      CAST(\n        tso2 AS DECIMAL(16, 5)\n      ) / CAST(\n        output AS DECIMAL(16, 5)\n      ) AS so2_intensity, \n      tso2_mandate_c, \n      in_10_000_tonnes, \n      output, \n      employment, \n      capital, \n      sales, \n      total_asset, \n      credit_constraint, \n      asset_tangibility_fcit, \n      cash_over_totasset_fcit, \n      sales_assets_andersen_fcit, \n      return_on_asset_fcit, \n      liabilities_assets_fcit, \n      quick_ratio_fcit, \n      current_ratio_fcit, \n      DENSE_RANK() OVER (\n        ORDER BY \n          ratio.geocode4_corr, \n          ratio.cic\n      ) AS fe_c_i, \n      DENSE_RANK() OVER (\n        ORDER BY \n          ratio.year, \n          ratio.cic\n      ) AS fe_t_i, \n      DENSE_RANK() OVER (\n        ORDER BY \n          ratio.geocode4_corr, \n          ratio.year\n      ) AS fe_c_t \n    FROM \n      ratio \n      INNER JOIN (\n        SELECT \n          firm, \n          COUNT(\n            DISTINCT(geocode4_corr)\n          ) AS count_city \n        FROM \n          ratio \n        GROUP BY \n          firm\n      ) as multi_cities ON ratio.firm = multi_cities.firm \n      INNER JOIN (\n        SELECT \n          firm, \n          COUNT(\n            DISTINCT(ownership)\n          ) AS count_ownership \n        FROM \n          ratio \n        GROUP BY \n          firm\n      ) as multi_ownership ON ratio.firm = multi_ownership.firm \n      INNER JOIN (\n        SELECT \n          firm, \n          COUNT(\n            DISTINCT(cic)\n          ) AS count_industry \n        FROM \n          ratio \n        GROUP BY \n          firm\n      ) as multi_industry ON ratio.firm = multi_industry.firm -- Pollution\n      INNER JOIN (\n        SELECT \n          year, \n          geocode4_corr, \n          provinces, \n          cityen, \n          indus_code AS cic, \n          SUM(tso2) as tso2, \n          lower_location, \n          larger_location, \n          coastal \n        FROM \n          (\n            SELECT \n              year, \n              provinces, \n              citycode, \n              geocode4_corr, \n              china_city_sector_pollution.cityen, \n              indus_code, \n              tso2, \n              lower_location, \n              larger_location, \n              coastal \n            FROM \n              environment.china_city_sector_pollution \n              INNER JOIN (\n                SELECT \n                  extra_code, \n                  geocode4_corr \n                FROM \n                  chinese_lookup.china_city_code_normalised \n                GROUP BY \n                  extra_code, \n                  geocode4_corr\n              ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code\n          ) \n        GROUP BY \n          year, \n          provinces, \n          geocode4_corr, \n          cityen, \n          indus_code, \n          lower_location, \n          larger_location, \n          coastal\n      ) as aggregate_pol ON ratio.year = aggregate_pol.year \n      AND ratio.geocode4_corr = aggregate_pol.geocode4_corr \n      AND ratio.cic = aggregate_pol.cic \n      INNER JOIN (\n        SELECT \n          geocode4_corr, \n          tso2_mandate_c, \n          in_10_000_tonnes \n        FROM \n          policy.china_city_reduction_mandate \n          INNER JOIN chinese_lookup.china_city_code_normalised ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn \n        WHERE \n          extra_code = geocode4_corr\n      ) as city_mandate ON ratio.geocode4_corr = city_mandate.geocode4_corr \n      LEFT JOIN policy.china_city_tcz_spz ON ratio.geocode4_corr = china_city_tcz_spz.geocode4_corr \n      LEFT JOIN chinese_lookup.ind_cic_2_name ON ratio.indu_2 = ind_cic_2_name.cic \n      LEFT JOIN (\n        SELECT \n          cic, \n          financial_dep_china AS credit_constraint \n        FROM \n          industry.china_credit_constraint\n      ) as cred_constraint ON ratio.indu_2 = cred_constraint.cic \n    WHERE \n      count_ownership = 1 \n      AND count_city = 1 \n      AND count_industry = 1 \n      AND tso2 &gt;0\n      AND output &gt; 0 \n      and capital &gt; 0 \n      and employment &gt; 0 \n      AND ratio.indu_2 != &#39;43&#39; \n      AND total_asset IS NOT NULL\n      AND asset_tangibility_fcit IS NOT NULL\n      AND cash_over_totasset_fcit IS NOT NULL \n      AND sales_assets_andersen_fcit IS NOT NULL \n      AND return_on_asset_fcit IS NOT NULL\n      AND liabilities_assets_fcit IS NOT NULL \n      AND quick_ratio_fcit IS NOT NULL\n      AND current_ratio_fcit IS NOT NULL\n    ORDER BY \n      year \n  )\n\n&#34;,
+ &#39;query&#39;: &#34;\nCREATE TABLE firms_survey.asif_financial_ratio_baseline_firm WITH (format = &#39;PARQUET&#39;) AS\nWITH test AS (\n  SELECT \n    *, \n    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(\n      &#39;0&#39;, \n      substr(cic, 1, 1)\n    ) END AS indu_2, \n    c98 + c99 as total_asset, \n    CASE WHEN c79 IS NULL THEN 0 ELSE c79 END AS short_term_investment \n  FROM \n    firms_survey.asif_firms_prepared \n    INNER JOIN (\n      SELECT \n        extra_code, \n        geocode4_corr \n      FROM \n        chinese_lookup.china_city_code_normalised \n      GROUP BY \n        extra_code, \n        geocode4_corr\n    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code\n) \nSELECT \n  * \nFROM \n  (\n    WITH ratio AS (\n      SELECT \n        firm, \n        year, \n        cic, \n        indu_2, \n        geocode4_corr, \n        ownership,\n        CASE WHEN ownership = &#39;SOE&#39; THEN &#39;SOE&#39; ELSE &#39;PRIVATE&#39; END AS soe_vs_pri,\n        CASE WHEN ownership in (\n        &#39;HTM&#39;, &#39;FOREIGN&#39;\n      ) THEN &#39;FOREIGN&#39; ELSE &#39;DOMESTIC&#39; END AS for_vs_dom,\n        CAST(\n          output AS DECIMAL(16, 5)\n        ) AS output, \n        CAST(\n          sales AS DECIMAL(16, 5)\n        ) AS sales, \n        CAST(\n          employ AS DECIMAL(16, 5)\n        ) AS employment, \n        CAST(\n          captal AS DECIMAL(16, 5)\n        ) AS capital, \n        CAST(\n          toasset AS DECIMAL(16, 5)\n        ) AS total_asset, \n        CAST(\n          cuasset AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            c95 AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS current_ratio_fcit,\n      \n        CAST(\n          cuasset - short_term_investment - c80 - c81 AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            c95 AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS quick_ratio_fcit, \n        -- Need to add asset or debt when bs requirement not meet\n        CASE WHEN toasset - (c98 + c99) &lt; 0 THEN CAST(\n          c95 + c97 AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset + ABS(\n              toasset - (c98 + c99)\n            ) AS DECIMAL(16, 5)\n          ), \n          0\n        ) WHEN toasset - (c98 + c99) &gt; 0 THEN CAST(\n          c95 + c97 + toasset - (c98 + c99) AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset AS DECIMAL(16, 5)\n          ), \n          0\n        ) ELSE CAST(\n          c95 + c97 AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset AS DECIMAL(16, 5)\n          ), \n          0\n        ) END AS liabilities_assets_fcit, \n        CASE WHEN toasset - (c98 + c99) &lt; 0 THEN CAST(\n          sales - (\n            c108 + c113 + c114 + c116 + c118 + c124 + wage\n          ) AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset + ABS(\n              toasset - (c98 + c99)\n            ) AS DECIMAL(16, 5)\n          ), \n          0\n        ) ELSE CAST(\n          sales - (\n            c108 + c113 + c114 + c116 + c118 + c124 + wage\n          ) AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset AS DECIMAL(16, 5)\n          ), \n          0\n        ) END AS return_on_asset_fcit, \n      \n        CASE WHEN toasset - (c98 + c99) &lt; 0 THEN CAST(\n          sales AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset + ABS(\n              toasset - (c98 + c99)\n            ) AS DECIMAL(16, 5)\n          ), \n          0\n        ) ELSE CAST(\n          sales AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset AS DECIMAL(16, 5)\n          ), \n          0\n        ) END AS sales_assets_andersen_fcit,\n      \n        CASE WHEN toasset - (c98 + c99) &lt; 0 THEN CAST(\n          cuasset - short_term_investment - c80 - c81 - c82 AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset + ABS(\n              toasset - (c98 + c99)\n            ) AS DECIMAL(16, 5)\n          ), \n          0\n        ) ELSE CAST(\n          cuasset - short_term_investment - c80 - c81 - c82 AS DECIMAL(16, 5)\n        )/ NULLIF(\n          CAST(\n            toasset AS DECIMAL(16, 5)\n          ), \n          0\n        ) END AS cash_over_totasset_fcit, \n      \n        CAST(\n          tofixed - c92 AS DECIMAL(16, 5)\n        ) AS asset_tangibility_fcit \n      FROM \n        test \n      WHERE \n        year in (\n          &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;, \n          &#39;2006&#39;, &#39;2007&#39;\n        )\n    ) \n    SELECT \n      ratio.firm, \n      ratio.year, \n      CASE WHEN ratio.year in (\n        &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;\n      ) THEN &#39;FALSE&#39; WHEN ratio.year in (&#39;2006&#39;, &#39;2007&#39;) THEN &#39;TRUE&#39; END AS period, \n      ratio.cic, \n      indu_2, \n      CASE WHEN short IS NULL THEN &#39;Unknown&#39; ELSE short END AS short, \n      ratio.geocode4_corr, \n      CASE WHEN tcz IS NULL THEN &#39;0&#39; ELSE tcz END AS tcz, \n      CASE WHEN spz IS NULL \n      OR spz = &#39;#N/A&#39; THEN &#39;0&#39; ELSE spz END AS spz, \n      ratio.ownership, \n      soe_vs_pri, \n      for_vs_dom, \n      tso2_mandate_c, \n      in_10_000_tonnes, \n      output, \n      employment, \n      capital, \n      sales, \n      total_asset, \n      credit_constraint, \n      asset_tangibility_fcit, \n      cash_over_totasset_fcit, \n      sales_assets_andersen_fcit, \n      return_on_asset_fcit, \n      liabilities_assets_fcit, \n      quick_ratio_fcit, \n      current_ratio_fcit, \n      DENSE_RANK() OVER (\n        ORDER BY \n          ratio.geocode4_corr, \n          ratio.cic\n      ) AS fe_c_i, \n      DENSE_RANK() OVER (\n        ORDER BY \n          ratio.year, \n          ratio.cic\n      ) AS fe_t_i, \n      DENSE_RANK() OVER (\n        ORDER BY \n          ratio.geocode4_corr, \n          ratio.year\n      ) AS fe_c_t \n    FROM \n      ratio \n      INNER JOIN (\n        SELECT \n          firm, \n          COUNT(\n            DISTINCT(geocode4_corr)\n          ) AS count_city \n        FROM \n          ratio \n        GROUP BY \n          firm\n      ) as multi_cities ON ratio.firm = multi_cities.firm \n      INNER JOIN (\n        SELECT \n          firm, \n          COUNT(\n            DISTINCT(ownership)\n          ) AS count_ownership \n        FROM \n          ratio \n        GROUP BY \n          firm\n      ) as multi_ownership ON ratio.firm = multi_ownership.firm \n      INNER JOIN (\n        SELECT \n          firm, \n          COUNT(\n            DISTINCT(cic)\n          ) AS count_industry \n        FROM \n          ratio \n        GROUP BY \n          firm\n      ) as multi_industry ON ratio.firm = multi_industry.firm -- Pollution\n      INNER JOIN (\n        SELECT \n          year, \n          geocode4_corr, \n          provinces, \n          cityen, \n          indus_code AS cic, \n          SUM(tso2) as tso2, \n          lower_location, \n          larger_location, \n          coastal \n        FROM \n          (\n            SELECT \n              year, \n              provinces, \n              citycode, \n              geocode4_corr, \n              china_city_sector_pollution.cityen, \n              indus_code, \n              tso2, \n              lower_location, \n              larger_location, \n              coastal \n            FROM \n              environment.china_city_sector_pollution \n              INNER JOIN (\n                SELECT \n                  extra_code, \n                  geocode4_corr \n                FROM \n                  chinese_lookup.china_city_code_normalised \n                GROUP BY \n                  extra_code, \n                  geocode4_corr\n              ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code\n          ) \n        GROUP BY \n          year, \n          provinces, \n          geocode4_corr, \n          cityen, \n          indus_code, \n          lower_location, \n          larger_location, \n          coastal\n      ) as aggregate_pol ON ratio.year = aggregate_pol.year \n      AND ratio.geocode4_corr = aggregate_pol.geocode4_corr \n      AND ratio.cic = aggregate_pol.cic \n      INNER JOIN (\n        SELECT \n          geocode4_corr, \n          tso2_mandate_c, \n          in_10_000_tonnes \n        FROM \n          policy.china_city_reduction_mandate \n          INNER JOIN chinese_lookup.china_city_code_normalised ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn \n        WHERE \n          extra_code = geocode4_corr\n      ) as city_mandate ON ratio.geocode4_corr = city_mandate.geocode4_corr \n      LEFT JOIN policy.china_city_tcz_spz ON ratio.geocode4_corr = china_city_tcz_spz.geocode4_corr \n      LEFT JOIN chinese_lookup.ind_cic_2_name ON ratio.indu_2 = ind_cic_2_name.cic \n      LEFT JOIN (\n        SELECT \n          cic, \n          financial_dep_china AS credit_constraint \n        FROM \n          industry.china_credit_constraint\n      ) as cred_constraint ON ratio.indu_2 = cred_constraint.cic \n    WHERE \n      count_ownership = 1 \n      AND count_city = 1 \n      AND count_industry = 1 \n      AND output &gt; 0 \n      and capital &gt; 0 \n      and employment &gt; 0 \n      AND ratio.indu_2 != &#39;43&#39; \n      AND total_asset IS NOT NULL\n      AND asset_tangibility_fcit IS NOT NULL\n      AND cash_over_totasset_fcit IS NOT NULL \n      AND sales_assets_andersen_fcit IS NOT NULL \n      AND return_on_asset_fcit IS NOT NULL\n      AND liabilities_assets_fcit IS NOT NULL \n      AND quick_ratio_fcit IS NOT NULL\n      AND current_ratio_fcit IS NOT NULL\n    ORDER BY \n      year \n  )\n\n&#34;,
  &#39;schema&#39;: [{&#39;Name&#39;: &#39;firm&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;Firms ID&#39;},
   {&#39;Name&#39;: &#39;year&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
   {&#39;Name&#39;: &#39;period&#39;,
@@ -16186,26 +16052,11 @@ Wall time: 18.4 s
   {&#39;Name&#39;: &#39;geocode4_corr&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;city code&#39;},
   {&#39;Name&#39;: &#39;tcz&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;Two control zone policy&#39;},
   {&#39;Name&#39;: &#39;spz&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;Special policy zone&#39;},
-  {&#39;Name&#39;: &#39;lower_location&#39;,
-   &#39;Type&#39;: &#39;string&#39;,
-   &#39;Comment&#39;: &#39;Location city. one of Coastal, Central, Northwest, Northeast, Southwest&#39;},
-  {&#39;Name&#39;: &#39;larger_location&#39;,
-   &#39;Type&#39;: &#39;string&#39;,
-   &#39;Comment&#39;: &#39;Location city. one of Eastern, Central, Western&#39;},
-  {&#39;Name&#39;: &#39;coastal&#39;,
-   &#39;Type&#39;: &#39;string&#39;,
-   &#39;Comment&#39;: &#39;City is bordered by sea or not&#39;},
   {&#39;Name&#39;: &#39;ownership&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;Firms ownership&#39;},
   {&#39;Name&#39;: &#39;soe_vs_pri&#39;, &#39;Type&#39;: &#39;varchar(7)&#39;, &#39;Comment&#39;: &#39;SOE vs PRIVATE&#39;},
   {&#39;Name&#39;: &#39;for_vs_dom&#39;,
    &#39;Type&#39;: &#39;varchar(8)&#39;,
    &#39;Comment&#39;: &#39; FOREIGN vs DOMESTICT if ownership is HTM then FOREIGN&#39;},
-  {&#39;Name&#39;: &#39;tso2&#39;,
-   &#39;Type&#39;: &#39;bigint&#39;,
-   &#39;Comment&#39;: &#39;Total so2 city sector. Filtered values above 0&#39;},
-  {&#39;Name&#39;: &#39;so2_intensity&#39;,
-   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-   &#39;Comment&#39;: &#39;SO2 divided by output&#39;},
   {&#39;Name&#39;: &#39;tso2_mandate_c&#39;,
    &#39;Type&#39;: &#39;float&#39;,
    &#39;Comment&#39;: &#39;city reduction mandate in tonnes&#39;},
@@ -16266,7 +16117,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[22]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
@@ -16287,7 +16138,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[23]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">index_to_remove</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
@@ -16310,7 +16161,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[28]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;TABLES&#39;</span><span class="p">][</span><span class="s1">&#39;TRANSFORMATION&#39;</span><span class="p">][</span><span class="s1">&#39;STEPS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">json_etl</span><span class="p">)</span>
@@ -16330,7 +16181,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[25]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span><span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
@@ -16372,7 +16223,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[30]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">update_schema_table</span><span class="p">(</span>
@@ -16394,19 +16245,19 @@ Wall time: 18.4 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[30]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[26]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;846fcc54-1928-4b2f-b6fb-efedee94cb7d&#39;,
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;52d5d416-0aff-4489-b635-c55da98daa34&#39;,
   &#39;HTTPStatusCode&#39;: 200,
-  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 10 Jan 2021 07:40:27 GMT&#39;,
+  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 10 Jan 2021 08:10:36 GMT&#39;,
    &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;,
    &#39;content-length&#39;: &#39;2&#39;,
    &#39;connection&#39;: &#39;keep-alive&#39;,
-   &#39;x-amzn-requestid&#39;: &#39;846fcc54-1928-4b2f-b6fb-efedee94cb7d&#39;},
+   &#39;x-amzn-requestid&#39;: &#39;52d5d416-0aff-4489-b635-c55da98daa34&#39;},
   &#39;RetryAttempts&#39;: 0}}</pre>
 </div>
 
@@ -16426,7 +16277,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[31]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;firm&quot;</span><span class="p">,</span><span class="s2">&quot;year&quot;</span><span class="p">,</span><span class="s2">&quot;cic&quot;</span><span class="p">,</span><span class="s2">&quot;geocode4_corr&quot;</span><span class="p">]</span>
@@ -16443,7 +16294,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[32]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[28]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### COUNT DUPLICATES</span>
@@ -16505,7 +16356,7 @@ Wall time: 18.4 s
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>326929</td>
+      <td>384608</td>
     </tr>
   </tbody>
 </table>
@@ -16526,7 +16377,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[33]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#table = &#39;XX&#39;</span>
@@ -16550,7 +16401,7 @@ Wall time: 18.4 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[33]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[29]:</div>
 
 
 
@@ -16559,8 +16410,8 @@ Wall time: 18.4 s
 <pre>{&#39;Name&#39;: &#39;asif_financial_ratio_baseline_firm&#39;,
  &#39;DatabaseName&#39;: &#39;firms_survey&#39;,
  &#39;Owner&#39;: &#39;468786073381&#39;,
- &#39;CreateTime&#39;: datetime.datetime(2021, 1, 10, 7, 37, 53, tzinfo=tzlocal()),
- &#39;UpdateTime&#39;: datetime.datetime(2021, 1, 10, 7, 40, 27, tzinfo=tzlocal()),
+ &#39;CreateTime&#39;: datetime.datetime(2021, 1, 10, 8, 9, 43, tzinfo=tzlocal()),
+ &#39;UpdateTime&#39;: datetime.datetime(2021, 1, 10, 8, 10, 36, tzinfo=tzlocal()),
  &#39;LastAccessTime&#39;: datetime.datetime(1970, 1, 1, 0, 0, tzinfo=tzlocal()),
  &#39;Retention&#39;: 0,
  &#39;StorageDescriptor&#39;: {&#39;Columns&#39;: [{&#39;Name&#39;: &#39;firm&#39;,
@@ -16580,26 +16431,11 @@ Wall time: 18.4 s
    {&#39;Name&#39;: &#39;geocode4_corr&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;city code&#39;},
    {&#39;Name&#39;: &#39;tcz&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;Two control zone policy&#39;},
    {&#39;Name&#39;: &#39;spz&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;Special policy zone&#39;},
-   {&#39;Name&#39;: &#39;lower_location&#39;,
-    &#39;Type&#39;: &#39;string&#39;,
-    &#39;Comment&#39;: &#39;Location city. one of Coastal, Central, Northwest, Northeast, Southwest&#39;},
-   {&#39;Name&#39;: &#39;larger_location&#39;,
-    &#39;Type&#39;: &#39;string&#39;,
-    &#39;Comment&#39;: &#39;Location city. one of Eastern, Central, Western&#39;},
-   {&#39;Name&#39;: &#39;coastal&#39;,
-    &#39;Type&#39;: &#39;string&#39;,
-    &#39;Comment&#39;: &#39;City is bordered by sea or not&#39;},
    {&#39;Name&#39;: &#39;ownership&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;Firms ownership&#39;},
    {&#39;Name&#39;: &#39;soe_vs_pri&#39;, &#39;Type&#39;: &#39;varchar(7)&#39;, &#39;Comment&#39;: &#39;SOE vs PRIVATE&#39;},
    {&#39;Name&#39;: &#39;for_vs_dom&#39;,
     &#39;Type&#39;: &#39;varchar(8)&#39;,
     &#39;Comment&#39;: &#39; FOREIGN vs DOMESTICT if ownership is HTM then FOREIGN&#39;},
-   {&#39;Name&#39;: &#39;tso2&#39;,
-    &#39;Type&#39;: &#39;bigint&#39;,
-    &#39;Comment&#39;: &#39;Total so2 city sector. Filtered values above 0&#39;},
-   {&#39;Name&#39;: &#39;so2_intensity&#39;,
-    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-    &#39;Comment&#39;: &#39;SO2 divided by output&#39;},
    {&#39;Name&#39;: &#39;tso2_mandate_c&#39;,
     &#39;Type&#39;: &#39;float&#39;,
     &#39;Comment&#39;: &#39;city reduction mandate in tonnes&#39;},
@@ -16644,7 +16480,7 @@ Wall time: 18.4 s
    {&#39;Name&#39;: &#39;fe_c_t&#39;,
     &#39;Type&#39;: &#39;bigint&#39;,
     &#39;Comment&#39;: &#39;city industry fixed effect&#39;}],
-  &#39;Location&#39;: &#39;s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/FIRM/tables/9bf0acc6-f810-45ea-95aa-79635cf7a065&#39;,
+  &#39;Location&#39;: &#39;s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/FIRM/tables/499a3b14-60ec-4316-adb8-6c99cc3ad5f5&#39;,
   &#39;InputFormat&#39;: &#39;org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat&#39;,
   &#39;OutputFormat&#39;: &#39;org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat&#39;,
   &#39;Compressed&#39;: False,
@@ -16675,7 +16511,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[34]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[30]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
@@ -16690,7 +16526,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[35]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[31]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">table_top</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;ANALYSIS&quot;</span><span class="p">][</span><span class="s2">&quot;COUNT_MISSING&quot;</span><span class="p">][</span><span class="s2">&quot;top&quot;</span><span class="p">]</span>
@@ -16745,193 +16581,168 @@ Wall time: 18.4 s
 
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output " data-mime-type="text/html">
 <style  type="text/css" >
-#T_44629c88_5317_11eb_b082_4f4045632668row0_col1{
+#T_5db74a18_531b_11eb_9a12_e3a5283fab26row0_col1{
             width:  10em;
              height:  80%;
             background:  linear-gradient(90deg,#d65f5f 100.0%, transparent 100.0%);
-        }#T_44629c88_5317_11eb_b082_4f4045632668row1_col1,#T_44629c88_5317_11eb_b082_4f4045632668row2_col1,#T_44629c88_5317_11eb_b082_4f4045632668row3_col1,#T_44629c88_5317_11eb_b082_4f4045632668row4_col1,#T_44629c88_5317_11eb_b082_4f4045632668row5_col1,#T_44629c88_5317_11eb_b082_4f4045632668row6_col1,#T_44629c88_5317_11eb_b082_4f4045632668row7_col1,#T_44629c88_5317_11eb_b082_4f4045632668row8_col1,#T_44629c88_5317_11eb_b082_4f4045632668row9_col1,#T_44629c88_5317_11eb_b082_4f4045632668row10_col1,#T_44629c88_5317_11eb_b082_4f4045632668row11_col1,#T_44629c88_5317_11eb_b082_4f4045632668row12_col1,#T_44629c88_5317_11eb_b082_4f4045632668row13_col1,#T_44629c88_5317_11eb_b082_4f4045632668row14_col1,#T_44629c88_5317_11eb_b082_4f4045632668row15_col1,#T_44629c88_5317_11eb_b082_4f4045632668row16_col1,#T_44629c88_5317_11eb_b082_4f4045632668row17_col1,#T_44629c88_5317_11eb_b082_4f4045632668row18_col1,#T_44629c88_5317_11eb_b082_4f4045632668row19_col1,#T_44629c88_5317_11eb_b082_4f4045632668row20_col1,#T_44629c88_5317_11eb_b082_4f4045632668row21_col1,#T_44629c88_5317_11eb_b082_4f4045632668row22_col1,#T_44629c88_5317_11eb_b082_4f4045632668row23_col1,#T_44629c88_5317_11eb_b082_4f4045632668row24_col1,#T_44629c88_5317_11eb_b082_4f4045632668row25_col1,#T_44629c88_5317_11eb_b082_4f4045632668row26_col1,#T_44629c88_5317_11eb_b082_4f4045632668row27_col1,#T_44629c88_5317_11eb_b082_4f4045632668row28_col1,#T_44629c88_5317_11eb_b082_4f4045632668row29_col1,#T_44629c88_5317_11eb_b082_4f4045632668row30_col1,#T_44629c88_5317_11eb_b082_4f4045632668row31_col1,#T_44629c88_5317_11eb_b082_4f4045632668row32_col1,#T_44629c88_5317_11eb_b082_4f4045632668row33_col1,#T_44629c88_5317_11eb_b082_4f4045632668row34_col1,#T_44629c88_5317_11eb_b082_4f4045632668row35_col1{
+        }#T_5db74a18_531b_11eb_9a12_e3a5283fab26row1_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row2_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row3_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row4_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row5_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row6_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row7_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row8_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row9_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row10_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row11_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row12_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row13_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row14_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row15_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row16_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row17_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row18_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row19_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row20_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row21_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row22_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row23_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row24_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row25_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row26_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row27_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row28_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row29_col1,#T_5db74a18_531b_11eb_9a12_e3a5283fab26row30_col1{
             width:  10em;
              height:  80%;
-        }</style><table id="T_44629c88_5317_11eb_b082_4f4045632668" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >total_missing</th>        <th class="col_heading level0 col1" >total_missing_pct</th>    </tr></thead><tbody>
+        }</style><table id="T_5db74a18_531b_11eb_9a12_e3a5283fab26" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >total_missing</th>        <th class="col_heading level0 col1" >total_missing_pct</th>    </tr></thead><tbody>
                 <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row0" class="row_heading level0 row0" >nb_obs</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row0_col0" class="data row0 col0" >326929</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row0_col1" class="data row0 col1" >100.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row0" class="row_heading level0 row0" >nb_obs</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row0_col0" class="data row0 col0" >384608</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row0_col1" class="data row0 col1" >100.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row1" class="row_heading level0 row1" >firm</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row1_col0" class="data row1 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row1_col1" class="data row1 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row1" class="row_heading level0 row1" >employment</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row1_col0" class="data row1 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row1_col1" class="data row1 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row2" class="row_heading level0 row2" >output</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row2_col0" class="data row2 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row2_col1" class="data row2 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row2" class="row_heading level0 row2" >fe_t_i</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row2_col0" class="data row2 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row2_col1" class="data row2 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row3" class="row_heading level0 row3" >employment</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row3_col0" class="data row3 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row3_col1" class="data row3 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row3" class="row_heading level0 row3" >fe_c_i</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row3_col0" class="data row3 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row3_col1" class="data row3 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row4" class="row_heading level0 row4" >capital</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row4_col0" class="data row4 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row4_col1" class="data row4 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row4" class="row_heading level0 row4" >current_ratio_fcit</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row4_col0" class="data row4 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row4_col1" class="data row4 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row5" class="row_heading level0 row5" >sales</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row5_col0" class="data row5 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row5_col1" class="data row5 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row5" class="row_heading level0 row5" >quick_ratio_fcit</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row5_col0" class="data row5 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row5_col1" class="data row5 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row6" class="row_heading level0 row6" >total_asset</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row6_col0" class="data row6 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row6_col1" class="data row6 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row6" class="row_heading level0 row6" >liabilities_assets_fcit</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row6_col0" class="data row6 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row6_col1" class="data row6 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row7" class="row_heading level0 row7" >credit_constraint</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row7_col0" class="data row7 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row7_col1" class="data row7 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row7" class="row_heading level0 row7" >return_on_asset_fcit</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row7_col0" class="data row7 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row7_col1" class="data row7 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row8" class="row_heading level0 row8" >asset_tangibility_fcit</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row8_col0" class="data row8 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row8_col1" class="data row8 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row8" class="row_heading level0 row8" >sales_assets_andersen_fcit</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row8_col0" class="data row8 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row8_col1" class="data row8 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row9" class="row_heading level0 row9" >cash_over_totasset_fcit</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row9_col0" class="data row9 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row9_col1" class="data row9 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row9" class="row_heading level0 row9" >cash_over_totasset_fcit</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row9_col0" class="data row9 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row9_col1" class="data row9 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row10" class="row_heading level0 row10" >sales_assets_andersen_fcit</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row10_col0" class="data row10 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row10_col1" class="data row10 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row10" class="row_heading level0 row10" >asset_tangibility_fcit</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row10_col0" class="data row10 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row10_col1" class="data row10 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row11" class="row_heading level0 row11" >return_on_asset_fcit</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row11_col0" class="data row11 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row11_col1" class="data row11 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row11" class="row_heading level0 row11" >credit_constraint</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row11_col0" class="data row11 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row11_col1" class="data row11 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row12" class="row_heading level0 row12" >liabilities_assets_fcit</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row12_col0" class="data row12 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row12_col1" class="data row12 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row12" class="row_heading level0 row12" >total_asset</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row12_col0" class="data row12 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row12_col1" class="data row12 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row13" class="row_heading level0 row13" >quick_ratio_fcit</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row13_col0" class="data row13 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row13_col1" class="data row13 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row13" class="row_heading level0 row13" >sales</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row13_col0" class="data row13 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row13_col1" class="data row13 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row14" class="row_heading level0 row14" >current_ratio_fcit</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row14_col0" class="data row14 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row14_col1" class="data row14 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row14" class="row_heading level0 row14" >capital</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row14_col0" class="data row14 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row14_col1" class="data row14 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row15" class="row_heading level0 row15" >fe_c_i</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row15_col0" class="data row15 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row15_col1" class="data row15 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row15" class="row_heading level0 row15" >output</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row15_col0" class="data row15 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row15_col1" class="data row15 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row16" class="row_heading level0 row16" >fe_t_i</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row16_col0" class="data row16 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row16_col1" class="data row16 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row16" class="row_heading level0 row16" >firm</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row16_col0" class="data row16 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row16_col1" class="data row16 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row17" class="row_heading level0 row17" >in_10_000_tonnes</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row17_col0" class="data row17 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row17_col1" class="data row17 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row17" class="row_heading level0 row17" >in_10_000_tonnes</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row17_col0" class="data row17 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row17_col1" class="data row17 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row18" class="row_heading level0 row18" >tso2_mandate_c</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row18_col0" class="data row18 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row18_col1" class="data row18 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row18" class="row_heading level0 row18" >tso2_mandate_c</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row18_col0" class="data row18 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row18_col1" class="data row18 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row19" class="row_heading level0 row19" >so2_intensity</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row19_col0" class="data row19 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row19_col1" class="data row19 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row19" class="row_heading level0 row19" >for_vs_dom</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row19_col0" class="data row19 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row19_col1" class="data row19 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row20" class="row_heading level0 row20" >tcz</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row20_col0" class="data row20 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row20_col1" class="data row20 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row20" class="row_heading level0 row20" >soe_vs_pri</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row20_col0" class="data row20 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row20_col1" class="data row20 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row21" class="row_heading level0 row21" >year</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row21_col0" class="data row21 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row21_col1" class="data row21 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row21" class="row_heading level0 row21" >ownership</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row21_col0" class="data row21 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row21_col1" class="data row21 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row22" class="row_heading level0 row22" >period</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row22_col0" class="data row22 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row22_col1" class="data row22 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row22" class="row_heading level0 row22" >spz</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row22_col0" class="data row22 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row22_col1" class="data row22 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row23" class="row_heading level0 row23" >cic</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row23_col0" class="data row23 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row23_col1" class="data row23 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row23" class="row_heading level0 row23" >tcz</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row23_col0" class="data row23 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row23_col1" class="data row23 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row24" class="row_heading level0 row24" >indu_2</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row24_col0" class="data row24 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row24_col1" class="data row24 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row24" class="row_heading level0 row24" >geocode4_corr</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row24_col0" class="data row24 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row24_col1" class="data row24 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row25" class="row_heading level0 row25" >short</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row25_col0" class="data row25 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row25_col1" class="data row25 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row25" class="row_heading level0 row25" >short</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row25_col0" class="data row25 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row25_col1" class="data row25 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row26" class="row_heading level0 row26" >geocode4_corr</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row26_col0" class="data row26 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row26_col1" class="data row26 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row26" class="row_heading level0 row26" >indu_2</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row26_col0" class="data row26 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row26_col1" class="data row26 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row27" class="row_heading level0 row27" >spz</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row27_col0" class="data row27 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row27_col1" class="data row27 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row27" class="row_heading level0 row27" >cic</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row27_col0" class="data row27 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row27_col1" class="data row27 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row28" class="row_heading level0 row28" >tso2</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row28_col0" class="data row28 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row28_col1" class="data row28 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row28" class="row_heading level0 row28" >period</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row28_col0" class="data row28 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row28_col1" class="data row28 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row29" class="row_heading level0 row29" >lower_location</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row29_col0" class="data row29 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row29_col1" class="data row29 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row29" class="row_heading level0 row29" >year</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row29_col0" class="data row29 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row29_col1" class="data row29 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row30" class="row_heading level0 row30" >larger_location</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row30_col0" class="data row30 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row30_col1" class="data row30 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row31" class="row_heading level0 row31" >coastal</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row31_col0" class="data row31 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row31_col1" class="data row31 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row32" class="row_heading level0 row32" >ownership</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row32_col0" class="data row32 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row32_col1" class="data row32 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row33" class="row_heading level0 row33" >soe_vs_pri</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row33_col0" class="data row33 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row33_col1" class="data row33 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row34" class="row_heading level0 row34" >for_vs_dom</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row34_col0" class="data row34 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row34_col1" class="data row34 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_44629c88_5317_11eb_b082_4f4045632668level0_row35" class="row_heading level0 row35" >fe_c_t</th>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row35_col0" class="data row35 col0" >0</td>
-                        <td id="T_44629c88_5317_11eb_b082_4f4045632668row35_col1" class="data row35 col1" >0.00%</td>
+                        <th id="T_5db74a18_531b_11eb_9a12_e3a5283fab26level0_row30" class="row_heading level0 row30" >fe_c_t</th>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row30_col0" class="data row30 col0" >0</td>
+                        <td id="T_5db74a18_531b_11eb_9a12_e3a5283fab26row30_col1" class="data row30 col1" >0.00%</td>
             </tr>
     </tbody></table>
 </div>
@@ -16952,7 +16763,7 @@ Wall time: 18.4 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[36]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[32]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">README</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -17068,7 +16879,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[37]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[33]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">boto3</span>
@@ -17089,12 +16900,12 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[38]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[34]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">primary_key</span> <span class="o">=</span> <span class="s1">&#39;year&#39;</span>
 <span class="n">secondary_key</span> <span class="o">=</span> <span class="s1">&#39;short&#39;</span>
-<span class="n">y_var</span> <span class="o">=</span> <span class="s1">&#39;tso2&#39;</span>
+<span class="n">y_var</span> <span class="o">=</span> <span class="s1">&#39;asset_tangibility_fcit&#39;</span>
 </pre></div>
 
      </div>
@@ -17105,7 +16916,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[39]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[35]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
@@ -17138,7 +16949,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[39]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[35]:</div>
 
 
 
@@ -17152,7 +16963,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
   &#39;table_name&#39;: &#39;asif_financial_ratio_baseline_firm&#39;,
   &#39;group&#39;: &#39;firm,year,cic,geocode4_corr&#39;,
   &#39;keys&#39;: &#39;year,short&#39;,
-  &#39;y_var&#39;: &#39;tso2&#39;,
+  &#39;y_var&#39;: &#39;asset_tangibility_fcit&#39;,
   &#39;threshold&#39;: 0}}</pre>
 </div>
 
@@ -17165,7 +16976,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[40]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[36]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">client_lambda</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
@@ -17190,28 +17001,28 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[40]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[36]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;a2f95661-f921-42d0-85a8-546062540c2d&#39;,
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;465afbce-d806-4965-be04-e27c2fbc994d&#39;,
   &#39;HTTPStatusCode&#39;: 200,
-  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 10 Jan 2021 07:42:26 GMT&#39;,
+  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 10 Jan 2021 08:11:23 GMT&#39;,
    &#39;content-type&#39;: &#39;application/json&#39;,
    &#39;content-length&#39;: &#39;75&#39;,
    &#39;connection&#39;: &#39;keep-alive&#39;,
-   &#39;x-amzn-requestid&#39;: &#39;a2f95661-f921-42d0-85a8-546062540c2d&#39;,
+   &#39;x-amzn-requestid&#39;: &#39;465afbce-d806-4965-be04-e27c2fbc994d&#39;,
    &#39;x-amzn-remapped-content-length&#39;: &#39;0&#39;,
    &#39;x-amz-executed-version&#39;: &#39;$LATEST&#39;,
-   &#39;x-amz-log-result&#39;: &#39;U1RBUlQgUmVxdWVzdElkOiBhMmY5NTY2MS1mOTIxLTQyZDAtODVhOC01NDYwNjI1NDBjMmQgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiBhMmY5NTY2MS1mOTIxLTQyZDAtODVhOC01NDYwNjI1NDBjMmQKUkVQT1JUIFJlcXVlc3RJZDogYTJmOTU2NjEtZjkyMS00MmQwLTg1YTgtNTQ2MDYyNTQwYzJkCUR1cmF0aW9uOiAyMzAxLjkyIG1zCUJpbGxlZCBEdXJhdGlvbjogMjMwMiBtcwlNZW1vcnkgU2l6ZTogMTI4IE1CCU1heCBNZW1vcnkgVXNlZDogODEgTUIJSW5pdCBEdXJhdGlvbjogMjkwLjkxIG1zCQo=&#39;,
-   &#39;x-amzn-trace-id&#39;: &#39;root=1-5ffaafdf-6650c7fe12798e5a16c07fbb;sampled=0&#39;},
+   &#39;x-amz-log-result&#39;: &#39;U1RBUlQgUmVxdWVzdElkOiA0NjVhZmJjZS1kODA2LTQ5NjUtYmUwNC1lMjdjMmZiYzk5NGQgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiA0NjVhZmJjZS1kODA2LTQ5NjUtYmUwNC1lMjdjMmZiYzk5NGQKUkVQT1JUIFJlcXVlc3RJZDogNDY1YWZiY2UtZDgwNi00OTY1LWJlMDQtZTI3YzJmYmM5OTRkCUR1cmF0aW9uOiAyMjg1LjcyIG1zCUJpbGxlZCBEdXJhdGlvbjogMjI4NiBtcwlNZW1vcnkgU2l6ZTogMTI4IE1CCU1heCBNZW1vcnkgVXNlZDogODEgTUIJSW5pdCBEdXJhdGlvbjogMjkyLjY3IG1zCQo=&#39;,
+   &#39;x-amzn-trace-id&#39;: &#39;root=1-5ffab6a8-07c285003e74e88f6d614356;sampled=0&#39;},
   &#39;RetryAttempts&#39;: 0},
  &#39;StatusCode&#39;: 200,
- &#39;LogResult&#39;: &#39;U1RBUlQgUmVxdWVzdElkOiBhMmY5NTY2MS1mOTIxLTQyZDAtODVhOC01NDYwNjI1NDBjMmQgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiBhMmY5NTY2MS1mOTIxLTQyZDAtODVhOC01NDYwNjI1NDBjMmQKUkVQT1JUIFJlcXVlc3RJZDogYTJmOTU2NjEtZjkyMS00MmQwLTg1YTgtNTQ2MDYyNTQwYzJkCUR1cmF0aW9uOiAyMzAxLjkyIG1zCUJpbGxlZCBEdXJhdGlvbjogMjMwMiBtcwlNZW1vcnkgU2l6ZTogMTI4IE1CCU1heCBNZW1vcnkgVXNlZDogODEgTUIJSW5pdCBEdXJhdGlvbjogMjkwLjkxIG1zCQo=&#39;,
+ &#39;LogResult&#39;: &#39;U1RBUlQgUmVxdWVzdElkOiA0NjVhZmJjZS1kODA2LTQ5NjUtYmUwNC1lMjdjMmZiYzk5NGQgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiA0NjVhZmJjZS1kODA2LTQ5NjUtYmUwNC1lMjdjMmZiYzk5NGQKUkVQT1JUIFJlcXVlc3RJZDogNDY1YWZiY2UtZDgwNi00OTY1LWJlMDQtZTI3YzJmYmM5OTRkCUR1cmF0aW9uOiAyMjg1LjcyIG1zCUJpbGxlZCBEdXJhdGlvbjogMjI4NiBtcwlNZW1vcnkgU2l6ZTogMTI4IE1CCU1heCBNZW1vcnkgVXNlZDogODEgTUIJSW5pdCBEdXJhdGlvbjogMjkyLjY3IG1zCQo=&#39;,
  &#39;ExecutedVersion&#39;: &#39;$LATEST&#39;,
- &#39;Payload&#39;: &lt;botocore.response.StreamingBody at 0x7fd58a8ed130&gt;}</pre>
+ &#39;Payload&#39;: &lt;botocore.response.StreamingBody at 0x7f939be283a0&gt;}</pre>
 </div>
 
 </div>
@@ -17228,7 +17039,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[41]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[37]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">urllib</span><span class="o">,</span> <span class="nn">ipykernel</span><span class="o">,</span> <span class="nn">json</span>
@@ -17244,7 +17055,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[42]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[38]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">create_report</span><span class="p">(</span><span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">keep_code</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">notebookname</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>

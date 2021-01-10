@@ -342,21 +342,12 @@ FROM
       CASE WHEN tcz IS NULL THEN '0' ELSE tcz END AS tcz, 
       CASE WHEN spz IS NULL 
       OR spz = '#N/A' THEN '0' ELSE spz END AS spz, 
-      lower_location, 
-      larger_location, 
-      coastal, 
       ratio.ownership,
       soe_vs_pri, 
       for_vs_dom,
       count_ownership, 
       count_city, 
       count_industry, 
-      tso2, 
-      CAST(
-        tso2 AS DECIMAL(16, 5)
-      ) / CAST(
-        output AS DECIMAL(16, 5)
-      ) AS so2_intensity, 
       tso2_mandate_c, 
       in_10_000_tonnes, 
       output, 
@@ -421,56 +412,7 @@ FROM
           ratio 
         GROUP BY 
           firm
-      ) as multi_industry ON ratio.firm = multi_industry.firm -- Pollution
-      INNER JOIN (
-        SELECT 
-          year, 
-          geocode4_corr, 
-          provinces, 
-          cityen, 
-          indus_code AS cic, 
-          SUM(tso2) as tso2, 
-          lower_location, 
-          larger_location, 
-          coastal 
-        FROM 
-          (
-            SELECT 
-              year, 
-              provinces, 
-              citycode, 
-              geocode4_corr, 
-              china_city_sector_pollution.cityen, 
-              indus_code, 
-              tso2, 
-              lower_location, 
-              larger_location, 
-              coastal 
-            FROM 
-              environment.china_city_sector_pollution 
-              INNER JOIN (
-                SELECT 
-                  extra_code, 
-                  geocode4_corr 
-                FROM 
-                  chinese_lookup.china_city_code_normalised 
-                GROUP BY 
-                  extra_code, 
-                  geocode4_corr
-              ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code
-          ) 
-        GROUP BY 
-          year, 
-          provinces, 
-          geocode4_corr, 
-          cityen, 
-          indus_code, 
-          lower_location, 
-          larger_location, 
-          coastal
-      ) as aggregate_pol ON ratio.year = aggregate_pol.year 
-      AND ratio.geocode4_corr = aggregate_pol.geocode4_corr 
-      AND ratio.cic = aggregate_pol.cic 
+      ) as multi_industry ON ratio.firm = multi_industry.firm 
       INNER JOIN (
         SELECT 
           geocode4_corr, 
@@ -495,7 +437,6 @@ FROM
       count_ownership = 1 
       AND count_city = 1 
       AND count_industry = 1 
-      AND tso2 >0
       AND output > 0 
       and capital > 0 
       and employment > 0 
@@ -739,18 +680,9 @@ FROM
       CASE WHEN tcz IS NULL THEN '0' ELSE tcz END AS tcz, 
       CASE WHEN spz IS NULL 
       OR spz = '#N/A' THEN '0' ELSE spz END AS spz, 
-      lower_location, 
-      larger_location, 
-      coastal, 
       ratio.ownership, 
       soe_vs_pri, 
       for_vs_dom, 
-      tso2, 
-      CAST(
-        tso2 AS DECIMAL(16, 5)
-      ) / CAST(
-        output AS DECIMAL(16, 5)
-      ) AS so2_intensity, 
       tso2_mandate_c, 
       in_10_000_tonnes, 
       output, 
@@ -889,7 +821,6 @@ FROM
       count_ownership = 1 
       AND count_city = 1 
       AND count_industry = 1 
-      AND tso2 >0
       AND output > 0 
       and capital > 0 
       and employment > 0 
@@ -975,14 +906,9 @@ schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'Firms ID'},
  {'Name': 'geocode4_corr', 'Type': 'string', 'Comment': 'city code'},
  {'Name': 'tcz', 'Type': 'string', 'Comment': 'Two control zone policy'},
  {'Name': 'spz', 'Type': 'string', 'Comment': 'Special policy zone'},
- {'Name': 'lower_location', 'Type': 'string', 'Comment': 'Location city. one of Coastal, Central, Northwest, Northeast, Southwest'},
- {'Name': 'larger_location', 'Type': 'string', 'Comment': 'Location city. one of Eastern, Central, Western'},
- {'Name': 'coastal', 'Type': 'string', 'Comment': 'City is bordered by sea or not'},
  {'Name': 'ownership', 'Type': 'string', 'Comment': 'Firms ownership'},
  {'Name': 'soe_vs_pri', 'Type': 'varchar(7)', 'Comment': 'SOE vs PRIVATE'},
  {'Name': 'for_vs_dom', 'Type': 'varchar(8)', 'Comment': ' FOREIGN vs DOMESTICT if ownership is HTM then FOREIGN'},
- {'Name': 'tso2', 'Type': 'bigint', 'Comment': 'Total so2 city sector. Filtered values above 0'},
- {'Name': 'so2_intensity', 'Type': 'decimal(21,5)', 'Comment': 'SO2 divided by output'},
  {'Name': 'tso2_mandate_c', 'Type': 'float', 'Comment': 'city reduction mandate in tonnes'},
  {'Name': 'in_10_000_tonnes', 'Type': 'float', 'Comment': 'city reduction mandate in 10k tonnes'},
  {'Name': 'output', 'Type': 'decimal(16,5)', 'Comment': 'Output'},
@@ -1311,7 +1237,7 @@ client_lambda = boto3.client(
 ```python
 primary_key = 'year'
 secondary_key = 'short'
-y_var = 'tso2'
+y_var = 'asset_tangibility_fcit'
 ```
 
 ```python
