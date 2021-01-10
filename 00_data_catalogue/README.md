@@ -22,6 +22,7 @@
 - [asif_industry_financial_ratio_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_financial_ratio_industry)
 - [fin_dep_pollution_baseline_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_industry)
 - [asif_financial_ratio_baseline_firm](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_financial_ratio_baseline_firm)
+- [asif_city_characteristics_ownership](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_city_characteristics_ownership)
 
     
 
@@ -714,5 +715,21 @@
 | 27 | fe_c_i                     | bigint        | City industry fixed effect                                                                                                                                          |
 | 28 | fe_t_i                     | bigint        | year industry fixed effect                                                                                                                                          |
 | 29 | fe_c_t                     | bigint        | city industry fixed effect                                                                                                                                          |
+
+    
+
+## Table asif_city_characteristics_ownership
+
+- Database: firms_survey
+- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/CITY_CHARACTERISTICS/OWNERSHIP`
+- Partitition: ['geocode4_corr']
+
+|    | Name                     | Type                | Comment                                                                                      |
+|---:|:-------------------------|:--------------------|:---------------------------------------------------------------------------------------------|
+|  0 | geocode4_corr            | string              | City ID                                                                                      |
+|  1 | dominated_output_soe     | map<double,boolean> | map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of output     |
+|  2 | dominated_employment_soe | map<double,boolean> | map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of employment |
+|  3 | dominated_sales_soe      | map<double,boolean> | map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of sales      |
+|  4 | dominated_capital_soe    | map<double,boolean> | map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of capital    |
 
     
