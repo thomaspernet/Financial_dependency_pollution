@@ -261,7 +261,7 @@ SELECT
         ), 
         x -> n_avg_output
       ),
-        output_pct, (x, y) -> x > y) AS dominated_output
+        output_pct, (x, y) -> x < y) AS dominated_output
 FROM 
   (
     (
@@ -344,7 +344,7 @@ SELECT
         ), 
         x -> n_avg_output
       ),
-        output_pct, (x, y) -> x > y)
+        output_pct, (x, y) -> x < y)
         ) AS dominated_output
 FROM 
   (
@@ -607,7 +607,7 @@ SELECT
         x -> n_avg_output
       ), 
       output_pct, 
-      (x, y) -> x > y
+      (x, y) -> x < y
     )
   ) AS dominated_output, 
   MAP(
@@ -621,7 +621,7 @@ SELECT
         x -> n_avg_employ
       ), 
       employ_pct, 
-      (x, y) -> x > y
+      (x, y) -> x < y
     )
   ) AS dominated_employment, 
   MAP(
@@ -635,7 +635,7 @@ SELECT
         x -> n_avg_capital
       ), 
       captal_pct, 
-      (x, y) -> x > y
+      (x, y) -> x < y
     )
   ) AS dominated_capital, 
   MAP(
@@ -649,7 +649,7 @@ SELECT
         x -> n_avg_sales
       ), 
       sales_pct, 
-      (x, y) -> x > y
+      (x, y) -> x < y
     )
   ) AS dominated_sales, 
   dominated_output_soe, 

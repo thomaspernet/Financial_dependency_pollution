@@ -14631,7 +14631,7 @@ Make sure there is no duplicates</p>
 <span class="s2">        ), </span>
 <span class="s2">        x -&gt; n_avg_output</span>
 <span class="s2">      ),</span>
-<span class="s2">        output_pct, (x, y) -&gt; x &gt; y) AS dominated_output</span>
+<span class="s2">        output_pct, (x, y) -&gt; x &lt; y) AS dominated_output</span>
 <span class="s2">FROM </span>
 <span class="s2">  (</span>
 <span class="s2">    (</span>
@@ -14720,7 +14720,7 @@ Make sure there is no duplicates</p>
       <td>2001</td>
       <td>[10314, 25170, 76444, 202329]</td>
       <td>57656.594644</td>
-      <td>[true, true, false, false]</td>
+      <td>[false, false, true, true]</td>
     </tr>
     <tr>
       <th>1</th>
@@ -14728,7 +14728,7 @@ Make sure there is no duplicates</p>
       <td>2001</td>
       <td>[31757, 280390, 2060137, 5867270]</td>
       <td>57656.594644</td>
-      <td>[true, false, false, false]</td>
+      <td>[false, true, true, true]</td>
     </tr>
     <tr>
       <th>2</th>
@@ -14736,7 +14736,7 @@ Make sure there is no duplicates</p>
       <td>2001</td>
       <td>[14201, 29730, 67396, 111031]</td>
       <td>57656.594644</td>
-      <td>[true, true, false, false]</td>
+      <td>[false, false, true, true]</td>
     </tr>
     <tr>
       <th>3</th>
@@ -14744,7 +14744,7 @@ Make sure there is no duplicates</p>
       <td>2001</td>
       <td>[13038, 25300, 51803, 120977]</td>
       <td>57656.594644</td>
-      <td>[true, true, true, false]</td>
+      <td>[false, false, false, true]</td>
     </tr>
     <tr>
       <th>4</th>
@@ -14752,7 +14752,7 @@ Make sure there is no duplicates</p>
       <td>2001</td>
       <td>[10840, 24200, 48812, 78700]</td>
       <td>57656.594644</td>
-      <td>[true, true, true, false]</td>
+      <td>[false, false, false, true]</td>
     </tr>
   </tbody>
 </table>
@@ -14818,7 +14818,7 @@ Make sure there is no duplicates</p>
 <span class="s2">        ), </span>
 <span class="s2">        x -&gt; n_avg_output</span>
 <span class="s2">      ),</span>
-<span class="s2">        output_pct, (x, y) -&gt; x &gt; y)</span>
+<span class="s2">        output_pct, (x, y) -&gt; x &lt; y)</span>
 <span class="s2">        ) AS dominated_output</span>
 <span class="s2">FROM </span>
 <span class="s2">  (</span>
@@ -14907,7 +14907,7 @@ Make sure there is no duplicates</p>
       <td>2001</td>
       <td>[10314, 25170, 76444, 202329]</td>
       <td>57656.594644</td>
-      <td>{0.5=true, 0.9=false, 0.75=true, 0.95=false}</td>
+      <td>{0.5=false, 0.9=true, 0.75=false, 0.95=true}</td>
     </tr>
     <tr>
       <th>1</th>
@@ -14915,7 +14915,7 @@ Make sure there is no duplicates</p>
       <td>2001</td>
       <td>[31757, 280390, 2060137, 5867270]</td>
       <td>57656.594644</td>
-      <td>{0.5=true, 0.9=false, 0.75=false, 0.95=false}</td>
+      <td>{0.5=false, 0.9=true, 0.75=true, 0.95=true}</td>
     </tr>
     <tr>
       <th>2</th>
@@ -14923,7 +14923,7 @@ Make sure there is no duplicates</p>
       <td>2001</td>
       <td>[14201, 29730, 67396, 111031]</td>
       <td>57656.594644</td>
-      <td>{0.5=true, 0.9=false, 0.75=true, 0.95=false}</td>
+      <td>{0.5=false, 0.9=true, 0.75=false, 0.95=true}</td>
     </tr>
     <tr>
       <th>3</th>
@@ -14931,7 +14931,7 @@ Make sure there is no duplicates</p>
       <td>2001</td>
       <td>[13038, 25300, 51803, 120977]</td>
       <td>57656.594644</td>
-      <td>{0.5=true, 0.9=true, 0.75=true, 0.95=false}</td>
+      <td>{0.5=false, 0.9=false, 0.75=false, 0.95=true}</td>
     </tr>
     <tr>
       <th>4</th>
@@ -14939,7 +14939,7 @@ Make sure there is no duplicates</p>
       <td>2001</td>
       <td>[10840, 24200, 48812, 78700]</td>
       <td>57656.594644</td>
-      <td>{0.5=true, 0.9=true, 0.75=true, 0.95=false}</td>
+      <td>{0.5=false, 0.9=false, 0.75=false, 0.95=true}</td>
     </tr>
   </tbody>
 </table>
@@ -15073,53 +15073,53 @@ Make sure there is no duplicates</p>
   <tbody>
     <tr>
       <th>0</th>
-      <td>6</td>
-      <td>{SOE=[11104, 37220, 163012, 559319], PRIVATE=[10100, 20737, 46500, 92158]}</td>
+      <td>9</td>
+      <td>{SOE=[25555, 52690, 137994, 172055], PRIVATE=[12123, 19607, 35275, 52395]}</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>11</td>
-      <td>{SOE=[5749, 14717, 14717, 14717], PRIVATE=[10030, 22400, 45275, 110800]}</td>
+      <td>10</td>
+      <td>{SOE=[7114, 20900, 66110, 108460], PRIVATE=[11827, 24580, 46655, 74000]}</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>17</td>
-      <td>{SOE=[28040, 89741, 221140, 352616], PRIVATE=[19258, 43775, 99327, 167935]}</td>
+      <td>15</td>
+      <td>{SOE=[10572, 46493, 127704, 242740], PRIVATE=[16640, 52036, 144200, 275800]}</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>18</td>
-      <td>{SOE=[10930, 33802, 101304, 169150], PRIVATE=[15711, 32002, 64151, 99973]}</td>
+      <td>26</td>
+      <td>{SOE=[14360, 53360, 158512, 335220], PRIVATE=[16671, 38304, 94847, 170367]}</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>19</td>
-      <td>{SOE=[12194, 36752, 108477, 185233], PRIVATE=[18313, 42859, 97050, 171709]}</td>
+      <td>35</td>
+      <td>{SOE=[10650, 30910, 81207, 140084], PRIVATE=[13720, 29823, 65535, 112639]}</td>
     </tr>
     <tr>
       <th>5</th>
-      <td>20</td>
-      <td>{SOE=[6441, 19744, 62449, 87003], PRIVATE=[12286, 25000, 53768, 96471]}</td>
+      <td>7</td>
+      <td>{SOE=[48678, 280390, 464750, 4352367], PRIVATE=[24850, 170157, 2060137, 5867270]}</td>
     </tr>
     <tr>
       <th>6</th>
-      <td>27</td>
-      <td>{SOE=[15739, 44378, 108913, 190700], PRIVATE=[23228, 59500, 141610, 244530]}</td>
+      <td>22</td>
+      <td>{SOE=[13250, 41697, 106100, 162228], PRIVATE=[14742, 31320, 68880, 115445]}</td>
     </tr>
     <tr>
       <th>7</th>
-      <td>36</td>
-      <td>{SOE=[8531, 27650, 95294, 180462], PRIVATE=[14740, 33398, 78567, 142395]}</td>
+      <td>23</td>
+      <td>{SOE=[2614, 9163, 29059, 48540], PRIVATE=[11386, 26217, 64000, 104100]}</td>
     </tr>
     <tr>
       <th>8</th>
-      <td>40</td>
-      <td>{SOE=[13740, 44513, 115786, 209260], PRIVATE=[18070, 46255, 120674, 225144]}</td>
+      <td>24</td>
+      <td>{SOE=[4188, 14890, 39990, 75619], PRIVATE=[16378, 36853, 81025, 123880]}</td>
     </tr>
     <tr>
       <th>9</th>
-      <td>41</td>
-      <td>{SOE=[18100, 63030, 205954, 516510], PRIVATE=[25474, 80890, 279243, 672584]}</td>
+      <td>29</td>
+      <td>{SOE=[17731, 65220, 174036, 324375], PRIVATE=[14948, 33665, 82540, 145748]}</td>
     </tr>
   </tbody>
 </table>
@@ -15269,48 +15269,48 @@ Make sure there is no duplicates</p>
     </tr>
     <tr>
       <th>1</th>
-      <td>10</td>
-      <td>{0.5=false, 0.9=true, 0.75=false, 0.95=true}</td>
+      <td>7</td>
+      <td>{0.5=true, 0.9=false, 0.75=true, 0.95=false}</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>15</td>
-      <td>{0.5=false, 0.9=false, 0.75=false, 0.95=false}</td>
+      <td>22</td>
+      <td>{0.5=false, 0.9=true, 0.75=true, 0.95=true}</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>26</td>
-      <td>{0.5=false, 0.9=true, 0.75=true, 0.95=true}</td>
+      <td>23</td>
+      <td>{0.5=false, 0.9=false, 0.75=false, 0.95=false}</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>35</td>
-      <td>{0.5=false, 0.9=true, 0.75=true, 0.95=true}</td>
+      <td>24</td>
+      <td>{0.5=false, 0.9=false, 0.75=false, 0.95=false}</td>
     </tr>
     <tr>
       <th>5</th>
-      <td>6</td>
+      <td>29</td>
       <td>{0.5=true, 0.9=true, 0.75=true, 0.95=true}</td>
     </tr>
     <tr>
       <th>6</th>
-      <td>11</td>
+      <td>30</td>
       <td>{0.5=false, 0.9=false, 0.75=false, 0.95=false}</td>
     </tr>
     <tr>
       <th>7</th>
-      <td>17</td>
+      <td>32</td>
       <td>{0.5=true, 0.9=true, 0.75=true, 0.95=true}</td>
     </tr>
     <tr>
       <th>8</th>
-      <td>18</td>
-      <td>{0.5=false, 0.9=true, 0.75=true, 0.95=true}</td>
+      <td>34</td>
+      <td>{0.5=false, 0.9=false, 0.75=false, 0.95=false}</td>
     </tr>
     <tr>
       <th>9</th>
-      <td>19</td>
-      <td>{0.5=false, 0.9=true, 0.75=false, 0.95=true}</td>
+      <td>42</td>
+      <td>{0.5=false, 0.9=false, 0.75=false, 0.95=false}</td>
     </tr>
   </tbody>
 </table>
@@ -15391,7 +15391,7 @@ Make sure there is no duplicates</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>An error occurred (EntityNotFoundException) when calling the DeleteTable operation: Table asif_industry_characteristics_ownership not found.
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;75ef3999-6a28-48a9-a56a-fc9deed6f8ca&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Mon, 11 Jan 2021 08:32:19 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;75ef3999-6a28-48a9-a56a-fc9deed6f8ca&#39;}, &#39;RetryAttempts&#39;: 0}}
 </pre>
 </div>
 </div>
@@ -15485,7 +15485,7 @@ Make sure there is no duplicates</p>
 <span class="s2">        x -&gt; n_avg_output</span>
 <span class="s2">      ), </span>
 <span class="s2">      output_pct, </span>
-<span class="s2">      (x, y) -&gt; x &gt; y</span>
+<span class="s2">      (x, y) -&gt; x &lt; y</span>
 <span class="s2">    )</span>
 <span class="s2">  ) AS dominated_output, </span>
 <span class="s2">  MAP(</span>
@@ -15499,7 +15499,7 @@ Make sure there is no duplicates</p>
 <span class="s2">        x -&gt; n_avg_employ</span>
 <span class="s2">      ), </span>
 <span class="s2">      employ_pct, </span>
-<span class="s2">      (x, y) -&gt; x &gt; y</span>
+<span class="s2">      (x, y) -&gt; x &lt; y</span>
 <span class="s2">    )</span>
 <span class="s2">  ) AS dominated_employment, </span>
 <span class="s2">  MAP(</span>
@@ -15513,7 +15513,7 @@ Make sure there is no duplicates</p>
 <span class="s2">        x -&gt; n_avg_capital</span>
 <span class="s2">      ), </span>
 <span class="s2">      captal_pct, </span>
-<span class="s2">      (x, y) -&gt; x &gt; y</span>
+<span class="s2">      (x, y) -&gt; x &lt; y</span>
 <span class="s2">    )</span>
 <span class="s2">  ) AS dominated_capital, </span>
 <span class="s2">  MAP(</span>
@@ -15527,7 +15527,7 @@ Make sure there is no duplicates</p>
 <span class="s2">        x -&gt; n_avg_sales</span>
 <span class="s2">      ), </span>
 <span class="s2">      sales_pct, </span>
-<span class="s2">      (x, y) -&gt; x &gt; y</span>
+<span class="s2">      (x, y) -&gt; x &lt; y</span>
 <span class="s2">    )</span>
 <span class="s2">  ) AS dominated_sales, </span>
 <span class="s2">  dominated_output_soe, </span>
@@ -15788,8 +15788,8 @@ Make sure there is no duplicates</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>CPU times: user 171 ms, sys: 716 µs, total: 172 ms
-Wall time: 5.34 s
+<pre>CPU times: user 265 ms, sys: 2.07 ms, total: 267 ms
+Wall time: 5.65 s
 </pre>
 </div>
 </div>
@@ -15804,9 +15804,9 @@ Wall time: 5.34 s
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
 <pre>{&#39;Results&#39;: {&#39;State&#39;: &#39;SUCCEEDED&#39;,
-  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 11, 6, 53, 2, 880000, tzinfo=tzlocal()),
-  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 11, 6, 53, 7, 553000, tzinfo=tzlocal())},
- &#39;QueryID&#39;: &#39;d3658d96-bbef-4797-bd8c-ef4fa1eec851&#39;}</pre>
+  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 11, 8, 32, 19, 787000, tzinfo=tzlocal()),
+  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 11, 8, 32, 24, 320000, tzinfo=tzlocal())},
+ &#39;QueryID&#39;: &#39;25828867-dcbf-41ff-863c-fcf2889bfa1e&#39;}</pre>
 </div>
 
 </div>
@@ -16172,7 +16172,7 @@ Wall time: 5.34 s
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
 <pre>{&#39;step&#39;: 7,
  &#39;description&#39;: &#39;\nTransform asif firms prepared data by merging china city code normalised data by constructing foreign_vs_domestic, foreign_size, domestic_size, private_size, public_size, soe_vs_private (create dominated industry by ownership (public-private, foreign-domestic) using industry size) to asif industry characteristics  ownership\n&#39;,
- &#39;query&#39;: &#34;\nCREATE TABLE firms_survey.asif_industry_characteristics_ownership WITH (format = &#39;PARQUET&#39;) AS\nWITH test as (\n  SELECT \n    year, \n    firm, \n    cic, \n    output, \n    employ, \n    sales, \n    captal, \n    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(\n      &#39;0&#39;, \n      substr(cic, 1, 1)\n    ) END AS indu_2, \n    CASE WHEN ownership = &#39;SOE&#39; THEN &#39;SOE&#39; ELSE &#39;PRIVATE&#39; END AS soe_vs_pri, \n    CASE WHEN ownership in (&#39;HTM&#39;, &#39;FOREIGN&#39;) THEN &#39;FOREIGN&#39; ELSE &#39;DOMESTIC&#39; END AS for_vs_dom \n  FROM \n    firms_survey.asif_firms_prepared \n  WHERE \n    year = &#39;2001&#39;\n) \nSELECT \n  national.indu_2, \n  MAP(\n    ARRAY[.5, \n    .75, \n    .90, \n    .95 ], \n    zip_with(\n      transform(\n        sequence(1, 4), \n        x -&gt; n_avg_output\n      ), \n      output_pct, \n      (x, y) -&gt; x &gt; y\n    )\n  ) AS dominated_output, \n  MAP(\n    ARRAY[.5, \n    .75, \n    .90, \n    .95 ], \n    zip_with(\n      transform(\n        sequence(1, 4), \n        x -&gt; n_avg_employ\n      ), \n      employ_pct, \n      (x, y) -&gt; x &gt; y\n    )\n  ) AS dominated_employment, \n  MAP(\n    ARRAY[.5, \n    .75, \n    .90, \n    .95 ], \n    zip_with(\n      transform(\n        sequence(1, 4), \n        x -&gt; n_avg_capital\n      ), \n      captal_pct, \n      (x, y) -&gt; x &gt; y\n    )\n  ) AS dominated_capital, \n  MAP(\n    ARRAY[.5, \n    .75, \n    .90, \n    .95 ], \n    zip_with(\n      transform(\n        sequence(1, 4), \n        x -&gt; n_avg_sales\n      ), \n      sales_pct, \n      (x, y) -&gt; x &gt; y\n    )\n  ) AS dominated_sales, \n  dominated_output_soe, \n  dominated_employment_soe, \n  dominated_sales_soe, \n  dominated_capital_soe, \n  dominated_output_for, \n  dominated_employment_for, \n  dominated_sales_for, \n  dominated_capital_for \nFROM \n  (\n    (\n      SELECT \n        indu_2, \n        year, \n        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, \n        approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, \n        approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, \n        approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct \n      FROM \n        test \n      GROUP BY \n        year, \n        indu_2 \n      ORDER BY \n        indu_2\n    ) as industry_pct \n    LEFT JOIN (\n      SELECT \n        year, \n        AVG(output) as n_avg_output, \n        AVG(employ) as n_avg_employ, \n        AVG(sales) as n_avg_sales, \n        AVG(captal) as n_avg_capital \n      FROM \n        test \n      GROUP BY \n        year\n    ) as national_avg ON industry_pct.year = national_avg.year\n  ) as national \n  LEFT JOIN (\n    SELECT \n      * \n    FROM \n      (\n        WITH mapping AS (\n          SELECT \n            indu_2, \n            map_agg(soe_vs_pri, output_pct) AS output_pct, \n            map_agg(soe_vs_pri, employ_pct) AS employ_pct, \n            map_agg(soe_vs_pri, sales_pct) AS sales_pct, \n            map_agg(soe_vs_pri, captal_pct) AS captal_pct \n          FROM \n            (\n              SELECT \n                indu_2, \n                year, \n                soe_vs_pri, \n                approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, \n                approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, \n                approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, \n                approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct \n              FROM \n                test \n              GROUP BY \n                year, \n                indu_2, \n                soe_vs_pri \n              ORDER BY \n                indu_2\n            ) \n          GROUP BY \n            indu_2\n        ) \n        SELECT \n          indu_2, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  output_pct[ &#39;SOE&#39; ], output_pct[ &#39;PRIVATE&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_output_soe, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  employ_pct[ &#39;SOE&#39; ], employ_pct[ &#39;PRIVATE&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_employment_soe, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  sales_pct[ &#39;SOE&#39; ], sales_pct[ &#39;PRIVATE&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_sales_soe, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  captal_pct[ &#39;SOE&#39; ], captal_pct[ &#39;PRIVATE&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_capital_soe \n        FROM \n          mapping\n      )\n  ) AS soe_private ON national.indu_2 = soe_private.indu_2 \n  LEFT JOIN (\n    SELECT \n      * \n    FROM \n      (\n        WITH mapping AS (\n          SELECT \n            indu_2, \n            map_agg(for_vs_dom, output_pct) AS output_pct, \n            map_agg(for_vs_dom, employ_pct) AS employ_pct, \n            map_agg(for_vs_dom, sales_pct) AS sales_pct, \n            map_agg(for_vs_dom, captal_pct) AS captal_pct \n          FROM \n            (\n              SELECT \n                indu_2, \n                year, \n                for_vs_dom, \n                approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, \n                approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, \n                approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, \n                approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct \n              FROM \n                test \n              GROUP BY \n                year, \n                indu_2, \n                for_vs_dom \n              ORDER BY \n                indu_2\n            ) \n          GROUP BY \n            indu_2\n        ) \n        SELECT \n          indu_2, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  output_pct[ &#39;FOREIGN&#39; ], output_pct[ &#39;DOMESTIC&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_output_for, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  employ_pct[ &#39;FOREIGN&#39; ], employ_pct[ &#39;DOMESTIC&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_employment_for, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  sales_pct[ &#39;FOREIGN&#39; ], sales_pct[ &#39;DOMESTIC&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_sales_for, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  captal_pct[ &#39;FOREIGN&#39; ], captal_pct[ &#39;DOMESTIC&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_capital_for \n        FROM \n          mapping\n      )\n  ) AS foreign_dom ON national.indu_2 = foreign_dom.indu_2\n\n&#34;,
+ &#39;query&#39;: &#34;\nCREATE TABLE firms_survey.asif_industry_characteristics_ownership WITH (format = &#39;PARQUET&#39;) AS\nWITH test as (\n  SELECT \n    year, \n    firm, \n    cic, \n    output, \n    employ, \n    sales, \n    captal, \n    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(\n      &#39;0&#39;, \n      substr(cic, 1, 1)\n    ) END AS indu_2, \n    CASE WHEN ownership = &#39;SOE&#39; THEN &#39;SOE&#39; ELSE &#39;PRIVATE&#39; END AS soe_vs_pri, \n    CASE WHEN ownership in (&#39;HTM&#39;, &#39;FOREIGN&#39;) THEN &#39;FOREIGN&#39; ELSE &#39;DOMESTIC&#39; END AS for_vs_dom \n  FROM \n    firms_survey.asif_firms_prepared \n  WHERE \n    year = &#39;2001&#39;\n) \nSELECT \n  national.indu_2, \n  MAP(\n    ARRAY[.5, \n    .75, \n    .90, \n    .95 ], \n    zip_with(\n      transform(\n        sequence(1, 4), \n        x -&gt; n_avg_output\n      ), \n      output_pct, \n      (x, y) -&gt; x &lt; y\n    )\n  ) AS dominated_output, \n  MAP(\n    ARRAY[.5, \n    .75, \n    .90, \n    .95 ], \n    zip_with(\n      transform(\n        sequence(1, 4), \n        x -&gt; n_avg_employ\n      ), \n      employ_pct, \n      (x, y) -&gt; x &lt; y\n    )\n  ) AS dominated_employment, \n  MAP(\n    ARRAY[.5, \n    .75, \n    .90, \n    .95 ], \n    zip_with(\n      transform(\n        sequence(1, 4), \n        x -&gt; n_avg_capital\n      ), \n      captal_pct, \n      (x, y) -&gt; x &lt; y\n    )\n  ) AS dominated_capital, \n  MAP(\n    ARRAY[.5, \n    .75, \n    .90, \n    .95 ], \n    zip_with(\n      transform(\n        sequence(1, 4), \n        x -&gt; n_avg_sales\n      ), \n      sales_pct, \n      (x, y) -&gt; x &lt; y\n    )\n  ) AS dominated_sales, \n  dominated_output_soe, \n  dominated_employment_soe, \n  dominated_sales_soe, \n  dominated_capital_soe, \n  dominated_output_for, \n  dominated_employment_for, \n  dominated_sales_for, \n  dominated_capital_for \nFROM \n  (\n    (\n      SELECT \n        indu_2, \n        year, \n        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, \n        approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, \n        approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, \n        approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct \n      FROM \n        test \n      GROUP BY \n        year, \n        indu_2 \n      ORDER BY \n        indu_2\n    ) as industry_pct \n    LEFT JOIN (\n      SELECT \n        year, \n        AVG(output) as n_avg_output, \n        AVG(employ) as n_avg_employ, \n        AVG(sales) as n_avg_sales, \n        AVG(captal) as n_avg_capital \n      FROM \n        test \n      GROUP BY \n        year\n    ) as national_avg ON industry_pct.year = national_avg.year\n  ) as national \n  LEFT JOIN (\n    SELECT \n      * \n    FROM \n      (\n        WITH mapping AS (\n          SELECT \n            indu_2, \n            map_agg(soe_vs_pri, output_pct) AS output_pct, \n            map_agg(soe_vs_pri, employ_pct) AS employ_pct, \n            map_agg(soe_vs_pri, sales_pct) AS sales_pct, \n            map_agg(soe_vs_pri, captal_pct) AS captal_pct \n          FROM \n            (\n              SELECT \n                indu_2, \n                year, \n                soe_vs_pri, \n                approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, \n                approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, \n                approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, \n                approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct \n              FROM \n                test \n              GROUP BY \n                year, \n                indu_2, \n                soe_vs_pri \n              ORDER BY \n                indu_2\n            ) \n          GROUP BY \n            indu_2\n        ) \n        SELECT \n          indu_2, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  output_pct[ &#39;SOE&#39; ], output_pct[ &#39;PRIVATE&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_output_soe, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  employ_pct[ &#39;SOE&#39; ], employ_pct[ &#39;PRIVATE&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_employment_soe, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  sales_pct[ &#39;SOE&#39; ], sales_pct[ &#39;PRIVATE&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_sales_soe, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  captal_pct[ &#39;SOE&#39; ], captal_pct[ &#39;PRIVATE&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_capital_soe \n        FROM \n          mapping\n      )\n  ) AS soe_private ON national.indu_2 = soe_private.indu_2 \n  LEFT JOIN (\n    SELECT \n      * \n    FROM \n      (\n        WITH mapping AS (\n          SELECT \n            indu_2, \n            map_agg(for_vs_dom, output_pct) AS output_pct, \n            map_agg(for_vs_dom, employ_pct) AS employ_pct, \n            map_agg(for_vs_dom, sales_pct) AS sales_pct, \n            map_agg(for_vs_dom, captal_pct) AS captal_pct \n          FROM \n            (\n              SELECT \n                indu_2, \n                year, \n                for_vs_dom, \n                approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, \n                approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, \n                approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, \n                approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct \n              FROM \n                test \n              GROUP BY \n                year, \n                indu_2, \n                for_vs_dom \n              ORDER BY \n                indu_2\n            ) \n          GROUP BY \n            indu_2\n        ) \n        SELECT \n          indu_2, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  output_pct[ &#39;FOREIGN&#39; ], output_pct[ &#39;DOMESTIC&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_output_for, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  employ_pct[ &#39;FOREIGN&#39; ], employ_pct[ &#39;DOMESTIC&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_employment_for, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  sales_pct[ &#39;FOREIGN&#39; ], sales_pct[ &#39;DOMESTIC&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_sales_for, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  captal_pct[ &#39;FOREIGN&#39; ], captal_pct[ &#39;DOMESTIC&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_capital_for \n        FROM \n          mapping\n      )\n  ) AS foreign_dom ON national.indu_2 = foreign_dom.indu_2\n\n&#34;,
  &#39;schema&#39;: [{&#39;Name&#39;: &#39;indu_2&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
   {&#39;Name&#39;: &#39;dominated_output&#39;,
    &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
@@ -16360,13 +16360,13 @@ Wall time: 5.34 s
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;6ea3671a-81a8-46dc-8d12-a70bf1195256&#39;,
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;6b240513-82fd-4070-bd1f-7b2efd4a054b&#39;,
   &#39;HTTPStatusCode&#39;: 200,
-  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Mon, 11 Jan 2021 06:56:09 GMT&#39;,
+  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Mon, 11 Jan 2021 08:32:26 GMT&#39;,
    &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;,
    &#39;content-length&#39;: &#39;2&#39;,
    &#39;connection&#39;: &#39;keep-alive&#39;,
-   &#39;x-amzn-requestid&#39;: &#39;6ea3671a-81a8-46dc-8d12-a70bf1195256&#39;},
+   &#39;x-amzn-requestid&#39;: &#39;6b240513-82fd-4070-bd1f-7b2efd4a054b&#39;},
   &#39;RetryAttempts&#39;: 0}}</pre>
 </div>
 
@@ -16386,7 +16386,7 @@ Wall time: 5.34 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;indu_2&#39;</span><span class="p">]</span>
@@ -16403,7 +16403,7 @@ Wall time: 5.34 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[28]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### COUNT DUPLICATES</span>
@@ -16488,7 +16488,7 @@ Wall time: 5.34 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[28]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">README</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -16571,7 +16571,7 @@ Wall time: 5.34 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[30]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">urllib</span><span class="o">,</span> <span class="nn">ipykernel</span><span class="o">,</span> <span class="nn">json</span>
@@ -16587,7 +16587,7 @@ Wall time: 5.34 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[31]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[30]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">create_report</span><span class="p">(</span><span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">keep_code</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">notebookname</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
