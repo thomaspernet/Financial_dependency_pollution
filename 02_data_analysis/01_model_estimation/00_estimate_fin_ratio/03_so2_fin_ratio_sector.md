@@ -1102,9 +1102,9 @@ The notebook reference is the following https://github.com/thomaspernet/Financia
 A dominated sector is defined as positive when the average output of the firms is above the cross secteur average
 
 - Compute the firm’s industrial output average
-- Compute the firm’s national average
+- Compute the firm’s national median
   
-In our computation, .5 means the median output [employment, capital and sales] for a firm in industry $k$. If the median output value for firm in industry $k$ is above the output value of the national average, then the sector is labeled as 'Large'
+In our computation, .5 means the median output [employment, capital and sales] for a firm in industry $k$. If the median output value for firm in industry $k$ is above the output value of the national median, then the sector is labeled as 'Large'
 <!-- #endregion -->
 
 ```sos kernel="SoS"
@@ -1224,10 +1224,10 @@ path
 %get path table
 
 df_temp_true = df_final %>% 
-mutate(filter_ = str_extract(above_threshold_mandate, "(?<=0.75\\=)(.*?)(?=\\,)"))%>%
+mutate(filter_ = str_extract(above_threshold_mandate, "(?<=0.5\\=)(.*?)(?=\\,)"))%>%
 filter(filter_ == 'true')
 df_temp_false = df_final %>% 
-mutate(filter_ = str_extract(above_threshold_mandate, "(?<=0.75\\=)(.*?)(?=\\,)"))%>%
+mutate(filter_ = str_extract(above_threshold_mandate, "(?<=0.5\\=)(.*?)(?=\\,)"))%>%
 filter(filter_ == 'false')
 
 t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
@@ -1265,7 +1265,7 @@ fe1 <- list(
 table_1 <- go_latex(list(
     t_0,t_1, t_2, t_3, t_4, t_5
 ),
-    title="Heterogeneity effect, city policy mandate threshold (average)",
+    title="Heterogeneity effect, city policy mandate threshold (median)",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
