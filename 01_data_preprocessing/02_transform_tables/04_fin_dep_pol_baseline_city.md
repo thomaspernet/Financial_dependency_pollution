@@ -257,6 +257,69 @@ output = s3.run_query(
 output
 ```
 
+### Example computation threshold mandate
+
+In the example below, we detail how to compute the average and percentile of policy mandate and compute the comparison
+
+```python
+query = """
+SELECT 
+  geocode4_corr, 
+  tso2_mandate_c, 
+  in_10_000_tonnes, 
+  tso2_mandate_c_pct, 
+  tso2_mandate_c_avg, 
+  MAP(
+    ARRAY[.5, 
+    .75, 
+    .90, 
+    .95 ], 
+    zip_with(
+      transform(
+        sequence(1, 4), 
+        x -> tso2_mandate_c
+      ), 
+      tso2_mandate_c_pct, 
+      (x, y) -> x < y
+    )
+  ) AS above_threshold_mandate, 
+  CASE WHEN tso2_mandate_c > tso2_mandate_c_avg THEN 'ABOVE' ELSE 'BELOW' END AS above_average_mandate 
+FROM 
+  (
+    (
+      SELECT 
+        'TEMP' as temp, 
+        approx_percentile(
+          tso2_mandate_c, ARRAY[.5,.75,.90, 
+          .95]
+        ) AS tso2_mandate_c_pct, 
+        AVG(tso2_mandate_c) AS tso2_mandate_c_avg 
+      FROM 
+        policy.china_city_reduction_mandate
+    ) as percentile 
+    LEFT JOIN (
+      SELECT 
+        'TEMP' as temp, 
+        citycn, 
+        tso2_mandate_c, 
+        in_10_000_tonnes 
+      FROM 
+        policy.china_city_reduction_mandate
+    ) as mandate ON percentile.temp = mandate.temp
+  ) as map_mandate
+  INNER JOIN chinese_lookup.china_city_code_normalised ON map_mandate.citycn = china_city_code_normalised.citycn 
+    WHERE 
+      extra_code = geocode4_corr
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_1'
+                )
+output
+```
+
 # Table `fin_dep_pollution_baseline_city`
 
 Since the table to create has missing value, please use the following at the top of the query
@@ -363,7 +426,9 @@ SELECT
   ) / CAST(
     output AS DECIMAL(16, 5)
   ) AS so2_intensity, 
-  tso2_mandate_c, 
+  tso2_mandate_c,
+  above_threshold_mandate,
+  above_average_mandate,
   in_10_000_tonnes, 
   CAST(
     output AS DECIMAL(16, 5)
@@ -440,12 +505,48 @@ FROM
   AND aggregate_pol.geocode4_corr = asif_industry_financial_ratio_city.geocode4_corr 
   INNER JOIN (
     SELECT 
-      geocode4_corr, 
-      tso2_mandate_c, 
-      in_10_000_tonnes 
-    FROM 
-      policy.china_city_reduction_mandate 
-      INNER JOIN chinese_lookup.china_city_code_normalised ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn 
+  geocode4_corr, 
+  tso2_mandate_c, 
+  in_10_000_tonnes, 
+  MAP(
+    ARRAY[.5, 
+    .75, 
+    .90, 
+    .95 ], 
+    zip_with(
+      transform(
+        sequence(1, 4), 
+        x -> tso2_mandate_c
+      ), 
+      tso2_mandate_c_pct, 
+      (x, y) -> x < y
+    )
+  ) AS above_threshold_mandate, 
+  CASE WHEN tso2_mandate_c > tso2_mandate_c_avg THEN 'ABOVE' ELSE 'BELOW' END AS above_average_mandate 
+FROM 
+  (
+    (
+      SELECT 
+        'TEMP' as temp, 
+        approx_percentile(
+          tso2_mandate_c, ARRAY[.5,.75,.90, 
+          .95]
+        ) AS tso2_mandate_c_pct, 
+        AVG(tso2_mandate_c) AS tso2_mandate_c_avg 
+      FROM 
+        policy.china_city_reduction_mandate
+    ) as percentile 
+    LEFT JOIN (
+      SELECT 
+        'TEMP' as temp, 
+        citycn, 
+        tso2_mandate_c, 
+        in_10_000_tonnes 
+      FROM 
+        policy.china_city_reduction_mandate
+    ) as mandate ON percentile.temp = mandate.temp
+  ) as map_mandate
+  INNER JOIN chinese_lookup.china_city_code_normalised ON map_mandate.citycn = china_city_code_normalised.citycn 
     WHERE 
       extra_code = geocode4_corr
   ) as city_mandate ON aggregate_pol.geocode4_corr = city_mandate.geocode4_corr 
@@ -695,6 +796,8 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'
  {'Name': 'tso2', 'Type': 'bigint', 'Comment': 'Total so2 city sector. Filtered values above  4863 (5% of the distribution)'},
  {'Name': 'so2_intensity', 'Type': 'decimal(21,5)', 'Comment': 'SO2 divided by output'},
  {'Name': 'tso2_mandate_c', 'Type': 'float', 'Comment': 'city reduction mandate in tonnes'},
+ {'Name': 'above_threshold_mandate','Type': 'map<double,boolean>','Comment': 'Policy mandate above percentile .5, .75, .9, .95'},
+ {'Name': 'above_average_mandate', 'Type': 'varchar(5)', 'Comment': 'Policy mandate above national average'},
  {'Name': 'in_10_000_tonnes', 'Type': 'float', 'Comment': 'city reduction mandate in 10k tonnes'},
  {'Name': 'output', 'Type': 'decimal(16,5)', 'Comment': 'Output'},
  {'Name': 'employment', 'Type': 'decimal(16,5)', 'Comment': 'Employemnt'},
