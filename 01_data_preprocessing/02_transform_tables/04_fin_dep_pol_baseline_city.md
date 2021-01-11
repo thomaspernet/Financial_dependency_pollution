@@ -80,6 +80,8 @@ https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_depende
 * china_credit_constraint
 * asif_industry_financial_ratio_city
 * asif_firms_prepared
+* asif_industry_characteristics_ownership 
+* asif_city_characteristics_ownership
 * Github: 
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_REDUCTION_MANDATE/city_reduction_mandate.py
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/TCZ_SPZ/tcz_spz_policy.py
@@ -88,6 +90,8 @@ https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_depende
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CIC_CREDIT_CONSTRAINT/financial_dependency.py
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/03_asif_financial_ratio_city.md
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/01_prepare_tables/00_prepare_asif.md
+  * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/07_dominated_city_ownership.md
+  * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/08_dominated_industry_ownership.md
 
 # Destination Output/Delivery
 ## Table/file
@@ -482,7 +486,27 @@ SELECT
   std_inventory_to_sales_ci,
   lower_location, 
   larger_location, 
-  coastal, 
+  coastal,
+  dominated_output_soe_c,
+  dominated_employment_soe_c,
+  dominated_sales_soe_c,
+  dominated_capital_soe_c,
+  dominated_output_for_c,
+  dominated_employment_for_c,
+  dominated_sales_for_c,
+  dominated_capital_for_c, 
+  dominated_output_i,
+  dominated_employment_i,
+  dominated_capital_i,
+  dominated_sales_i,
+  dominated_output_soe_i,
+  dominated_employment_soe_i,
+  dominated_sales_soe_i,
+  dominated_capital_soe_i,
+  dominated_output_for_i,
+  dominated_employment_for_i,
+  dominated_sales_for_i,
+  dominated_capital_for_i, 
   DENSE_RANK() OVER (
     ORDER BY 
       city_mandate.geocode4_corr, 
@@ -619,6 +643,12 @@ FROM
   ) as agg_output ON aggregate_pol.geocode4_corr = agg_output.geocode4_corr 
   AND aggregate_pol.ind2 = agg_output.indu_2 
   AND aggregate_pol.year = agg_output.year 
+  
+  LEFT JOIN firms_survey.asif_industry_characteristics_ownership
+    ON aggregate_pol.ind2 = asif_industry_characteristics_ownership.indu_2
+    LEFT JOIN firms_survey.asif_city_characteristics_ownership
+    ON aggregate_pol.geocode4_corr = asif_city_characteristics_ownership.geocode4_corr
+  
 WHERE 
   tso2 > 4863 
   AND output > 0 
@@ -781,74 +811,348 @@ glue.get_table_information(
 ```
 
 ```python
-schema = [{'Name': 'year', 'Type': 'string', 'Comment': 'year from 2001 to 2007'},
- {'Name': 'period', 'Type': 'varchar(5)', 'Comment': 'False if year before 2005 included, True if year 2006 and 2007'},
- {'Name': 'provinces', 'Type': 'string', 'Comment': ''},
- {'Name': 'cityen', 'Type': 'string', 'Comment': ''},
- {'Name': 'geocode4_corr', 'Type': 'string', 'Comment': ''},
- {'Name': 'tcz', 'Type': 'string', 'Comment': 'Two control zone policy city'},
- {'Name': 'spz', 'Type': 'string', 'Comment': 'Special policy zone policy city'},
- {'Name': 'ind2', 'Type': 'string', 'Comment': '2 digits industry'},
- {'Name': 'short', 'Type': 'string', 'Comment': ''},
- {'Name': 'polluted_di', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 75th percentile of SO2 label as ABOVE else BELOW'},
- {'Name': 'polluted_mi', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly average of SO2 label as ABOVE else BELOW'},
- {'Name': 'polluted_mei', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly median of SO2 label as ABOVE else BELOW'},
- {'Name': 'tso2', 'Type': 'bigint', 'Comment': 'Total so2 city sector. Filtered values above  4863 (5% of the distribution)'},
- {'Name': 'so2_intensity', 'Type': 'decimal(21,5)', 'Comment': 'SO2 divided by output'},
- {'Name': 'tso2_mandate_c', 'Type': 'float', 'Comment': 'city reduction mandate in tonnes'},
- {'Name': 'above_threshold_mandate','Type': 'map<double,boolean>','Comment': 'Policy mandate above percentile .5, .75, .9, .95'},
- {'Name': 'above_average_mandate', 'Type': 'varchar(5)', 'Comment': 'Policy mandate above national average'},
- {'Name': 'in_10_000_tonnes', 'Type': 'float', 'Comment': 'city reduction mandate in 10k tonnes'},
- {'Name': 'output', 'Type': 'decimal(16,5)', 'Comment': 'Output'},
- {'Name': 'employment', 'Type': 'decimal(16,5)', 'Comment': 'Employemnt'},
- {'Name': 'sales', 'Type': 'decimal(16,5)', 'Comment': 'Sales'},
- {'Name': 'capital', 'Type': 'decimal(16,5)', 'Comment': 'Capital'},
- {'Name': 'total_asset', 'Type': 'decimal(16,5)', 'Comment': 'Total asset'},
- {'Name': 'credit_constraint', 'Type': 'float', 'Comment': 'Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311'},
- {'Name': 'receivable_curasset_ci', 'Type': 'double', 'Comment': '应收帐款 (c80) / cuasset'},
- {'Name': 'std_receivable_curasset_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'cash_over_curasset_ci', 'Type': 'double', 'Comment': '1 - (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset'},
- {'Name': 'std_cash_over_curasset_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'cash_over_totasset_ci', 'Type': 'double', 'Comment': '1 - (cuasset- 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /toasset'},
- {'Name': 'std_cash_over_totasset_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},         
- {'Name': 'working_capital_ci', 'Type': 'double', 'Comment': 'cuasset- 流动负债合计 (c95)'},
- {'Name': 'std_working_capital_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'working_capital_requirement_ci', 'Type': 'double', 'Comment': '存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)'},
- {'Name': 'std_working_capital_requirement_ci',
-  'Type': 'double',
-  'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'current_ratio_ci', 'Type': 'double', 'Comment': 'cuasset/流动负债合计 (c95)'},
- {'Name': 'std_current_ratio_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'quick_ratio_ci', 'Type': 'double', 'Comment': '(cuasset-存货 (c81) ) / 流动负债合计 (c95)'},
- {'Name': 'std_quick_ratio_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'cash_ratio_ci', 'Type': 'double', 'Comment': '1 - (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)/ 流动负债合计 (c95)'},
- {'Name': 'std_cash_ratio_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'liabilities_assets_ci', 'Type': 'double', 'Comment': '1- (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset'},
- {'Name': 'std_liabilities_assets_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
-{'Name': 'reverse_liabilities_assets_ci', 'Type': 'double', 'Comment': '1 - liabilities_assets_ci'},
- {'Name': 'reverse_std_liabilities_assets_ci',
-  'Type': 'double',
-  'Comment': '1-standaridzed values (x - x mean) / std)'},
-{'Name': 'sales_assets_andersen_ci', 'Type': 'double', 'Comment': '全年营业收入合计 (c64) /(toasset)'},
- {'Name': 'std_sales_assets_andersen_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'return_on_asset_ci', 'Type': 'double', 'Comment': 'sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset'},
- {'Name': 'std_return_on_asset_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'sales_assets_ci', 'Type': 'double', 'Comment': '全年营业收入合计 (c64) /(\Delta toasset/2)'},
- {'Name': 'std_sales_assets_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'account_paybable_to_asset_ci', 'Type': 'double', 'Comment': '(\Delta 应付帐款  (c96))/ (\Delta (toasset))'},
- {'Name': 'std_account_paybable_to_asset_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'asset_tangibility_ci', 'Type': 'double', 'Comment': 'Total fixed assets - Intangible assets'},
- {'Name': 'std_asset_tangibility_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'rd_intensity_ci', 'Type': 'double', 'Comment': 'rdfee/全年营业收入合计 (c64)'},
- {'Name': 'std_rd_intensity_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'inventory_to_sales_ci', 'Type': 'double', 'Comment': '存货 (c81) / sales'},
- {'Name': 'std_inventory_to_sales_ci', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'lower_location', 'Type': 'string', 'Comment': 'Location city. one of Coastal, Central, Northwest, Northeast, Southwest'},
- {'Name': 'larger_location', 'Type': 'string', 'Comment': 'Location city. one of Eastern, Central, Western'},
- {'Name': 'coastal', 'Type': 'string', 'Comment': 'City is bordered by sea or not'},
- {'Name': 'fe_c_i', 'Type': 'bigint', 'Comment': 'City industry fixed effect'},
- {'Name': 'fe_t_i', 'Type': 'bigint', 'Comment': 'year industry fixed effect'},
- {'Name': 'fe_c_t', 'Type': 'bigint', 'Comment': 'city industry fixed effect'}]
+schema = [
+    {"Name": "year", "Type": "string", "Comment": "year from 2001 to 2007"},
+    {
+        "Name": "period",
+        "Type": "varchar(5)",
+        "Comment": "False if year before 2005 included, True if year 2006 and 2007",
+    },
+    {"Name": "provinces", "Type": "string", "Comment": ""},
+    {"Name": "cityen", "Type": "string", "Comment": ""},
+    {"Name": "geocode4_corr", "Type": "string", "Comment": ""},
+    {"Name": "tcz", "Type": "string", "Comment": "Two control zone policy city"},
+    {"Name": "spz", "Type": "string", "Comment": "Special policy zone policy city"},
+    {"Name": "ind2", "Type": "string", "Comment": "2 digits industry"},
+    {"Name": "short", "Type": "string", "Comment": ""},
+    {
+        "Name": "polluted_di",
+        "Type": "varchar(5)",
+        "Comment": "Sectors with values above Yearly 75th percentile of SO2 label as ABOVE else BELOW",
+    },
+    {
+        "Name": "polluted_mi",
+        "Type": "varchar(5)",
+        "Comment": "Sectors with values above Yearly average of SO2 label as ABOVE else BELOW",
+    },
+    {
+        "Name": "polluted_mei",
+        "Type": "varchar(5)",
+        "Comment": "Sectors with values above Yearly median of SO2 label as ABOVE else BELOW",
+    },
+    {
+        "Name": "tso2",
+        "Type": "bigint",
+        "Comment": "Total so2 city sector. Filtered values above  4863 (5% of the distribution)",
+    },
+    {
+        "Name": "so2_intensity",
+        "Type": "decimal(21,5)",
+        "Comment": "SO2 divided by output",
+    },
+    {
+        "Name": "tso2_mandate_c",
+        "Type": "float",
+        "Comment": "city reduction mandate in tonnes",
+    },
+    {
+        "Name": "above_threshold_mandate",
+        "Type": "map<double,boolean>",
+        "Comment": "Policy mandate above percentile .5, .75, .9, .95",
+    },
+    {
+        "Name": "above_average_mandate",
+        "Type": "varchar(5)",
+        "Comment": "Policy mandate above national average",
+    },
+    {
+        "Name": "in_10_000_tonnes",
+        "Type": "float",
+        "Comment": "city reduction mandate in 10k tonnes",
+    },
+    {"Name": "output", "Type": "decimal(16,5)", "Comment": "Output"},
+    {"Name": "employment", "Type": "decimal(16,5)", "Comment": "Employemnt"},
+    {"Name": "sales", "Type": "decimal(16,5)", "Comment": "Sales"},
+    {"Name": "capital", "Type": "decimal(16,5)", "Comment": "Capital"},
+    {"Name": "total_asset", "Type": "decimal(16,5)", "Comment": "Total asset"},
+    {
+        "Name": "credit_constraint",
+        "Type": "float",
+        "Comment": "Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311",
+    },
+    {
+        "Name": "receivable_curasset_ci",
+        "Type": "double",
+        "Comment": "应收帐款 (c80) / cuasset",
+    },
+    {
+        "Name": "std_receivable_curasset_ci",
+        "Type": "double",
+        "Comment": "standaridzed values (x - x mean) / std)",
+    },
+    {
+        "Name": "cash_over_curasset_ci",
+        "Type": "double",
+        "Comment": "1 - (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset",
+    },
+    {
+        "Name": "std_cash_over_curasset_ci",
+        "Type": "double",
+        "Comment": "standaridzed values (x - x mean) / std)",
+    },
+    {
+        "Name": "cash_over_totasset_ci",
+        "Type": "double",
+        "Comment": "1 - (cuasset- 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /toasset",
+    },
+    {
+        "Name": "std_cash_over_totasset_ci",
+        "Type": "double",
+        "Comment": "standaridzed values (x - x mean) / std)",
+    },
+    {
+        "Name": "working_capital_ci",
+        "Type": "double",
+        "Comment": "cuasset- 流动负债合计 (c95)",
+    },
+    {
+        "Name": "std_working_capital_ci",
+        "Type": "double",
+        "Comment": "standaridzed values (x - x mean) / std)",
+    },
+    {
+        "Name": "working_capital_requirement_ci",
+        "Type": "double",
+        "Comment": "存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)",
+    },
+    {
+        "Name": "std_working_capital_requirement_ci",
+        "Type": "double",
+        "Comment": "standaridzed values (x - x mean) / std)",
+    },
+    {"Name": "current_ratio_ci", "Type": "double", "Comment": "cuasset/流动负债合计 (c95)"},
+    {
+        "Name": "std_current_ratio_ci",
+        "Type": "double",
+        "Comment": "standaridzed values (x - x mean) / std)",
+    },
+    {
+        "Name": "quick_ratio_ci",
+        "Type": "double",
+        "Comment": "(cuasset-存货 (c81) ) / 流动负债合计 (c95)",
+    },
+    {
+        "Name": "std_quick_ratio_ci",
+        "Type": "double",
+        "Comment": "standaridzed values (x - x mean) / std)",
+    },
+    {
+        "Name": "cash_ratio_ci",
+        "Type": "double",
+        "Comment": "1 - (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)/ 流动负债合计 (c95)",
+    },
+    {
+        "Name": "std_cash_ratio_ci",
+        "Type": "double",
+        "Comment": "standaridzed values (x - x mean) / std)",
+    },
+    {
+        "Name": "liabilities_assets_ci",
+        "Type": "double",
+        "Comment": "1- (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset",
+    },
+    {
+        "Name": "std_liabilities_assets_ci",
+        "Type": "double",
+        "Comment": "standaridzed values (x - x mean) / std)",
+    },
+    {
+        "Name": "reverse_liabilities_assets_ci",
+        "Type": "double",
+        "Comment": "1 - liabilities_assets_ci",
+    },
+    {
+        "Name": "reverse_std_liabilities_assets_ci",
+        "Type": "double",
+        "Comment": "1-standaridzed values (x - x mean) / std)",
+    },
+    {
+        "Name": "sales_assets_andersen_ci",
+        "Type": "double",
+        "Comment": "全年营业收入合计 (c64) /(toasset)",
+    },
+    {
+        "Name": "std_sales_assets_andersen_ci",
+        "Type": "double",
+        "Comment": "standaridzed values (x - x mean) / std)",
+    },
+    {
+        "Name": "return_on_asset_ci",
+        "Type": "double",
+        "Comment": "sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset",
+    },
+    {
+        "Name": "std_return_on_asset_ci",
+        "Type": "double",
+        "Comment": "standaridzed values (x - x mean) / std)",
+    },
+    {
+        "Name": "sales_assets_ci",
+        "Type": "double",
+        "Comment": "全年营业收入合计 (c64) /(\Delta toasset/2)",
+    },
+    {
+        "Name": "std_sales_assets_ci",
+        "Type": "double",
+        "Comment": "standaridzed values (x - x mean) / std)",
+    },
+    {
+        "Name": "account_paybable_to_asset_ci",
+        "Type": "double",
+        "Comment": "(\Delta 应付帐款  (c96))/ (\Delta (toasset))",
+    },
+    {
+        "Name": "std_account_paybable_to_asset_ci",
+        "Type": "double",
+        "Comment": "standaridzed values (x - x mean) / std)",
+    },
+    {
+        "Name": "asset_tangibility_ci",
+        "Type": "double",
+        "Comment": "Total fixed assets - Intangible assets",
+    },
+    {
+        "Name": "std_asset_tangibility_ci",
+        "Type": "double",
+        "Comment": "standaridzed values (x - x mean) / std)",
+    },
+    {"Name": "rd_intensity_ci", "Type": "double", "Comment": "rdfee/全年营业收入合计 (c64)"},
+    {
+        "Name": "std_rd_intensity_ci",
+        "Type": "double",
+        "Comment": "standaridzed values (x - x mean) / std)",
+    },
+    {"Name": "inventory_to_sales_ci", "Type": "double", "Comment": "存货 (c81) / sales"},
+    {
+        "Name": "std_inventory_to_sales_ci",
+        "Type": "double",
+        "Comment": "standaridzed values (x - x mean) / std)",
+    },
+    {
+        "Name": "lower_location",
+        "Type": "string",
+        "Comment": "Location city. one of Coastal, Central, Northwest, Northeast, Southwest",
+    },
+    {
+        "Name": "larger_location",
+        "Type": "string",
+        "Comment": "Location city. one of Eastern, Central, Western",
+    },
+    {"Name": "coastal", "Type": "string", "Comment": "City is bordered by sea or not"},
+    {
+        "Name": "dominated_output_soe_c",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of output",
+    },
+    {
+        "Name": "dominated_employment_soe_c",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of employment",
+    },
+    {
+        "Name": "dominated_sales_soe_c",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of sales",
+    },
+    {
+        "Name": "dominated_capital_soe_c",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of capital",
+    },
+    {
+        "Name": "dominated_output_for_c",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of output",
+    },
+    {
+        "Name": "dominated_employment_for_c",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of employment",
+    },
+    {
+        "Name": "dominated_sales_for_c",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of sales",
+    },
+    {
+        "Name": "dominated_capital_for_c",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of capital",
+    },
+    {
+        "Name": "dominated_output_i",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information dominated industry knowing percentile .5, .75, .9, .95 of output",
+    },
+    {
+        "Name": "dominated_employment_i",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on dominated industry knowing percentile .5, .75, .9, .95 of employment",
+    },
+    {
+        "Name": "dominated_capital_i",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on dominated industry knowing percentile .5, .75, .9, .95 of capital",
+    },
+    {
+        "Name": "dominated_sales_i",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of sales",
+    },
+    {
+        "Name": "dominated_output_soe_i",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of output",
+    },
+    {
+        "Name": "dominated_employment_soe_i",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of employment",
+    },
+    {
+        "Name": "dominated_sales_soe_i",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of sales",
+    },
+    {
+        "Name": "dominated_capital_soe_i",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of capital",
+    },
+    {
+        "Name": "dominated_output_for_i",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of output",
+    },
+    {
+        "Name": "dominated_employment_for_i",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of employment",
+    },
+    {
+        "Name": "dominated_sales_for_i",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of sales",
+    },
+    {
+        "Name": "dominated_capital_for_i",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of capital",
+    },
+    {"Name": "fe_c_i", "Type": "bigint", "Comment": "City industry fixed effect"},
+    {"Name": "fe_t_i", "Type": "bigint", "Comment": "year industry fixed effect"},
+    {"Name": "fe_c_t", "Type": "bigint", "Comment": "city industry fixed effect"},
+]
 ```
 
 4. Provide a description
