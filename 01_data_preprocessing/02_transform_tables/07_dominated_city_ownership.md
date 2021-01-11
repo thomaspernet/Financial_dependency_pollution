@@ -475,14 +475,14 @@ WITH test AS (
 ) 
 SELECT 
   soe_private.geocode4_corr,
-  dominated_output_soe,
-  dominated_employment_soe,
-  dominated_sales_soe,
-  dominated_capital_soe,
-  dominated_output_for,
-  dominated_employment_for,
-  dominated_sales_for,
-  dominated_capital_for
+  dominated_output_soe_c,
+  dominated_employment_soe_c,
+  dominated_sales_soe_c,
+  dominated_capital_soe_c,
+  dominated_output_for_c,
+  dominated_employment_for_c,
+  dominated_sales_for_c,
+  dominated_capital_for_c
 FROM 
   (
     WITH mapping AS (
@@ -540,7 +540,7 @@ FROM
             (k, v) -> k > v
           )
         )
-      ) AS dominated_output_soe,
+      ) AS dominated_output_soe_c,
      map(
         ARRAY[
           .5, 
@@ -556,7 +556,7 @@ FROM
             (k, v) -> k > v
           )
         )
-      ) AS dominated_employment_soe,
+      ) AS dominated_employment_soe_c,
      map(
         ARRAY[
           .5, 
@@ -572,7 +572,7 @@ FROM
             (k, v) -> k > v
           )
         )
-      ) AS dominated_sales_soe,
+      ) AS dominated_sales_soe_c,
      map(
         ARRAY[
           .5, 
@@ -588,7 +588,7 @@ FROM
             (k, v) -> k > v
           )
         )
-      ) AS dominated_capital_soe
+      ) AS dominated_capital_soe_c
     FROM mapping
    ) AS soe_private
 LEFT JOIN (
@@ -651,7 +651,7 @@ FROM
             (k, v) -> k > v
           )
         )
-      ) AS dominated_output_for,
+      ) AS dominated_output_for_c,
      map(
         ARRAY[
           .5, 
@@ -667,7 +667,7 @@ FROM
             (k, v) -> k > v
           )
         )
-      ) AS dominated_employment_for,
+      ) AS dominated_employment_for_c,
      map(
         ARRAY[
           .5, 
@@ -683,7 +683,7 @@ FROM
             (k, v) -> k > v
           )
         )
-      ) AS dominated_sales_for,
+      ) AS dominated_sales_for_c,
      map(
         ARRAY[
           .5, 
@@ -699,7 +699,7 @@ FROM
             (k, v) -> k > v
           )
         )
-      ) AS dominated_capital_for
+      ) AS dominated_capital_for_c
     FROM mapping
    )
 ) AS foreign_dom
@@ -782,25 +782,25 @@ glue.get_table_information(
 ```python
 schema = [
     {'Name': 'geocode4_corr', 'Type': 'string', 'Comment': 'City ID'},
-    {'Name': 'dominated_output_soe',
+    {'Name': 'dominated_output_soe_c',
         'Type': 'map<double,boolean>',
         'Comment': 'map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of output'},
-    {'Name': 'dominated_employment_soe',
+    {'Name': 'dominated_employment_soe_c',
         'Type': 'map<double,boolean>',
         'Comment': 'map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of employment'},
-    {'Name': 'dominated_sales_soe', 'Type': 'map<double,boolean>', 'Comment': 'map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of sales'},
-    {'Name': 'dominated_capital_soe',
+    {'Name': 'dominated_sales_soe_c', 'Type': 'map<double,boolean>', 'Comment': 'map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of sales'},
+    {'Name': 'dominated_capital_soe_c',
         'Type': 'map<double,boolean>',
         'Comment': 'map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of capital'},
     
-    {'Name': 'dominated_output_for',
+    {'Name': 'dominated_output_for_c',
         'Type': 'map<double,boolean>',
         'Comment': 'map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of output'},
-    {'Name': 'dominated_employment_for',
+    {'Name': 'dominated_employment_for_c',
         'Type': 'map<double,boolean>',
         'Comment': 'map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of employment'},
-    {'Name': 'dominated_sales_for', 'Type': 'map<double,boolean>', 'Comment': 'map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of sales'},
-    {'Name': 'dominated_capital_for',
+    {'Name': 'dominated_sales_for_c', 'Type': 'map<double,boolean>', 'Comment': 'map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of sales'},
+    {'Name': 'dominated_capital_for_c',
         'Type': 'map<double,boolean>',
         'Comment': 'map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of capital'},
 

@@ -14531,6 +14531,15 @@ Make sure there is no duplicates</p>
     <tr>
       <th>0</th>
       <td>1101</td>
+      <td>PRIVATE</td>
+      <td>[37375, 106495, 319231, 659455]</td>
+      <td>[168, 486, 1231, 2079]</td>
+      <td>[38240, 106975, 322943, 671743]</td>
+      <td>[8240, 35000, 121855, 292863]</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1101</td>
       <td>SOE</td>
       <td>[7091, 38279, 136941, 315189]</td>
       <td>[86, 361, 1527, 3143]</td>
@@ -14538,22 +14547,13 @@ Make sure there is no duplicates</p>
       <td>[2500, 17000, 84000, 205600]</td>
     </tr>
     <tr>
-      <th>1</th>
-      <td>1101</td>
-      <td>PRIVATE</td>
-      <td>[37359, 106495, 318463, 659455]</td>
-      <td>[168, 486, 1231, 2075]</td>
-      <td>[38208, 106751, 323583, 674815]</td>
-      <td>[8255, 35000, 122879, 299007]</td>
-    </tr>
-    <tr>
       <th>2</th>
       <td>1201</td>
       <td>PRIVATE</td>
-      <td>[41500, 122879, 354303, 825343]</td>
-      <td>[180, 519, 1311, 2399]</td>
-      <td>[39855, 116618, 350207, 814845]</td>
-      <td>[5120, 23200, 97990, 239615]</td>
+      <td>[41500, 122879, 356351, 823295]</td>
+      <td>[180, 519, 1319, 2399]</td>
+      <td>[39807, 116223, 350710, 815152]</td>
+      <td>[5120, 23176, 97279, 239667]</td>
     </tr>
     <tr>
       <th>3</th>
@@ -14585,20 +14585,20 @@ Make sure there is no duplicates</p>
     <tr>
       <th>6</th>
       <td>1302</td>
-      <td>PRIVATE</td>
-      <td>[86324, 248401, 832400, 1549581]</td>
-      <td>[365, 942, 2230, 4060]</td>
-      <td>[80048, 233411, 806043, 1511926]</td>
-      <td>[10215, 33993, 120838, 261096]</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>1302</td>
       <td>SOE</td>
       <td>[39170, 135100, 577720, 1736105]</td>
       <td>[400, 1371, 3967, 9831]</td>
       <td>[31282, 120234, 529706, 2102543]</td>
       <td>[7402, 33825, 206860, 528667]</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>1302</td>
+      <td>PRIVATE</td>
+      <td>[86324, 248401, 832400, 1549581]</td>
+      <td>[365, 942, 2230, 4060]</td>
+      <td>[80048, 233411, 806043, 1511926]</td>
+      <td>[10215, 33993, 120838, 261096]</td>
     </tr>
     <tr>
       <th>8</th>
@@ -14798,14 +14798,14 @@ Make sure there is no duplicates</p>
       <th>1</th>
       <td>1101</td>
       <td>[0.5, 0.75, 0.9, 0.95]</td>
-      <td>{315189=658774, 7091=37375, 38279=106495, 136941=318463}</td>
+      <td>{315189=659455, 7091=37375, 38279=106495, 136941=319487}</td>
       <td>[true, true, true, true]</td>
     </tr>
     <tr>
       <th>2</th>
       <td>1201</td>
       <td>[0.5, 0.75, 0.9, 0.95]</td>
-      <td>{221300=356351, 498720=825192, 12060=41599, 55870=123007}</td>
+      <td>{221300=353279, 498720=827391, 12060=41500, 55870=122879}</td>
       <td>[true, true, true, true]</td>
     </tr>
     <tr>
@@ -15088,7 +15088,7 @@ Make sure there is no duplicates</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>An error occurred (EntityNotFoundException) when calling the DeleteTable operation: Table asif_city_characteristics_ownership not found.
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;a7c1e00d-1588-4e39-a518-6306c4672b63&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Mon, 11 Jan 2021 08:55:17 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;a7c1e00d-1588-4e39-a518-6306c4672b63&#39;}, &#39;RetryAttempts&#39;: 0}}
 </pre>
 </div>
 </div>
@@ -15170,14 +15170,14 @@ Make sure there is no duplicates</p>
 <span class="s2">) </span>
 <span class="s2">SELECT </span>
 <span class="s2">  soe_private.geocode4_corr,</span>
-<span class="s2">  dominated_output_soe,</span>
-<span class="s2">  dominated_employment_soe,</span>
-<span class="s2">  dominated_sales_soe,</span>
-<span class="s2">  dominated_capital_soe,</span>
-<span class="s2">  dominated_output_for,</span>
-<span class="s2">  dominated_employment_for,</span>
-<span class="s2">  dominated_sales_for,</span>
-<span class="s2">  dominated_capital_for</span>
+<span class="s2">  dominated_output_soe_c,</span>
+<span class="s2">  dominated_employment_soe_c,</span>
+<span class="s2">  dominated_sales_soe_c,</span>
+<span class="s2">  dominated_capital_soe_c,</span>
+<span class="s2">  dominated_output_for_c,</span>
+<span class="s2">  dominated_employment_for_c,</span>
+<span class="s2">  dominated_sales_for_c,</span>
+<span class="s2">  dominated_capital_for_c</span>
 <span class="s2">FROM </span>
 <span class="s2">  (</span>
 <span class="s2">    WITH mapping AS (</span>
@@ -15235,7 +15235,7 @@ Make sure there is no duplicates</p>
 <span class="s2">            (k, v) -&gt; k &gt; v</span>
 <span class="s2">          )</span>
 <span class="s2">        )</span>
-<span class="s2">      ) AS dominated_output_soe,</span>
+<span class="s2">      ) AS dominated_output_soe_c,</span>
 <span class="s2">     map(</span>
 <span class="s2">        ARRAY[</span>
 <span class="s2">          .5, </span>
@@ -15251,7 +15251,7 @@ Make sure there is no duplicates</p>
 <span class="s2">            (k, v) -&gt; k &gt; v</span>
 <span class="s2">          )</span>
 <span class="s2">        )</span>
-<span class="s2">      ) AS dominated_employment_soe,</span>
+<span class="s2">      ) AS dominated_employment_soe_c,</span>
 <span class="s2">     map(</span>
 <span class="s2">        ARRAY[</span>
 <span class="s2">          .5, </span>
@@ -15267,7 +15267,7 @@ Make sure there is no duplicates</p>
 <span class="s2">            (k, v) -&gt; k &gt; v</span>
 <span class="s2">          )</span>
 <span class="s2">        )</span>
-<span class="s2">      ) AS dominated_sales_soe,</span>
+<span class="s2">      ) AS dominated_sales_soe_c,</span>
 <span class="s2">     map(</span>
 <span class="s2">        ARRAY[</span>
 <span class="s2">          .5, </span>
@@ -15283,7 +15283,7 @@ Make sure there is no duplicates</p>
 <span class="s2">            (k, v) -&gt; k &gt; v</span>
 <span class="s2">          )</span>
 <span class="s2">        )</span>
-<span class="s2">      ) AS dominated_capital_soe</span>
+<span class="s2">      ) AS dominated_capital_soe_c</span>
 <span class="s2">    FROM mapping</span>
 <span class="s2">   ) AS soe_private</span>
 <span class="s2">LEFT JOIN (</span>
@@ -15346,7 +15346,7 @@ Make sure there is no duplicates</p>
 <span class="s2">            (k, v) -&gt; k &gt; v</span>
 <span class="s2">          )</span>
 <span class="s2">        )</span>
-<span class="s2">      ) AS dominated_output_for,</span>
+<span class="s2">      ) AS dominated_output_for_c,</span>
 <span class="s2">     map(</span>
 <span class="s2">        ARRAY[</span>
 <span class="s2">          .5, </span>
@@ -15362,7 +15362,7 @@ Make sure there is no duplicates</p>
 <span class="s2">            (k, v) -&gt; k &gt; v</span>
 <span class="s2">          )</span>
 <span class="s2">        )</span>
-<span class="s2">      ) AS dominated_employment_for,</span>
+<span class="s2">      ) AS dominated_employment_for_c,</span>
 <span class="s2">     map(</span>
 <span class="s2">        ARRAY[</span>
 <span class="s2">          .5, </span>
@@ -15378,7 +15378,7 @@ Make sure there is no duplicates</p>
 <span class="s2">            (k, v) -&gt; k &gt; v</span>
 <span class="s2">          )</span>
 <span class="s2">        )</span>
-<span class="s2">      ) AS dominated_sales_for,</span>
+<span class="s2">      ) AS dominated_sales_for_c,</span>
 <span class="s2">     map(</span>
 <span class="s2">        ARRAY[</span>
 <span class="s2">          .5, </span>
@@ -15394,7 +15394,7 @@ Make sure there is no duplicates</p>
 <span class="s2">            (k, v) -&gt; k &gt; v</span>
 <span class="s2">          )</span>
 <span class="s2">        )</span>
-<span class="s2">      ) AS dominated_capital_for</span>
+<span class="s2">      ) AS dominated_capital_for_c</span>
 <span class="s2">    FROM mapping</span>
 <span class="s2">   )</span>
 <span class="s2">) AS foreign_dom</span>
@@ -15425,8 +15425,8 @@ Make sure there is no duplicates</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>CPU times: user 225 ms, sys: 9.4 ms, total: 234 ms
-Wall time: 9.7 s
+<pre>CPU times: user 189 ms, sys: 15.4 ms, total: 204 ms
+Wall time: 5.25 s
 </pre>
 </div>
 </div>
@@ -15441,9 +15441,9 @@ Wall time: 9.7 s
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
 <pre>{&#39;Results&#39;: {&#39;State&#39;: &#39;SUCCEEDED&#39;,
-  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 10, 16, 53, 4, 301000, tzinfo=tzlocal()),
-  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 10, 16, 53, 11, 19000, tzinfo=tzlocal())},
- &#39;QueryID&#39;: &#39;f85ac476-d28c-498f-bd73-a8de93ea3132&#39;}</pre>
+  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 11, 8, 55, 17, 868000, tzinfo=tzlocal()),
+  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 11, 8, 55, 22, 972000, tzinfo=tzlocal())},
+ &#39;QueryID&#39;: &#39;59f33707-271c-4f8a-af6d-2f6f078b1913&#39;}</pre>
 </div>
 
 </div>
@@ -15568,89 +15568,13 @@ Wall time: 9.7 s
 
 
 
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>geocode4_corr</th>
-      <th>dominated_median</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>3413</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>3506</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>4312</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>4401</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>4409</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>281</th>
-      <td>4305</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>282</th>
-      <td>6101</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>283</th>
-      <td>6109</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>284</th>
-      <td>6202</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>285</th>
-      <td>6203</td>
-      <td>False</td>
-    </tr>
-  </tbody>
-</table>
-<p>286 rows × 2 columns</p>
-</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;Results&#39;: {&#39;State&#39;: &#39;FAILED&#39;,
+  &#39;StateChangeReason&#39;: &#34;SYNTAX_ERROR: line 1:33: Column &#39;dominated_output_soe&#39; cannot be resolved&#34;,
+  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 11, 8, 55, 24, 459000, tzinfo=tzlocal()),
+  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 11, 8, 55, 24, 875000, tzinfo=tzlocal())},
+ &#39;QueryID&#39;: &#39;13786c2f-0898-434d-9287-5deda142a4c5&#39;}</pre>
 </div>
 
 </div>
@@ -15764,24 +15688,28 @@ Wall time: 9.7 s
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
 <pre>[{&#39;Name&#39;: &#39;geocode4_corr&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
- {&#39;Name&#39;: &#39;dominated_output_soe&#39;,
+ {&#39;Name&#39;: &#39;dominated_output_soe_c&#39;,
   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
   &#39;Comment&#39;: &#39;&#39;},
- {&#39;Name&#39;: &#39;dominated_employment_soe&#39;,
+ {&#39;Name&#39;: &#39;dominated_employment_soe_c&#39;,
   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
   &#39;Comment&#39;: &#39;&#39;},
- {&#39;Name&#39;: &#39;dominated_sales_soe&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
- {&#39;Name&#39;: &#39;dominated_capital_soe&#39;,
+ {&#39;Name&#39;: &#39;dominated_sales_soe_c&#39;,
   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
   &#39;Comment&#39;: &#39;&#39;},
- {&#39;Name&#39;: &#39;dominated_output_for&#39;,
+ {&#39;Name&#39;: &#39;dominated_capital_soe_c&#39;,
   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
   &#39;Comment&#39;: &#39;&#39;},
- {&#39;Name&#39;: &#39;dominated_employment_for&#39;,
+ {&#39;Name&#39;: &#39;dominated_output_for_c&#39;,
   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
   &#39;Comment&#39;: &#39;&#39;},
- {&#39;Name&#39;: &#39;dominated_sales_for&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
- {&#39;Name&#39;: &#39;dominated_capital_for&#39;,
+ {&#39;Name&#39;: &#39;dominated_employment_for_c&#39;,
+  &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+  &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;dominated_sales_for_c&#39;,
+  &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+  &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;dominated_capital_for_c&#39;,
   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
   &#39;Comment&#39;: &#39;&#39;}]</pre>
 </div>
@@ -15795,30 +15723,30 @@ Wall time: 9.7 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;geocode4_corr&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;City ID&#39;</span><span class="p">},</span>
-    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_output_soe&#39;</span><span class="p">,</span>
+    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_output_soe_c&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;map&lt;double,boolean&gt;&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of output&#39;</span><span class="p">},</span>
-    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_employment_soe&#39;</span><span class="p">,</span>
+    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_employment_soe_c&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;map&lt;double,boolean&gt;&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of employment&#39;</span><span class="p">},</span>
-    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_sales_soe&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;map&lt;double,boolean&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of sales&#39;</span><span class="p">},</span>
-    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_capital_soe&#39;</span><span class="p">,</span>
+    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_sales_soe_c&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;map&lt;double,boolean&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of sales&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_capital_soe_c&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;map&lt;double,boolean&gt;&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of capital&#39;</span><span class="p">},</span>
     
-    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_output_for&#39;</span><span class="p">,</span>
+    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_output_for_c&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;map&lt;double,boolean&gt;&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of output&#39;</span><span class="p">},</span>
-    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_employment_for&#39;</span><span class="p">,</span>
+    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_employment_for_c&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;map&lt;double,boolean&gt;&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of employment&#39;</span><span class="p">},</span>
-    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_sales_for&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;map&lt;double,boolean&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of sales&#39;</span><span class="p">},</span>
-    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_capital_for&#39;</span><span class="p">,</span>
+    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_sales_for_c&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;map&lt;double,boolean&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of sales&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_capital_for_c&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;map&lt;double,boolean&gt;&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of capital&#39;</span><span class="p">},</span>
 
@@ -15910,31 +15838,31 @@ Wall time: 9.7 s
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
 <pre>{&#39;step&#39;: 6,
  &#39;description&#39;: &#39;\nTransform asif firms prepared and others data by merging china city code normalised data by constructing domestic_size, foreign_size, private_size, public_size (create dominated city by ownership (public-private, foreign-domestic) using city size) to asif city characteristics ownership\n&#39;,
- &#39;query&#39;: &#34;\nCREATE TABLE firms_survey.asif_city_characteristics_ownership WITH (format = &#39;PARQUET&#39;) AS\nWITH test AS (\n  SELECT \n    *, \n    CASE WHEN ownership = &#39;SOE&#39; THEN &#39;SOE&#39; ELSE &#39;PRIVATE&#39; END AS soe_vs_pri,\n    CASE WHEN ownership in (&#39;HTM&#39;, &#39;FOREIGN&#39;) THEN &#39;FOREIGN&#39; ELSE &#39;DOMESTIC&#39; END AS for_vs_dom \n  FROM \n    firms_survey.asif_firms_prepared \n    INNER JOIN (\n      SELECT \n        extra_code, \n        geocode4_corr \n      FROM \n        chinese_lookup.china_city_code_normalised \n      GROUP BY \n        extra_code, \n        geocode4_corr\n    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code\n  \n) \nSELECT \n  soe_private.geocode4_corr,\n  dominated_output_soe,\n  dominated_employment_soe,\n  dominated_sales_soe,\n  dominated_capital_soe,\n  dominated_output_for,\n  dominated_employment_for,\n  dominated_sales_for,\n  dominated_capital_for\nFROM \n  (\n    WITH mapping AS (\n      SELECT \n        geocode4_corr, \n        map_agg(soe_vs_pri, output_pct) AS output_pct, \n        map_agg(soe_vs_pri, employ_pct) AS employ_pct, \n        map_agg(soe_vs_pri, sales_pct) AS sales_pct, \n        map_agg(soe_vs_pri, captal_pct) AS captal_pct \n      FROM \n        (\n          SELECT \n            geocode4_corr, \n            soe_vs_pri, \n            approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, \n            approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, \n            approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, \n            approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct \n          FROM \n            (\n              SELECT\n              firm,\n              geocode4_corr,\n              soe_vs_pri,\n              SUM(output) as output,\n              SUM(employ) as employ,\n              SUM(sales) as sales,\n              SUM(captal) as captal\n              FROM test\n              GROUP BY firm, geocode4_corr, soe_vs_pri\n              ) \n          GROUP BY \n            geocode4_corr, \n            soe_vs_pri\n          ORDER BY \n            geocode4_corr \n        ) \n      GROUP BY \n        geocode4_corr\n    )\n    SELECT \n    geocode4_corr,\n     map(\n        ARRAY[\n          .5, \n          .75, \n          .90, \n          .95\n          ], \n        map_values(\n          transform_values(\n            MAP(\n              output_pct[ &#39;SOE&#39; ], output_pct[ &#39;PRIVATE&#39; ]\n            ), \n            (k, v) -&gt; k &gt; v\n          )\n        )\n      ) AS dominated_output_soe,\n     map(\n        ARRAY[\n          .5, \n          .75, \n          .90, \n          .95\n          ], \n        map_values(\n          transform_values(\n            MAP(\n              employ_pct[ &#39;SOE&#39; ], employ_pct[ &#39;PRIVATE&#39; ]\n            ), \n            (k, v) -&gt; k &gt; v\n          )\n        )\n      ) AS dominated_employment_soe,\n     map(\n        ARRAY[\n          .5, \n          .75, \n          .90, \n          .95\n          ], \n        map_values(\n          transform_values(\n            MAP(\n              sales_pct[ &#39;SOE&#39; ], sales_pct[ &#39;PRIVATE&#39; ]\n            ), \n            (k, v) -&gt; k &gt; v\n          )\n        )\n      ) AS dominated_sales_soe,\n     map(\n        ARRAY[\n          .5, \n          .75, \n          .90, \n          .95\n          ], \n        map_values(\n          transform_values(\n            MAP(\n              captal_pct[ &#39;SOE&#39; ], captal_pct[ &#39;PRIVATE&#39; ]\n            ), \n            (k, v) -&gt; k &gt; v\n          )\n        )\n      ) AS dominated_capital_soe\n    FROM mapping\n   ) AS soe_private\nLEFT JOIN (\nSELECT \n  *\nFROM \n  (\n    WITH mapping AS (\n      SELECT \n        geocode4_corr, \n        map_agg(for_vs_dom, output_pct) AS output_pct, \n        map_agg(for_vs_dom, employ_pct) AS employ_pct, \n        map_agg(for_vs_dom, sales_pct) AS sales_pct, \n        map_agg(for_vs_dom, captal_pct) AS captal_pct \n      FROM \n        (\n          SELECT \n            geocode4_corr, \n            for_vs_dom, \n            approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, \n            approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, \n            approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, \n            approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct \n          FROM \n            (\n              SELECT\n              firm,\n              geocode4_corr,\n              for_vs_dom,\n              SUM(output) as output,\n              SUM(employ) as employ,\n              SUM(sales) as sales,\n              SUM(captal) as captal\n              FROM test\n              GROUP BY firm, geocode4_corr, for_vs_dom\n              ) \n          GROUP BY \n            geocode4_corr, \n            for_vs_dom\n          ORDER BY \n            geocode4_corr \n        ) \n      GROUP BY \n        geocode4_corr\n    )\n    SELECT \n    geocode4_corr,\n     map(\n        ARRAY[\n          .5, \n          .75, \n          .90, \n          .95\n          ], \n        map_values(\n          transform_values(\n            MAP(\n              output_pct[ &#39;FOREIGN&#39; ], output_pct[ &#39;DOMESTIC&#39; ]\n            ), \n            (k, v) -&gt; k &gt; v\n          )\n        )\n      ) AS dominated_output_for,\n     map(\n        ARRAY[\n          .5, \n          .75, \n          .90, \n          .95\n          ], \n        map_values(\n          transform_values(\n            MAP(\n              employ_pct[ &#39;FOREIGN&#39; ], employ_pct[ &#39;DOMESTIC&#39; ]\n            ), \n            (k, v) -&gt; k &gt; v\n          )\n        )\n      ) AS dominated_employment_for,\n     map(\n        ARRAY[\n          .5, \n          .75, \n          .90, \n          .95\n          ], \n        map_values(\n          transform_values(\n            MAP(\n              sales_pct[ &#39;FOREIGN&#39; ], sales_pct[ &#39;DOMESTIC&#39; ]\n            ), \n            (k, v) -&gt; k &gt; v\n          )\n        )\n      ) AS dominated_sales_for,\n     map(\n        ARRAY[\n          .5, \n          .75, \n          .90, \n          .95\n          ], \n        map_values(\n          transform_values(\n            MAP(\n              captal_pct[ &#39;FOREIGN&#39; ], captal_pct[ &#39;DOMESTIC&#39; ]\n            ), \n            (k, v) -&gt; k &gt; v\n          )\n        )\n      ) AS dominated_capital_for\n    FROM mapping\n   )\n) AS foreign_dom\nON soe_private.geocode4_corr = foreign_dom.geocode4_corr\n&#34;,
+ &#39;query&#39;: &#34;\nCREATE TABLE firms_survey.asif_city_characteristics_ownership WITH (format = &#39;PARQUET&#39;) AS\nWITH test AS (\n  SELECT \n    *, \n    CASE WHEN ownership = &#39;SOE&#39; THEN &#39;SOE&#39; ELSE &#39;PRIVATE&#39; END AS soe_vs_pri,\n    CASE WHEN ownership in (&#39;HTM&#39;, &#39;FOREIGN&#39;) THEN &#39;FOREIGN&#39; ELSE &#39;DOMESTIC&#39; END AS for_vs_dom \n  FROM \n    firms_survey.asif_firms_prepared \n    INNER JOIN (\n      SELECT \n        extra_code, \n        geocode4_corr \n      FROM \n        chinese_lookup.china_city_code_normalised \n      GROUP BY \n        extra_code, \n        geocode4_corr\n    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code\n  \n) \nSELECT \n  soe_private.geocode4_corr,\n  dominated_output_soe_c,\n  dominated_employment_soe_c,\n  dominated_sales_soe_c,\n  dominated_capital_soe_c,\n  dominated_output_for_c,\n  dominated_employment_for_c,\n  dominated_sales_for_c,\n  dominated_capital_for_c\nFROM \n  (\n    WITH mapping AS (\n      SELECT \n        geocode4_corr, \n        map_agg(soe_vs_pri, output_pct) AS output_pct, \n        map_agg(soe_vs_pri, employ_pct) AS employ_pct, \n        map_agg(soe_vs_pri, sales_pct) AS sales_pct, \n        map_agg(soe_vs_pri, captal_pct) AS captal_pct \n      FROM \n        (\n          SELECT \n            geocode4_corr, \n            soe_vs_pri, \n            approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, \n            approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, \n            approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, \n            approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct \n          FROM \n            (\n              SELECT\n              firm,\n              geocode4_corr,\n              soe_vs_pri,\n              SUM(output) as output,\n              SUM(employ) as employ,\n              SUM(sales) as sales,\n              SUM(captal) as captal\n              FROM test\n              GROUP BY firm, geocode4_corr, soe_vs_pri\n              ) \n          GROUP BY \n            geocode4_corr, \n            soe_vs_pri\n          ORDER BY \n            geocode4_corr \n        ) \n      GROUP BY \n        geocode4_corr\n    )\n    SELECT \n    geocode4_corr,\n     map(\n        ARRAY[\n          .5, \n          .75, \n          .90, \n          .95\n          ], \n        map_values(\n          transform_values(\n            MAP(\n              output_pct[ &#39;SOE&#39; ], output_pct[ &#39;PRIVATE&#39; ]\n            ), \n            (k, v) -&gt; k &gt; v\n          )\n        )\n      ) AS dominated_output_soe_c,\n     map(\n        ARRAY[\n          .5, \n          .75, \n          .90, \n          .95\n          ], \n        map_values(\n          transform_values(\n            MAP(\n              employ_pct[ &#39;SOE&#39; ], employ_pct[ &#39;PRIVATE&#39; ]\n            ), \n            (k, v) -&gt; k &gt; v\n          )\n        )\n      ) AS dominated_employment_soe_c,\n     map(\n        ARRAY[\n          .5, \n          .75, \n          .90, \n          .95\n          ], \n        map_values(\n          transform_values(\n            MAP(\n              sales_pct[ &#39;SOE&#39; ], sales_pct[ &#39;PRIVATE&#39; ]\n            ), \n            (k, v) -&gt; k &gt; v\n          )\n        )\n      ) AS dominated_sales_soe_c,\n     map(\n        ARRAY[\n          .5, \n          .75, \n          .90, \n          .95\n          ], \n        map_values(\n          transform_values(\n            MAP(\n              captal_pct[ &#39;SOE&#39; ], captal_pct[ &#39;PRIVATE&#39; ]\n            ), \n            (k, v) -&gt; k &gt; v\n          )\n        )\n      ) AS dominated_capital_soe_c\n    FROM mapping\n   ) AS soe_private\nLEFT JOIN (\nSELECT \n  *\nFROM \n  (\n    WITH mapping AS (\n      SELECT \n        geocode4_corr, \n        map_agg(for_vs_dom, output_pct) AS output_pct, \n        map_agg(for_vs_dom, employ_pct) AS employ_pct, \n        map_agg(for_vs_dom, sales_pct) AS sales_pct, \n        map_agg(for_vs_dom, captal_pct) AS captal_pct \n      FROM \n        (\n          SELECT \n            geocode4_corr, \n            for_vs_dom, \n            approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, \n            approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, \n            approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, \n            approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct \n          FROM \n            (\n              SELECT\n              firm,\n              geocode4_corr,\n              for_vs_dom,\n              SUM(output) as output,\n              SUM(employ) as employ,\n              SUM(sales) as sales,\n              SUM(captal) as captal\n              FROM test\n              GROUP BY firm, geocode4_corr, for_vs_dom\n              ) \n          GROUP BY \n            geocode4_corr, \n            for_vs_dom\n          ORDER BY \n            geocode4_corr \n        ) \n      GROUP BY \n        geocode4_corr\n    )\n    SELECT \n    geocode4_corr,\n     map(\n        ARRAY[\n          .5, \n          .75, \n          .90, \n          .95\n          ], \n        map_values(\n          transform_values(\n            MAP(\n              output_pct[ &#39;FOREIGN&#39; ], output_pct[ &#39;DOMESTIC&#39; ]\n            ), \n            (k, v) -&gt; k &gt; v\n          )\n        )\n      ) AS dominated_output_for_c,\n     map(\n        ARRAY[\n          .5, \n          .75, \n          .90, \n          .95\n          ], \n        map_values(\n          transform_values(\n            MAP(\n              employ_pct[ &#39;FOREIGN&#39; ], employ_pct[ &#39;DOMESTIC&#39; ]\n            ), \n            (k, v) -&gt; k &gt; v\n          )\n        )\n      ) AS dominated_employment_for_c,\n     map(\n        ARRAY[\n          .5, \n          .75, \n          .90, \n          .95\n          ], \n        map_values(\n          transform_values(\n            MAP(\n              sales_pct[ &#39;FOREIGN&#39; ], sales_pct[ &#39;DOMESTIC&#39; ]\n            ), \n            (k, v) -&gt; k &gt; v\n          )\n        )\n      ) AS dominated_sales_for_c,\n     map(\n        ARRAY[\n          .5, \n          .75, \n          .90, \n          .95\n          ], \n        map_values(\n          transform_values(\n            MAP(\n              captal_pct[ &#39;FOREIGN&#39; ], captal_pct[ &#39;DOMESTIC&#39; ]\n            ), \n            (k, v) -&gt; k &gt; v\n          )\n        )\n      ) AS dominated_capital_for_c\n    FROM mapping\n   )\n) AS foreign_dom\nON soe_private.geocode4_corr = foreign_dom.geocode4_corr\n&#34;,
  &#39;schema&#39;: [{&#39;Name&#39;: &#39;geocode4_corr&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;City ID&#39;},
-  {&#39;Name&#39;: &#39;dominated_output_soe&#39;,
-   &#39;Type&#39;: &#39;map&#39;,
+  {&#39;Name&#39;: &#39;dominated_output_soe_c&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
    &#39;Comment&#39;: &#39;map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of output&#39;},
-  {&#39;Name&#39;: &#39;dominated_employment_soe&#39;,
-   &#39;Type&#39;: &#39;map&#39;,
+  {&#39;Name&#39;: &#39;dominated_employment_soe_c&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
    &#39;Comment&#39;: &#39;map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of employment&#39;},
-  {&#39;Name&#39;: &#39;dominated_sales_soe&#39;,
-   &#39;Type&#39;: &#39;map&#39;,
+  {&#39;Name&#39;: &#39;dominated_sales_soe_c&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
    &#39;Comment&#39;: &#39;map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of sales&#39;},
-  {&#39;Name&#39;: &#39;dominated_capital_soe&#39;,
-   &#39;Type&#39;: &#39;map&#39;,
+  {&#39;Name&#39;: &#39;dominated_capital_soe_c&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
    &#39;Comment&#39;: &#39;map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of capital&#39;},
-  {&#39;Name&#39;: &#39;dominated_output_for&#39;,
-   &#39;Type&#39;: &#39;map&#39;,
+  {&#39;Name&#39;: &#39;dominated_output_for_c&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
    &#39;Comment&#39;: &#39;map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of output&#39;},
-  {&#39;Name&#39;: &#39;dominated_employment_for&#39;,
-   &#39;Type&#39;: &#39;map&#39;,
+  {&#39;Name&#39;: &#39;dominated_employment_for_c&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
    &#39;Comment&#39;: &#39;map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of employment&#39;},
-  {&#39;Name&#39;: &#39;dominated_sales_for&#39;,
-   &#39;Type&#39;: &#39;map&#39;,
+  {&#39;Name&#39;: &#39;dominated_sales_for_c&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
    &#39;Comment&#39;: &#39;map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of sales&#39;},
-  {&#39;Name&#39;: &#39;dominated_capital_for&#39;,
-   &#39;Type&#39;: &#39;map&#39;,
+  {&#39;Name&#39;: &#39;dominated_capital_for_c&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
    &#39;Comment&#39;: &#39;map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of capital&#39;}],
  &#39;partition_keys&#39;: [&#39;geocode4_corr&#39;],
  &#39;metadata&#39;: {&#39;DatabaseName&#39;: &#39;firms_survey&#39;,
@@ -16058,7 +15986,7 @@ Wall time: 9.7 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[28]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">update_schema_table</span><span class="p">(</span>
@@ -16080,19 +16008,19 @@ Wall time: 9.7 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[28]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[24]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;8a8ef604-6077-4ab5-9adc-cfaca6430d20&#39;,
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;9c61d208-2d1c-43ff-88c3-e5813c1d2ca9&#39;,
   &#39;HTTPStatusCode&#39;: 200,
-  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 10 Jan 2021 16:55:21 GMT&#39;,
+  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Mon, 11 Jan 2021 08:56:01 GMT&#39;,
    &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;,
    &#39;content-length&#39;: &#39;2&#39;,
    &#39;connection&#39;: &#39;keep-alive&#39;,
-   &#39;x-amzn-requestid&#39;: &#39;8a8ef604-6077-4ab5-9adc-cfaca6430d20&#39;},
+   &#39;x-amzn-requestid&#39;: &#39;9c61d208-2d1c-43ff-88c3-e5813c1d2ca9&#39;},
   &#39;RetryAttempts&#39;: 0}}</pre>
 </div>
 
@@ -16129,7 +16057,7 @@ Wall time: 9.7 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### COUNT DUPLICATES</span>
@@ -16214,7 +16142,7 @@ Wall time: 9.7 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[30]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">README</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -16297,7 +16225,7 @@ Wall time: 9.7 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[31]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[28]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">urllib</span><span class="o">,</span> <span class="nn">ipykernel</span><span class="o">,</span> <span class="nn">json</span>
@@ -16313,7 +16241,7 @@ Wall time: 9.7 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[32]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">create_report</span><span class="p">(</span><span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">keep_code</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">notebookname</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
