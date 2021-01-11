@@ -495,6 +495,10 @@ SELECT
   dominated_employment_for_c,
   dominated_sales_for_c,
   dominated_capital_for_c, 
+  med_dominated_output_i, 
+  med_dominated_capital_i,
+  med_dominated_sales_i,
+  med_dominated_employ_i,
   dominated_output_i,
   dominated_employment_i,
   dominated_capital_i,
@@ -1089,6 +1093,10 @@ schema = [
         "Type": "map<double,boolean>",
         "Comment": "map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of capital",
     },
+    {'Name': 'med_dominated_output_i', 'Type': 'varchar(5)', 'Comment': 'Output industry above national median'},
+ {'Name': 'med_dominated_capital_i', 'Type': 'varchar(5)', 'Comment': 'Capital industry above national median'},
+ {'Name': 'med_dominated_sales_i', 'Type': 'varchar(5)', 'Comment': 'Sales industry above national median'},
+ {'Name': 'med_dominated_employ_i', 'Type': 'varchar(5)', 'Comment': 'Employment industry above national median'},
     {
         "Name": "dominated_output_i",
         "Type": "map<double,boolean>",
@@ -1198,17 +1206,17 @@ Remove the step number from the current file (if exist)
 index_to_remove = next(
                 (
                     index
-                    for (index, d) in enumerate(parameters['TABLES']['PREPARATION']['STEPS'])
+                    for (index, d) in enumerate(parameters['TABLES']['TRANSFORMATION']['STEPS'])
                     if d["step"] == step
                 ),
                 None,
             )
 if index_to_remove != None:
-    parameters['TABLES']['PREPARATION']['STEPS'].pop(index_to_remove)
+    parameters['TABLES']['TRANSFORMATION']['STEPS'].pop(index_to_remove)
 ```
 
 ```python
-parameters['TABLES']['PREPARATION']['STEPS'].append(json_etl)
+parameters['TABLES']['TRANSFORMATION']['STEPS'].append(json_etl)
 ```
 
 Save JSON
