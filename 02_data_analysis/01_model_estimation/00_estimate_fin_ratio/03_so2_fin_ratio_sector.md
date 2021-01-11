@@ -773,8 +773,29 @@ lb.beautify(table_number = table_nb,
            folder = folder)
 ```
 
+<!-- #region kernel="SoS" -->
+# Table 4: Heterogeneity effect, city ownership public vs private
+
+City ownership are available for the following variables:
+
+- output
+- capital
+- employment
+- sales
+
+**How is it constructed** 
+
+1. From the firms table, Aggregate output, employment, capital and sales by firm-city (use all years to get all city sample)
+2. Compute the percentile .5, .75, .90,.95
+3. Compute dominated city for each percentile
+  1. If public > private then public else private
+  2. If foreign > domestic then foreign else domestic
+  
+In our computation, .5 means the median output [employment, capital and sales] for a firm with ownership SOE or Private. If the median output value for a given SOE firm is above the output value of a given private firm, then the sector is labeled as 'Dominated' by SOE
+<!-- #endregion -->
+
 ```sos kernel="SoS"
-table_nb = 4
+table_nb = 5
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
@@ -783,6 +804,505 @@ for ext in ['.txt', '.tex', '.pdf']:
     x = [a for a in os.listdir(folder) if a.endswith(ext)]
     [os.remove(os.path.join(folder, i)) for i in x]
 path
+```
+
+```sos kernel="R"
+%get path table
+
+df_temp_true = df_final %>% 
+mutate(filter_ = str_extract(dominated_output_soe_c, "(?<=0.5\\=)(.*?)(?=\\,)"))%>%
+filter(filter_ == 'true')
+df_temp_false = df_final %>% 
+mutate(filter_ = str_extract(dominated_output_soe_c, "(?<=0.5\\=)(.*?)(?=\\,)"))%>%
+filter(filter_ == 'false')
+
+t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
+            log(sales) + log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_temp_true,
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ asset_tangibility_ci  +
+            log(sales) + log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_temp_false,
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true,
+            exactDOF = TRUE)
+t_3 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false,
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true,
+            exactDOF = TRUE)
+t_5 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false,
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5
+),
+    title=" Heterogeneity effect, city ownership public vs private (output)",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'SO2': 1,
+    'SO2 intensity': 5
+}
+
+#reorder = {
+    
+#    7:0,
+#    8:1,
+    #9:2
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& SOE', 'Private', 'SOE', 'Private', 'SOE', 'Private']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+# Table 5: Heterogeneity effect, TCZ vs No TCZ and SPZ vs No SPZ
+
+## TCZ
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 6
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+
+t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
+            log(sales) + log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tcz == 1),
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ asset_tangibility_ci  +
+            log(sales) + log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tcz == 0),
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(tcz == 1),
+            exactDOF = TRUE)
+t_3 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(tcz == 0),
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(tcz == 1),
+            exactDOF = TRUE)
+t_5 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(tcz == 0),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5
+),
+    title="Heterogeneity effect, TCZ vs No TCZ",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'SO2': 1,
+    'SO2 intensity': 5
+}
+
+#reorder = {
+    
+#    7:0,
+#    8:1,
+    #9:2
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& TCZ', 'No TCZ', 'TCZ', 'No TCZ', 'TCZ', 'No TCZ']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## SPZ
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 7
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+
+t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
+            log(sales) + log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(spz == 1),
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ asset_tangibility_ci  +
+            log(sales) + log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(spz == 0),
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(spz == 1),
+            exactDOF = TRUE)
+t_3 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(spz == 0),
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(spz == 1),
+            exactDOF = TRUE)
+t_5 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(spz == 0),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5
+),
+    title="Heterogeneity effect, SPZ vs No SPZ",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'SO2': 1,
+    'SO2 intensity': 5
+}
+
+#reorder = {
+    
+#    7:0,
+#    8:1,
+    #9:2
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& SPZ', 'No SPZ', 'SPZ', 'No SPZ', 'SPZ', 'No SPZ']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+# Table 6: Heterogeneity effect,  Industrial size effect
+
+Industrial are available for the following variables:
+
+- output
+- capital
+- employment
+- sales
+
+- Aggregate output, employment, capital and sales by industry (use 2000)
+    - Compute the percentile .5, .75, .90,.95
+    - Compute dominated city for each percentile
+    - If public > private then public else private
+    - If foreign > domestic then foreign else domestic
+
+The notebook reference is the following https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/07_dominated_city_ownership.md#steps-1
+
+A dominated sector is defined as positive when the average output of the firms is above the cross secteur average
+
+- Compute the firm’s industrial output average
+- Compute the firm’s national average
+  
+In our computation, .5 means the median output [employment, capital and sales] for a firm in industry $k$. If the median output value for firm in industry $k$ is above the output value of the national average, then the sector is labeled as 'Large'
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 8
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+
+df_temp_true = df_final %>% 
+mutate(filter_ = str_extract(dominated_output_i, "(?<=0.5\\=)(.*?)(?=\\,)"))%>%
+filter(filter_ == 'true')
+df_temp_false = df_final %>% 
+mutate(filter_ = str_extract(dominated_output_i, "(?<=0.5\\=)(.*?)(?=\\,)"))%>%
+filter(filter_ == 'false')
+
+t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
+            log(sales) + log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_temp_true,
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ asset_tangibility_ci  +
+            log(sales) + log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_temp_false,
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true,
+            exactDOF = TRUE)
+t_3 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false,
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true,
+            exactDOF = TRUE)
+t_5 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false,
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5
+),
+    title="Heterogeneity effect,  Industrial size effect (output)",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'SO2': 1,
+    'SO2 intensity': 5
+}
+
+#reorder = {
+    
+#    7:0,
+#    8:1,
+    #9:2
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& Large', 'No Large', 'Large', 'No Large', 'Large', 'No Large']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+# Table 7: Heterogeneity effect, city policy mandate threshold
+<!-- #endregion -->
+
+```sos kernel="SoS"
+table_nb = 9
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
+```sos kernel="R"
+%get path table
+
+df_temp_true = df_final %>% 
+mutate(filter_ = str_extract(above_threshold_mandate, "(?<=0.75\\=)(.*?)(?=\\,)"))%>%
+filter(filter_ == 'true')
+df_temp_false = df_final %>% 
+mutate(filter_ = str_extract(above_threshold_mandate, "(?<=0.75\\=)(.*?)(?=\\,)"))%>%
+filter(filter_ == 'false')
+
+t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
+            log(sales) + log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_temp_true,
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ asset_tangibility_ci  +
+            log(sales) + log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_temp_false,
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true,
+            exactDOF = TRUE)
+t_3 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr,df_temp_false,
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true,
+            exactDOF = TRUE)
+t_5 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+            log(sales) + log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false,
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5
+),
+    title="Heterogeneity effect, city policy mandate threshold (average)",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'SO2': 1,
+    'SO2 intensity': 5
+}
+
+#reorder = {
+    
+#    7:0,
+#    8:1,
+    #9:2
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& Above', 'Below', 'Above', 'Below', 'Above', 'Below']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+           folder = folder)
 ```
 
 <!-- #region kernel="SoS" nteract={"transient": {"deleting": false}} -->
