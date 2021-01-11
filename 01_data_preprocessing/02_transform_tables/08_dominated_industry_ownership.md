@@ -609,7 +609,7 @@ SELECT
       output_pct, 
       (x, y) -> x < y
     )
-  ) AS dominated_output, 
+  ) AS dominated_output_i, 
   MAP(
     ARRAY[.5, 
     .75, 
@@ -623,7 +623,7 @@ SELECT
       employ_pct, 
       (x, y) -> x < y
     )
-  ) AS dominated_employment, 
+  ) AS dominated_employment_i, 
   MAP(
     ARRAY[.5, 
     .75, 
@@ -637,7 +637,7 @@ SELECT
       captal_pct, 
       (x, y) -> x < y
     )
-  ) AS dominated_capital, 
+  ) AS dominated_capital_i, 
   MAP(
     ARRAY[.5, 
     .75, 
@@ -651,15 +651,15 @@ SELECT
       sales_pct, 
       (x, y) -> x < y
     )
-  ) AS dominated_sales, 
-  dominated_output_soe, 
-  dominated_employment_soe, 
-  dominated_sales_soe, 
-  dominated_capital_soe, 
-  dominated_output_for, 
-  dominated_employment_for, 
-  dominated_sales_for, 
-  dominated_capital_for 
+  ) AS dominated_sales_i, 
+  dominated_output_soe AS dominated_output_soe_i, 
+  dominated_employment_soe AS dominated_employment_soe_i, 
+  dominated_sales_soe AS dominated_sales_soe_i, 
+  dominated_capital_soe AS dominated_capital_soe_i, 
+  dominated_output_for AS dominated_output_for_i, 
+  dominated_employment_for AS dominated_employment_for_i, 
+  dominated_sales_for AS dominated_sales_for_i, 
+  dominated_capital_for AS dominated_capital_for_i 
 FROM 
   (
     (
@@ -947,50 +947,50 @@ glue.get_table_information(
 schema = [
     {"Name": "indu_2", "Type": "string", "Comment": ""},
     {
-        "Name": "dominated_output",
+        "Name": "dominated_output_i",
         "Type": "map<double,boolean>",
         "Comment": "map with information dominated industry knowing percentile .5, .75, .9, .95 of output",
     },
-    {"Name": "dominated_employment", "Type": "map<double,boolean>", "Comment": "map with information on dominated industry knowing percentile .5, .75, .9, .95 of employment"},
-    {"Name": "dominated_capital", "Type": "map<double,boolean>", "Comment": "map with information on dominated industry knowing percentile .5, .75, .9, .95 of capital"},
-    {"Name": "dominated_sales", "Type": "map<double,boolean>", "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of sales"},
+    {"Name": "dominated_employment_i", "Type": "map<double,boolean>", "Comment": "map with information on dominated industry knowing percentile .5, .75, .9, .95 of employment"},
+    {"Name": "dominated_capital_i", "Type": "map<double,boolean>", "Comment": "map with information on dominated industry knowing percentile .5, .75, .9, .95 of capital"},
+    {"Name": "dominated_sales_i", "Type": "map<double,boolean>", "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of sales"},
     {
-        "Name": "dominated_output_soe",
+        "Name": "dominated_output_soe_i",
         "Type": "map<double,boolean>",
         "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of output",
     },
     {
-        "Name": "dominated_employment_soe",
+        "Name": "dominated_employment_soe_i",
         "Type": "map<double,boolean>",
         "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of employment",
     },
     {
-        "Name": "dominated_sales_soe",
+        "Name": "dominated_sales_soe_i",
         "Type": "map<double,boolean>",
         "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of sales",
     },
     {
-        "Name": "dominated_capital_soe",
+        "Name": "dominated_capital_soe_i",
         "Type": "map<double,boolean>",
         "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of capital",
     },
     {
-        "Name": "dominated_output_for",
+        "Name": "dominated_output_for_i",
         "Type": "map<double,boolean>",
         "Comment": "map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of output",
     },
     {
-        "Name": "dominated_employment_for",
+        "Name": "dominated_employment_for_i",
         "Type": "map<double,boolean>",
         "Comment": "map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of employment",
     },
     {
-        "Name": "dominated_sales_for",
+        "Name": "dominated_sales_for_i",
         "Type": "map<double,boolean>",
         "Comment": "map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of sales",
     },
     {
-        "Name": "dominated_capital_for",
+        "Name": "dominated_capital_for_i",
         "Type": "map<double,boolean>",
         "Comment": "map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of capital",
     },
