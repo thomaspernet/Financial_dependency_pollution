@@ -143,23 +143,78 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
 
 The notebook reference is the following https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/07_dominated_city_ownership.md#steps-1
 
-
+A dominated sector is defined as positive when the average output of the firms is above the cross secteur average
+* Compute the firm’s industrial output average
+* Compute the firm’s national average
 
 
 ## Example step by step
 
 ```python
-DatabaseName = ''
+DatabaseName = 'firms_survey'
 s3_output_example = 'SQL_OUTPUT_ATHENA'
 ```
 
+### Example with National Average
+
+Compute mean and percentile for year 2001. Bear in mind that we get the average and percentile from the firm level of output, employment, capital and sales
+
 ```python
 query= """
+WITH test as (
+  SELECT 
+    year, 
+    firm, 
+    cic, 
+    output, 
+    employ, 
+    sales, 
+    captal, 
+    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
+      '0', 
+      substr(cic, 1, 1)
+    ) END AS indu_2, 
+    CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri, 
+    CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
+  FROM 
+    firms_survey.asif_firms_prepared 
+  WHERE 
+    year = '2001'
+) 
+SELECT 
+  indu_2, 
+  industry_pct.year, 
+  output_pct,
+  n_avg_output
+FROM 
+  (
+    (
+      SELECT 
+        indu_2, 
+        year, 
+        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct 
+      FROM 
+        test 
+      GROUP BY 
+        year, 
+        indu_2 
+      ORDER BY 
+        indu_2
+    ) as industry_pct 
+    LEFT JOIN (
+      SELECT 
+        year, 
+        AVG(output) as n_avg_output 
+      FROM 
+        test 
+      GROUP BY 
+        year
+    ) as national_avg ON industry_pct.year = national_avg.year
+  ) 
+LIMIT 
+  5
 
 """
-```
-
-```python
 output = s3.run_query(
                     query=query,
                     database=DatabaseName,
@@ -169,7 +224,318 @@ output = s3.run_query(
 output
 ```
 
-# Table `XX`
+Compute the condition -> True if percentile is above national average
+
+```python
+query= """
+WITH test as (
+  SELECT 
+    year, 
+    firm, 
+    cic, 
+    output, 
+    employ, 
+    sales, 
+    captal, 
+    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
+      '0', 
+      substr(cic, 1, 1)
+    ) END AS indu_2, 
+    CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri, 
+    CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
+  FROM 
+    firms_survey.asif_firms_prepared 
+  WHERE 
+    year = '2001'
+) 
+SELECT 
+  indu_2, 
+  industry_pct.year, 
+  output_pct,
+  n_avg_output,
+  zip_with(
+      transform(
+        sequence(
+          1, 
+          4
+        ), 
+        x -> n_avg_output
+      ),
+        output_pct, (x, y) -> x > y) AS dominated_output
+FROM 
+  (
+    (
+      SELECT 
+        indu_2, 
+        year, 
+        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct 
+      FROM 
+        test 
+      GROUP BY 
+        year, 
+        indu_2 
+      ORDER BY 
+        indu_2
+    ) as industry_pct 
+    LEFT JOIN (
+      SELECT 
+        year, 
+        AVG(output) as n_avg_output 
+      FROM 
+        test 
+      GROUP BY 
+        year
+    ) as national_avg ON industry_pct.year = national_avg.year
+  ) 
+LIMIT 
+  5
+
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_3'
+                )
+output
+```
+
+Last, we need to reconstruct the map 
+
+```python
+query = """
+WITH test as (
+  SELECT 
+    year, 
+    firm, 
+    cic, 
+    output, 
+    employ, 
+    sales, 
+    captal, 
+    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
+      '0', 
+      substr(cic, 1, 1)
+    ) END AS indu_2, 
+    CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri, 
+    CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
+  FROM 
+    firms_survey.asif_firms_prepared 
+  WHERE 
+    year = '2001'
+) 
+SELECT 
+  indu_2, 
+  industry_pct.year, 
+  output_pct,
+  n_avg_output,
+  MAP(
+        ARRAY[
+          .5, 
+          .75, 
+          .90, 
+          .95
+          ],
+  zip_with(
+      transform(
+        sequence(
+          1, 
+          4
+        ), 
+        x -> n_avg_output
+      ),
+        output_pct, (x, y) -> x > y)
+        ) AS dominated_output
+FROM 
+  (
+    (
+      SELECT 
+        indu_2, 
+        year, 
+        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct 
+      FROM 
+        test 
+      GROUP BY 
+        year, 
+        indu_2 
+      ORDER BY 
+        indu_2
+    ) as industry_pct 
+    LEFT JOIN (
+      SELECT 
+        year, 
+        AVG(output) as n_avg_output 
+      FROM 
+        test 
+      GROUP BY 
+        year
+    ) as national_avg ON industry_pct.year = national_avg.year
+  ) 
+LIMIT 
+  5
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_4'
+                )
+output
+```
+
+### Example with SOE vs private
+
+Compute mean and percentile for year 2001 by firm's ownership. Bear in mind that we get the average and percentile from the firm level of output, employment, capital and sales.
+
+If percentile of SOE above Private, then sector dominated by SOE
+
+```python
+query = """
+WITH test as (
+  SELECT 
+    year, 
+    firm, 
+    cic, 
+    output, 
+    employ, 
+    sales, 
+    captal, 
+    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
+      '0', 
+      substr(cic, 1, 1)
+    ) END AS indu_2, 
+    CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri, 
+    CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
+  FROM 
+    firms_survey.asif_firms_prepared 
+  WHERE 
+    year = '2001'
+) 
+SELECT 
+  * 
+FROM 
+  (
+    WITH mapping AS (
+      SELECT 
+        indu_2, 
+        map_agg(soe_vs_pri, output_pct) AS output_pct 
+      FROM 
+        (
+          SELECT 
+            indu_2, 
+            year, 
+            soe_vs_pri, 
+            approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct 
+          FROM 
+            test 
+          GROUP BY 
+            year, 
+            indu_2, 
+            soe_vs_pri 
+          ORDER BY 
+            indu_2
+        ) 
+      GROUP BY 
+        indu_2
+    ) 
+    SELECT 
+      * 
+    FROM 
+      mapping
+    LIMIT 10
+  )
+
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_5'
+                )
+output
+```
+
+Last, we need to compute the condition and reconstruct the map
+
+```python
+query = """
+WITH test as (
+  SELECT 
+    year, 
+    firm, 
+    cic, 
+    output, 
+    employ, 
+    sales, 
+    captal, 
+    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
+      '0', 
+      substr(cic, 1, 1)
+    ) END AS indu_2, 
+    CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri, 
+    CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
+  FROM 
+    firms_survey.asif_firms_prepared 
+  WHERE 
+    year = '2001'
+) 
+SELECT *
+FROM 
+  (
+    WITH mapping AS (
+SELECT 
+  indu_2, 
+  map_agg(soe_vs_pri, output_pct) AS output_pct
+FROM 
+  (
+      SELECT 
+        indu_2, 
+        year, 
+      soe_vs_pri,
+        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct 
+      FROM 
+        test 
+      GROUP BY 
+        year, 
+        indu_2,
+      soe_vs_pri
+      ORDER BY 
+        indu_2
+      )
+ GROUP BY indu_2
+  )
+    SELECT 
+    indu_2,
+    map(
+        ARRAY[
+          .5, 
+          .75, 
+          .90, 
+          .95
+          ], 
+        map_values(
+          transform_values(
+            MAP(
+              output_pct[ 'SOE' ], output_pct[ 'PRIVATE' ]
+            ), 
+            (k, v) -> k > v
+          )
+        )
+      ) AS dominated_output_soe
+    FROM mapping
+    LIMIT 10
+    )
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_5'
+                )
+output
+```
+
+# Table `asif_industry_characteristics_ownership`
 
 Since the table to create has missing value, please use the following at the top of the query
 
@@ -181,8 +547,8 @@ CREATE TABLE database.table_name WITH (format = 'PARQUET') AS
 Choose a location in S3 to save the CSV. It is recommended to save in it the `datalake-datascience` bucket. Locate an appropriate folder in the bucket, and make sure all output have the same format
 
 ```python
-s3_output = ''
-table_name = ''
+s3_output = 'DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/INDUSTRY_CHARACTERISTICS/OWNERSHIP'
+table_name = 'asif_industry_characteristics_ownership'
 ```
 
 First, we need to delete the table (if exist)
@@ -208,6 +574,315 @@ s3.remove_all_bucket(path_remove = s3_output)
 %%time
 query = """
 CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS
+WITH test as (
+  SELECT 
+    year, 
+    firm, 
+    cic, 
+    output, 
+    employ, 
+    sales, 
+    captal, 
+    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
+      '0', 
+      substr(cic, 1, 1)
+    ) END AS indu_2, 
+    CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri, 
+    CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
+  FROM 
+    firms_survey.asif_firms_prepared 
+  WHERE 
+    year = '2001'
+) 
+SELECT 
+  national.indu_2, 
+  MAP(
+    ARRAY[.5, 
+    .75, 
+    .90, 
+    .95 ], 
+    zip_with(
+      transform(
+        sequence(1, 4), 
+        x -> n_avg_output
+      ), 
+      output_pct, 
+      (x, y) -> x > y
+    )
+  ) AS dominated_output, 
+  MAP(
+    ARRAY[.5, 
+    .75, 
+    .90, 
+    .95 ], 
+    zip_with(
+      transform(
+        sequence(1, 4), 
+        x -> n_avg_employ
+      ), 
+      employ_pct, 
+      (x, y) -> x > y
+    )
+  ) AS dominated_employment, 
+  MAP(
+    ARRAY[.5, 
+    .75, 
+    .90, 
+    .95 ], 
+    zip_with(
+      transform(
+        sequence(1, 4), 
+        x -> n_avg_capital
+      ), 
+      captal_pct, 
+      (x, y) -> x > y
+    )
+  ) AS dominated_capital, 
+  MAP(
+    ARRAY[.5, 
+    .75, 
+    .90, 
+    .95 ], 
+    zip_with(
+      transform(
+        sequence(1, 4), 
+        x -> n_avg_sales
+      ), 
+      sales_pct, 
+      (x, y) -> x > y
+    )
+  ) AS dominated_sales, 
+  dominated_output_soe, 
+  dominated_employment_soe, 
+  dominated_sales_soe, 
+  dominated_capital_soe, 
+  dominated_output_for, 
+  dominated_employment_for, 
+  dominated_sales_for, 
+  dominated_capital_for 
+FROM 
+  (
+    (
+      SELECT 
+        indu_2, 
+        year, 
+        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, 
+        approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, 
+        approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, 
+        approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct 
+      FROM 
+        test 
+      GROUP BY 
+        year, 
+        indu_2 
+      ORDER BY 
+        indu_2
+    ) as industry_pct 
+    LEFT JOIN (
+      SELECT 
+        year, 
+        AVG(output) as n_avg_output, 
+        AVG(employ) as n_avg_employ, 
+        AVG(sales) as n_avg_sales, 
+        AVG(captal) as n_avg_capital 
+      FROM 
+        test 
+      GROUP BY 
+        year
+    ) as national_avg ON industry_pct.year = national_avg.year
+  ) as national 
+  LEFT JOIN (
+    SELECT 
+      * 
+    FROM 
+      (
+        WITH mapping AS (
+          SELECT 
+            indu_2, 
+            map_agg(soe_vs_pri, output_pct) AS output_pct, 
+            map_agg(soe_vs_pri, employ_pct) AS employ_pct, 
+            map_agg(soe_vs_pri, sales_pct) AS sales_pct, 
+            map_agg(soe_vs_pri, captal_pct) AS captal_pct 
+          FROM 
+            (
+              SELECT 
+                indu_2, 
+                year, 
+                soe_vs_pri, 
+                approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, 
+                approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, 
+                approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, 
+                approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct 
+              FROM 
+                test 
+              GROUP BY 
+                year, 
+                indu_2, 
+                soe_vs_pri 
+              ORDER BY 
+                indu_2
+            ) 
+          GROUP BY 
+            indu_2
+        ) 
+        SELECT 
+          indu_2, 
+          map(
+            ARRAY[.5, 
+            .75, 
+            .90, 
+            .95 ], 
+            map_values(
+              transform_values(
+                MAP(
+                  output_pct[ 'SOE' ], output_pct[ 'PRIVATE' ]
+                ), 
+                (k, v) -> k > v
+              )
+            )
+          ) AS dominated_output_soe, 
+          map(
+            ARRAY[.5, 
+            .75, 
+            .90, 
+            .95 ], 
+            map_values(
+              transform_values(
+                MAP(
+                  employ_pct[ 'SOE' ], employ_pct[ 'PRIVATE' ]
+                ), 
+                (k, v) -> k > v
+              )
+            )
+          ) AS dominated_employment_soe, 
+          map(
+            ARRAY[.5, 
+            .75, 
+            .90, 
+            .95 ], 
+            map_values(
+              transform_values(
+                MAP(
+                  sales_pct[ 'SOE' ], sales_pct[ 'PRIVATE' ]
+                ), 
+                (k, v) -> k > v
+              )
+            )
+          ) AS dominated_sales_soe, 
+          map(
+            ARRAY[.5, 
+            .75, 
+            .90, 
+            .95 ], 
+            map_values(
+              transform_values(
+                MAP(
+                  captal_pct[ 'SOE' ], captal_pct[ 'PRIVATE' ]
+                ), 
+                (k, v) -> k > v
+              )
+            )
+          ) AS dominated_capital_soe 
+        FROM 
+          mapping
+      )
+  ) AS soe_private ON national.indu_2 = soe_private.indu_2 
+  LEFT JOIN (
+    SELECT 
+      * 
+    FROM 
+      (
+        WITH mapping AS (
+          SELECT 
+            indu_2, 
+            map_agg(for_vs_dom, output_pct) AS output_pct, 
+            map_agg(for_vs_dom, employ_pct) AS employ_pct, 
+            map_agg(for_vs_dom, sales_pct) AS sales_pct, 
+            map_agg(for_vs_dom, captal_pct) AS captal_pct 
+          FROM 
+            (
+              SELECT 
+                indu_2, 
+                year, 
+                for_vs_dom, 
+                approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, 
+                approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, 
+                approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, 
+                approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct 
+              FROM 
+                test 
+              GROUP BY 
+                year, 
+                indu_2, 
+                for_vs_dom 
+              ORDER BY 
+                indu_2
+            ) 
+          GROUP BY 
+            indu_2
+        ) 
+        SELECT 
+          indu_2, 
+          map(
+            ARRAY[.5, 
+            .75, 
+            .90, 
+            .95 ], 
+            map_values(
+              transform_values(
+                MAP(
+                  output_pct[ 'FOREIGN' ], output_pct[ 'DOMESTIC' ]
+                ), 
+                (k, v) -> k > v
+              )
+            )
+          ) AS dominated_output_for, 
+          map(
+            ARRAY[.5, 
+            .75, 
+            .90, 
+            .95 ], 
+            map_values(
+              transform_values(
+                MAP(
+                  employ_pct[ 'FOREIGN' ], employ_pct[ 'DOMESTIC' ]
+                ), 
+                (k, v) -> k > v
+              )
+            )
+          ) AS dominated_employment_for, 
+          map(
+            ARRAY[.5, 
+            .75, 
+            .90, 
+            .95 ], 
+            map_values(
+              transform_values(
+                MAP(
+                  sales_pct[ 'FOREIGN' ], sales_pct[ 'DOMESTIC' ]
+                ), 
+                (k, v) -> k > v
+              )
+            )
+          ) AS dominated_sales_for, 
+          map(
+            ARRAY[.5, 
+            .75, 
+            .90, 
+            .95 ], 
+            map_values(
+              transform_values(
+                MAP(
+                  captal_pct[ 'FOREIGN' ], captal_pct[ 'DOMESTIC' ]
+                ), 
+                (k, v) -> k > v
+              )
+            )
+          ) AS dominated_capital_for 
+        FROM 
+          mapping
+      )
+  ) AS foreign_dom ON national.indu_2 = foreign_dom.indu_2
 
 """.format(DatabaseName, table_name)
 output = s3.run_query(
@@ -249,13 +924,13 @@ To validate the query, please fillin the json below. Don't forget to change the 
 1. Add a partition key
 
 ```python
-partition_keys = []
+partition_keys = ['indu_2']
 ```
 
 2. Add the steps number
 
 ```python
-step = 0
+step = 7
 ```
 
 3. Change the schema
@@ -270,16 +945,55 @@ glue.get_table_information(
 
 ```python
 schema = [
+    {"Name": "indu_2", "Type": "string", "Comment": ""},
     {
-        "Name": "VAR1",
-        "Type": "",
-        "Comment": ""
+        "Name": "dominated_output",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information dominated industry knowing percentile .5, .75, .9, .95 of output",
+    },
+    {"Name": "dominated_employment", "Type": "map<double,boolean>", "Comment": "map with information on dominated industry knowing percentile .5, .75, .9, .95 of employment"},
+    {"Name": "dominated_capital", "Type": "map<double,boolean>", "Comment": "map with information on dominated industry knowing percentile .5, .75, .9, .95 of capital"},
+    {"Name": "dominated_sales", "Type": "map<double,boolean>", "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of sales"},
+    {
+        "Name": "dominated_output_soe",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of output",
     },
     {
-        "Name": "VAR2",
-        "Type": "",
-        "Comment": ""
-    }
+        "Name": "dominated_employment_soe",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of employment",
+    },
+    {
+        "Name": "dominated_sales_soe",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of sales",
+    },
+    {
+        "Name": "dominated_capital_soe",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of capital",
+    },
+    {
+        "Name": "dominated_output_for",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of output",
+    },
+    {
+        "Name": "dominated_employment_for",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of employment",
+    },
+    {
+        "Name": "dominated_sales_for",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of sales",
+    },
+    {
+        "Name": "dominated_capital_for",
+        "Type": "map<double,boolean>",
+        "Comment": "map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of capital",
+    },
 ]
 ```
 
@@ -287,7 +1001,7 @@ schema = [
 
 ```python
 description = """
-
+Transform asif firms prepared data by merging china city code normalised data by constructing foreign_vs_domestic, foreign_size, domestic_size, private_size, public_size, soe_vs_private (create dominated industry by ownership (public-private, foreign-domestic) using industry size) to asif industry characteristics  ownership
 """
 ```
 
@@ -315,7 +1029,7 @@ json_etl
 ```
 
 ```python
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_TEMPLATE.json')) as json_file:
+with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
 
@@ -325,23 +1039,23 @@ Remove the step number from the current file (if exist)
 index_to_remove = next(
                 (
                     index
-                    for (index, d) in enumerate(parameters['TABLES']['PREPARATION']['STEPS'])
+                    for (index, d) in enumerate(parameters['TABLES']['TRANSFORMATION']['STEPS'])
                     if d["step"] == step
                 ),
                 None,
             )
 if index_to_remove != None:
-    parameters['TABLES']['PREPARATION']['STEPS'].pop(index_to_remove)
+    parameters['TABLES']['TRANSFORMATION']['STEPS'].pop(index_to_remove)
 ```
 
 ```python
-parameters['TABLES']['PREPARATION']['STEPS'].append(json_etl)
+parameters['TABLES']['TRANSFORMATION']['STEPS'].append(json_etl)
 ```
 
 Save JSON
 
 ```python
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_TEMPLATE.json'), "w")as outfile:
+with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json'), "w")as outfile:
     json.dump(parameters, outfile)
 ```
 
@@ -387,9 +1101,9 @@ One of the most important step when creating a table is to check if the table co
 You are required to define the group(s) that Athena will use to compute the duplicate. For instance, your table can be grouped by COL1 and COL2 (need to be string or varchar), then pass the list ['COL1', 'COL2'] 
 
 ```python
-partition_keys = []
+partition_keys = ['indu_2']
 
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_TEMPLATE.json')) as json_file:
+with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
 
@@ -408,56 +1122,6 @@ if len(partition_keys) > 0:
                                 filename="duplicates_{}".format(table_name))
     display(dup)
 
-```
-
-## Count missing values
-
-```python
-#table = 'XX'
-schema = glue.get_table_information(
-    database = DatabaseName,
-    table = table_name
-)['Table']
-schema
-```
-
-```python
-from datetime import date
-today = date.today().strftime('%Y%M%d')
-```
-
-```python
-table_top = parameters["ANALYSIS"]["COUNT_MISSING"]["top"]
-table_middle = ""
-table_bottom = parameters["ANALYSIS"]["COUNT_MISSING"]["bottom"].format(
-    DatabaseName, table_name
-)
-
-for key, value in enumerate(schema["StorageDescriptor"]["Columns"]):
-    if key == len(schema["StorageDescriptor"]["Columns"]) - 1:
-
-        table_middle += "{} ".format(
-            parameters["ANALYSIS"]["COUNT_MISSING"]["middle"].format(value["Name"])
-        )
-    else:
-        table_middle += "{} ,".format(
-            parameters["ANALYSIS"]["COUNT_MISSING"]["middle"].format(value["Name"])
-        )
-query = table_top + table_middle + table_bottom
-output = s3.run_query(
-    query=query,
-    database=DatabaseName,
-    s3_output="SQL_OUTPUT_ATHENA",
-    filename="count_missing",  ## Add filename to print dataframe
-    destination_key=None,  ### Add destination key if need to copy output
-)
-display(
-    output.T.rename(columns={0: "total_missing"})
-    .assign(total_missing_pct=lambda x: x["total_missing"] / x.iloc[0, 0])
-    .sort_values(by=["total_missing"], ascending=False)
-    .style.format("{0:,.2%}", subset=["total_missing_pct"])
-    .bar(subset="total_missing_pct", color=["#d65f5f"])
-)
 ```
 
 # Update Github Data catalog
@@ -534,92 +1198,6 @@ with open(os.path.join(str(Path(path).parent.parent), '00_data_catalogue/README.
     outfile.write(README)
 ```
 
-# Analytics
-
-In this part, we are providing basic summary statistic. Since we have created the tables, we can parse the schema in Glue and use our json file to automatically generates the analysis.
-
-The cells below execute the job in the key `ANALYSIS`. You need to change the `primary_key` and `secondary_key` 
-
-
-For a full analysis of the table, please use the following Lambda function. Be patient, it can takes between 5 to 30 minutes. Times varies according to the number of columns in your dataset.
-
-Use the function as follow:
-
-- `output_prefix`:  s3://datalake-datascience/ANALYTICS/OUTPUT/TABLE_NAME/
-- `region`: region where the table is stored
-- `bucket`: Name of the bucket
-- `DatabaseName`: Name of the database
-- `table_name`: Name of the table
-- `group`: variables name to group to count the duplicates
-- `primary_key`: Variable name to perform the grouping -> Only one variable for now
-- `secondary_key`: Variable name to perform the secondary grouping -> Only one variable for now
-- `proba`: Chi-square analysis probabilitity
-- `y_var`: Continuous target variables
-
-Check the job processing in Sagemaker: https://eu-west-3.console.aws.amazon.com/sagemaker/home?region=eu-west-3#/processing-jobs
-
-The notebook is available: https://s3.console.aws.amazon.com/s3/buckets/datalake-datascience?region=eu-west-3&prefix=ANALYTICS/OUTPUT/&showversions=false
-
-Please, download the notebook on your local machine, and convert it to HTML:
-
-```
-cd "/Users/thomas/Downloads/Notebook"
-aws s3 cp s3://datalake-datascience/ANALYTICS/OUTPUT/asif_unzip_data_csv/Template_analysis_from_lambda-2020-11-22-08-12-20.ipynb .
-
-## convert HTML no code
-jupyter nbconvert --no-input --to html Template_analysis_from_lambda-2020-11-21-14-30-45.ipynb
-jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ipynb
-```
-
-Then upload the HTML to: https://s3.console.aws.amazon.com/s3/buckets/datalake-datascience?region=eu-west-3&prefix=ANALYTICS/HTML_OUTPUT/
-
-Add a new folder with the table name in upper case
-
-```python
-import boto3
-
-key, secret_ = con.load_credential()
-client_lambda = boto3.client(
-    'lambda',
-    aws_access_key_id=key,
-    aws_secret_access_key=secret_,
-    region_name = region)
-```
-
-```python
-primary_key = ''
-secondary_key = ''
-y_var = ''
-```
-
-```python
-payload = {
-    "input_path": "s3://datalake-datascience/ANALYTICS/TEMPLATE_NOTEBOOKS/template_analysis_from_lambda.ipynb",
-    "output_prefix": "s3://datalake-datascience/ANALYTICS/OUTPUT/{}/".format(table_name.upper()),
-    "parameters": {
-        "region": "{}".format(region),
-        "bucket": "{}".format(bucket),
-        "DatabaseName": "{}".format(DatabaseName),
-        "table_name": "{}".format(table_name),
-        "group": "{}".format(','.join(partition_keys)),
-        "keys": "{},{}".format(primary_key,secondary_key),
-        "y_var": "{}".format(y_var),
-        "threshold":0
-    },
-}
-payload
-```
-
-```python
-response = client_lambda.invoke(
-    FunctionName='RunNotebook',
-    InvocationType='RequestResponse',
-    LogType='Tail',
-    Payload=json.dumps(payload),
-)
-response
-```
-
 # Generation report
 
 ```python
@@ -689,5 +1267,5 @@ def create_report(extension = "html", keep_code = False, notebookname = None):
 ```
 
 ```python
-create_report(extension = "html", keep_code = True, notebookname =  '.ipynb')
+create_report(extension = "html", keep_code = True, notebookname =  '08_dominated_industry_ownership.ipynb')
 ```
