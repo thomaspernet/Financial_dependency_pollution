@@ -145,7 +145,7 @@ The notebook reference is the following https://github.com/thomaspernet/Financia
 
 A dominated sector is defined as positive when the average output of the firms is above the cross secteur average
 * Compute the firm’s industrial output average
-* Compute the firm’s national average
+* Compute the firm’s national median
 
 
 ## Example step by step
@@ -157,7 +157,7 @@ s3_output_example = 'SQL_OUTPUT_ATHENA'
 
 ### Example with National Average
 
-Compute mean and percentile for year 2001. Bear in mind that we get the average and percentile from the firm level of output, employment, capital and sales
+Compute mean and percentile for year 2001. Bear in mind that we get the median and percentile from the firm level of output, employment, capital and sales.
 
 ```python
 query= """
@@ -185,13 +185,15 @@ SELECT
   indu_2, 
   industry_pct.year, 
   output_pct,
-  n_avg_output
+  f_med_output,
+  n_med_output
 FROM 
   (
     (
       SELECT 
         indu_2, 
         year, 
+        approx_percentile(output, .5) as f_med_output, 
         approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct 
       FROM 
         test 
@@ -204,7 +206,7 @@ FROM
     LEFT JOIN (
       SELECT 
         year, 
-        AVG(output) as n_avg_output 
+        approx_percentile(output, .5) as n_med_output 
       FROM 
         test 
       GROUP BY 
@@ -224,7 +226,9 @@ output = s3.run_query(
 output
 ```
 
-Compute the condition -> True if percentile is above national average
+Compute the condition -> True if percentile is above national median
+
+We cannot use average because the data are too much skewed so median is never above the average
 
 ```python
 query= """
@@ -252,14 +256,15 @@ SELECT
   indu_2, 
   industry_pct.year, 
   output_pct,
-  n_avg_output,
+  n_med_output,
+  f_med_output,
   zip_with(
       transform(
         sequence(
           1, 
           4
         ), 
-        x -> n_avg_output
+        x -> n_med_output
       ),
         output_pct, (x, y) -> x < y) AS dominated_output
 FROM 
@@ -268,6 +273,7 @@ FROM
       SELECT 
         indu_2, 
         year, 
+        approx_percentile(output, .5) as f_med_output, 
         approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct 
       FROM 
         test 
@@ -280,7 +286,7 @@ FROM
     LEFT JOIN (
       SELECT 
         year, 
-        AVG(output) as n_avg_output 
+        approx_percentile(output, .5) as n_med_output 
       FROM 
         test 
       GROUP BY 
@@ -328,7 +334,8 @@ SELECT
   indu_2, 
   industry_pct.year, 
   output_pct,
-  n_avg_output,
+  n_med_output,
+  CASE WHEN f_med_output > n_med_output THEN 'ABOVE' ELSE 'BELOW' END AS med_dominated_output_i,
   MAP(
         ARRAY[
           .5, 
@@ -342,16 +349,17 @@ SELECT
           1, 
           4
         ), 
-        x -> n_avg_output
+        x -> n_med_output
       ),
         output_pct, (x, y) -> x < y)
-        ) AS dominated_output
+        ) AS dominated_output_i
 FROM 
   (
     (
       SELECT 
         indu_2, 
         year, 
+        approx_percentile(output, .5) as f_med_output,
         approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct 
       FROM 
         test 
@@ -364,7 +372,7 @@ FROM
     LEFT JOIN (
       SELECT 
         year, 
-        AVG(output) as n_avg_output 
+        approx_percentile(output, .5) as n_med_output 
       FROM 
         test 
       GROUP BY 
@@ -385,7 +393,7 @@ output
 
 ### Example with SOE vs private
 
-Compute mean and percentile for year 2001 by firm's ownership. Bear in mind that we get the average and percentile from the firm level of output, employment, capital and sales.
+Compute mean and percentile for year 2001 by firm's ownership. Bear in mind that we get the median and percentile from the firm level of output, employment, capital and sales.
 
 If percentile of SOE above Private, then sector dominated by SOE
 
@@ -596,6 +604,10 @@ WITH test as (
 ) 
 SELECT 
   national.indu_2, 
+  CASE WHEN f_med_output > n_med_output THEN 'ABOVE' ELSE 'BELOW' END AS med_dominated_output_i,
+  CASE WHEN f_med_captal > n_med_capital THEN 'ABOVE' ELSE 'BELOW' END AS med_dominated_capital_i,
+  CASE WHEN f_med_sales > n_med_sales THEN 'ABOVE' ELSE 'BELOW' END AS med_dominated_sales_i,
+  CASE WHEN f_med_employ > n_med_employ THEN 'ABOVE' ELSE 'BELOW' END AS med_dominated_employ_i,
   MAP(
     ARRAY[.5, 
     .75, 
@@ -604,7 +616,7 @@ SELECT
     zip_with(
       transform(
         sequence(1, 4), 
-        x -> n_avg_output
+        x -> n_med_output
       ), 
       output_pct, 
       (x, y) -> x < y
@@ -618,7 +630,7 @@ SELECT
     zip_with(
       transform(
         sequence(1, 4), 
-        x -> n_avg_employ
+        x -> n_med_employ
       ), 
       employ_pct, 
       (x, y) -> x < y
@@ -632,7 +644,7 @@ SELECT
     zip_with(
       transform(
         sequence(1, 4), 
-        x -> n_avg_capital
+        x -> n_med_capital
       ), 
       captal_pct, 
       (x, y) -> x < y
@@ -646,7 +658,7 @@ SELECT
     zip_with(
       transform(
         sequence(1, 4), 
-        x -> n_avg_sales
+        x -> n_med_sales
       ), 
       sales_pct, 
       (x, y) -> x < y
@@ -666,6 +678,10 @@ FROM
       SELECT 
         indu_2, 
         year, 
+        approx_percentile(output, .5) as f_med_output,
+        approx_percentile(employ, .5) as f_med_employ,
+        approx_percentile(sales, .5) as f_med_sales,
+        approx_percentile(captal, .5) as f_med_captal,
         approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, 
         approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, 
         approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, 
@@ -681,10 +697,10 @@ FROM
     LEFT JOIN (
       SELECT 
         year, 
-        AVG(output) as n_avg_output, 
-        AVG(employ) as n_avg_employ, 
-        AVG(sales) as n_avg_sales, 
-        AVG(captal) as n_avg_capital 
+        approx_percentile(output, .5) as n_med_output, 
+        approx_percentile(employ, .5) as n_med_employ, 
+        approx_percentile(sales, .5) as n_med_sales, 
+        approx_percentile(captal, .5) as n_med_capital 
       FROM 
         test 
       GROUP BY 
@@ -907,6 +923,29 @@ output = s3.run_query(
 output
 ```
 
+Example query map in Athena
+
+```python
+query_filter = """
+SELECT 
+dominated_median, COUNT(dominated_median) as count
+
+FROM (
+  SELECT 
+indu_2, element_at(dominated_output_i, .5) as dominated_median
+FROM asif_industry_characteristics_ownership  
+  )
+GROUP BY dominated_median
+"""
+output = s3.run_query(
+                    query=query_filter,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'filter_{}'.format(table_name)
+                )
+output
+```
+
 # Validate query
 
 This step is mandatory to validate the query in the ETL. If you are not sure about the quality of the query, go to the next step.
@@ -946,6 +985,10 @@ glue.get_table_information(
 ```python
 schema = [
     {"Name": "indu_2", "Type": "string", "Comment": ""},
+    {'Name': 'med_dominated_output_i', 'Type': 'varchar(5)', 'Comment': 'Output industry above national median'},
+    {'Name': 'med_dominated_capital_i', 'Type': 'varchar(5)', 'Comment': 'Capital industry above national median'},
+    {'Name': 'med_dominated_sales_i', 'Type': 'varchar(5)', 'Comment': 'Sales industry above national median'},
+   {'Name': 'med_dominated_employ_i', 'Type': 'varchar(5)', 'Comment': 'Employment industry above national median'},
     {
         "Name": "dominated_output_i",
         "Type": "map<double,boolean>",
