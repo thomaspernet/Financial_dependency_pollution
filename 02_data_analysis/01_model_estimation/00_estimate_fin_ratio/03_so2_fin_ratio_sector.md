@@ -1305,6 +1305,18 @@ lb.beautify(table_number = table_nb,
            folder = folder)
 ```
 
+```sos kernel="SoS"
+table_nb = 9
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+path
+```
+
 <!-- #region kernel="SoS" nteract={"transient": {"deleting": false}} -->
 # Generate reports
 <!-- #endregion -->
