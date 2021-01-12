@@ -238,6 +238,10 @@ if add_to_dic:
         'new':'\\text{cash over asset}_{fcit}'
         },
         {
+        'old':'lag\_cash\_over\_totasset\_fcit',
+        'new':'\\text{cash over asset}_{fcit}'
+        },
+        {
         'old':'sales\_assets\_andersen\_fcit',
         'new':'\\text{sales over assets}_{fcit}'
         },
@@ -250,11 +254,23 @@ if add_to_dic:
         'new':'\\text{liabilities assets}_{fcit}'
         },
         {
+        'old':'lag\_liabilities\_assets\_fcit',
+        'new':'\\text{liabilities assets}_{fcit}'
+        },
+        {
         'old':'quick\_ratio\_fcit',
         'new':'\\text{quick ratio}_{fcit}'
         },
         {
+        'old':'lag\_quick\_ratio\_fcit',
+        'new':'\\text{quick ratio}_{fcit}'
+        },
+        {
         'old':'current\_ratio\_fcit',
+        'new':'\\text{current ratio}_{fcit}'
+        },
+        {
+        'old':'lag\_current\_ratio\_fcit',
         'new':'\\text{current ratio}_{fcit}'
         },
         {
@@ -427,9 +443,120 @@ lb.beautify(table_number = table_nb,
             folder = folder)
 ```
 
+<!-- #region kernel="SoS" -->
+Lagged value
+<!-- #endregion -->
+
 ```sos kernel="SoS"
 folder = 'Tables_0'
-table_nb = 1
+table_nb = 2
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(asset_tangibility_fcit) ~ log(lag_current_ratio_fcit) +
+            log(lag_cash_over_totasset_fcit) +
+            log(lag_liabilities_assets_fcit)
+            | firm + fe_t_i|0 | firm, df_final,
+            exactDOF = TRUE)
+
+t_1 <- felm(log(asset_tangibility_fcit) ~ log(lag_current_ratio_fcit) +
+            log(lag_cash_over_totasset_fcit) + 
+            log(lag_liabilities_assets_fcit) +
+            log(sales_assets_andersen_fcit) 
+            | firm+ fe_t_i|0 | firm,df_final,
+            exactDOF = TRUE)
+
+t_2 <- felm(log(asset_tangibility_fcit) ~ log(lag_current_ratio_fcit) +
+            log(lag_cash_over_totasset_fcit) + 
+            log(lag_liabilities_assets_fcit) +
+            log(lag_current_ratio_fcit) * d_credit_constraint  + 
+            log(lag_cash_over_totasset_fcit) * d_credit_constraint + 
+            log(lag_liabilities_assets_fcit) * d_credit_constraint
+            | firm+ fe_t_i|0 | firm, df_final,
+            exactDOF = TRUE)
+
+### more controls
+t_3 <- felm(log(asset_tangibility_fcit) ~ log(lag_current_ratio_fcit) +
+            log(lag_cash_over_totasset_fcit) + 
+            log(lag_liabilities_assets_fcit) +
+            log(output)
+            | firm + fe_t_i|0 | firm,df_final,
+            exactDOF = TRUE)
+
+t_4 <- felm(log(asset_tangibility_fcit) ~ log(lag_current_ratio_fcit) +
+            log(lag_cash_over_totasset_fcit) +
+            log(lag_liabilities_assets_fcit) +
+            log(sales_assets_andersen_fcit) +
+            log(output)
+            | firm+ fe_t_i|0 | firm, df_final,
+            exactDOF = TRUE)
+
+t_5 <- felm(log(asset_tangibility_fcit) ~ log(lag_current_ratio_fcit) +
+            log(lag_cash_over_totasset_fcit) +
+            log(lag_liabilities_assets_fcit) +
+            log(lag_current_ratio_fcit) * d_credit_constraint  + 
+            log(lag_cash_over_totasset_fcit) * d_credit_constraint + 
+            log(lag_liabilities_assets_fcit) * d_credit_constraint + 
+            log(output)
+            | firm+ fe_t_i|0 | firm,df_final,
+            exactDOF = TRUE)
+            
+dep <- "Dependent variable: Asset tangilibility"
+fe1 <- list(
+    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5
+),
+    title="Baseline Estimate, determinants of firm-level asset tangibility (lagged)",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+) 
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors" \
+"clustered at the firm level appear in parentheses."\
+" Current ratio, cash over asset and liabilities over asset are lagged by one year. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+            folder = folder)
+```
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 2
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
