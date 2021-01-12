@@ -139,7 +139,7 @@ for key, value in enumerate(schema):
 ```
 
 ```sos kernel="SoS"
-download_data = True
+download_data = False
 filename = 'df_{}'.format(table)
 full_path_filename = 'SQL_OUTPUT_ATHENA/CSV/{}.csv'.format(filename)
 path_local = os.path.join(str(Path(path).parent.parent.parent), 
@@ -204,9 +204,9 @@ Then add it to the key `to_rename`
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}
 add_to_dic = True
 if add_to_dic:
-    with open('schema_table.json') as json_file:
-        data = json.load(json_file)
-    data['to_rename'] = []
+    if os.path.exists("schema_table.json"):
+        os.remove("schema_table.json")
+        data = {'to_rename':[], 'to_remove':[]}
     dic_rename = [
         ### control variables
         {
@@ -503,28 +503,42 @@ for ext in ['.txt', '.tex', '.pdf']:
 
 ```sos kernel="R"
 %get path table
-t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
-            log(sales) + log(total_asset)
+t_0 <- felm(log(tso2) ~ log(asset_tangibility_ci)  +
+            log(sales) +
+            log(total_asset)
             | fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
-t_1 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+t_1 <- felm(log(tso2) ~ log(asset_tangibility_ci) +
+            log(current_ratio_ci) +
+            log(cash_over_totasset_ci) +
             log(sales) + log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
-t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+t_2 <- felm(log(tso2) ~ log(asset_tangibility_ci) +
+            log(current_ratio_ci) +
+            log(cash_over_totasset_ci) + 
+            log(liabilities_assets_ci) + 
+            log(sales_assets_andersen_ci) +
             log(sales) + log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
 
-t_3 <- felm(log(so2_intensity) ~ asset_tangibility_ci  +
-            log(sales) + log(total_asset)
+t_3 <- felm(log(so2_intensity) ~ log(asset_tangibility_ci)  +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
-t_4 <- felm(log(so2_intensity) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
+t_4 <- felm(log(so2_intensity) ~ log(asset_tangibility_ci) +
+            log(current_ratio_ci) +
+            log(cash_over_totasset_ci) +
             log(sales) + log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
-t_5 <- felm(log(so2_intensity) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+t_5 <- felm(log(so2_intensity) ~ log(asset_tangibility_ci) +
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) + 
+            log(liabilities_assets_ci) + 
+            log(sales_assets_andersen_ci) +
             log(sales) + log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
             exactDOF = TRUE)
@@ -601,29 +615,51 @@ path
 
 ```sos kernel="R"
 %get path table
-t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
-            log(sales) + log(total_asset)
+t_0 <- felm(log(tso2) ~ log(asset_tangibility_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
-t_1 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
-            log(sales) + log(total_asset)
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
-            log(sales) + log(total_asset)
+
+t_1 <- felm(log(tso2) ~ log(asset_tangibility_ci) +
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
-t_3 <- felm(log(so2_intensity) ~ asset_tangibility_ci  +
-            log(sales) + log(total_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
-            exactDOF = TRUE)
-t_4 <- felm(log(so2_intensity) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
-            log(sales) + log(total_asset)
+t_2 <- felm(log(tso2) ~ log(asset_tangibility_ci) +
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) +
+            log(liabilities_assets_ci) + 
+            log(sales_assets_andersen_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
-t_5 <- felm(log(so2_intensity) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
-            log(sales) + log(total_asset)
+
+t_3 <- felm(log(so2_intensity) ~ log(asset_tangibility_ci)  +
+            log(sales) +
+            log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_4 <- felm(log(so2_intensity) ~ log(asset_tangibility_ci) + 
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) +
+            log(sales) + 
+            log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            exactDOF = TRUE)
+
+t_5 <- felm(log(so2_intensity) ~ log(asset_tangibility_ci) +
+            log(current_ratio_ci) +
+            log(cash_over_totasset_ci) +
+            log(liabilities_assets_ci) +
+            log(sales_assets_andersen_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
             exactDOF = TRUE)
 
@@ -699,29 +735,51 @@ path
 
 ```sos kernel="R"
 %get path table
-t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
-            log(sales) + log(total_asset)
+t_0 <- felm(log(tso2) ~ log(asset_tangibility_ci)  +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
-t_1 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
-            log(sales) + log(total_asset)
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
-            exactDOF = TRUE)
-t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
-            log(sales) + log(total_asset)
+
+t_1 <- felm(log(tso2) ~ log(asset_tangibility_ci) +
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
-t_3 <- felm(log(so2_intensity) ~ asset_tangibility_ci  +
-            log(sales) + log(total_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
-            exactDOF = TRUE)
-t_4 <- felm(log(so2_intensity) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
-            log(sales) + log(total_asset)
+t_2 <- felm(log(tso2) ~ log(asset_tangibility_ci) + 
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) +
+            log(liabilities_assets_ci) + 
+            log(sales_assets_andersen_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
-t_5 <- felm(log(so2_intensity) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
-            log(sales) + log(total_asset)
+
+t_3 <- felm(log(so2_intensity) ~ log(asset_tangibility_ci) +
+            log(sales) + 
+            log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_4 <- felm(log(so2_intensity) ~ log(asset_tangibility_ci) +
+            log(current_ratio_ci) +
+            log(cash_over_totasset_ci) +
+            log(sales) + 
+            log(total_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            exactDOF = TRUE)
+
+t_5 <- felm(log(so2_intensity) ~ log(asset_tangibility_ci) +
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) + 
+            log(liabilities_assets_ci) +
+            log(sales_assets_andersen_ci) +
+            log(sales) +
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
             exactDOF = TRUE)
 
@@ -816,30 +874,50 @@ df_temp_false = df_final %>%
 mutate(filter_ = str_extract(dominated_output_soe_c, "(?<=0.5\\=)(.*?)(?=\\,)"))%>%
 filter(filter_ == 'false')
 
-t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
-            log(sales) + log(total_asset)
+t_0 <- felm(log(tso2) ~ log(asset_tangibility_ci)  +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i + fe_c_t|0 | geocode4_corr, df_temp_true,
             exactDOF = TRUE)
-t_1 <- felm(log(tso2) ~ asset_tangibility_ci  +
-            log(sales) + log(total_asset)
+
+t_1 <- felm(log(tso2) ~ log(asset_tangibility_ci)  +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i + fe_c_t|0 | geocode4_corr, df_temp_false,
             exactDOF = TRUE)
 
-t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
-            log(sales) + log(total_asset)
+t_2 <- felm(log(tso2) ~ log(asset_tangibility_ci)  +
+            log(current_ratio_ci) +
+            log(cash_over_totasset_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true,
             exactDOF = TRUE)
-t_3 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
-            log(sales) + log(total_asset)
+t_3 <- felm(log(tso2) ~ log(asset_tangibility_ci) + 
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false,
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
-            log(sales) + log(total_asset)
+t_4 <- felm(log(tso2) ~ log(asset_tangibility_ci)  + 
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) + 
+            log(liabilities_assets_ci) + 
+            log(sales_assets_andersen_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true,
             exactDOF = TRUE)
-t_5 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
-            log(sales) + log(total_asset)
+
+t_5 <- felm(log(tso2) ~ log(asset_tangibility_ci) +
+            log(current_ratio_ci) +
+            log(cash_over_totasset_ci) +
+            log(liabilities_assets_ci) +
+            log(sales_assets_andersen_ci) +
+            log(sales) +
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false,
             exactDOF = TRUE)
 
@@ -912,29 +990,49 @@ path
 ```sos kernel="R"
 %get path table
 
-t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
-            log(sales) + log(total_asset)
+t_0 <- felm(log(tso2) ~ log(asset_tangibility_ci)  +
+            log(sales) +
+            log(total_asset)
             | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tcz == 1),
             exactDOF = TRUE)
-t_1 <- felm(log(tso2) ~ asset_tangibility_ci  +
-            log(sales) + log(total_asset)
+
+t_1 <- felm(log(tso2) ~ log(asset_tangibility_ci)  +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(tcz == 0),
             exactDOF = TRUE)
 
-t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
-            log(sales) + log(total_asset)
+t_2 <- felm(log(tso2) ~ log(asset_tangibility_ci) +
+            log(current_ratio_ci) +
+            log(cash_over_totasset_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(tcz == 1),
             exactDOF = TRUE)
-t_3 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
-            log(sales) + log(total_asset)
+
+t_3 <- felm(log(tso2) ~ log(asset_tangibility_ci) + 
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) +
+            log(sales) +
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(tcz == 0),
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
-            log(sales) + log(total_asset)
+t_4 <- felm(log(tso2) ~ log(asset_tangibility_ci) + 
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) + 
+            log(liabilities_assets_ci) + 
+            log(sales_assets_andersen_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(tcz == 1),
             exactDOF = TRUE)
-t_5 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+
+t_5 <- felm(log(tso2) ~ log(asset_tangibility_ci) + 
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) + 
+            log(liabilities_assets_ci) + 
+            log(sales_assets_andersen_ci) +
             log(sales) + log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(tcz == 0),
             exactDOF = TRUE)
@@ -1006,30 +1104,50 @@ path
 ```sos kernel="R"
 %get path table
 
-t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
-            log(sales) + log(total_asset)
+t_0 <- felm(log(tso2) ~ log(asset_tangibility_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(spz == 1),
             exactDOF = TRUE)
-t_1 <- felm(log(tso2) ~ asset_tangibility_ci  +
-            log(sales) + log(total_asset)
+
+t_1 <- felm(log(tso2) ~ log(asset_tangibility_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(spz == 0),
             exactDOF = TRUE)
 
-t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
-            log(sales) + log(total_asset)
+t_2 <- felm(log(tso2) ~ log(asset_tangibility_ci) + 
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(spz == 1),
             exactDOF = TRUE)
-t_3 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
-            log(sales) + log(total_asset)
+
+t_3 <- felm(log(tso2) ~ log(asset_tangibility_ci) + 
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(spz == 0),
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+t_4 <- felm(log(tso2) ~ log(asset_tangibility_ci) +
+            log(current_ratio_ci) +
+            log(cash_over_totasset_ci) + 
+            log(liabilities_assets_ci) + 
+            log(sales_assets_andersen_ci) +
             log(sales) + log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(spz == 1),
             exactDOF = TRUE)
-t_5 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
-            log(sales) + log(total_asset)
+
+t_5 <- felm(log(tso2) ~ log(asset_tangibility_ci)  + 
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) + 
+            log(liabilities_assets_ci) + 
+            log(sales_assets_andersen_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(spz == 0),
             exactDOF = TRUE)
 
@@ -1129,30 +1247,51 @@ df_temp_false = df_final %>%
 mutate(filter_ = str_extract(dominated_output_i, "(?<=0.5\\=)(.*?)(?=\\,)"))%>%
 filter(filter_ == 'false')
 
-t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
-            log(sales) + log(total_asset)
+t_0 <- felm(log(tso2) ~ log(asset_tangibility_ci)  +
+            log(sales) +
+            log(total_asset)
             | fe_t_i + fe_c_t|0 | geocode4_corr, df_temp_true,
             exactDOF = TRUE)
-t_1 <- felm(log(tso2) ~ asset_tangibility_ci  +
-            log(sales) + log(total_asset)
+
+t_1 <- felm(log(tso2) ~ log(asset_tangibility_ci)  +
+            log(sales) +
+            log(total_asset)
             | fe_t_i + fe_c_t|0 | geocode4_corr, df_temp_false,
             exactDOF = TRUE)
 
-t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
-            log(sales) + log(total_asset)
+t_2 <- felm(log(tso2) ~ log(asset_tangibility_ci)  + 
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true,
             exactDOF = TRUE)
-t_3 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
-            log(sales) + log(total_asset)
+
+t_3 <- felm(log(tso2) ~ log(asset_tangibility_ci)  + 
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false,
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
-            log(sales) + log(total_asset)
+t_4 <- felm(log(tso2) ~ log(asset_tangibility_ci) +
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) + 
+            log(liabilities_assets_ci) + 
+            log(sales_assets_andersen_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true,
             exactDOF = TRUE)
-t_5 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
-            log(sales) + log(total_asset)
+
+t_5 <- felm(log(tso2) ~ log(asset_tangibility_ci)  + 
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) + 
+            log(liabilities_assets_ci) + 
+            log(sales_assets_andersen_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false,
             exactDOF = TRUE)
 
@@ -1230,30 +1369,50 @@ df_temp_false = df_final %>%
 mutate(filter_ = str_extract(above_threshold_mandate, "(?<=0.5\\=)(.*?)(?=\\,)"))%>%
 filter(filter_ == 'false')
 
-t_0 <- felm(log(tso2) ~ asset_tangibility_ci  +
-            log(sales) + log(total_asset)
+t_0 <- felm(log(tso2) ~ log(asset_tangibility_ci)  +
+            log(sales) +
+            log(total_asset)
             | fe_t_i + fe_c_t|0 | geocode4_corr, df_temp_true,
             exactDOF = TRUE)
-t_1 <- felm(log(tso2) ~ asset_tangibility_ci  +
-            log(sales) + log(total_asset)
+
+t_1 <- felm(log(tso2) ~ log(asset_tangibility_ci)  +
+            log(sales) +
+            log(total_asset)
             | fe_t_i + fe_c_t|0 | geocode4_corr, df_temp_false,
             exactDOF = TRUE)
 
-t_2 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
-            log(sales) + log(total_asset)
+t_2 <- felm(log(tso2) ~ log(asset_tangibility_ci) +
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true,
             exactDOF = TRUE)
-t_3 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci +
-            log(sales) + log(total_asset)
+
+t_3 <- felm(log(tso2) ~ log(asset_tangibility_ci) + 
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr,df_temp_false,
             exactDOF = TRUE)
 
-t_4 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
+t_4 <- felm(log(tso2) ~ log(asset_tangibility_ci) + 
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) +
+            log(liabilities_assets_ci) +
+            log(sales_assets_andersen_ci) +
             log(sales) + log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true,
             exactDOF = TRUE)
-t_5 <- felm(log(tso2) ~ asset_tangibility_ci  + current_ratio_ci + cash_over_totasset_ci + liabilities_assets_ci + sales_assets_andersen_ci +
-            log(sales) + log(total_asset)
+
+t_5 <- felm(log(tso2) ~ log(asset_tangibility_ci) + 
+            log(current_ratio_ci) + 
+            log(cash_over_totasset_ci) + 
+            log(liabilities_assets_ci) +
+            log(sales_assets_andersen_ci) +
+            log(sales) + 
+            log(total_asset)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false,
             exactDOF = TRUE)
 
