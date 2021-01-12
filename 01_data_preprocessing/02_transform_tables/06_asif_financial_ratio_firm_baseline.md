@@ -464,6 +464,202 @@ output = s3.run_query(
 output
 ```
 
+Below is an example of lag value for:
+
+- cash_over_totasset_fcit
+- current_ratio_fcit
+- quick_ratio_fcit
+- liabilities_assets_fcit
+
+```python
+query= """
+WITH test AS (
+  SELECT 
+    *, 
+    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
+      '0', 
+      substr(cic, 1, 1)
+    ) END AS indu_2, 
+    c98 + c99 as total_asset, 
+    CASE WHEN c79 IS NULL THEN 0 ELSE c79 END AS short_term_investment 
+  FROM 
+    firms_survey.asif_firms_prepared 
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+) 
+SELECT 
+  * 
+FROM 
+  (
+    WITH ratio AS (
+      SELECT 
+        firm, 
+        year, 
+        cic, 
+        indu_2, 
+        geocode4_corr, 
+        ownership,
+        CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri,
+        CASE WHEN ownership in (
+        'HTM', 'FOREIGN'
+      ) THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom,
+        CAST(
+          output AS DECIMAL(16, 5)
+        ) AS output, 
+        CAST(
+          sales AS DECIMAL(16, 5)
+        ) AS sales, 
+        CAST(
+          employ AS DECIMAL(16, 5)
+        ) AS employment, 
+        CAST(
+          captal AS DECIMAL(16, 5)
+        ) AS capital, 
+        CAST(
+          toasset AS DECIMAL(16, 5)
+        ) AS total_asset, 
+        CAST(
+          cuasset AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            c95 AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS current_ratio_fcit,
+      
+        CAST(
+          cuasset - short_term_investment - c80 - c81 AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            c95 AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS quick_ratio_fcit, 
+        -- Need to add asset or debt when bs requirement not meet
+        CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
+          c95 + c97 AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset + ABS(
+              toasset - (c98 + c99)
+            ) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) WHEN toasset - (c98 + c99) > 0 THEN CAST(
+          c95 + c97 + toasset - (c98 + c99) AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) ELSE CAST(
+          c95 + c97 AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) END AS liabilities_assets_fcit, 
+        CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
+          sales - (
+            c108 + c113 + c114 + c116 + c118 + c124 + wage
+          ) AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset + ABS(
+              toasset - (c98 + c99)
+            ) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) ELSE CAST(
+          sales - (
+            c108 + c113 + c114 + c116 + c118 + c124 + wage
+          ) AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) END AS return_on_asset_fcit, 
+      
+        CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
+          sales AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset + ABS(
+              toasset - (c98 + c99)
+            ) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) ELSE CAST(
+          sales AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) END AS sales_assets_andersen_fcit,
+      
+        CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
+          cuasset - short_term_investment - c80 - c81 - c82 AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset + ABS(
+              toasset - (c98 + c99)
+            ) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) ELSE CAST(
+          cuasset - short_term_investment - c80 - c81 - c82 AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) END AS cash_over_totasset_fcit, 
+      
+        CAST(
+          tofixed - c92 AS DECIMAL(16, 5)
+        ) AS asset_tangibility_fcit 
+      FROM 
+        test 
+      WHERE 
+        year in (
+          '2001', '2002', '2003', '2004', '2005', 
+          '2006', '2007'
+        )
+    ) 
+    SELECT 
+    year, 
+    cash_over_totasset_fcit,
+    LAG(cash_over_totasset_fcit, 1) OVER ( PARTITION BY firm ORDER BY year ),
+    current_ratio_fcit,
+    LAG(current_ratio_fcit, 1) OVER ( PARTITION BY firm ORDER BY year ),
+    quick_ratio_fcit,
+    LAG(quick_ratio_fcit, 1) OVER ( PARTITION BY firm ORDER BY year ),
+    liabilities_assets_fcit,
+    LAG(liabilities_assets_fcit, 1) OVER ( PARTITION BY firm ORDER BY year )
+    FROM ratio
+    limit 10
+    )
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_4'
+                )
+output
+```
+
 We also need to compute the sectors constraint vs not constraint. We use `fin dep` indicator to classify the sectors. If the value is above the median, then the sector is constraint else it is not.  
 
 We know that this value will never change, so we can compute it manually and pass the value in the query
@@ -685,7 +881,7 @@ FROM
         test 
       WHERE 
         year in (
-          '2001', '2002', '2003', '2004', '2005', 
+          '2000','2001', '2002', '2003', '2004', '2005', 
           '2006', '2007'
         )
     ) 
@@ -715,12 +911,16 @@ FROM
       credit_constraint, 
       d_credit_constraint,
       asset_tangibility_fcit, 
-      cash_over_totasset_fcit, 
+      cash_over_totasset_fcit,
+      LAG(cash_over_totasset_fcit, 1) OVER ( PARTITION BY ratio.firm ORDER BY ratio.year ) as lag_cash_over_totasset_fcit,
+      current_ratio_fcit,
+      LAG(current_ratio_fcit, 1) OVER ( PARTITION BY ratio.firm ORDER BY ratio.year ) as lag_current_ratio_fcit,
+      quick_ratio_fcit,
+      LAG(quick_ratio_fcit, 1) OVER ( PARTITION BY ratio.firm ORDER BY ratio.year ) as lag_quick_ratio_fcit,
+      liabilities_assets_fcit,
+      LAG(liabilities_assets_fcit, 1) OVER ( PARTITION BY ratio.firm ORDER BY ratio.year ) as lag_liabilities_assets_fcit,
       sales_assets_andersen_fcit, 
       return_on_asset_fcit, 
-      liabilities_assets_fcit, 
-      quick_ratio_fcit, 
-      current_ratio_fcit, 
       DENSE_RANK() OVER (
         ORDER BY 
           ratio.geocode4_corr, 
@@ -857,6 +1057,10 @@ FROM
       AND liabilities_assets_fcit > 0
       AND quick_ratio_fcit > 0
       AND current_ratio_fcit > 0
+      AND ratio.year in (
+          '2001', '2002', '2003', '2004', '2005', 
+          '2006', '2007'
+        )
       
     ORDER BY 
       year 
@@ -957,18 +1161,28 @@ schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'Firms ID'},
           {'Name': 'asset_tangibility_fcit',
            'Type': 'decimal(16,5)', 'Comment': 'Total fixed assets - Intangible assets'},
           {'Name': 'cash_over_totasset_fcit',
-           'Type': 'decimal(21,5)', 'Comment': 'cuasset - short_term_investment - c80 - c81 - c82 divided by toasset'},
+              'Type': 'decimal(21,5)', 'Comment': 'cuasset - short_term_investment - c80 - c81 - c82 divided by toasset'},
+          {'Name': 'lag_cash_over_totasset_fcit',
+           'Type': 'decimal(21,5)',
+           'Comment': 'lag cash over total asset'},
+          {'Name': 'current_ratio_fcit',
+              'Type': 'decimal(21,5)', 'Comment': 'cuasset/流动负债合计 (c95)'},
+          {'Name': 'lag_current_ratio_fcit',
+              'Type': 'decimal(21,5)', 'Comment': 'lag current ratio'},
+          {'Name': 'quick_ratio_fcit',
+           'Type': 'decimal(21,5)', 'Comment': '(cuasset-存货 (c81) ) / 流动负债合计 (c95)'},
+          {'Name': 'lag_quick_ratio_fcit',
+           'Type': 'decimal(21,5)', 'Comment': 'lag quick ratio'},
+          {'Name': 'liabilities_assets_fcit',
+           'Type': 'decimal(21,5)', 'Comment': '(流动负债合计 (c95) + 长期负债合计 (c97)) / toasset'},
+          {'Name': 'lag_liabilities_assets_fcit',
+           'Type': 'decimal(21,5)',
+           'Comment': 'lag liabilities over total asset'},
           {'Name': 'sales_assets_andersen_fcit',
            'Type': 'decimal(21,5)',
            'Comment': 'Sales divided by total asset'},
           {'Name': 'return_on_asset_fcit',
            'Type': 'decimal(21,5)', 'Comment': 'sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset'},
-          {'Name': 'liabilities_assets_fcit',
-           'Type': 'decimal(21,5)', 'Comment': '(流动负债合计 (c95) + 长期负债合计 (c97)) / toasset'},
-          {'Name': 'quick_ratio_fcit',
-           'Type': 'decimal(21,5)', 'Comment': '(cuasset-存货 (c81) ) / 流动负债合计 (c95)'},
-          {'Name': 'current_ratio_fcit',
-           'Type': 'decimal(21,5)', 'Comment': 'cuasset/流动负债合计 (c95)'},
           {'Name': 'fe_c_i', 'Type': 'bigint',
               'Comment': 'City industry fixed effect'},
           {'Name': 'fe_t_i', 'Type': 'bigint',
