@@ -19,10 +19,10 @@
 - [china_sector_pollution_threshold](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-china_sector_pollution_threshold)
 - [asif_industry_financial_ratio_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_financial_ratio_industry)
 - [fin_dep_pollution_baseline_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_industry)
-- [asif_financial_ratio_baseline_firm](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_financial_ratio_baseline_firm)
 - [asif_city_characteristics_ownership](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_city_characteristics_ownership)
 - [asif_industry_characteristics_ownership](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_characteristics_ownership)
 - [fin_dep_pollution_baseline_city](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_city)
+- [asif_financial_ratio_baseline_firm](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_financial_ratio_baseline_firm)
 
     
 
@@ -584,47 +584,6 @@
 
     
 
-## Table asif_financial_ratio_baseline_firm
-
-- Database: firms_survey
-- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/FIRM`
-- Partitition: ['firm', 'year', 'cic', 'geocode4_corr']
-
-|    | Name                       | Type          | Comment                                                                                                                                                             |
-|---:|:---------------------------|:--------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|  0 | firm                       | string        | Firms ID                                                                                                                                                            |
-|  1 | year                       | string        |                                                                                                                                                                     |
-|  2 | period                     | varchar(5)    | if year prior to 2006 then False else true. Indicate break from 10 and 11 FYP                                                                                       |
-|  3 | cic                        | string        | 4 digits industry code                                                                                                                                              |
-|  4 | indu_2                     | string        | Two digits industry. If length cic equals to 3, then add 0 to indu_2                                                                                                |
-|  5 | short                      | string        | Industry short description                                                                                                                                          |
-|  6 | geocode4_corr              | string        | city code                                                                                                                                                           |
-|  7 | tcz                        | string        | Two control zone policy                                                                                                                                             |
-|  8 | spz                        | string        | Special policy zone                                                                                                                                                 |
-|  9 | ownership                  | string        | Firms ownership                                                                                                                                                     |
-| 10 | soe_vs_pri                 | varchar(7)    | SOE vs PRIVATE                                                                                                                                                      |
-| 11 | for_vs_dom                 | varchar(8)    | FOREIGN vs DOMESTICT if ownership is HTM then FOREIGN                                                                                                               |
-| 12 | tso2_mandate_c             | float         | city reduction mandate in tonnes                                                                                                                                    |
-| 13 | in_10_000_tonnes           | float         | city reduction mandate in 10k tonnes                                                                                                                                |
-| 14 | output                     | decimal(16,5) | Output                                                                                                                                                              |
-| 15 | employment                 | decimal(16,5) | employment                                                                                                                                                          |
-| 16 | capital                    | decimal(16,5) | capital                                                                                                                                                             |
-| 17 | sales                      | decimal(16,5) | sales                                                                                                                                                               |
-| 18 | total_asset                | decimal(16,5) | Total asset                                                                                                                                                         |
-| 19 | credit_constraint          | float         | Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311                                                                |
-| 20 | asset_tangibility_fcit     | decimal(16,5) | Total fixed assets - Intangible assets                                                                                                                              |
-| 21 | cash_over_totasset_fcit    | decimal(21,5) | cuasset - short_term_investment - c80 - c81 - c82 divided by toasset                                                                                                |
-| 22 | sales_assets_andersen_fcit | decimal(21,5) | Sales divided by total asset                                                                                                                                        |
-| 23 | return_on_asset_fcit       | decimal(21,5) | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset |
-| 24 | liabilities_assets_fcit    | decimal(21,5) | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 |
-| 25 | quick_ratio_fcit           | decimal(21,5) | (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                                          |
-| 26 | current_ratio_fcit         | decimal(21,5) | cuasset/流动负债合计 (c95)                                                                                                                                          |
-| 27 | fe_c_i                     | bigint        | City industry fixed effect                                                                                                                                          |
-| 28 | fe_t_i                     | bigint        | year industry fixed effect                                                                                                                                          |
-| 29 | fe_c_t                     | bigint        | city industry fixed effect                                                                                                                                          |
-
-    
-
 ## Table asif_city_characteristics_ownership
 
 - Database: firms_survey
@@ -769,5 +728,47 @@
 | 85 | fe_c_i                             | bigint              | City industry fixed effect                                                                                                                                          |
 | 86 | fe_t_i                             | bigint              | year industry fixed effect                                                                                                                                          |
 | 87 | fe_c_t                             | bigint              | city industry fixed effect                                                                                                                                          |
+
+    
+
+## Table asif_financial_ratio_baseline_firm
+
+- Database: firms_survey
+- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/FIRM`
+- Partitition: ['firm', 'year', 'cic', 'geocode4_corr']
+
+|    | Name                       | Type          | Comment                                                                                                                                                             |
+|---:|:---------------------------|:--------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|  0 | firm                       | string        | Firms ID                                                                                                                                                            |
+|  1 | year                       | string        |                                                                                                                                                                     |
+|  2 | period                     | varchar(5)    | if year prior to 2006 then False else true. Indicate break from 10 and 11 FYP                                                                                       |
+|  3 | cic                        | string        | 4 digits industry code                                                                                                                                              |
+|  4 | indu_2                     | string        | Two digits industry. If length cic equals to 3, then add 0 to indu_2                                                                                                |
+|  5 | short                      | string        | Industry short description                                                                                                                                          |
+|  6 | geocode4_corr              | string        | city code                                                                                                                                                           |
+|  7 | tcz                        | string        | Two control zone policy                                                                                                                                             |
+|  8 | spz                        | string        | Special policy zone                                                                                                                                                 |
+|  9 | ownership                  | string        | Firms ownership                                                                                                                                                     |
+| 10 | soe_vs_pri                 | varchar(7)    | SOE vs PRIVATE                                                                                                                                                      |
+| 11 | for_vs_dom                 | varchar(8)    | FOREIGN vs DOMESTICT if ownership is HTM then FOREIGN                                                                                                               |
+| 12 | tso2_mandate_c             | float         | city reduction mandate in tonnes                                                                                                                                    |
+| 13 | in_10_000_tonnes           | float         | city reduction mandate in 10k tonnes                                                                                                                                |
+| 14 | output                     | decimal(16,5) | Output                                                                                                                                                              |
+| 15 | employment                 | decimal(16,5) | employment                                                                                                                                                          |
+| 16 | capital                    | decimal(16,5) | capital                                                                                                                                                             |
+| 17 | sales                      | decimal(16,5) | sales                                                                                                                                                               |
+| 18 | total_asset                | decimal(16,5) | Total asset                                                                                                                                                         |
+| 19 | credit_constraint          | float         | Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311                                                                |
+| 20 | d_credit_constraint        | varchar(5)    | Sectors financially dependant when above median                                                                                                                     |
+| 21 | asset_tangibility_fcit     | decimal(16,5) | Total fixed assets - Intangible assets                                                                                                                              |
+| 22 | cash_over_totasset_fcit    | decimal(21,5) | cuasset - short_term_investment - c80 - c81 - c82 divided by toasset                                                                                                |
+| 23 | sales_assets_andersen_fcit | decimal(21,5) | Sales divided by total asset                                                                                                                                        |
+| 24 | return_on_asset_fcit       | decimal(21,5) | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset |
+| 25 | liabilities_assets_fcit    | decimal(21,5) | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 |
+| 26 | quick_ratio_fcit           | decimal(21,5) | (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                                          |
+| 27 | current_ratio_fcit         | decimal(21,5) | cuasset/流动负债合计 (c95)                                                                                                                                          |
+| 28 | fe_c_i                     | bigint        | City industry fixed effect                                                                                                                                          |
+| 29 | fe_t_i                     | bigint        | year industry fixed effect                                                                                                                                          |
+| 30 | fe_c_t                     | bigint        | city industry fixed effect                                                                                                                                          |
 
     

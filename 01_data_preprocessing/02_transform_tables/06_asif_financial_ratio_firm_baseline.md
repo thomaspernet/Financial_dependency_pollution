@@ -464,6 +464,28 @@ output = s3.run_query(
 output
 ```
 
+We also need to compute the sectors constraint vs not constraint. We use `fin dep` indicator to classify the sectors. If the value is above the median, then the sector is constraint else it is not.  
+
+We know that this value will never change, so we can compute it manually and pass the value in the query
+
+The median is -.47 and the average -.57
+
+```python
+query ="""
+SELECT
+         approx_percentile(financial_dep_china, .5) as median,
+         AVG(financial_dep_china)
+         FROM industry.china_credit_constraint
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_4'
+                )
+output
+```
+
 # Table `asif_financial_ratio_baseline_firm`
 
 Since the table to create has missing value, please use the following at the top of the query
@@ -691,6 +713,7 @@ FROM
       sales, 
       total_asset, 
       credit_constraint, 
+      d_credit_constraint,
       asset_tangibility_fcit, 
       cash_over_totasset_fcit, 
       sales_assets_andersen_fcit, 
@@ -813,7 +836,8 @@ FROM
       LEFT JOIN (
         SELECT 
           cic, 
-          financial_dep_china AS credit_constraint 
+          financial_dep_china AS credit_constraint,
+          CASE WHEN financial_dep_china > -.47 THEN 'ABOVE' ELSE 'BELOW' END AS d_credit_constraint
         FROM 
           industry.china_credit_constraint
       ) as cred_constraint ON ratio.indu_2 = cred_constraint.cic 
@@ -826,13 +850,14 @@ FROM
       and employment > 0 
       AND ratio.indu_2 != '43' 
       AND total_asset IS NOT NULL
-      AND asset_tangibility_fcit IS NOT NULL
-      AND cash_over_totasset_fcit IS NOT NULL 
+      AND asset_tangibility_fcit > 0
+      AND cash_over_totasset_fcit > 0
       AND sales_assets_andersen_fcit IS NOT NULL 
       AND return_on_asset_fcit IS NOT NULL
-      AND liabilities_assets_fcit IS NOT NULL 
-      AND quick_ratio_fcit IS NOT NULL
-      AND current_ratio_fcit IS NOT NULL
+      AND liabilities_assets_fcit > 0
+      AND quick_ratio_fcit > 0
+      AND current_ratio_fcit > 0
+      
     ORDER BY 
       year 
   )
@@ -898,37 +923,57 @@ glue.get_table_information(
 
 ```python
 schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'Firms ID'},
- {'Name': 'year', 'Type': 'string', 'Comment': ''},
- {'Name': 'period', 'Type': 'varchar(5)', 'Comment': 'if year prior to 2006 then False else true. Indicate break from 10 and 11 FYP'},
- {'Name': 'cic', 'Type': 'string', 'Comment': '4 digits industry code'},
- {'Name': 'indu_2', 'Type': 'string', 'Comment': 'Two digits industry. If length cic equals to 3, then add 0 to indu_2'},
- {'Name': 'short', 'Type': 'string', 'Comment': 'Industry short description'},
- {'Name': 'geocode4_corr', 'Type': 'string', 'Comment': 'city code'},
- {'Name': 'tcz', 'Type': 'string', 'Comment': 'Two control zone policy'},
- {'Name': 'spz', 'Type': 'string', 'Comment': 'Special policy zone'},
- {'Name': 'ownership', 'Type': 'string', 'Comment': 'Firms ownership'},
- {'Name': 'soe_vs_pri', 'Type': 'varchar(7)', 'Comment': 'SOE vs PRIVATE'},
- {'Name': 'for_vs_dom', 'Type': 'varchar(8)', 'Comment': ' FOREIGN vs DOMESTICT if ownership is HTM then FOREIGN'},
- {'Name': 'tso2_mandate_c', 'Type': 'float', 'Comment': 'city reduction mandate in tonnes'},
- {'Name': 'in_10_000_tonnes', 'Type': 'float', 'Comment': 'city reduction mandate in 10k tonnes'},
- {'Name': 'output', 'Type': 'decimal(16,5)', 'Comment': 'Output'},
- {'Name': 'employment', 'Type': 'decimal(16,5)', 'Comment': 'employment'},
- {'Name': 'capital', 'Type': 'decimal(16,5)', 'Comment': 'capital'},
- {'Name': 'sales', 'Type': 'decimal(16,5)', 'Comment': 'sales'},
- {'Name': 'total_asset', 'Type': 'decimal(16,5)', 'Comment': 'Total asset'},
- {'Name': 'credit_constraint', 'Type': 'float', 'Comment': 'Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311'},
- {'Name': 'asset_tangibility_fcit', 'Type': 'decimal(16,5)', 'Comment': 'Total fixed assets - Intangible assets'},
- {'Name': 'cash_over_totasset_fcit', 'Type': 'decimal(21,5)', 'Comment': 'cuasset - short_term_investment - c80 - c81 - c82 divided by toasset'},
- {'Name': 'sales_assets_andersen_fcit',
-  'Type': 'decimal(21,5)',
-  'Comment': 'Sales divided by total asset'},
- {'Name': 'return_on_asset_fcit', 'Type': 'decimal(21,5)', 'Comment': 'sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset'},
- {'Name': 'liabilities_assets_fcit', 'Type': 'decimal(21,5)', 'Comment': '(流动负债合计 (c95) + 长期负债合计 (c97)) / toasset'},
- {'Name': 'quick_ratio_fcit', 'Type': 'decimal(21,5)', 'Comment': '(cuasset-存货 (c81) ) / 流动负债合计 (c95)'},
- {'Name': 'current_ratio_fcit', 'Type': 'decimal(21,5)', 'Comment': 'cuasset/流动负债合计 (c95)'},
- {'Name': 'fe_c_i', 'Type': 'bigint', 'Comment': 'City industry fixed effect'},
- {'Name': 'fe_t_i', 'Type': 'bigint', 'Comment': 'year industry fixed effect'},
- {'Name': 'fe_c_t', 'Type': 'bigint', 'Comment': 'city industry fixed effect'}]
+          {'Name': 'year', 'Type': 'string', 'Comment': ''},
+          {'Name': 'period',
+              'Type': 'varchar(5)', 'Comment': 'if year prior to 2006 then False else true. Indicate break from 10 and 11 FYP'},
+          {'Name': 'cic', 'Type': 'string', 'Comment': '4 digits industry code'},
+          {'Name': 'indu_2', 'Type': 'string',
+           'Comment': 'Two digits industry. If length cic equals to 3, then add 0 to indu_2'},
+          {'Name': 'short', 'Type': 'string',
+              'Comment': 'Industry short description'},
+          {'Name': 'geocode4_corr', 'Type': 'string', 'Comment': 'city code'},
+          {'Name': 'tcz', 'Type': 'string', 'Comment': 'Two control zone policy'},
+          {'Name': 'spz', 'Type': 'string', 'Comment': 'Special policy zone'},
+          {'Name': 'ownership', 'Type': 'string', 'Comment': 'Firms ownership'},
+          {'Name': 'soe_vs_pri',
+              'Type': 'varchar(7)', 'Comment': 'SOE vs PRIVATE'},
+          {'Name': 'for_vs_dom',
+           'Type': 'varchar(8)', 'Comment': ' FOREIGN vs DOMESTICT if ownership is HTM then FOREIGN'},
+          {'Name': 'tso2_mandate_c', 'Type': 'float',
+           'Comment': 'city reduction mandate in tonnes'},
+          {'Name': 'in_10_000_tonnes', 'Type': 'float',
+           'Comment': 'city reduction mandate in 10k tonnes'},
+          {'Name': 'output', 'Type': 'decimal(16,5)', 'Comment': 'Output'},
+          {'Name': 'employment',
+              'Type': 'decimal(16,5)', 'Comment': 'employment'},
+          {'Name': 'capital', 'Type': 'decimal(16,5)', 'Comment': 'capital'},
+          {'Name': 'sales', 'Type': 'decimal(16,5)', 'Comment': 'sales'},
+          {'Name': 'total_asset',
+              'Type': 'decimal(16,5)', 'Comment': 'Total asset'},
+          {'Name': 'credit_constraint', 'Type': 'float',
+           'Comment': 'Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311'},
+          {'Name': 'd_credit_constraint',
+           'Type': 'varchar(5)', 'Comment': 'Sectors financially dependant when above median'},
+          {'Name': 'asset_tangibility_fcit',
+           'Type': 'decimal(16,5)', 'Comment': 'Total fixed assets - Intangible assets'},
+          {'Name': 'cash_over_totasset_fcit',
+           'Type': 'decimal(21,5)', 'Comment': 'cuasset - short_term_investment - c80 - c81 - c82 divided by toasset'},
+          {'Name': 'sales_assets_andersen_fcit',
+           'Type': 'decimal(21,5)',
+           'Comment': 'Sales divided by total asset'},
+          {'Name': 'return_on_asset_fcit',
+           'Type': 'decimal(21,5)', 'Comment': 'sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset'},
+          {'Name': 'liabilities_assets_fcit',
+           'Type': 'decimal(21,5)', 'Comment': '(流动负债合计 (c95) + 长期负债合计 (c97)) / toasset'},
+          {'Name': 'quick_ratio_fcit',
+           'Type': 'decimal(21,5)', 'Comment': '(cuasset-存货 (c81) ) / 流动负债合计 (c95)'},
+          {'Name': 'current_ratio_fcit',
+           'Type': 'decimal(21,5)', 'Comment': 'cuasset/流动负债合计 (c95)'},
+          {'Name': 'fe_c_i', 'Type': 'bigint',
+              'Comment': 'City industry fixed effect'},
+          {'Name': 'fe_t_i', 'Type': 'bigint',
+              'Comment': 'year industry fixed effect'},
+          {'Name': 'fe_c_t', 'Type': 'bigint', 'Comment': 'city industry fixed effect'}]
 ```
 
 4. Provide a description
