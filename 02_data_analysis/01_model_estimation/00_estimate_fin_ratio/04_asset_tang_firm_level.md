@@ -201,9 +201,11 @@ Then add it to the key `to_rename`
 
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}
 add_to_dic = True
+
 if add_to_dic:
-    with open('schema_table.json') as json_file:
-        data = json.load(json_file)
+    if os.path.exists("schema_table.json"):
+        os.remove("schema_table.json")
+        data = {'to_rename':[], 'to_remove':[]}
     dic_rename = [
         ### control variables
         {
@@ -254,6 +256,10 @@ if add_to_dic:
         {
         'old':'current\_ratio\_fcit',
         'new':'\\text{current ratio}_{fcit}'
+        },
+        {
+        'old':'d\_credit\_constraintBELOW',
+        'new':'\\text{Fin dep}_{i}'
         }
     ]
 
@@ -302,26 +308,15 @@ $$
 $$
 
 
-* Column 1: XXX
+* Column 1: Baseline
     * FE: 
-        - fe 1: `XX`
-        - fe 2: `XX`
-        - fe 3: `XX`
-* Column 2: XXX
+        - fe 1: `firm`
+* Column 2: Add control
     * FE: 
-        - fe 1: `XX`
-        - fe 2: `XX`
-        - fe 3: `XX`
-* Column 3: XXX
+        - fe 1: `firm`
+* Column 3: Test credit constraint interaction
     * FE: 
-        - fe 1: `XX`
-        - fe 2: `XX`
-        - fe 3: `XX`
-* Column 4: XXX
-    * FE: 
-        - fe 1: `XX`
-        - fe 2: `XX`
-        - fe 3: `XX`
+        - fe 1: `firm`
         
 ![](https://drive.google.com/uc?export=view&id=12uyrdOY5hskcWeH9ZlU8y4MazgEeEHWK)
 <!-- #endregion -->
@@ -340,40 +335,26 @@ for ext in ['.txt', '.tex', '.pdf']:
 
 ```sos kernel="R"
 %get path table
-t_0 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit)  + log(cash_over_totasset_fcit) + log(liabilities_assets_fcit)
-            | firm|0 | firm, df_final 
-            %>% filter(asset_tangibility_fcit >0 
-                       & current_ratio_fcit > 0 
-                       &cash_over_totasset_fcit > 0
-                       &liabilities_assets_fcit > 0
-                      ),
+t_0 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
+            log(cash_over_totasset_fcit) +
+            log(liabilities_assets_fcit)
+            | firm|0 | firm, df_final,
             exactDOF = TRUE)
 
 t_1 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
             log(cash_over_totasset_fcit) + 
             log(liabilities_assets_fcit) +
             log(sales_assets_andersen_fcit) 
-            #+ log(return_on_asset_fcit+ 1)
-            | firm|0 | firm,df_final 
-            %>% filter(asset_tangibility_fcit >0 
-                       & current_ratio_fcit > 0 
-                       &cash_over_totasset_fcit > 0
-                       &liabilities_assets_fcit > 0
-                      ),
+            | firm|0 | firm,df_final,
             exactDOF = TRUE)
 
 t_2 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
             log(cash_over_totasset_fcit) + 
             log(liabilities_assets_fcit) +
-            log(current_ratio_fcit) * credit_constraint  + 
-            log(cash_over_totasset_fcit) * credit_constraint + 
-            log(liabilities_assets_fcit) * credit_constraint
-            | firm|0 | firm, df_final 
-            %>% filter(asset_tangibility_fcit >0 
-                       & current_ratio_fcit > 0 
-                       &cash_over_totasset_fcit > 0
-                       &liabilities_assets_fcit > 0
-                      ),
+            log(current_ratio_fcit) * d_credit_constraint  + 
+            log(cash_over_totasset_fcit) * d_credit_constraint + 
+            log(liabilities_assets_fcit) * d_credit_constraint
+            | firm|0 | firm, df_final,
             exactDOF = TRUE)
 
 ### more controls
@@ -381,47 +362,31 @@ t_3 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
             log(cash_over_totasset_fcit) + 
             log(liabilities_assets_fcit) +
             log(output)
-            | firm |0 | firm,df_final 
-            %>% filter(asset_tangibility_fcit >0 
-                       & current_ratio_fcit > 0 
-                       &cash_over_totasset_fcit > 0
-                       &liabilities_assets_fcit > 0
-                      ),
+            | firm |0 | firm,df_final,
             exactDOF = TRUE)
 
 t_4 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
             log(cash_over_totasset_fcit) +
             log(liabilities_assets_fcit) +
             log(sales_assets_andersen_fcit) +
-            #+ log(return_on_asset_fcit+ 1) + 
             log(output)
-            | firm|0 | firm, df_final 
-            %>% filter(asset_tangibility_fcit >0 
-                       & current_ratio_fcit > 0 
-                       &cash_over_totasset_fcit > 0
-                       &liabilities_assets_fcit > 0
-                      ),
+            | firm|0 | firm, df_final,
             exactDOF = TRUE)
 
 t_5 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
             log(cash_over_totasset_fcit) +
             log(liabilities_assets_fcit) +
-            log(current_ratio_fcit) * credit_constraint  + 
-            log(cash_over_totasset_fcit) * credit_constraint + 
-            log(liabilities_assets_fcit) * credit_constraint + 
+            log(current_ratio_fcit) * d_credit_constraint  + 
+            log(cash_over_totasset_fcit) * d_credit_constraint + 
+            log(liabilities_assets_fcit) * d_credit_constraint + 
             log(output)
-            | firm|0 | firm,df_final 
-            %>% filter(asset_tangibility_fcit >0 
-                       & current_ratio_fcit > 0 
-                       &cash_over_totasset_fcit > 0
-                       &liabilities_assets_fcit > 0                     
-                      ),
+            | firm|0 | firm,df_final,
             exactDOF = TRUE)
             
 dep <- "Dependent variable: Asset tangilibility"
 fe1 <- list(
-    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")#,
+    #c("year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
@@ -462,17 +427,29 @@ lb.beautify(table_number = table_nb,
             folder = folder)
 ```
 
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
 <!-- #region kernel="SoS" nteract={"transient": {"deleting": false}} -->
 # Generate reports
 <!-- #endregion -->
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
+```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
 import os, time, shutil, urllib, ipykernel, json
 from pathlib import Path
 from notebook import notebookapp
 ```
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
+```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
 def create_report(extension = "html", keep_code = False, notebookname = None):
     """
     Create a report from the current notebook and save it in the 
@@ -532,6 +509,6 @@ def create_report(extension = "html", keep_code = False, notebookname = None):
     print("Report Available at this adress:\n {}".format(dest))
 ```
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
-create_report(extension = "html", keep_code = False, notebookname = None)
+```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
+create_report(extension = "html", keep_code = False, notebookname = "04_asset_tang_firm_level.ipynb")
 ```
