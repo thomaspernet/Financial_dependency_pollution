@@ -338,14 +338,14 @@ for ext in ['.txt', '.tex', '.pdf']:
 t_0 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
             log(cash_over_totasset_fcit) +
             log(liabilities_assets_fcit)
-            | firm|0 | firm, df_final,
+            | firm + fe_t_i|0 | firm, df_final,
             exactDOF = TRUE)
 
 t_1 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
             log(cash_over_totasset_fcit) + 
             log(liabilities_assets_fcit) +
             log(sales_assets_andersen_fcit) 
-            | firm|0 | firm,df_final,
+            | firm+ fe_t_i|0 | firm,df_final,
             exactDOF = TRUE)
 
 t_2 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
@@ -354,7 +354,7 @@ t_2 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
             log(current_ratio_fcit) * d_credit_constraint  + 
             log(cash_over_totasset_fcit) * d_credit_constraint + 
             log(liabilities_assets_fcit) * d_credit_constraint
-            | firm|0 | firm, df_final,
+            | firm+ fe_t_i|0 | firm, df_final,
             exactDOF = TRUE)
 
 ### more controls
@@ -362,7 +362,7 @@ t_3 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
             log(cash_over_totasset_fcit) + 
             log(liabilities_assets_fcit) +
             log(output)
-            | firm |0 | firm,df_final,
+            | firm + fe_t_i|0 | firm,df_final,
             exactDOF = TRUE)
 
 t_4 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
@@ -370,7 +370,7 @@ t_4 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
             log(liabilities_assets_fcit) +
             log(sales_assets_andersen_fcit) +
             log(output)
-            | firm|0 | firm, df_final,
+            | firm+ fe_t_i|0 | firm, df_final,
             exactDOF = TRUE)
 
 t_5 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
@@ -380,13 +380,13 @@ t_5 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
             log(cash_over_totasset_fcit) * d_credit_constraint + 
             log(liabilities_assets_fcit) * d_credit_constraint + 
             log(output)
-            | firm|0 | firm,df_final,
+            | firm+ fe_t_i|0 | firm,df_final,
             exactDOF = TRUE)
             
 dep <- "Dependent variable: Asset tangilibility"
 fe1 <- list(
-    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")#,
-    #c("year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
@@ -404,7 +404,7 @@ table_1 <- go_latex(list(
 ```sos kernel="SoS"
 tbe1  = "This table estimates eq(3). " \
 "Heteroskedasticity-robust standard errors" \
-"clustered at the product level appear inparentheses."\
+"clustered at the firm level appear in parentheses."\
 "\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
 
 #multicolumn ={
