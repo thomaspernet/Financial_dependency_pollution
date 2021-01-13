@@ -276,6 +276,10 @@ if add_to_dic:
         {
         'old':'d\_credit\_constraintBELOW',
         'new':'\\text{Fin dep}_{i}'
+        },
+        {
+            'old':'soe\_vs\_priPRIVATE',
+            'new':'private'
         }
     ]
 
@@ -556,7 +560,7 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-# Table 2: Private vs SOE
+## Table 2: Private vs SOE
 <!-- #endregion -->
 
 ```sos kernel="SoS"
@@ -639,7 +643,7 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-# Table 3: TCZ 
+## Table 3: TCZ 
 <!-- #endregion -->
 
 ```sos kernel="SoS"
@@ -722,7 +726,7 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-# Table 4: TCZ 
+## Table 4: TCZ 
 <!-- #endregion -->
 
 ```sos kernel="SoS"
