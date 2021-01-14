@@ -280,7 +280,13 @@ if add_to_dic:
         {
             'old':'soe\_vs\_priPRIVATE',
             'new':'private'
+        },
+        {
+            'old':'d\_size\_percentiletrue',
+            'new':'\\text{size}_f'
         }
+        
+        
     ]
 
     data['to_rename'].extend(dic_rename)
@@ -313,9 +319,8 @@ mutate_if(is.character, as.factor) %>%
 mutate(
     period = relevel(as.factor(period), ref='FALSE'),
     soe_vs_pri = relevel(as.factor(soe_vs_pri), ref='SOE'),
-    #asset_tangibility_fcit = asset_tangibility_fcit /1000000000,
-    #cash_over_totasset_fcit = cash_over_totasset_fcit /100000,
-    #liabilities_assets_fcit = liabilities_assets_fcit /100000,
+    #size_percentile = quantile(employment, c(0.75)),
+    #d_size_percentile = ifelse(employment > size_percentile, "LARGE", "SMALL"),
 )
 ```
 
@@ -673,9 +678,9 @@ t_0 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
 t_1 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
             log(cash_over_totasset_fcit) +
             log(liabilities_assets_fcit) +
-            log(current_ratio_fcit)  * tcz  + 
-            log(cash_over_totasset_fcit)  * tcz + 
-            log(liabilities_assets_fcit)  * tcz + 
+            log(current_ratio_fcit) * tcz  + 
+            log(cash_over_totasset_fcit) * tcz + 
+            log(liabilities_assets_fcit) * tcz + 
             log(output)
             | firm+ fe_t_i|0 | firm,df_final,
             exactDOF = TRUE)
@@ -726,7 +731,7 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-## Table 4: TCZ 
+## Table 4: SCZ 
 <!-- #endregion -->
 
 ```sos kernel="SoS"
@@ -806,6 +811,166 @@ lb.beautify(table_number = table_nb,
             jupyter_preview = True,
             resolution = 150,
             folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## Table 5: Large vs Small
+
+* Create dummy for large firm vs small firm
+  * Test
+    * 1/ Compute the average employment [output, asset tangibility, capital] by firm
+    * 2/ Compute the average, .5, .75, .90, .95 of the distribution from 1/
+    * If 2/ > 1/ then large else small
+  * Make sure a firm does not switch size over time
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 2
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+
+#t <- 1
+#for (i in list(.5, .75, .90)){
+    #regex <- paste0("(?<=",i, "\\=)(.*?)(?=\\,)")
+    #path_1 = paste0(folder,"/table_",t ,".txt")
+    #df_temp_true = df_final %>% 
+    #mutate(d_size_percentile = str_extract(size_employment_f, regex))
+
+
+t_0 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
+                log(cash_over_totasset_fcit) + 
+                log(liabilities_assets_fcit) +
+                log(current_ratio_fcit) * d_size_percentile  + 
+                log(cash_over_totasset_fcit) * d_size_percentile + 
+                log(liabilities_assets_fcit) * d_size_percentile
+                | firm+ fe_t_i|0 | firm, df_final %>% 
+    mutate(d_size_percentile = str_extract(size_asset_f, "(?<=.5\\=)(.*?)(?=\\,)")),
+                exactDOF = TRUE)
+
+t_1 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
+                log(cash_over_totasset_fcit) + 
+                log(liabilities_assets_fcit) +
+                log(current_ratio_fcit) * d_size_percentile  + 
+                log(cash_over_totasset_fcit) * d_size_percentile + 
+                log(liabilities_assets_fcit) * d_size_percentile
+                | firm+ fe_t_i|0 | firm, df_final %>% 
+    mutate(d_size_percentile = str_extract(size_asset_f, "(?<=.75\\=)(.*?)(?=\\,)")),
+                exactDOF = TRUE)
+
+t_2 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
+                log(cash_over_totasset_fcit) + 
+                log(liabilities_assets_fcit) +
+                log(current_ratio_fcit) * d_size_percentile  + 
+                log(cash_over_totasset_fcit) * d_size_percentile + 
+                log(liabilities_assets_fcit) * d_size_percentile
+                | firm+ fe_t_i|0 | firm, df_final %>% 
+    mutate(d_size_percentile = str_extract(size_asset_f, "(?<=.9\\=)(.*?)(?=\\,)")),
+                exactDOF = TRUE)
+
+    ###
+
+    ### more controls
+t_3 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
+                log(cash_over_totasset_fcit) +
+                log(liabilities_assets_fcit) +
+                log(current_ratio_fcit) * d_size_percentile  + 
+                log(cash_over_totasset_fcit) * d_size_percentile + 
+                log(liabilities_assets_fcit) * d_size_percentile + 
+                log(output)
+                | firm + fe_t_i|0 | firm,df_final %>% 
+    mutate(d_size_percentile = str_extract(size_asset_f, "(?<=.5\\=)(.*?)(?=\\,)")),
+                exactDOF = TRUE)
+
+t_4 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
+                log(cash_over_totasset_fcit) +
+                log(liabilities_assets_fcit) +
+                log(current_ratio_fcit) * d_size_percentile  + 
+                log(cash_over_totasset_fcit) * d_size_percentile + 
+                log(liabilities_assets_fcit) * d_size_percentile + 
+                log(output)
+                | firm + fe_t_i|0 | firm,df_final %>% 
+    mutate(d_size_percentile = str_extract(size_asset_f, "(?<=.75\\=)(.*?)(?=\\,)")),
+                exactDOF = TRUE)
+
+t_5 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
+                log(cash_over_totasset_fcit) +
+                log(liabilities_assets_fcit) +
+                log(current_ratio_fcit) * d_size_percentile  + 
+                log(cash_over_totasset_fcit) * d_size_percentile + 
+                log(liabilities_assets_fcit) * d_size_percentile + 
+                log(output)
+                | firm + fe_t_i|0 | firm,df_final %>% 
+    mutate(d_size_percentile = str_extract(size_asset_f, "(?<=.9\\=)(.*?)(?=\\,)")),
+                exactDOF = TRUE)
+            
+dep <- "Dependent variable: Asset tangilibility"
+fe1 <- list(
+        c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+        c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+                 )
+
+table_1 <- go_latex(
+        list(t_0,t_1, t_2, t_3, t_4, t_5),
+        title="Baseline Estimate, determinants of firm-level asset tangibility (size )",
+        dep_var = dep,
+        addFE=fe1,
+        save=TRUE,
+        note = FALSE,
+        name=path
+    ) 
+    #t <- t+1
+#}
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors" \
+"clustered at the firm level appear in parentheses."\
+" Current ratio, cash over asset and liabilities over asset are lagged by one year. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& .5', '.75', '.90', '.5', '.75', '.90']
+#for i, value in enumerate([.5, .75, .90]):
+#    print('\n\nFirm size percentile {}\n\n'.format(value))
+lb.beautify(table_number = table_nb,
+                #reorder_var = reorder,
+                #multi_lines_dep = multi_lines_dep,
+                new_row= new_r,
+                #multicolumn = multicolumn,
+                table_nte = tbe1,
+                jupyter_preview = True,
+                resolution = 200,
+                folder = folder)
+```
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 2
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
 ```
 
 <!-- #region kernel="SoS" nteract={"transient": {"deleting": false}} -->
