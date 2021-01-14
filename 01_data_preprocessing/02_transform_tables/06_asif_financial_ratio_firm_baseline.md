@@ -682,45 +682,14 @@ output = s3.run_query(
 output
 ```
 
-# Table `asif_financial_ratio_baseline_firm`
+Example of computing firm size:
 
-Since the table to create has missing value, please use the following at the top of the query
-
-```
-CREATE TABLE database.table_name WITH (format = 'PARQUET') AS
-```
-
-
-Choose a location in S3 to save the CSV. It is recommended to save in it the `datalake-datascience` bucket. Locate an appropriate folder in the bucket, and make sure all output have the same format
+* 1/ Compute the average employment [output, asset tangibility, capital] by firm
+* 2/ Compute the average, .5, .75, .90, .95 of the distribution from 1/
+* If 2/ > 1/ then large else small
 
 ```python
-s3_output = 'DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/FIRM'
-table_name = 'asif_financial_ratio_baseline_firm'
-```
-
-First, we need to delete the table (if exist)
-
-```python
-try:
-    response = glue.delete_table(
-        database=DatabaseName,
-        table=table_name
-    )
-    print(response)
-except Exception as e:
-    print(e)
-```
-
-Clean up the folder with the previous csv file. Be careful, it will erase all files inside the folder
-
-```python
-s3.remove_all_bucket(path_remove = s3_output)
-```
-
-```python
-%%time
 query = """
-CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS
 WITH test AS (
   SELECT 
     *, 
@@ -876,13 +845,275 @@ FROM
       
         CAST(
           tofixed - c92 AS DECIMAL(16, 5)
-        ) AS asset_tangibility_fcit 
+        ) AS asset_tangibility_fcit,
+      'FAKE' AS fake
       FROM 
         test 
       WHERE 
         year in (
           '2000','2001', '2002', '2003', '2004', '2005', 
           '2006', '2007'
+        )
+    ) 
+    SELECT 
+    firm, 
+    
+    transform(
+        sequence(
+          1, 
+          4
+        ), 
+        x -> asset_tangibility_fcit
+      ) as sequence_asset,
+    pct_asset_tangibility,
+    MAP(
+        ARRAY[
+          .5, 
+          .75, 
+          .90, 
+          .95
+          ],
+  zip_with(
+      transform(
+        sequence(
+          1, 
+          4
+        ), 
+        x -> asset_tangibility_fcit
+      ),
+        pct_asset_tangibility, (x, y) -> x > y)
+        ) AS large_f
+    ,
+    avg_asset_tangibility,
+    CASE WHEN asset_tangibility_fcit > avg_asset_tangibility THEN 'LARGE' ELSE 'SMALL' END AS avg_large_f
+    FROM ratio
+    INNER JOIN (
+      SELECT
+    fake, 
+      approx_percentile(avg_asset_tangibility_f, ARRAY[.5, .75, .90, .95])
+      as pct_asset_tangibility,
+      AVG(avg_asset_tangibility_f) AS avg_asset_tangibility
+      
+    FROM (
+    SELECT
+    firm,
+    fake,
+    AVG(asset_tangibility_fcit) as avg_asset_tangibility_f
+    FROM ratio
+    GROUP BY fake, firm
+    LIMIT 10
+      )
+    GROUP BY fake
+      ) as pct_
+    ON ratio.fake = pct_.fake
+    LIMIT 10
+    )
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_5'
+                )
+output
+```
+
+# Table `asif_financial_ratio_baseline_firm`
+
+Since the table to create has missing value, please use the following at the top of the query
+
+```
+CREATE TABLE database.table_name WITH (format = 'PARQUET') AS
+```
+
+
+Choose a location in S3 to save the CSV. It is recommended to save in it the `datalake-datascience` bucket. Locate an appropriate folder in the bucket, and make sure all output have the same format
+
+```python
+s3_output = 'DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/FIRM'
+table_name = 'asif_financial_ratio_baseline_firm'
+```
+
+First, we need to delete the table (if exist)
+
+```python
+try:
+    response = glue.delete_table(
+        database=DatabaseName,
+        table=table_name
+    )
+    print(response)
+except Exception as e:
+    print(e)
+```
+
+Clean up the folder with the previous csv file. Be careful, it will erase all files inside the folder
+
+```python
+s3.remove_all_bucket(path_remove = s3_output)
+```
+
+```python
+%%time
+query = """
+CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS
+WITH test AS (
+  SELECT 
+    *, 
+    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
+      '0', 
+      substr(cic, 1, 1)
+    ) END AS indu_2, 
+    c98 + c99 as total_asset, 
+    CASE WHEN c79 IS NULL THEN 0 ELSE c79 END AS short_term_investment 
+  FROM 
+    firms_survey.asif_firms_prepared 
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+) 
+SELECT 
+  * 
+FROM 
+  (
+    WITH ratio AS (
+      SELECT 
+        firm, 
+        year, 
+        cic, 
+        indu_2, 
+        geocode4_corr, 
+        ownership, 
+        CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri, 
+        CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom, 
+        CAST(
+          output AS DECIMAL(16, 5)
+        ) AS output, 
+        CAST(
+          sales AS DECIMAL(16, 5)
+        ) AS sales, 
+        CAST(
+          employ AS DECIMAL(16, 5)
+        ) AS employment, 
+        CAST(
+          captal AS DECIMAL(16, 5)
+        ) AS capital, 
+        CAST(
+          toasset AS DECIMAL(16, 5)
+        ) AS total_asset, 
+        CAST(
+          cuasset AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            c95 AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS current_ratio_fcit, 
+        CAST(
+          cuasset - short_term_investment - c80 - c81 AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            c95 AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS quick_ratio_fcit, 
+        -- Need to add asset or debt when bs requirement not meet
+        CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
+          c95 + c97 AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset + ABS(
+              toasset - (c98 + c99)
+            ) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) WHEN toasset - (c98 + c99) > 0 THEN CAST(
+          c95 + c97 + toasset - (c98 + c99) AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) ELSE CAST(
+          c95 + c97 AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) END AS liabilities_assets_fcit, 
+        CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
+          sales - (
+            c108 + c113 + c114 + c116 + c118 + c124 + wage
+          ) AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset + ABS(
+              toasset - (c98 + c99)
+            ) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) ELSE CAST(
+          sales - (
+            c108 + c113 + c114 + c116 + c118 + c124 + wage
+          ) AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) END AS return_on_asset_fcit, 
+        CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
+          sales AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset + ABS(
+              toasset - (c98 + c99)
+            ) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) ELSE CAST(
+          sales AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) END AS sales_assets_andersen_fcit, 
+        CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
+          cuasset - short_term_investment - c80 - c81 - c82 AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset + ABS(
+              toasset - (c98 + c99)
+            ) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) ELSE CAST(
+          cuasset - short_term_investment - c80 - c81 - c82 AS DECIMAL(16, 5)
+        )/ NULLIF(
+          CAST(
+            toasset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) END AS cash_over_totasset_fcit, 
+        CAST(
+          tofixed - c92 AS DECIMAL(16, 5)
+        ) AS asset_tangibility_fcit, 
+        'FAKE' AS fake 
+      FROM 
+        test 
+      WHERE 
+        year in (
+          '2000', '2001', '2002', '2003', '2004', 
+          '2005', '2006', '2007'
         )
     ) 
     SELECT 
@@ -909,18 +1140,109 @@ FROM
       sales, 
       total_asset, 
       credit_constraint, 
-      d_credit_constraint,
+      d_credit_constraint, 
       asset_tangibility_fcit, 
-      cash_over_totasset_fcit,
-      LAG(cash_over_totasset_fcit, 1) OVER ( PARTITION BY ratio.firm ORDER BY ratio.year ) as lag_cash_over_totasset_fcit,
-      current_ratio_fcit,
-      LAG(current_ratio_fcit, 1) OVER ( PARTITION BY ratio.firm ORDER BY ratio.year ) as lag_current_ratio_fcit,
-      quick_ratio_fcit,
-      LAG(quick_ratio_fcit, 1) OVER ( PARTITION BY ratio.firm ORDER BY ratio.year ) as lag_quick_ratio_fcit,
-      liabilities_assets_fcit,
-      LAG(liabilities_assets_fcit, 1) OVER ( PARTITION BY ratio.firm ORDER BY ratio.year ) as lag_liabilities_assets_fcit,
+      cash_over_totasset_fcit, 
+      LAG(cash_over_totasset_fcit, 1) OVER (
+        PARTITION BY ratio.firm 
+        ORDER BY 
+          ratio.year
+      ) as lag_cash_over_totasset_fcit, 
+      current_ratio_fcit, 
+      LAG(current_ratio_fcit, 1) OVER (
+        PARTITION BY ratio.firm 
+        ORDER BY 
+          ratio.year
+      ) as lag_current_ratio_fcit, 
+      quick_ratio_fcit, 
+      LAG(quick_ratio_fcit, 1) OVER (
+        PARTITION BY ratio.firm 
+        ORDER BY 
+          ratio.year
+      ) as lag_quick_ratio_fcit, 
+      liabilities_assets_fcit, 
+      LAG(liabilities_assets_fcit, 1) OVER (
+        PARTITION BY ratio.firm 
+        ORDER BY 
+          ratio.year
+      ) as lag_liabilities_assets_fcit, 
       sales_assets_andersen_fcit, 
       return_on_asset_fcit, 
+      CASE WHEN asset_tangibility_fcit > avg_asset_tangibility THEN 'LARGE' ELSE 'SMALL' END AS avg_size_asset_f, 
+      CASE WHEN output > avg_output THEN 'LARGE' ELSE 'SMALL' END AS avg_size_output_f, 
+      CASE WHEN employment > avg_employment THEN 'LARGE' ELSE 'SMALL' END AS avg_employment_f, 
+      CASE WHEN capital > avg_capital THEN 'LARGE' ELSE 'SMALL' END AS avg_size_capital_f, 
+      CASE WHEN sales > avg_sales THEN 'LARGE' ELSE 'SMALL' END AS avg_sales_f, 
+      MAP(
+        ARRAY[.5, 
+        .75, 
+        .90, 
+        .95 ], 
+        zip_with(
+          transform(
+            sequence(1, 4), 
+            x -> asset_tangibility_fcit
+          ), 
+          pct_asset_tangibility, 
+          (x, y) -> x > y
+        )
+      ) AS size_asset_f, 
+      MAP(
+        ARRAY[.5, 
+        .75, 
+        .90, 
+        .95 ], 
+        zip_with(
+          transform(
+            sequence(1, 4), 
+            x -> output
+          ), 
+          pct_output, 
+          (x, y) -> x > y
+        )
+      ) AS size_output_f, 
+      MAP(
+        ARRAY[.5, 
+        .75, 
+        .90, 
+        .95 ], 
+        zip_with(
+          transform(
+            sequence(1, 4), 
+            x -> employment
+          ), 
+          pct_employment, 
+          (x, y) -> x > y
+        )
+      ) AS size_employment_f, 
+      MAP(
+        ARRAY[.5, 
+        .75, 
+        .90, 
+        .95 ], 
+        zip_with(
+          transform(
+            sequence(1, 4), 
+            x -> capital
+          ), 
+          pct_capital, 
+          (x, y) -> x > y
+        )
+      ) AS size_capital_f, 
+      MAP(
+        ARRAY[.5, 
+        .75, 
+        .90, 
+        .95 ], 
+        zip_with(
+          transform(
+            sequence(1, 4), 
+            x -> sales
+          ), 
+          pct_sales, 
+          (x, y) -> x > y
+        )
+      ) AS size_sales_f, 
       DENSE_RANK() OVER (
         ORDER BY 
           ratio.geocode4_corr, 
@@ -1036,11 +1358,56 @@ FROM
       LEFT JOIN (
         SELECT 
           cic, 
-          financial_dep_china AS credit_constraint,
-          CASE WHEN financial_dep_china > -.47 THEN 'ABOVE' ELSE 'BELOW' END AS d_credit_constraint
+          financial_dep_china AS credit_constraint, 
+          CASE WHEN financial_dep_china > -.47 THEN 'ABOVE' ELSE 'BELOW' END AS d_credit_constraint 
         FROM 
           industry.china_credit_constraint
       ) as cred_constraint ON ratio.indu_2 = cred_constraint.cic 
+      LEFT JOIN (
+        SELECT 
+          fake, 
+          approx_percentile(
+            avg_asset_tangibility_f, ARRAY[.5, 
+            .75,.90,.95]
+          ) as pct_asset_tangibility, 
+          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility, 
+          approx_percentile(
+            avg_output_f, ARRAY[.5,.75,.90,.95]
+          ) as pct_output, 
+          AVG(avg_output_f) AS avg_output, 
+          approx_percentile(
+            avg_employment_f, ARRAY[.5,.75,.90, 
+            .95]
+          ) as pct_employment, 
+          AVG(avg_employment_f) AS avg_employment, 
+          approx_percentile(
+            avg_capital_f, ARRAY[.5,.75,.90, 
+            .95]
+          ) as pct_capital, 
+          AVG(avg_capital_f) AS avg_capital, 
+          approx_percentile(
+            avg_sales_f, ARRAY[.5,.75,.90,.95]
+          ) as pct_sales, 
+          AVG(avg_sales_f) AS avg_sales 
+        FROM 
+          (
+            SELECT 
+              firm, 
+              fake, 
+              AVG(asset_tangibility_fcit) as avg_asset_tangibility_f, 
+              AVG(output) as avg_output_f, 
+              AVG(employment) as avg_employment_f, 
+              AVG(capital) as avg_capital_f, 
+              AVG(sales) as avg_sales_f 
+            FROM 
+              ratio 
+            GROUP BY 
+              fake, 
+              firm
+          ) 
+        GROUP BY 
+          fake
+      ) as pct_ ON ratio.fake = pct_.fake 
     WHERE 
       count_ownership = 1 
       AND count_city = 1 
@@ -1049,23 +1416,21 @@ FROM
       and capital > 0 
       and employment > 0 
       AND ratio.indu_2 != '43' 
-      AND total_asset IS NOT NULL
-      AND asset_tangibility_fcit > 0
-      AND cash_over_totasset_fcit > 0
+      AND total_asset IS NOT NULL 
+      AND asset_tangibility_fcit > 0 
+      AND cash_over_totasset_fcit > 0 
       AND sales_assets_andersen_fcit IS NOT NULL 
-      AND return_on_asset_fcit IS NOT NULL
-      AND liabilities_assets_fcit > 0
-      AND quick_ratio_fcit > 0
-      AND current_ratio_fcit > 0
+      AND return_on_asset_fcit IS NOT NULL 
+      AND liabilities_assets_fcit > 0 
+      AND quick_ratio_fcit > 0 
+      AND current_ratio_fcit > 0 
       AND ratio.year in (
-          '2001', '2002', '2003', '2004', '2005', 
-          '2006', '2007'
-        )
-      
+        '2001', '2002', '2003', '2004', '2005', 
+        '2006', '2007'
+      ) 
     ORDER BY 
       year 
   )
-
 """.format(DatabaseName, table_name)
 output = s3.run_query(
                     query=query,
@@ -1087,6 +1452,57 @@ output = s3.run_query(
     filename = 'count_{}'.format(table_name)
                 )
 output
+```
+
+Test if the methodology works -> One firm one status
+
+```python
+query_test = """
+WITH test AS ( SELECT 
+firm, dominated_median, COUNT(DISTINCT(dominated_median)) as count
+FROM (
+  SELECT 
+  firm, element_at(size_asset_f, .75) as dominated_median
+FROM asif_financial_ratio_baseline_firm   
+  )
+GROUP BY firm, dominated_median
+              )
+              SELECT count, COUNT(*) as count_size
+              FROM test
+              GROUP BY count
+"""
+output = s3.run_query(
+                    query=query_test,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'count_{}'.format(table_name)
+                )
+output
+```
+
+Number of observations per size
+
+```python
+for i in [.5, .75, .9, .95]:
+    query_test = """
+    SELECT 
+    dominated, COUNT(*) as count
+    FROM (
+      SELECT 
+      element_at(size_asset_f, {}) as dominated
+    FROM asif_financial_ratio_baseline_firm   
+      )
+    GROUP BY dominated
+    ORDER BY dominated
+    """.format(i)
+    output = s3.run_query(
+                        query=query_test,
+                        database=DatabaseName,
+                        s3_output=s3_output_example,
+        filename = 'count_{}'.format(table_name)
+                    )
+    print("Decile {}".format(i))
+    display(output)
 ```
 
 # Validate query
@@ -1183,6 +1599,26 @@ schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'Firms ID'},
            'Comment': 'Sales divided by total asset'},
           {'Name': 'return_on_asset_fcit',
            'Type': 'decimal(21,5)', 'Comment': 'sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset'},
+          {'Name': 'avg_size_asset_f',
+              'Type': 'varchar(5)', 'Comment': 'if firm s asset tangibility average is above average of firm s average then firm is large'},
+          {'Name': 'avg_size_output_f',
+              'Type': 'varchar(5)', 'Comment': 'if firm s ouptut average is above average of firm s average then firm is large'},
+          {'Name': 'avg_employment_f',
+              'Type': 'varchar(5)', 'Comment': 'if firm s employment average is above average of firm s average then firm is large'},
+          {'Name': 'avg_size_capital_f',
+           'Type': 'varchar(5)', 'Comment': 'if firm s capital average is above average of firm s average then firm is large'},
+          {'Name': 'avg_sales_f',
+           'Type': 'varchar(5)', 'Comment': 'if firm s sale is above average of firm s average then firm is large'},
+          {'Name': 'size_asset_f', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s asset tangibility average is above average of firm s decile then firm is large'},
+          {'Name': 'size_output_f', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s ouptut average is above average of firm s decile then firm is large'},
+          {'Name': 'size_employment_f', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s employment average is above average of firm s decile then firm is large'},
+          {'Name': 'size_capital_f', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s capital average is above average of firm s decile then firm is large'},
+          {'Name': 'size_sales_f', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s sale is above average of firm s decile then firm is large'},
           {'Name': 'fe_c_i', 'Type': 'bigint',
               'Comment': 'City industry fixed effect'},
           {'Name': 'fe_t_i', 'Type': 'bigint',
