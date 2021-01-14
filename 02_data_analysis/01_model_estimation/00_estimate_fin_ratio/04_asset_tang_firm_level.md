@@ -137,7 +137,7 @@ for key, value in enumerate(schema):
 ```
 
 ```sos kernel="SoS"
-download_data = False
+download_data = True
 filename = 'df_{}'.format(table)
 full_path_filename = 'SQL_OUTPUT_ATHENA/CSV/{}.csv'.format(filename)
 path_local = os.path.join(str(Path(path).parent.parent.parent), 
@@ -877,10 +877,20 @@ t_2 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
     mutate(d_size_percentile = str_extract(size_asset_f, "(?<=.9\\=)(.*?)(?=\\,)")),
                 exactDOF = TRUE)
 
+t_3 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
+                log(cash_over_totasset_fcit) + 
+                log(liabilities_assets_fcit) +
+                log(current_ratio_fcit) * d_size_percentile  + 
+                log(cash_over_totasset_fcit) * d_size_percentile + 
+                log(liabilities_assets_fcit) * d_size_percentile
+                | firm+ fe_t_i|0 | firm, df_final %>% 
+    mutate(d_size_percentile = str_extract(size_asset_f, "(?<=.95\\=)(.*?)(?=\\})")),
+                exactDOF = TRUE)
+
     ###
 
     ### more controls
-t_3 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
+t_4 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
                 log(cash_over_totasset_fcit) +
                 log(liabilities_assets_fcit) +
                 log(current_ratio_fcit) * d_size_percentile  + 
@@ -891,7 +901,7 @@ t_3 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
     mutate(d_size_percentile = str_extract(size_asset_f, "(?<=.5\\=)(.*?)(?=\\,)")),
                 exactDOF = TRUE)
 
-t_4 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
+t_5 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
                 log(cash_over_totasset_fcit) +
                 log(liabilities_assets_fcit) +
                 log(current_ratio_fcit) * d_size_percentile  + 
@@ -902,7 +912,7 @@ t_4 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
     mutate(d_size_percentile = str_extract(size_asset_f, "(?<=.75\\=)(.*?)(?=\\,)")),
                 exactDOF = TRUE)
 
-t_5 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
+t_6 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
                 log(cash_over_totasset_fcit) +
                 log(liabilities_assets_fcit) +
                 log(current_ratio_fcit) * d_size_percentile  + 
@@ -912,6 +922,17 @@ t_5 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
                 | firm + fe_t_i|0 | firm,df_final %>% 
     mutate(d_size_percentile = str_extract(size_asset_f, "(?<=.9\\=)(.*?)(?=\\,)")),
                 exactDOF = TRUE)
+
+t_7 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
+                log(cash_over_totasset_fcit) +
+                log(liabilities_assets_fcit) +
+                log(current_ratio_fcit) * d_size_percentile  + 
+                log(cash_over_totasset_fcit) * d_size_percentile + 
+                log(liabilities_assets_fcit) * d_size_percentile + 
+                log(output)
+                | firm + fe_t_i|0 | firm,df_final %>% 
+    mutate(d_size_percentile = str_extract(size_asset_f, "(?<=.95\\=)(.*?)(?=\\})")),
+                exactDOF = TRUE)
             
 dep <- "Dependent variable: Asset tangilibility"
 fe1 <- list(
@@ -920,7 +941,7 @@ fe1 <- list(
                  )
 
 table_1 <- go_latex(
-        list(t_0,t_1, t_2, t_3, t_4, t_5),
+        list(t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7),
         title="Baseline Estimate, determinants of firm-level asset tangibility (size )",
         dep_var = dep,
         addFE=fe1,
@@ -947,7 +968,7 @@ tbe1  = "This table estimates eq(3). " \
 #}
 
 #multi_lines_dep = '(city/product/trade regime/year)'
-new_r = ['& .5', '.75', '.90', '.5', '.75', '.90']
+new_r = ['& .5', '.75', '.90', '.95' ,'.5', '.75', '.90', '.95']
 #for i, value in enumerate([.5, .75, .90]):
 #    print('\n\nFirm size percentile {}\n\n'.format(value))
 lb.beautify(table_number = table_nb,
