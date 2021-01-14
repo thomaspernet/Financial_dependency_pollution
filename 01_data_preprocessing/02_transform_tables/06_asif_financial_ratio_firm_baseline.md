@@ -723,11 +723,9 @@ FROM
         cic, 
         indu_2, 
         geocode4_corr, 
-        ownership,
-        CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri,
-        CASE WHEN ownership in (
-        'HTM', 'FOREIGN'
-      ) THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom,
+        ownership, 
+        CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri, 
+        CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom, 
         CAST(
           output AS DECIMAL(16, 5)
         ) AS output, 
@@ -750,8 +748,7 @@ FROM
             c95 AS DECIMAL(16, 5)
           ), 
           0
-        ) AS current_ratio_fcit,
-      
+        ) AS current_ratio_fcit, 
         CAST(
           cuasset - short_term_investment - c80 - c81 AS DECIMAL(16, 5)
         ) / NULLIF(
@@ -806,7 +803,6 @@ FROM
           ), 
           0
         ) END AS return_on_asset_fcit, 
-      
         CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
           sales AS DECIMAL(16, 5)
         )/ NULLIF(
@@ -823,8 +819,7 @@ FROM
             toasset AS DECIMAL(16, 5)
           ), 
           0
-        ) END AS sales_assets_andersen_fcit,
-      
+        ) END AS sales_assets_andersen_fcit, 
         CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
           cuasset - short_term_investment - c80 - c81 - c82 AS DECIMAL(16, 5)
         )/ NULLIF(
@@ -842,72 +837,81 @@ FROM
           ), 
           0
         ) END AS cash_over_totasset_fcit, 
-      
         CAST(
           tofixed - c92 AS DECIMAL(16, 5)
-        ) AS asset_tangibility_fcit,
-      'FAKE' AS fake
+        ) AS asset_tangibility_fcit, 
+        'FAKE' AS fake 
       FROM 
         test 
       WHERE 
         year in (
-          '2000','2001', '2002', '2003', '2004', '2005', 
-          '2006', '2007'
+          '2000', '2001', '2002', '2003', '2004', 
+          '2005', '2006', '2007'
         )
     ) 
     SELECT 
-    firm, 
-    
-    transform(
-        sequence(
-          1, 
-          4
-        ), 
-        x -> asset_tangibility_fcit
-      ) as sequence_asset,
-    pct_asset_tangibility,
-    MAP(
-        ARRAY[
-          .5, 
-          .75, 
-          .90, 
-          .95
-          ],
-  zip_with(
+      ratio.firm, 
+      avg_asset_tangibility_f, 
+      avg_asset_tangibility, 
+      CASE WHEN avg_asset_tangibility_f > avg_asset_tangibility THEN 'LARGE' ELSE 'SMALL' END AS avg_large_f, 
       transform(
-        sequence(
-          1, 
-          4
-        ), 
-        x -> asset_tangibility_fcit
-      ),
-        pct_asset_tangibility, (x, y) -> x > y)
-        ) AS large_f
-    ,
-    avg_asset_tangibility,
-    CASE WHEN asset_tangibility_fcit > avg_asset_tangibility THEN 'LARGE' ELSE 'SMALL' END AS avg_large_f
-    FROM ratio
-    INNER JOIN (
-      SELECT
-    fake, 
-      approx_percentile(avg_asset_tangibility_f, ARRAY[.5, .75, .90, .95])
-      as pct_asset_tangibility,
-      AVG(avg_asset_tangibility_f) AS avg_asset_tangibility
-      
-    FROM (
-    SELECT
-    firm,
-    fake,
-    AVG(asset_tangibility_fcit) as avg_asset_tangibility_f
-    FROM ratio
-    GROUP BY fake, firm
-    LIMIT 10
-      )
-    GROUP BY fake
-      ) as pct_
-    ON ratio.fake = pct_.fake
-    LIMIT 10
-    )
+        sequence(1, 4), 
+        x -> avg_asset_tangibility_f
+       ) as sequence_asset,
+      pct_asset_tangibility,
+      MAP(
+         ARRAY[.5, 
+        .75, 
+        .90, 
+        .95 ], 
+        zip_with(
+          transform(
+           sequence(1, 4), 
+            x -> avg_asset_tangibility_f
+          ), 
+          pct_asset_tangibility, 
+          (x, y) -> x > y
+        )
+       ) AS large_f 
+    FROM 
+      ratio 
+      LEFT JOIN (
+        SELECT 
+          fake, 
+          approx_percentile(
+            avg_asset_tangibility_f, ARRAY[.5, 
+            .75,.90,.95]
+          ) as pct_asset_tangibility, 
+          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility 
+        FROM 
+          (
+            SELECT 
+              firm, 
+              fake, 
+              AVG(asset_tangibility_fcit) as avg_asset_tangibility_f 
+            FROM 
+              ratio 
+            GROUP BY 
+              fake, 
+              firm
+          ) 
+        GROUP BY 
+          fake
+        LIMIT 
+      10
+      ) as pct_ ON ratio.fake = pct_.fake 
+      INNER JOIN (
+        SELECT 
+          firm, 
+          fake, 
+          AVG(asset_tangibility_fcit) as avg_asset_tangibility_f 
+        FROM 
+          ratio 
+        GROUP BY 
+          fake, 
+          firm
+      ) as firm_avg ON ratio.firm = firm_avg.firm 
+  )
 """
 output = s3.run_query(
                     query=query,
@@ -917,6 +921,17 @@ output = s3.run_query(
                 )
 output
 ```
+
+In the above table:
+
+- avg_asset_tangibility_f: Average asset tangibility of the firm across all year
+- avg_asset_tangibility: Average of `avg_asset_tangibility_f` across all firms
+- avg_large_f: condition if `avg_asset_tangibility_f` > `avg_asset_tangibility`
+- sequence_asset: Array `avg_asset_tangibility_f`
+- pct_asset_tangibility: Percentile of `avg_asset_tangibility_f` from all available firms
+- large_f: condition if `avg_asset_tangibility_f` > `pct_asset_tangibility`
+
+
 
 # Table `asif_financial_ratio_baseline_firm`
 
@@ -1168,11 +1183,11 @@ FROM
       ) as lag_liabilities_assets_fcit, 
       sales_assets_andersen_fcit, 
       return_on_asset_fcit, 
-      CASE WHEN asset_tangibility_fcit > avg_asset_tangibility THEN 'LARGE' ELSE 'SMALL' END AS avg_size_asset_f, 
-      CASE WHEN output > avg_output THEN 'LARGE' ELSE 'SMALL' END AS avg_size_output_f, 
-      CASE WHEN employment > avg_employment THEN 'LARGE' ELSE 'SMALL' END AS avg_employment_f, 
-      CASE WHEN capital > avg_capital THEN 'LARGE' ELSE 'SMALL' END AS avg_size_capital_f, 
-      CASE WHEN sales > avg_sales THEN 'LARGE' ELSE 'SMALL' END AS avg_sales_f, 
+      CASE WHEN avg_asset_tangibility_f > avg_asset_tangibility THEN 'LARGE' ELSE 'SMALL' END AS avg_size_asset_f, 
+      CASE WHEN avg_output_f > avg_output THEN 'LARGE' ELSE 'SMALL' END AS avg_size_output_f, 
+      CASE WHEN avg_employment_f > avg_employment THEN 'LARGE' ELSE 'SMALL' END AS avg_employment_f, 
+      CASE WHEN avg_capital_f > avg_capital THEN 'LARGE' ELSE 'SMALL' END AS avg_size_capital_f, 
+      CASE WHEN avg_sales_f > avg_sales THEN 'LARGE' ELSE 'SMALL' END AS avg_sales_f, 
       MAP(
         ARRAY[.5, 
         .75, 
@@ -1181,7 +1196,7 @@ FROM
         zip_with(
           transform(
             sequence(1, 4), 
-            x -> asset_tangibility_fcit
+            x -> avg_asset_tangibility_f
           ), 
           pct_asset_tangibility, 
           (x, y) -> x > y
@@ -1195,7 +1210,7 @@ FROM
         zip_with(
           transform(
             sequence(1, 4), 
-            x -> output
+            x -> avg_output_f
           ), 
           pct_output, 
           (x, y) -> x > y
@@ -1209,7 +1224,7 @@ FROM
         zip_with(
           transform(
             sequence(1, 4), 
-            x -> employment
+            x -> avg_employment_f
           ), 
           pct_employment, 
           (x, y) -> x > y
@@ -1223,7 +1238,7 @@ FROM
         zip_with(
           transform(
             sequence(1, 4), 
-            x -> capital
+            x -> avg_capital_f
           ), 
           pct_capital, 
           (x, y) -> x > y
@@ -1237,7 +1252,7 @@ FROM
         zip_with(
           transform(
             sequence(1, 4), 
-            x -> sales
+            x -> avg_sales_f
           ), 
           pct_sales, 
           (x, y) -> x > y
@@ -1408,6 +1423,21 @@ FROM
         GROUP BY 
           fake
       ) as pct_ ON ratio.fake = pct_.fake 
+      INNER JOIN (
+        SELECT 
+          firm, 
+          fake, 
+          AVG(asset_tangibility_fcit) as avg_asset_tangibility_f,
+          AVG(output) as avg_output_f, 
+          AVG(employment) as avg_employment_f, 
+          AVG(capital) as avg_capital_f, 
+          AVG(sales) as avg_sales_f
+        FROM 
+          ratio 
+        GROUP BY 
+          fake, 
+          firm
+      ) as firm_avg ON ratio.firm = firm_avg.firm
     WHERE 
       count_ownership = 1 
       AND count_city = 1 
@@ -1458,18 +1488,19 @@ Test if the methodology works -> One firm one status
 
 ```python
 query_test = """
-WITH test AS ( SELECT 
-firm, dominated_median, COUNT(DISTINCT(dominated_median)) as count
+WITH test AS (
+SELECT firm, COUNT(avg_size_asset_f) AS count
 FROM (
-  SELECT 
-  firm, element_at(size_asset_f, .75) as dominated_median
-FROM asif_financial_ratio_baseline_firm   
+SELECT firm, avg_size_asset_f,COUNT(*) AS count
+FROM "firms_survey"."asif_financial_ratio_baseline_firm" 
+GROUP BY firm, avg_size_asset_f
   )
-GROUP BY firm, dominated_median
-              )
-              SELECT count, COUNT(*) as count_size
-              FROM test
-              GROUP BY count
+  GROUP BY firm
+  ORDER BY count DESC
+  )
+  SELECT count, COUNT(*) AS count
+  FROM test
+  GROUP BY count
 """
 output = s3.run_query(
                     query=query_test,
