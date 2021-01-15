@@ -685,7 +685,10 @@ output
 Example of computing firm size:
 
 * 1/ Compute the average employment [output, asset tangibility, capital] by firm
-* 2/ Compute the average, .5, .75, .90, .95 of the distribution from 1/
+* 2/ Compute the avg_asset_tangibility_f as the average, .5, .75, .90, .95 of the distribution ( from 1/ but need to change at one of:
+  * sector
+  * city
+  * city-sector
 * If 2/ > 1/ then large else small
 
 ```python
@@ -850,7 +853,10 @@ FROM
         )
     ) 
     SELECT 
+      year,
       ratio.firm, 
+      ratio.geocode4_corr, 
+      ratio.indu_2,
       avg_asset_tangibility_f, 
       avg_asset_tangibility, 
       CASE WHEN avg_asset_tangibility_f > avg_asset_tangibility THEN 'LARGE' ELSE 'SMALL' END AS avg_large_f, 
@@ -877,7 +883,10 @@ FROM
       ratio 
       LEFT JOIN (
         SELECT 
-          fake, 
+          -- fake,
+           
+          geocode4_corr, 
+          indu_2,
           approx_percentile(
             avg_asset_tangibility_f, ARRAY[.5, 
             .75,.90,.95]
@@ -887,30 +896,39 @@ FROM
           (
             SELECT 
               firm, 
-              fake, 
+              -- fake,
+              geocode4_corr,
+              indu_2,
               AVG(asset_tangibility_fcit) as avg_asset_tangibility_f 
             FROM 
               ratio 
             GROUP BY 
-              fake, 
-              firm
+              -- fake, 
+              firm,
+              geocode4_corr,
+              indu_2
           ) 
         GROUP BY 
-          fake
-        LIMIT 
-      10
-      ) as pct_ ON ratio.fake = pct_.fake 
+          -- fake,
+          geocode4_corr, 
+          indu_2
+        -- LIMIT 
+      -- 10
+      ) as pct_ ON ratio.geocode4_corr = pct_.geocode4_corr 
+    AND ratio.indu_2 = pct_.indu_2 
       INNER JOIN (
         SELECT 
           firm, 
-          fake, 
+          -- fake, 
           AVG(asset_tangibility_fcit) as avg_asset_tangibility_f 
         FROM 
           ratio 
         GROUP BY 
-          fake, 
+          -- fake, 
           firm
       ) as firm_avg ON ratio.firm = firm_avg.firm 
+    -- ORDER BY indu_2, geocode4_corr
+    LIMIT 5
   )
 """
 output = s3.run_query(
@@ -926,6 +944,7 @@ In the above table:
 
 - avg_asset_tangibility_f: Average asset tangibility of the firm across all year
 - avg_asset_tangibility: Average of `avg_asset_tangibility_f` across all firms
+    - Vary across city and industry
 - avg_large_f: condition if `avg_asset_tangibility_f` > `avg_asset_tangibility`
 - sequence_asset: Array `avg_asset_tangibility_f`
 - pct_asset_tangibility: Percentile of `avg_asset_tangibility_f` from all available firms
@@ -1138,7 +1157,7 @@ FROM
         '2001', '2002', '2003', '2004', '2005'
       ) THEN 'FALSE' WHEN ratio.year in ('2006', '2007') THEN 'TRUE' END AS period, 
       ratio.cic, 
-      indu_2, 
+      ratio.indu_2, 
       CASE WHEN short IS NULL THEN 'Unknown' ELSE short END AS short, 
       ratio.geocode4_corr, 
       CASE WHEN tcz IS NULL THEN '0' ELSE tcz END AS tcz, 
@@ -1183,11 +1202,11 @@ FROM
       ) as lag_liabilities_assets_fcit, 
       sales_assets_andersen_fcit, 
       return_on_asset_fcit, 
-      CASE WHEN avg_asset_tangibility_f > avg_asset_tangibility THEN 'LARGE' ELSE 'SMALL' END AS avg_size_asset_f, 
-      CASE WHEN avg_output_f > avg_output THEN 'LARGE' ELSE 'SMALL' END AS avg_size_output_f, 
-      CASE WHEN avg_employment_f > avg_employment THEN 'LARGE' ELSE 'SMALL' END AS avg_employment_f, 
-      CASE WHEN avg_capital_f > avg_capital THEN 'LARGE' ELSE 'SMALL' END AS avg_size_capital_f, 
-      CASE WHEN avg_sales_f > avg_sales THEN 'LARGE' ELSE 'SMALL' END AS avg_sales_f, 
+      CASE WHEN avg_asset_tangibility_f > avg_asset_tangibility_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_size_asset_fci, 
+      CASE WHEN avg_output_f > avg_output_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_size_output_fci, 
+      CASE WHEN avg_employment_f > avg_employment_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_employment_fci, 
+      CASE WHEN avg_capital_f > avg_capital_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_size_capital_fci, 
+      CASE WHEN avg_sales_f > avg_sales_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_sales_fci, 
       MAP(
         ARRAY[.5, 
         .75, 
@@ -1198,10 +1217,38 @@ FROM
             sequence(1, 4), 
             x -> avg_asset_tangibility_f
           ), 
-          pct_asset_tangibility, 
+          pct_asset_tangibility_ci, 
           (x, y) -> x > y
         )
-      ) AS size_asset_f, 
+      ) AS size_asset_fci,
+      MAP(
+        ARRAY[.5, 
+        .75, 
+        .90, 
+        .95 ], 
+        zip_with(
+          transform(
+            sequence(1, 4), 
+            x -> avg_asset_tangibility_f
+          ), 
+          pct_asset_tangibility_c, 
+          (x, y) -> x > y
+        )
+      ) AS size_asset_fc, 
+      MAP(
+        ARRAY[.5, 
+        .75, 
+        .90, 
+        .95 ], 
+        zip_with(
+          transform(
+            sequence(1, 4), 
+            x -> avg_asset_tangibility_f
+          ), 
+          pct_asset_tangibility_i, 
+          (x, y) -> x > y
+        )
+      ) AS size_asset_fi,
       MAP(
         ARRAY[.5, 
         .75, 
@@ -1212,10 +1259,38 @@ FROM
             sequence(1, 4), 
             x -> avg_output_f
           ), 
-          pct_output, 
+          pct_output_ci, 
           (x, y) -> x > y
         )
-      ) AS size_output_f, 
+      ) AS size_output_fci,
+      MAP(
+        ARRAY[.5, 
+        .75, 
+        .90, 
+        .95 ], 
+        zip_with(
+          transform(
+            sequence(1, 4), 
+            x -> avg_output_f
+          ), 
+          pct_output_c, 
+          (x, y) -> x > y
+        )
+      ) AS size_output_fc,
+      MAP(
+        ARRAY[.5, 
+        .75, 
+        .90, 
+        .95 ], 
+        zip_with(
+          transform(
+            sequence(1, 4), 
+            x -> avg_output_f
+          ), 
+          pct_output_i, 
+          (x, y) -> x > y
+        )
+      ) AS size_output_fi,
       MAP(
         ARRAY[.5, 
         .75, 
@@ -1226,10 +1301,38 @@ FROM
             sequence(1, 4), 
             x -> avg_employment_f
           ), 
-          pct_employment, 
+          pct_employment_ci, 
           (x, y) -> x > y
         )
-      ) AS size_employment_f, 
+      ) AS size_employment_fci, 
+      MAP(
+        ARRAY[.5, 
+        .75, 
+        .90, 
+        .95 ], 
+        zip_with(
+          transform(
+            sequence(1, 4), 
+            x -> avg_employment_f
+          ), 
+          pct_employment_c, 
+          (x, y) -> x > y
+        )
+      ) AS size_employment_fc, 
+      MAP(
+        ARRAY[.5, 
+        .75, 
+        .90, 
+        .95 ], 
+        zip_with(
+          transform(
+            sequence(1, 4), 
+            x -> avg_employment_f
+          ), 
+          pct_employment_i, 
+          (x, y) -> x > y
+        )
+      ) AS size_employment_fi, 
       MAP(
         ARRAY[.5, 
         .75, 
@@ -1240,10 +1343,38 @@ FROM
             sequence(1, 4), 
             x -> avg_capital_f
           ), 
-          pct_capital, 
+          pct_capital_ci, 
           (x, y) -> x > y
         )
-      ) AS size_capital_f, 
+      ) AS size_capital_fci, 
+      MAP(
+        ARRAY[.5, 
+        .75, 
+        .90, 
+        .95 ], 
+        zip_with(
+          transform(
+            sequence(1, 4), 
+            x -> avg_capital_f
+          ), 
+          pct_capital_c, 
+          (x, y) -> x > y
+        )
+      ) AS size_capital_fc, 
+      MAP(
+        ARRAY[.5, 
+        .75, 
+        .90, 
+        .95 ], 
+        zip_with(
+          transform(
+            sequence(1, 4), 
+            x -> avg_capital_f
+          ), 
+          pct_capital_i, 
+          (x, y) -> x > y
+        )
+      ) AS size_capital_fi, 
       MAP(
         ARRAY[.5, 
         .75, 
@@ -1254,10 +1385,38 @@ FROM
             sequence(1, 4), 
             x -> avg_sales_f
           ), 
-          pct_sales, 
+          pct_sales_ci, 
           (x, y) -> x > y
         )
-      ) AS size_sales_f, 
+      ) AS size_sales_fci, 
+      MAP(
+        ARRAY[.5, 
+        .75, 
+        .90, 
+        .95 ], 
+        zip_with(
+          transform(
+            sequence(1, 4), 
+            x -> avg_sales_f
+          ), 
+          pct_sales_c, 
+          (x, y) -> x > y
+        )
+      ) AS size_sales_fc,
+      MAP(
+        ARRAY[.5, 
+        .75, 
+        .90, 
+        .95 ], 
+        zip_with(
+          transform(
+            sequence(1, 4), 
+            x -> avg_sales_f
+          ), 
+          pct_sales_i, 
+          (x, y) -> x > y
+        )
+      ) AS size_sales_fi,
       DENSE_RANK() OVER (
         ORDER BY 
           ratio.geocode4_corr, 
@@ -1380,35 +1539,39 @@ FROM
       ) as cred_constraint ON ratio.indu_2 = cred_constraint.cic 
       LEFT JOIN (
         SELECT 
-          fake, 
+          -- fake, 
+          geocode4_corr, 
+          indu_2,
           approx_percentile(
             avg_asset_tangibility_f, ARRAY[.5, 
             .75,.90,.95]
-          ) as pct_asset_tangibility, 
-          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility, 
+          ) as pct_asset_tangibility_ci, 
+          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility_ci, 
           approx_percentile(
             avg_output_f, ARRAY[.5,.75,.90,.95]
-          ) as pct_output, 
-          AVG(avg_output_f) AS avg_output, 
+          ) as pct_output_ci, 
+          AVG(avg_output_f) AS avg_output_ci, 
           approx_percentile(
             avg_employment_f, ARRAY[.5,.75,.90, 
             .95]
-          ) as pct_employment, 
-          AVG(avg_employment_f) AS avg_employment, 
+          ) as pct_employment_ci, 
+          AVG(avg_employment_f) AS avg_employment_ci, 
           approx_percentile(
             avg_capital_f, ARRAY[.5,.75,.90, 
             .95]
-          ) as pct_capital, 
-          AVG(avg_capital_f) AS avg_capital, 
+          ) as pct_capital_ci, 
+          AVG(avg_capital_f) AS avg_capital_ci, 
           approx_percentile(
             avg_sales_f, ARRAY[.5,.75,.90,.95]
-          ) as pct_sales, 
-          AVG(avg_sales_f) AS avg_sales 
+          ) as pct_sales_ci, 
+          AVG(avg_sales_f) AS avg_sales_ci 
         FROM 
           (
             SELECT 
               firm, 
-              fake, 
+              geocode4_corr,
+              indu_2,
+              -- fake, 
               AVG(asset_tangibility_fcit) as avg_asset_tangibility_f, 
               AVG(output) as avg_output_f, 
               AVG(employment) as avg_employment_f, 
@@ -1417,16 +1580,119 @@ FROM
             FROM 
               ratio 
             GROUP BY 
-              fake, 
-              firm
+              -- fake, 
+              firm,
+              geocode4_corr,
+              indu_2
           ) 
         GROUP BY 
-          fake
-      ) as pct_ ON ratio.fake = pct_.fake 
+          -- fake
+          geocode4_corr, 
+          indu_2
+      ) as pct_ci ON ratio.geocode4_corr = pct_ci.geocode4_corr 
+    AND ratio.indu_2 = pct_ci.indu_2
+    LEFT JOIN (
+        SELECT 
+          -- fake, 
+          geocode4_corr, 
+          approx_percentile(
+            avg_asset_tangibility_f, ARRAY[.5, 
+            .75,.90,.95]
+          ) as pct_asset_tangibility_c, 
+          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility_c, 
+          approx_percentile(
+            avg_output_f, ARRAY[.5,.75,.90,.95]
+          ) as pct_output_c, 
+          AVG(avg_output_f) AS avg_output_c, 
+          approx_percentile(
+            avg_employment_f, ARRAY[.5,.75,.90, 
+            .95]
+          ) as pct_employment_c, 
+          AVG(avg_employment_f) AS avg_employment_c, 
+          approx_percentile(
+            avg_capital_f, ARRAY[.5,.75,.90, 
+            .95]
+          ) as pct_capital_c, 
+          AVG(avg_capital_f) AS avg_capital_c, 
+          approx_percentile(
+            avg_sales_f, ARRAY[.5,.75,.90,.95]
+          ) as pct_sales_c, 
+          AVG(avg_sales_f) AS avg_sales_c
+        FROM 
+          (
+            SELECT 
+              firm, 
+              geocode4_corr,
+              -- fake, 
+              AVG(asset_tangibility_fcit) as avg_asset_tangibility_f, 
+              AVG(output) as avg_output_f, 
+              AVG(employment) as avg_employment_f, 
+              AVG(capital) as avg_capital_f, 
+              AVG(sales) as avg_sales_f 
+            FROM 
+              ratio 
+            GROUP BY 
+              -- fake, 
+              firm,
+              geocode4_corr
+          ) 
+        GROUP BY 
+          -- fake
+          geocode4_corr
+      ) as pct_c ON ratio.geocode4_corr = pct_c.geocode4_corr
+      LEFT JOIN (
+        SELECT 
+          -- fake, 
+          indu_2, 
+          approx_percentile(
+            avg_asset_tangibility_f, ARRAY[.5, 
+            .75,.90,.95]
+          ) as pct_asset_tangibility_i, 
+          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility_i, 
+          approx_percentile(
+            avg_output_f, ARRAY[.5,.75,.90,.95]
+          ) as pct_output_i, 
+          AVG(avg_output_f) AS avg_output_i, 
+          approx_percentile(
+            avg_employment_f, ARRAY[.5,.75,.90, 
+            .95]
+          ) as pct_employment_i, 
+          AVG(avg_employment_f) AS avg_employment_i, 
+          approx_percentile(
+            avg_capital_f, ARRAY[.5,.75,.90, 
+            .95]
+          ) as pct_capital_i, 
+          AVG(avg_capital_f) AS avg_capital_i, 
+          approx_percentile(
+            avg_sales_f, ARRAY[.5,.75,.90,.95]
+          ) as pct_sales_i, 
+          AVG(avg_sales_f) AS avg_sales_i
+        FROM 
+          (
+            SELECT 
+              firm, 
+              indu_2,
+              -- fake, 
+              AVG(asset_tangibility_fcit) as avg_asset_tangibility_f, 
+              AVG(output) as avg_output_f, 
+              AVG(employment) as avg_employment_f, 
+              AVG(capital) as avg_capital_f, 
+              AVG(sales) as avg_sales_f 
+            FROM 
+              ratio 
+            GROUP BY 
+              -- fake, 
+              firm,
+              indu_2
+          ) 
+        GROUP BY 
+          -- fake
+          indu_2
+      ) as pct_i ON ratio.indu_2 = pct_i.indu_2 
       INNER JOIN (
         SELECT 
           firm, 
-          fake, 
+          -- fake, 
           AVG(asset_tangibility_fcit) as avg_asset_tangibility_f,
           AVG(output) as avg_output_f, 
           AVG(employment) as avg_employment_f, 
@@ -1435,7 +1701,7 @@ FROM
         FROM 
           ratio 
         GROUP BY 
-          fake, 
+          -- fake, 
           firm
       ) as firm_avg ON ratio.firm = firm_avg.firm
     WHERE 
@@ -1489,16 +1755,16 @@ Test if the methodology works -> One firm one status
 ```python
 query_test = """
 WITH test AS (
-SELECT firm, COUNT(avg_size_asset_f) AS count
+SELECT firm, COUNT(avg_size_asset_fci) AS count
 FROM (
-SELECT firm, avg_size_asset_f,COUNT(*) AS count
+SELECT firm, avg_size_asset_fci,COUNT(*) AS count
 FROM "firms_survey"."asif_financial_ratio_baseline_firm" 
-GROUP BY firm, avg_size_asset_f
+GROUP BY firm, avg_size_asset_fci
   )
   GROUP BY firm
   ORDER BY count DESC
   )
-  SELECT count, COUNT(*) AS count
+  SELECT count, COUNT(*) AS count_m
   FROM test
   GROUP BY count
 """
@@ -1520,7 +1786,7 @@ for i in [.5, .75, .9, .95]:
     dominated, COUNT(*) as count
     FROM (
       SELECT 
-      element_at(size_asset_f, {}) as dominated
+      element_at(size_asset_fci, {}) as dominated
     FROM asif_financial_ratio_baseline_firm   
       )
     GROUP BY dominated
@@ -1640,16 +1906,36 @@ schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'Firms ID'},
            'Type': 'varchar(5)', 'Comment': 'if firm s capital average is above average of firm s average then firm is large'},
           {'Name': 'avg_sales_f',
            'Type': 'varchar(5)', 'Comment': 'if firm s sale is above average of firm s average then firm is large'},
-          {'Name': 'size_asset_f', 'Type': 'map<double,boolean>',
-           'Comment': 'if firm s asset tangibility average is above average of firm s decile then firm is large'},
-          {'Name': 'size_output_f', 'Type': 'map<double,boolean>',
-           'Comment': 'if firm s ouptut average is above average of firm s decile then firm is large'},
-          {'Name': 'size_employment_f', 'Type': 'map<double,boolean>',
-           'Comment': 'if firm s employment average is above average of firm s decile then firm is large'},
-          {'Name': 'size_capital_f', 'Type': 'map<double,boolean>',
-           'Comment': 'if firm s capital average is above average of firm s decile then firm is large'},
-          {'Name': 'size_sales_f', 'Type': 'map<double,boolean>',
-           'Comment': 'if firm s sale is above average of firm s decile then firm is large'},
+          {'Name': 'size_asset_fci', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s asset tangibility average is above average of firm city industry s decile then firm is large'},
+          {'Name': 'size_asset_fc', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s asset tangibility average is above average of firm s city decile then firm is large'},
+          {'Name': 'size_asset_fi', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s asset tangibility average is above average of firm s industry decile then firm is large'},
+          {'Name': 'size_output_fci', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s ouptut average is above average of firm s city industry decile then firm is large'},
+          {'Name': 'size_output_fc', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s ouptut average is above average of firm s city decile then firm is large'},
+          {'Name': 'size_output_fi', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s ouptut average is above average of firm s industry decile then firm is large'},
+          {'Name': 'size_employment_fci', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s employment average is above average of firm s city industry decile then firm is large'},
+          {'Name': 'size_employment_fc', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s employment average is above average of firm s city decile then firm is large'},
+          {'Name': 'size_employment_fi', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s employment average is above average of firm s industry decile then firm is large'},
+          {'Name': 'size_capital_fci', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s capital average is above average of firm s city industry decile then firm is large'},
+          {'Name': 'size_capital_fc', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s capital average is above average of firm s city decile then firm is large'},
+          {'Name': 'size_capital_fi', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s capital average is above average of firm s industry decile then firm is large'},
+          {'Name': 'size_sales_fci', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s sale is above average of firm s city industry decile then firm is large'},
+          {'Name': 'size_sales_fc', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s sale is above average of firm s city decile then firm is large'},
+          {'Name': 'size_sales_fi', 'Type': 'map<double,boolean>',
+           'Comment': 'if firm s sale is above average of firm s industry decile then firm is large'},
           {'Name': 'fe_c_i', 'Type': 'bigint',
               'Comment': 'City industry fixed effect'},
           {'Name': 'fe_t_i', 'Type': 'bigint',
