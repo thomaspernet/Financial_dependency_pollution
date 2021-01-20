@@ -814,7 +814,96 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-## Table 5: Large vs Small
+## Table 5: TCZ & SPZ
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 2
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
+            log(cash_over_totasset_fcit) + 
+            log(liabilities_assets_fcit) +
+            log(current_ratio_fcit) * tcz  + 
+            log(cash_over_totasset_fcit) * tcz + 
+            log(liabilities_assets_fcit)  * tcz +
+            log(current_ratio_fcit) * spz  + 
+            log(cash_over_totasset_fcit) * spz + 
+            log(liabilities_assets_fcit)  * spz
+            | firm+ fe_t_i|0 | firm, df_final,
+            exactDOF = TRUE)
+
+### more controls
+t_1 <- felm(log(asset_tangibility_fcit) ~ log(current_ratio_fcit) +
+            log(cash_over_totasset_fcit) +
+            log(liabilities_assets_fcit) +
+            log(current_ratio_fcit) * tcz  + 
+            log(cash_over_totasset_fcit) * tcz + 
+            log(liabilities_assets_fcit)  * tcz +
+            log(current_ratio_fcit)  * spz  + 
+            log(cash_over_totasset_fcit)  * spz + 
+            log(liabilities_assets_fcit)  * spz + 
+            log(output)
+            | firm + fe_t_i|0 | firm,df_final,
+            exactDOF = TRUE)
+            
+dep <- "Dependent variable: Asset tangilibility"
+fe1 <- list(
+    c("firm", "Yes", "Yes"),
+    c("industry-year", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1
+),
+    title="Baseline Estimate, determinants of firm-level asset tangibility (SPZ)",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+) 
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors" \
+"clustered at the firm level appear in parentheses."\
+" Current ratio, cash over asset and liabilities over asset are lagged by one year. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+            folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## Table 6: Large vs Small
 
 * Create dummy for large firm vs small firm
   * Test
@@ -838,7 +927,7 @@ for ext in ['.txt', '.tex', '.pdf']:
 
 ```sos kernel="R"
 %get folder
-#t <- 1
+t <- 1
 for (var in list(
     'size_asset_',
     'size_output_',
