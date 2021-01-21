@@ -19,10 +19,10 @@
 - [china_sector_pollution_threshold](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-china_sector_pollution_threshold)
 - [asif_industry_financial_ratio_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_financial_ratio_industry)
 - [fin_dep_pollution_baseline_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_industry)
-- [asif_city_characteristics_ownership](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_city_characteristics_ownership)
 - [asif_industry_characteristics_ownership](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_characteristics_ownership)
 - [fin_dep_pollution_baseline_city](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_city)
 - [asif_financial_ratio_baseline_firm](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_financial_ratio_baseline_firm)
+- [asif_tfp_credit_constraint](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_tfp_credit_constraint)
 
     
 
@@ -584,26 +584,6 @@
 
     
 
-## Table asif_city_characteristics_ownership
-
-- Database: firms_survey
-- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/CITY_CHARACTERISTICS/OWNERSHIP`
-- Partitition: ['geocode4_corr']
-
-|    | Name                       | Type                | Comment                                                                                          |
-|---:|:---------------------------|:--------------------|:-------------------------------------------------------------------------------------------------|
-|  0 | geocode4_corr              | string              | City ID                                                                                          |
-|  1 | dominated_output_soe_c     | map<double,boolean> | map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of output         |
-|  2 | dominated_employment_soe_c | map<double,boolean> | map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of employment     |
-|  3 | dominated_sales_soe_c      | map<double,boolean> | map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of sales          |
-|  4 | dominated_capital_soe_c    | map<double,boolean> | map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of capital        |
-|  5 | dominated_output_for_c     | map<double,boolean> | map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of output     |
-|  6 | dominated_employment_for_c | map<double,boolean> | map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of employment |
-|  7 | dominated_sales_for_c      | map<double,boolean> | map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of sales      |
-|  8 | dominated_capital_for_c    | map<double,boolean> | map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of capital    |
-
-    
-
 ## Table asif_industry_characteristics_ownership
 
 - Database: firms_survey
@@ -794,5 +774,72 @@
 | 52 | fe_c_i                      | bigint              | City industry fixed effect                                                                                                                                          |
 | 53 | fe_t_i                      | bigint              | year industry fixed effect                                                                                                                                          |
 | 54 | fe_c_t                      | bigint              | city industry fixed effect                                                                                                                                          |
+
+    
+
+## Table asif_tfp_credit_constraint
+
+- Database: firms_survey
+- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/TFP/CREDIT_CONSTRAINT`
+- Partitition: ['firm', 'year', 'cic', 'geocode4_corr']
+
+|    | Name                        | Type                | Comment                                                                                                                                                             |
+|---:|:----------------------------|:--------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|  0 | firm                        | string              | Firms ID                                                                                                                                                            |
+|  1 | year                        | string              |                                                                                                                                                                     |
+|  2 | period                      | varchar(5)          | if year prior to 2006 then False else true. Indicate break from 10 and 11 FYP                                                                                       |
+|  3 | cic                         | string              | 4 digits industry code                                                                                                                                              |
+|  4 | indu_2                      | string              | Two digits industry. If length cic equals to 3, then add 0 to indu_2                                                                                                |
+|  5 | short                       | string              | Industry short description                                                                                                                                          |
+|  6 | geocode4_corr               | string              | city code                                                                                                                                                           |
+|  7 | tcz                         | string              | Two control zone policy                                                                                                                                             |
+|  8 | spz                         | string              | Special policy zone                                                                                                                                                 |
+|  9 | ownership                   | string              | Firms ownership                                                                                                                                                     |
+| 10 | soe_vs_pri                  | varchar(7)          | SOE vs PRIVATE                                                                                                                                                      |
+| 11 | for_vs_dom                  | varchar(8)          | FOREIGN vs DOMESTICT if ownership is HTM then FOREIGN                                                                                                               |
+| 12 | tso2_mandate_c              | float               | city reduction mandate in tonnes                                                                                                                                    |
+| 13 | in_10_000_tonnes            | float               | city reduction mandate in 10k tonnes                                                                                                                                |
+| 14 | output                      | decimal(16,5)       | Output                                                                                                                                                              |
+| 15 | employment                  | decimal(16,5)       | employment                                                                                                                                                          |
+| 16 | capital                     | decimal(16,5)       | capital                                                                                                                                                             |
+| 17 | sales                       | decimal(16,5)       | sales                                                                                                                                                               |
+| 18 | tfp_op                      | double              | TFP. Computed from https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md       |
+| 19 | total_asset                 | decimal(16,5)       | Total asset                                                                                                                                                         |
+| 20 | credit_constraint           | float               | Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311                                                                |
+| 21 | d_credit_constraint         | varchar(5)          | Sectors financially dependant when above median                                                                                                                     |
+| 22 | asset_tangibility_fcit      | decimal(16,5)       | Total fixed assets - Intangible assets                                                                                                                              |
+| 23 | cash_over_totasset_fcit     | decimal(21,5)       | cuasset - short_term_investment - c80 - c81 - c82 divided by toasset                                                                                                |
+| 24 | lag_cash_over_totasset_fcit | decimal(21,5)       | lag cash over total asset                                                                                                                                           |
+| 25 | current_ratio_fcit          | decimal(21,5)       | cuasset/流动负债合计 (c95)                                                                                                                                          |
+| 26 | lag_current_ratio_fcit      | decimal(21,5)       | lag current ratio                                                                                                                                                   |
+| 27 | quick_ratio_fcit            | decimal(21,5)       | (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                                          |
+| 28 | lag_quick_ratio_fcit        | decimal(21,5)       | lag quick ratio                                                                                                                                                     |
+| 29 | liabilities_assets_fcit     | decimal(21,5)       | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 |
+| 30 | lag_liabilities_assets_fcit | decimal(21,5)       | lag liabilities over total asset                                                                                                                                    |
+| 31 | sales_assets_andersen_fcit  | decimal(21,5)       | Sales divided by total asset                                                                                                                                        |
+| 32 | return_on_asset_fcit        | decimal(21,5)       | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset |
+| 33 | avg_size_asset_f            | varchar(5)          | if firm s asset tangibility average is above average of firm s average then firm is large                                                                           |
+| 34 | avg_size_output_f           | varchar(5)          | if firm s ouptut average is above average of firm s average then firm is large                                                                                      |
+| 35 | avg_employment_f            | varchar(5)          | if firm s employment average is above average of firm s average then firm is large                                                                                  |
+| 36 | avg_size_capital_f          | varchar(5)          | if firm s capital average is above average of firm s average then firm is large                                                                                     |
+| 37 | avg_sales_f                 | varchar(5)          | if firm s sale is above average of firm s average then firm is large                                                                                                |
+| 38 | size_asset_fci              | map<double,boolean> | if firm s asset tangibility average is above average of firm city industry s decile then firm is large                                                              |
+| 39 | size_asset_fc               | map<double,boolean> | if firm s asset tangibility average is above average of firm s city decile then firm is large                                                                       |
+| 40 | size_asset_fi               | map<double,boolean> | if firm s asset tangibility average is above average of firm s industry decile then firm is large                                                                   |
+| 41 | size_output_fci             | map<double,boolean> | if firm s ouptut average is above average of firm s city industry decile then firm is large                                                                         |
+| 42 | size_output_fc              | map<double,boolean> | if firm s ouptut average is above average of firm s city decile then firm is large                                                                                  |
+| 43 | size_output_fi              | map<double,boolean> | if firm s ouptut average is above average of firm s industry decile then firm is large                                                                              |
+| 44 | size_employment_fci         | map<double,boolean> | if firm s employment average is above average of firm s city industry decile then firm is large                                                                     |
+| 45 | size_employment_fc          | map<double,boolean> | if firm s employment average is above average of firm s city decile then firm is large                                                                              |
+| 46 | size_employment_fi          | map<double,boolean> | if firm s employment average is above average of firm s industry decile then firm is large                                                                          |
+| 47 | size_capital_fci            | map<double,boolean> | if firm s capital average is above average of firm s city industry decile then firm is large                                                                        |
+| 48 | size_capital_fc             | map<double,boolean> | if firm s capital average is above average of firm s city decile then firm is large                                                                                 |
+| 49 | size_capital_fi             | map<double,boolean> | if firm s capital average is above average of firm s industry decile then firm is large                                                                             |
+| 50 | size_sales_fci              | map<double,boolean> | if firm s sale is above average of firm s city industry decile then firm is large                                                                                   |
+| 51 | size_sales_fc               | map<double,boolean> | if firm s sale is above average of firm s city decile then firm is large                                                                                            |
+| 52 | size_sales_fi               | map<double,boolean> | if firm s sale is above average of firm s industry decile then firm is large                                                                                        |
+| 53 | fe_c_i                      | bigint              | City industry fixed effect                                                                                                                                          |
+| 54 | fe_t_i                      | bigint              | year industry fixed effect                                                                                                                                          |
+| 55 | fe_c_t                      | bigint              | city industry fixed effect                                                                                                                                          |
 
     
