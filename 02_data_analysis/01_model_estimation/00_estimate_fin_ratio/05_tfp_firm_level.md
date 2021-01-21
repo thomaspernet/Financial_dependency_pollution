@@ -113,8 +113,8 @@ Since we load the data as a Pandas DataFrame, we want to pass the `dtypes`. We l
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-db = ''
-table = ''
+db = 'firms_survey'
+table = 'asif_tfp_credit_constraint'
 ```
 
 ```sos kernel="SoS"
@@ -136,7 +136,7 @@ for key, value in enumerate(schema):
 ```
 
 ```sos kernel="SoS"
-download_data = True
+download_data = False
 filename = 'df_{}'.format(table)
 full_path_filename = 'SQL_OUTPUT_ATHENA/CSV/{}.csv'.format(filename)
 path_local = os.path.join(str(Path(path).parent.parent.parent), 
@@ -199,24 +199,92 @@ Then add it to the key `to_rename`
 <!-- #endregion -->
 
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}
-add_to_dic = False
+add_to_dic = True
 if add_to_dic:
     if os.path.exists("schema_table.json"):
         os.remove("schema_table.json")
         data = {'to_rename':[], 'to_remove':[]}
     dic_rename = [
+        ### control variables
         {
-        'old':'working\_capital\_i',
-        'new':'\\text{working capital}_i'
+        'old':'output',
+        'new':'\\text{output}_{cit}'
         },
         {
-        'old':'periodTRUE',
-        'new':'\\text{period}'
+        'old':'employment',
+        'new':'\\text{employment}_{cit}'
         },
         {
-        'old':'tso2\_mandate\_c',
-        'new':'\\text{policy mandate}_'
+        'old':'capital',
+        'new':'\\text{capital}_{cit}'
         },
+        {
+        'old':'sales',
+        'new':'\\text{sales}_{cit}'
+        },
+        {
+        'old':'total\_asset',
+        'new':'\\text{total asset}_{cit}'
+        },
+        ####
+        {
+        'old':'asset\_tangibility\_fcit',
+        'new':'\\text{asset tangibility}_{fcit}'
+        },
+        {
+        'old':'cash\_over\_totasset\_fcit',
+        'new':'\\text{cash over asset}_{fcit}'
+        },
+        {
+        'old':'lag\_cash\_over\_totasset\_fcit',
+        'new':'\\text{cash over asset}_{fcit}'
+        },
+        {
+        'old':'sales\_assets\_andersen\_fcit',
+        'new':'\\text{sales over assets}_{fcit}'
+        },
+        {
+        'old':'return\_on\_asset\_fcit',
+        'new':'\\text{return on asset}_{fcit}'
+        },
+        {
+        'old':'liabilities\_assets\_fcit',
+        'new':'\\text{liabilities assets}_{fcit}'
+        },
+        {
+        'old':'lag\_liabilities\_assets\_fcit',
+        'new':'\\text{liabilities assets}_{fcit}'
+        },
+        {
+        'old':'quick\_ratio\_fcit',
+        'new':'\\text{quick ratio}_{fcit}'
+        },
+        {
+        'old':'lag\_quick\_ratio\_fcit',
+        'new':'\\text{quick ratio}_{fcit}'
+        },
+        {
+        'old':'current\_ratio\_fcit',
+        'new':'\\text{current ratio}_{fcit}'
+        },
+        {
+        'old':'lag\_current\_ratio\_fcit',
+        'new':'\\text{current ratio}_{fcit}'
+        },
+        {
+        'old':'d\_credit\_constraintBELOW',
+        'new':'\\text{Fin dep}_{i}'
+        },
+        {
+            'old':'soe\_vs\_priPRIVATE',
+            'new':'private'
+        },
+        {
+            'old':'d\_size\_percentiletrue',
+            'new':'\\text{size}_f'
+        }
+        
+        
     ]
 
     data['to_rename'].extend(dic_rename)
@@ -246,39 +314,30 @@ source(path)
 df_final <- read_csv(df_path) %>%
 mutate_if(is.character, as.factor) %>%
     mutate_at(vars(starts_with("fe")), as.factor) %>%
-mutate(VAR_TO_RELEVEL = relevel(XX, ref='XX'))
+mutate(
+    period = relevel(as.factor(period), ref='FALSE'),
+    soe_vs_pri = relevel(as.factor(soe_vs_pri), ref='SOE')
+)
 ```
 
 <!-- #region kernel="SoS" -->
-## Table 0:XXX
+## Table 1: Baseline Estimate, tfp_OP_f
 
-$$
-\begin{aligned}
-\text{Write your equation}
-\end{aligned}
-$$
+$$ \begin{aligned} \text { TFP }_{f i t}= \delta{6} \text { Tangible Asset }_{fit} + \delta{7} \text { Current Ratio }_{fit}+\delta{8} \text { Cash/Assets }_{fit}+\delta{9} \text { Liabilities/Assets }_{fit}+\Lambda{\text {fit}}^{\prime} X+\vartheta_{i t}+u_{\text {fit}} \end{aligned} $$
 
 
-* Column 1: XXX
+* Column 1: Baseline
     * FE: 
-        - fe 1: `XX`
-        - fe 2: `XX`
-        - fe 3: `XX`
-* Column 2: XXX
+        - fe 1: `firm`
+        - fe 2: `industry-year`
+* Column 2: Add control
     * FE: 
-        - fe 1: `XX`
-        - fe 2: `XX`
-        - fe 3: `XX`
-* Column 3: XXX
+        - fe 1: `firm`
+        - fe 2: `industry-year`
+* Column 3: Test credit constraint interaction
     * FE: 
-        - fe 1: `XX`
-        - fe 2: `XX`
-        - fe 3: `XX`
-* Column 4: XXX
-    * FE: 
-        - fe 1: `XX`
-        - fe 2: `XX`
-        - fe 3: `XX`
+        - fe 1: `firm`
+        - fe 2: `industry-year`
 <!-- #endregion -->
 
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}
@@ -294,42 +353,45 @@ for ext in ['.txt', '.tex', '.pdf']:
 ```
 
 ```sos kernel="R"
-%get path table
-t_0 <- felm(YYY ~XXX
-            | FE|0 | CLUSTER, df_final %>% filter(XXX == 'YYY'),
+%get path table 
+t_0 <- felm(log(tfp_op) ~ 
+            log(asset_tangibility_fcit) + 
+            log(current_ratio_fcit) +
+            log(cash_over_totasset_fcit) +
+            log(liabilities_assets_fcit)
+            | firm + fe_t_i|0 | firm, df_final,
             exactDOF = TRUE)
 
-t_0 <- felm(YYY ~XXX
-            | FE|0 | CLUSTER, df_final %>% filter(XXX != 'YYY'),
+t_1 <- felm(log(tfp_op) ~ 
+            log(asset_tangibility_fcit) +  
+            log(current_ratio_fcit) +
+            log(cash_over_totasset_fcit) + 
+            log(liabilities_assets_fcit) +
+            log(sales_assets_andersen_fcit) 
+            | firm+ fe_t_i|0 | firm,df_final,
             exactDOF = TRUE)
 
-t_2 <- felm(kYYY ~XXX
-            | FE|0 | CLUSTER, df_final,
-            exactDOF = TRUE)
-
-t_3 <- felm(kYYY ~XXX
-            | FE|0 | CLUSTER, df_final,
+t_2 <- felm(log(tfp_op) ~ 
+            log(asset_tangibility_fcit) + 
+            log(current_ratio_fcit) +
+            log(cash_over_totasset_fcit) + 
+            log(liabilities_assets_fcit) +
+            log(current_ratio_fcit) * d_credit_constraint  + 
+            log(cash_over_totasset_fcit) * d_credit_constraint + 
+            log(liabilities_assets_fcit) * d_credit_constraint
+            | firm+ fe_t_i|0 | firm, df_final,
             exactDOF = TRUE)
             
-dep <- "Dependent variable: YYYY"
+dep <- "Dependent variable: Total factor productivity"
 fe1 <- list(
-    c("XXXXX", "Yes", "Yes", "No", "No"),
-    
-    c("XXXXX", "Yes", "Yes", "No", "No"),
-    
-    c("XXXXX","Yes", "Yes", "Yes", "No"),
-    
-    c("XXXXX","No", "No", "Yes", "Yes"),
-    
-    c("XXXXX","No", "No", "Yes", "Yes"),
-    
-    c("XXXXX", "No", "No", "No", "Yes")
+    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3
+    t_0,t_1, t_2
 ),
-    title="TITLE",
+    title="Baseline Estimate, determinants of firm-level TFP",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
@@ -364,17 +426,319 @@ lb.beautify(table_number = table_nb,
             folder = folder)
 ```
 
+<!-- #region kernel="SoS" -->
+## Table 2: Private vs SOE
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 2
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tfp_op) ~ 
+            log(asset_tangibility_fcit) + 
+            log(current_ratio_fcit) +
+            log(cash_over_totasset_fcit) + 
+            log(liabilities_assets_fcit) +
+            log(current_ratio_fcit) * soe_vs_pri  + 
+            log(cash_over_totasset_fcit) * soe_vs_pri + 
+            log(liabilities_assets_fcit)  * soe_vs_pri
+            | firm+ fe_t_i|0 | firm, df_final,
+            exactDOF = TRUE)
+            
+dep <- "Dependent variable: TFP"
+fe1 <- list(
+    c("firm", "Yes", "Yes"),
+    c("industry-year", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0
+),
+    title="Baseline Estimate, determinants of firm-level TFP (SOE vs PRI)",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+) 
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors" \
+"clustered at the firm level appear in parentheses."\
+" Current ratio, cash over asset and liabilities over asset are lagged by one year. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+            folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## Table 3: TCZ and SPZ
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 2
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tfp_op) ~ 
+            log(asset_tangibility_fcit) +
+            log(current_ratio_fcit) +
+            log(cash_over_totasset_fcit) + 
+            log(liabilities_assets_fcit) +
+            log(current_ratio_fcit) * tcz  + 
+            log(cash_over_totasset_fcit) * tcz + 
+            log(liabilities_assets_fcit)  * tcz
+            | firm+ fe_t_i|0 | firm, df_final,
+            exactDOF = TRUE)
+
+### more controls
+t_1 <- felm(log(tfp_op) ~ 
+            log(asset_tangibility_fcit) +
+            log(current_ratio_fcit) +
+            log(cash_over_totasset_fcit) +
+            log(liabilities_assets_fcit) +
+            log(current_ratio_fcit) * spz  + 
+            log(cash_over_totasset_fcit) * spz + 
+            log(liabilities_assets_fcit) * spz
+            | firm+ fe_t_i|0 | firm,df_final,
+            exactDOF = TRUE
+            )
+            
+dep <- "Dependent variable: TFP"
+fe1 <- list(
+    c("firm", "Yes", "Yes"),
+    c("industry-year", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1
+),
+    title="Baseline Estimate, determinants of firm-level TFP (TCZ)",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors" \
+"clustered at the firm level appear in parentheses."\
+" Current ratio, cash over asset and liabilities over asset are lagged by one year. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+            folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## Table 6: Large vs Small
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 2
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get folder
+t <- 1
+for (var in list(
+    'size_asset_',
+    'size_output_',
+    'size_employment_',
+    'size_capital_',
+    'size_sales_'
+    )){
+    
+    for (option in list('fci','fc','fi')){
+        
+        variable <- paste0(var, option)
+        
+        title <- paste0("Baseline Estimate, determinants of firm-level TFP (", var, option, ")")
+        path_1 <- paste0(folder,"/table_",t ,".txt")
+        t_0 <- felm(log(tfp_op) ~ 
+            log(asset_tangibility_fcit) +
+                    log(current_ratio_fcit) +
+                log(cash_over_totasset_fcit) + 
+                log(liabilities_assets_fcit) +
+                log(current_ratio_fcit) * d_size_percentile  + 
+                log(cash_over_totasset_fcit) * d_size_percentile + 
+                log(liabilities_assets_fcit) * d_size_percentile
+                | firm+ fe_t_i|0 | firm, df_final %>% 
+    mutate(d_size_percentile = str_extract(get(variable), "(?<=.5\\=)(.*?)(?=\\,)")),
+                exactDOF = TRUE)
+
+    t_1 <- felm(log(tfp_op) ~ 
+            log(asset_tangibility_fcit) +
+                log(current_ratio_fcit) +
+                    log(cash_over_totasset_fcit) + 
+                    log(liabilities_assets_fcit) +
+                    log(current_ratio_fcit) * d_size_percentile  + 
+                    log(cash_over_totasset_fcit) * d_size_percentile + 
+                    log(liabilities_assets_fcit) * d_size_percentile
+                    | firm+ fe_t_i|0 | firm, df_final %>% 
+        mutate(d_size_percentile = str_extract(get(variable), "(?<=.75\\=)(.*?)(?=\\,)")),
+                    exactDOF = TRUE)
+
+    t_2 <- felm(log(tfp_op) ~ 
+            log(asset_tangibility_fcit) +
+                log(current_ratio_fcit) +
+                    log(cash_over_totasset_fcit) + 
+                    log(liabilities_assets_fcit) +
+                    log(current_ratio_fcit) * d_size_percentile  + 
+                    log(cash_over_totasset_fcit) * d_size_percentile + 
+                    log(liabilities_assets_fcit) * d_size_percentile
+                    | firm+ fe_t_i|0 | firm, df_final %>% 
+        mutate(d_size_percentile = str_extract(get(variable), "(?<=.9\\=)(.*?)(?=\\,)")),
+                    exactDOF = TRUE)
+
+    t_3 <- felm(log(tfp_op) ~ 
+            log(asset_tangibility_fcit) +
+                log(current_ratio_fcit) +
+                    log(cash_over_totasset_fcit) + 
+                    log(liabilities_assets_fcit) +
+                    log(current_ratio_fcit) * d_size_percentile  + 
+                    log(cash_over_totasset_fcit) * d_size_percentile + 
+                    log(liabilities_assets_fcit) * d_size_percentile
+                    | firm+ fe_t_i|0 | firm, df_final %>% 
+        mutate(d_size_percentile = str_extract(get(variable), "(?<=.95\\=)(.*?)(?=\\})")),
+                    exactDOF = TRUE)
+
+    dep <- "Dependent variable: TFP"
+    fe1 <- list(
+            c("firm", "Yes", "Yes", "Yes", "Yes"),
+            c("industry-year", "Yes", "Yes", "Yes", "Yes")
+                     )
+    table_1 <- go_latex(
+        list(t_0,t_1, t_2, t_3),
+        title=title,
+        dep_var = dep,
+        addFE=fe1,
+        save=TRUE,
+        note = FALSE,
+        name=path_1
+        )
+        t<- t + 1
+    }
+}
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors" \
+"clustered at the firm level appear in parentheses."\
+" Current ratio, cash over asset and liabilities over asset are lagged by one year. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multicolumn ={
+#    'Eligible': 2,
+#    'Non-Eligible': 1,
+#    'All': 1,
+#    'All benchmark': 1,
+#}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& .5', '.75', '.90', '.95']
+for i in range(1, 16):
+    print('\n\nTable {}\n\n'.format(i))
+    lb.beautify(table_number = i,
+                #reorder_var = reorder,
+                #multi_lines_dep = multi_lines_dep,
+                new_row= new_r,
+                #multicolumn = multicolumn,
+                table_nte = tbe1,
+                jupyter_preview = True,
+                resolution = 200,
+                folder = folder)
+```
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 2
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
 <!-- #region kernel="SoS" nteract={"transient": {"deleting": false}} -->
 # Generate reports
 <!-- #endregion -->
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
+```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
 import os, time, shutil, urllib, ipykernel, json
 from pathlib import Path
 from notebook import notebookapp
 ```
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
+```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
 def create_report(extension = "html", keep_code = False, notebookname = None):
     """
     Create a report from the current notebook and save it in the 
@@ -434,6 +798,6 @@ def create_report(extension = "html", keep_code = False, notebookname = None):
     print("Report Available at this adress:\n {}".format(dest))
 ```
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
-create_report(extension = "html", keep_code = False, notebookname = None)
+```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
+create_report(extension = "html", keep_code = False, notebookname = "05_tfp_firm_level.ipynb")
 ```
