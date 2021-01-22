@@ -35,6 +35,8 @@ Use existing tables china city reduction mandate, china tcz spz, china city code
 * industry-year FE
 * city-year FE
 * period
+* Update → tfp_cit
+  * Aggregate firm level tfp at the city-industry-year level
 
 ### Steps 
 
@@ -82,6 +84,7 @@ https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_depende
 * asif_firms_prepared
 * asif_industry_characteristics_ownership 
 * asif_city_characteristics_ownership
+* asif_tfp_firm_level
 * Github: 
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_REDUCTION_MANDATE/city_reduction_mandate.py
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/TCZ_SPZ/tcz_spz_policy.py
@@ -92,6 +95,7 @@ https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_depende
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/01_prepare_tables/00_prepare_asif.md
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/07_dominated_city_ownership.md
   * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/08_dominated_industry_ownership.md
+  * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md
 
 # Destination Output/Delivery
 ## Table/file
@@ -324,6 +328,89 @@ output = s3.run_query(
 output
 ```
 
+### Example aggregation TFP
+
+Below is a query to aggregate TFP as the city-industry-year level. 
+
+Geocode4_corr is already correct. Not that industry is not available in the TFP table, so need to add it
+
+```python
+query = """
+SELECT 
+  year, 
+  geocode4_corr, 
+  indu_2, 
+  AVG(tfp_op) as tfp_cit, 
+  SUM(output) AS output, 
+  SUM(employ) AS employment, 
+  SUM(captal) AS capital, 
+  SUM(sales) as sales, 
+  SUM(toasset) as toasset 
+FROM 
+  (
+    SELECT 
+      asif_tfp_firm_level.firm, 
+      tfp_op, 
+      asif_tfp_firm_level.year, 
+      asif_tfp_firm_level.geocode4_corr, 
+      indu_2, 
+      asif_tfp_firm_level.output, 
+      asif_city.employ, 
+      asif_city.captal, 
+      asif_city.sales, 
+      asif_city.toasset 
+    FROM 
+      firms_survey.asif_tfp_firm_level 
+      INNER JOIN (
+        SELECT 
+          firm, 
+          year, 
+          geocode4_corr, 
+          CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
+            '0', 
+            substr(cic, 1, 1)
+          ) END AS indu_2, 
+          output, 
+          employ, 
+          captal, 
+          sales, 
+          toasset 
+        FROM 
+          firms_survey.asif_firms_prepared 
+          INNER JOIN (
+            SELECT 
+              extra_code, 
+              geocode4_corr 
+            FROM 
+              chinese_lookup.china_city_code_normalised 
+            GROUP BY 
+              extra_code, 
+              geocode4_corr
+          ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+      ) as asif_city ON asif_tfp_firm_level.firm = asif_city.firm 
+      and asif_tfp_firm_level.year = asif_city.year 
+    LIMIT 
+      10
+  ) 
+WHERE 
+  year in (
+    '2001', '2002', '2003', '2004', '2005', 
+    '2006', '2007'
+  ) 
+GROUP BY 
+  geocode4_corr, 
+  indu_2, 
+  year
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_2'
+                )
+output
+```
+
 # Table `fin_dep_pollution_baseline_city`
 
 Since the table to create has missing value, please use the following at the top of the query
@@ -448,7 +535,8 @@ SELECT
   ) AS capital, 
   CAST(
     toasset AS DECIMAL(16, 5)
-  ) AS total_asset, 
+  ) AS total_asset,
+  tfp_cit,
   credit_constraint, 
   receivable_curasset_ci,
   std_receivable_curasset_ci,
@@ -607,10 +695,26 @@ FROM
       SUM(employ) AS employment, 
       SUM(captal) AS capital,
       SUM(sales) as sales,
-      SUM(toasset) as toasset
+      SUM(toasset) as toasset,
+      AVG(tfp_op) as tfp_cit
     FROM 
       (
         SELECT 
+      asif_city.firm, 
+      tfp_op, 
+      asif_city.year, 
+      asif_city.geocode4_corr, 
+      indu_2, 
+      asif_city.output,
+      asif_city.employ, 
+      asif_city.captal, 
+      asif_city.sales, 
+      asif_city.toasset 
+    FROM 
+      firms_survey.asif_tfp_firm_level 
+      RIGHT JOIN (
+        SELECT 
+          firm, 
           year, 
           geocode4_corr, 
           CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
@@ -619,9 +723,9 @@ FROM
           ) END AS indu_2, 
           output, 
           employ, 
-          captal,
-          sales,
-          toasset
+          captal, 
+          sales, 
+          toasset 
         FROM 
           firms_survey.asif_firms_prepared 
           INNER JOIN (
@@ -634,6 +738,8 @@ FROM
               extra_code, 
               geocode4_corr
           ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+      ) as asif_city ON asif_tfp_firm_level.firm = asif_city.firm 
+      and asif_tfp_firm_level.year = asif_city.year 
       ) 
     WHERE 
       year in (
@@ -879,6 +985,7 @@ schema = [
     {"Name": "sales", "Type": "decimal(16,5)", "Comment": "Sales"},
     {"Name": "capital", "Type": "decimal(16,5)", "Comment": "Capital"},
     {"Name": "total_asset", "Type": "decimal(16,5)", "Comment": "Total asset"},
+    {'Name': 'tfp_cit', 'Type': 'double', 'Comment': 'TFP at the city industry level. From https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md#table-asif_tfp_firm_level'},
     {
         "Name": "credit_constraint",
         "Type": "float",
