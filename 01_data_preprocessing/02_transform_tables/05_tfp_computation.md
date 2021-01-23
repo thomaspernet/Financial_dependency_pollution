@@ -228,13 +228,15 @@ WITH test as (
   WHERE 
     (
       output > output_lower_bound 
-      AND output < output_upper_bound 
+      -- AND output < output_upper_bound 
       AND employ > employ_lower_bound 
-      AND employ < employ_upper_bound 
+      -- AND employ < employ_upper_bound 
       AND captal > captal_lower_bound 
-      AND output < captal_upper_bound 
+      -- AND output < captal_upper_bound 
       AND asif_firms_prepared.year >= '2001' 
       AND asif_firms_prepared.year <= '2007'
+      AND output > midput 
+      AND midput > 0
     )
 ) 
 SELECT 
@@ -343,13 +345,15 @@ WITH test as (
   WHERE 
     (
       output > output_lower_bound 
-      AND output < output_upper_bound 
+      -- AND output < output_upper_bound 
       AND employ > employ_lower_bound 
-      AND employ < employ_upper_bound 
+      -- AND employ < employ_upper_bound 
       AND captal > captal_lower_bound 
-      AND output < captal_upper_bound 
+      -- AND output < captal_upper_bound 
       AND asif_firms_prepared.year >= '2001' 
       AND asif_firms_prepared.year <= '2007'
+      AND output > midput 
+      AND midput > 0
     )
 ) 
 SELECT 
@@ -409,13 +413,15 @@ WITH test as (
   WHERE 
     (
       output > output_lower_bound 
-      AND output < output_upper_bound 
+      -- AND output < output_upper_bound 
       AND employ > employ_lower_bound 
-      AND employ < employ_upper_bound 
+      -- AND employ < employ_upper_bound 
       AND captal > captal_lower_bound 
-      AND output < captal_upper_bound 
+      -- AND output < captal_upper_bound 
       AND asif_firms_prepared.year >= '2001' 
       AND asif_firms_prepared.year <= '2007'
+      AND output > midput 
+      AND midput > 0
     )
 ) 
 SELECT 
@@ -509,17 +515,16 @@ INNER JOIN (
               geocode4_corr
           ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
 WHERE (
-  output > output_lower_bound AND output < output_upper_bound
-  AND 
-  employ > employ_lower_bound AND employ < employ_upper_bound
-  AND 
-  captal > captal_lower_bound AND output <  captal_upper_bound
-  AND 
-  asif_firms_prepared.year >= '2001'
-  AND
-  asif_firms_prepared.year <= '2007'
-  AND output > midput 
-  AND midput > 0
+  output > output_lower_bound 
+      -- AND output < output_upper_bound 
+      AND employ > employ_lower_bound 
+      -- AND employ < employ_upper_bound 
+      AND captal > captal_lower_bound 
+      -- AND output < captal_upper_bound 
+      AND asif_firms_prepared.year >= '2001' 
+      AND asif_firms_prepared.year <= '2007'
+      AND output > midput 
+      AND midput > 0
   )
   )
   SELECT 
@@ -605,7 +610,14 @@ WITH test as (
     midput, 
     ownership, 
     geocode4_corr, 
-    cic 
+    cic,
+    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
+            '0', 
+            substr(cic, 1, 1)
+          ) END AS indu_2,
+          output_upper_bound,
+  employ_upper_bound,
+  captal_upper_bound
   FROM 
     asif_firms_prepared 
     INNER JOIN (
@@ -635,11 +647,11 @@ WITH test as (
   WHERE 
     (
       output > output_lower_bound 
-      AND output < output_upper_bound 
+      -- AND output < output_upper_bound 
       AND employ > employ_lower_bound 
-      AND employ < employ_upper_bound 
+      -- AND employ < employ_upper_bound 
       AND captal > captal_lower_bound 
-      AND output < captal_upper_bound 
+      -- AND output < captal_upper_bound 
       AND asif_firms_prepared.year >= '2001' 
       AND asif_firms_prepared.year <= '2007'
       AND output > midput 
@@ -654,7 +666,12 @@ SELECT
   captal, 
   midput, 
   ownership, 
-  geocode4_corr 
+  geocode4_corr,
+  indu_2,
+  output_upper_bound,
+  employ_upper_bound,
+  captal_upper_bound
+
 FROM 
   test 
   INNER JOIN (
@@ -766,19 +783,33 @@ path = "TFP_R_PROGRAM/program_OP_TFP.R"
 source(path)
 ```
 
+<!-- #region kernel="R" -->
+Estimate TFP excluding largest firms
+<!-- #endregion -->
+
+```sos kernel="R"
+df_train <- df_input %>% filter(
+    output < output_upper_bound 
+    & 
+employ < employ_upper_bound
+& 
+captal < captal_upper_bound)
+df_train$id_1 <- df_train %>% group_indices(firm) 
+dim(df_train)
+```
+
 ```sos kernel="python3"
 import time
 start_time = time.time()
 ```
 
 ```sos kernel="R"
-df_input$id_1 <- df_input %>% group_indices(firm) 
-OP.fit <- prodestOP(Y = log(df_input$output),
-                    fX = log(df_input$employ),
-                    sX= log(df_input$captal),
-                    pX = log(df_input$midput),
-                    idvar = df_input$id_1,
-                    timevar = df_input$year)
+OP.fit <- prodestOP(Y = log(df_train$output),
+                    fX = log(df_train$employ),
+                    sX= log(df_train$captal),
+                    pX = log(df_train$midput),
+                    idvar = df_train$id_1,
+                    timevar = df_train$year)
 ```
 
 ```sos kernel="python3"
@@ -790,7 +821,9 @@ OP.fit
 ```
 
 <!-- #region kernel="R" -->
-Compute the TFP using the coefficients of employment and capital
+Compute the TFP using the coefficients of employment and capital.
+
+TFP is predicted on all firms
 <!-- #endregion -->
 
 ```sos kernel="R"
@@ -799,11 +832,15 @@ df_input$tfp_OP <- log(df_input$output) - (log(df_input$employ) * OP.fit$pars[1]
 ```
 
 ```sos kernel="R"
-df_output <- df_input %>% select (-id_1)
+df_output <- df_input #%>% select (-id_1)
 ```
 
 ```sos kernel="R"
 glimpse(df_output)
+```
+
+```sos kernel="R"
+df_output %>% filter(firm == '246379')
 ```
 
 <!-- #region kernel="R" -->
@@ -908,6 +945,26 @@ schema = [
     },
     {
         "Name": "geocode4_corr",
+        "Type": "string",
+        "Comment": ""
+    },
+    {
+        "Name": "indu_2",
+        "Type": "string",
+        "Comment": ""
+    },
+    {
+        "Name": "output_upper_bound",
+        "Type": "string",
+        "Comment": ""
+    },
+    {
+        "Name": "employ_upper_bound",
+        "Type": "string",
+        "Comment": ""
+    },
+    {
+        "Name": "captal_upper_bound",
         "Type": "string",
         "Comment": ""
     },
@@ -1153,10 +1210,6 @@ The data catalog is available in Glue. Although, we might want to get a quick ac
 
 Bear in mind the code will erase the previous README. 
 <!-- #endregion -->
-
-```sos kernel="python3"
-table_name
-```
 
 ```sos kernel="python3"
 README = """
