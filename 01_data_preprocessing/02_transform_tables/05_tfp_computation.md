@@ -801,7 +801,7 @@ source(path)
 ```
 
 <!-- #region kernel="R" -->
-Estimate TFP excluding largest firms
+Estimate TFP excluding largest firms and firms switching industry, city and ownership
 <!-- #endregion -->
 
 ```sos kernel="R"
