@@ -353,8 +353,8 @@ FROM
       tfp_op, 
       asif_tfp_firm_level.year, 
       asif_tfp_firm_level.geocode4_corr, 
-      indu_2, 
-      asif_tfp_firm_level.output, 
+      asif_tfp_firm_level.indu_2, 
+      asif_city.output, 
       asif_city.employ, 
       asif_city.captal, 
       asif_city.sales, 
@@ -389,6 +389,7 @@ FROM
           ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
       ) as asif_city ON asif_tfp_firm_level.firm = asif_city.firm 
       and asif_tfp_firm_level.year = asif_city.year 
+      AND asif_tfp_firm_level.indu_2 = asif_city.indu_2 
     LIMIT 
       10
   ) 
@@ -704,7 +705,7 @@ FROM
       tfp_op, 
       asif_city.year, 
       asif_city.geocode4_corr, 
-      indu_2, 
+      asif_city.indu_2, 
       asif_city.output,
       asif_city.employ, 
       asif_city.captal, 
@@ -740,6 +741,8 @@ FROM
           ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
       ) as asif_city ON asif_tfp_firm_level.firm = asif_city.firm 
       and asif_tfp_firm_level.year = asif_city.year 
+      and asif_tfp_firm_level.indu_2 = asif_city.indu_2 
+      and asif_tfp_firm_level.geocode4_corr = asif_city.geocode4_corr 
       ) 
     WHERE 
       year in (
