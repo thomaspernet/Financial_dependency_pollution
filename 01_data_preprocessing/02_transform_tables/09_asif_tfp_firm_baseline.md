@@ -326,7 +326,7 @@ FROM
         '2001', '2002', '2003', '2004', '2005'
       ) THEN 'FALSE' WHEN ratio.year in ('2006', '2007') THEN 'TRUE' END AS period, 
       ratio.cic, 
-      indu_2, 
+      ratio.indu_2, 
       CASE WHEN short IS NULL THEN 'Unknown' ELSE short END AS short, 
       ratio.geocode4_corr, 
       CASE WHEN tcz IS NULL THEN '0' ELSE tcz END AS tcz, 
@@ -341,8 +341,8 @@ FROM
       tso2_mandate_c, 
       in_10_000_tonnes, 
       ratio.output, 
-      employment, 
-      capital, 
+      ratio.employment, 
+      ratio.capital, 
       sales, 
       tfp_op,
       total_asset, 
@@ -373,39 +373,6 @@ FROM
       ratio 
       INNER JOIN (
         SELECT 
-          firm, 
-          COUNT(
-            DISTINCT(geocode4_corr)
-          ) AS count_city 
-        FROM 
-          ratio 
-        GROUP BY 
-          firm
-      ) as multi_cities ON ratio.firm = multi_cities.firm 
-      INNER JOIN (
-        SELECT 
-          firm, 
-          COUNT(
-            DISTINCT(ownership)
-          ) AS count_ownership 
-        FROM 
-          ratio 
-        GROUP BY 
-          firm
-      ) as multi_ownership ON ratio.firm = multi_ownership.firm 
-      INNER JOIN (
-        SELECT 
-          firm, 
-          COUNT(
-            DISTINCT(cic)
-          ) AS count_industry 
-        FROM 
-          ratio 
-        GROUP BY 
-          firm
-      ) as multi_industry ON ratio.firm = multi_industry.firm 
-      INNER JOIN (
-        SELECT 
           geocode4_corr, 
           tso2_mandate_c, 
           in_10_000_tonnes 
@@ -429,13 +396,14 @@ FROM
       AND ratio.year = asif_tfp_firm_level.year
       AND ratio.geocode4_corr = asif_tfp_firm_level.geocode4_corr
       AND ratio.ownership = asif_tfp_firm_level.ownership
+      AND ratio.indu_2 = asif_tfp_firm_level.indu_2
     WHERE 
-      count_ownership = 1 
-      AND count_city = 1 
-      AND count_industry = 1 
+      count_ownership = '1' 
+      AND count_city = '1' 
+      AND count_industry = '1' 
       AND ratio.output > 0 
-      and capital > 0 
-      and employment > 0 
+      and ratio.capital > 0 
+      and ratio.employment > 0 
       AND ratio.indu_2 != '43' 
       AND total_asset IS NOT NULL
       AND asset_tangibility_fcit IS NOT NULL
@@ -460,7 +428,7 @@ output = s3.run_query(
 output
 ```
 
-# Table `XX`
+# Table `asif_tfp_credit_constraint`
 
 Since the table to create has missing value, please use the following at the top of the query
 
@@ -677,8 +645,8 @@ FROM
       tso2_mandate_c, 
       in_10_000_tonnes, 
       ratio.output, 
-      employment, 
-      capital, 
+      ratio.employment, 
+      ratio.capital, 
       sales, 
       tfp_op,
       total_asset, 
@@ -945,39 +913,6 @@ FROM
       ratio 
       INNER JOIN (
         SELECT 
-          firm, 
-          COUNT(
-            DISTINCT(geocode4_corr)
-          ) AS count_city 
-        FROM 
-          ratio 
-        GROUP BY 
-          firm
-      ) as multi_cities ON ratio.firm = multi_cities.firm 
-      INNER JOIN (
-        SELECT 
-          firm, 
-          COUNT(
-            DISTINCT(ownership)
-          ) AS count_ownership 
-        FROM 
-          ratio 
-        GROUP BY 
-          firm
-      ) as multi_ownership ON ratio.firm = multi_ownership.firm 
-      INNER JOIN (
-        SELECT 
-          firm, 
-          COUNT(
-            DISTINCT(cic)
-          ) AS count_industry 
-        FROM 
-          ratio 
-        GROUP BY 
-          firm
-      ) as multi_industry ON ratio.firm = multi_industry.firm -- Pollution
-      INNER JOIN (
-        SELECT 
           year, 
           geocode4_corr, 
           provinces, 
@@ -1219,12 +1154,12 @@ FROM
       AND ratio.geocode4_corr = asif_tfp_firm_level.geocode4_corr
       AND ratio.ownership = asif_tfp_firm_level.ownership
     WHERE 
-      count_ownership = 1 
-      AND count_city = 1 
-      AND count_industry = 1 
+      count_ownership = '1' 
+      AND count_city = '1' 
+      AND count_industry = '1' 
       AND ratio.output > 0 
-      and capital > 0 
-      and employment > 0 
+      and ratio.capital > 0 
+      and ratio.employment > 0 
       AND ratio.indu_2 != '43' 
       AND total_asset IS NOT NULL 
       AND asset_tangibility_fcit > 0 
