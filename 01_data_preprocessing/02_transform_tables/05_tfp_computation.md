@@ -572,6 +572,17 @@ output
 
 <!-- #region kernel="SoS" -->
 By default, the query saves the data in `SQL_OUTPUT_ATHENA/CSV`, however, please paste the S3 key where the table transformed by R should be saved. 
+
+Update:
+
+Relax the constraint on:
+
+- Big/small firms
+- switching city
+- switching industry
+- switching ownership
+
+We will predict the model using the constraint **but** we will predict on all firms
 <!-- #endregion -->
 
 ```sos kernel="python3"
@@ -670,8 +681,10 @@ SELECT
   indu_2,
   output_upper_bound,
   employ_upper_bound,
-  captal_upper_bound
-
+  captal_upper_bound,
+  count_ownership,
+  count_city,
+  count_industry
 FROM 
   test 
   INNER JOIN (
@@ -707,10 +720,10 @@ FROM
     GROUP BY 
       firm
   ) as multi_industry ON test.firm = multi_industry.firm 
-WHERE 
-  count_ownership = 1 
-  AND count_city = 1 
-  AND count_industry = 1 
+-- WHERE 
+--  count_ownership = 1 
+--  AND count_city = 1 
+--  AND count_industry = 1 
 """
 
 output = s3.run_query(
@@ -768,6 +781,10 @@ df_input <- read_csv(path_temporary_file)
 df_input %>% head()
 ```
 
+```sos kernel="R"
+dim(df_input)
+```
+
 <!-- #region kernel="R" -->
 Prepare R code for transformation, rename the final table `df_output`. Make sure there is no missing values, the crawler cannot handle missing values, neither any econometrics or machine learning model
 <!-- #endregion -->
@@ -784,7 +801,7 @@ source(path)
 ```
 
 <!-- #region kernel="R" -->
-Estimate TFP excluding largest firms
+Estimate TFP excluding largest firms and firms switching industry, city and ownership
 <!-- #endregion -->
 
 ```sos kernel="R"
@@ -793,7 +810,11 @@ df_train <- df_input %>% filter(
     & 
 employ < employ_upper_bound
 & 
-captal < captal_upper_bound)
+captal < captal_upper_bound
+&count_ownership == 1 
+&count_city == 1 
+&count_industry == 1 
+)
 df_train$id_1 <- df_train %>% group_indices(firm) 
 dim(df_train)
 ```
@@ -967,6 +988,21 @@ schema = [
         "Name": "captal_upper_bound",
         "Type": "string",
         "Comment": ""
+    },
+    {
+        "Name": "count_ownership",
+        "Type": "string",
+        "Comment": "Number of ownerships per firm"
+    },
+    {
+        "Name": "count_city",
+        "Type": "string",
+        "Comment": "Number of cities per firm"
+    },
+    {
+        "Name": "count_industry",
+        "Type": "string",
+        "Comment": "Number of industries per firm"
     },
     {
         "Name": "tfp_OP",
