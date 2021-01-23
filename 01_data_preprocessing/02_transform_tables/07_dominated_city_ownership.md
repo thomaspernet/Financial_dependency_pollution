@@ -15,7 +15,6 @@ jupyter:
     name: python3
 ---
 
-<!-- #region -->
 # US Name
 
 Transform asif firms prepared and others data by merging china city code normalised data by constructing domestic_size and others (create dominated city ) to asif city characteristics ownership 
@@ -38,8 +37,11 @@ Use existing tables asif firms prepared, china city code normalised to construct
 
 ### Steps 
 
-
-
+* city ownership public vs private
+  * Change computation city public vs private
+  * Aggregate output by ownership and city
+    * A given city will have SOE asset tangibility and PRIVATE asset tangibility [output, employment, capital and sales]
+  * If asset tangibility SOE above Private then city is dominated by SOE
 
 **Cautious**
 Make sure there is no duplicates
@@ -90,7 +92,6 @@ asif_city_characteristics_ownership
 **GitHub**
 
 - https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/07_dominated_city_ownership.md
-<!-- #endregion -->
 ```python inputHidden=false jupyter={"outputs_hidden": false} outputHidden=false
 from awsPy.aws_authorization import aws_connector
 from awsPy.aws_s3 import service_s3
@@ -180,22 +181,11 @@ WITH test AS (
 SELECT 
 geocode4_corr,
 soe_vs_pri,
-approx_percentile(output, ARRAY[.5, .75, .90, .95] ) AS output_pct, 
-approx_percentile(employ,ARRAY[.5, .75, .90, .95]) AS employ_pct, 
-approx_percentile(sales,ARRAY[.5, .75, .90, .95]) AS sales_pct,
-approx_percentile(captal,ARRAY[.5, .75, .90, .95]) AS captal_pct 
-FROM (
-              SELECT
-              firm,
-              geocode4_corr,
-              soe_vs_pri,
-              SUM(output) as output,
-              SUM(employ) as employ,
-              SUM(sales) as sales,
-              SUM(captal) as captal
-              FROM test
-              GROUP BY firm, geocode4_corr, soe_vs_pri
-              )
+SUM(output) as output,
+SUM(employ) as employ,
+SUM(sales) as sales,
+SUM(captal) as captal
+FROM test
 GROUP BY geocode4_corr, soe_vs_pri
 ORDER BY geocode4_corr
 LIMIT 10
@@ -242,32 +232,21 @@ FROM
     WITH mapping AS (
       SELECT 
         geocode4_corr, 
-        map_agg(soe_vs_pri, output_pct) AS output_pct, 
-        map_agg(soe_vs_pri, employ_pct) AS employ_pct, 
-        map_agg(soe_vs_pri, sales_pct) AS sales_pct, 
-        map_agg(soe_vs_pri, captal_pct) AS captal_pct 
+        map_agg(soe_vs_pri, output) AS output, 
+        map_agg(soe_vs_pri, employ) AS employ, 
+        map_agg(soe_vs_pri, sales) AS sales, 
+        map_agg(soe_vs_pri, captal) AS captal 
       FROM 
         (
           SELECT 
             geocode4_corr, 
             soe_vs_pri, 
-            approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, 
-            approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, 
-            approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, 
-            approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct 
+            ARRAY[SUM(output) ] as output, 
+            ARRAY[SUM(employ) ] as employ, 
+            ARRAY[SUM(sales) ] as sales, 
+            ARRAY[SUM(captal) ] as captal 
           FROM 
-            (
-              SELECT
-              firm,
-              geocode4_corr,
-              soe_vs_pri,
-              SUM(output) as output,
-              SUM(employ) as employ,
-              SUM(sales) as sales,
-              SUM(captal) as captal
-              FROM test
-              GROUP BY firm, geocode4_corr, soe_vs_pri
-              ) 
+            test 
           GROUP BY 
             geocode4_corr, 
             soe_vs_pri 
@@ -280,129 +259,45 @@ FROM
         geocode4_corr
     ) 
     SELECT 
-      -- map(
-      geocode4_corr,
-        ARRAY[
-          .5, 
-          .75, 
-          .90, 
-          .95
-          ], 
+      *, 
+      MAP(
+        output[ 'SOE' ], output[ 'PRIVATE' ]
+      ), 
+      map_values(
+        transform_values(
           MAP(
-              output_pct[ 'SOE' ], output_pct[ 'PRIVATE' ]
-            ),
-        map_values(
-          transform_values(
-            MAP(
-              output_pct[ 'SOE' ], output_pct[ 'PRIVATE' ]
-            ), 
-            (k, v) -> v > k
-          )
+            output[ 'SOE' ], output[ 'PRIVATE' ]
+          ), 
+          (k, v) -> v > k
         )
-      -- ) 
-      AS output_pct
-    FROM 
-      mapping
-  )
-
-"""
-output = s3.run_query(
-                    query=query,
-                    database=DatabaseName,
-                    s3_output=s3_output_example,
-    filename = 'example_1'
-                )
-output
-```
-
-Bring together the percentile and the results 
-
-```python
-query = """
-WITH test AS (
-  SELECT 
-    *, 
-    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
-      '0', 
-      substr(cic, 1, 1)
-    ) END AS indu_2, 
-    CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri, 
-    CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
-  FROM 
-    firms_survey.asif_firms_prepared 
-    INNER JOIN (
-      SELECT 
-        extra_code, 
-        geocode4_corr 
-      FROM 
-        chinese_lookup.china_city_code_normalised 
-      GROUP BY 
-        extra_code, 
-        geocode4_corr
-    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
-) 
-SELECT 
-  * 
-FROM 
-  (
-    WITH mapping AS (
-      SELECT 
-        geocode4_corr, 
-        map_agg(soe_vs_pri, output_pct) AS output_pct, 
-        map_agg(soe_vs_pri, employ_pct) AS employ_pct, 
-        map_agg(soe_vs_pri, sales_pct) AS sales_pct, 
-        map_agg(soe_vs_pri, captal_pct) AS captal_pct 
-      FROM 
-        (
-          SELECT 
-            geocode4_corr, 
-            soe_vs_pri, 
-            approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, 
-            approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, 
-            approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, 
-            approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct 
-          FROM 
-            (
-              SELECT
-              firm,
-              geocode4_corr,
-              soe_vs_pri,
-              SUM(output) as output,
-              SUM(employ) as employ,
-              SUM(sales) as sales,
-              SUM(captal) as captal
-              FROM test
-              GROUP BY firm, geocode4_corr, soe_vs_pri
-              ) 
-          GROUP BY 
-            geocode4_corr, 
-            soe_vs_pri 
-          ORDER BY 
-            geocode4_corr 
-          LIMIT 
-            10
-        ) 
-      GROUP BY 
-        geocode4_corr
-    ) 
-    SELECT 
-    geocode4_corr,
-      map(
-        ARRAY[
-          .5, 
-          .75, 
-          .90, 
-          .95
-          ], 
-        map_values(
-          transform_values(
-            MAP(
-              output_pct[ 'SOE' ], output_pct[ 'PRIVATE' ]
-            ), 
-            (k, v) -> v > k
-          )
+      ) AS dominated_output_soe_c,
+      
+      map_values(
+        transform_values(
+          MAP(
+            employ[ 'SOE' ], employ[ 'PRIVATE' ]
+          ), 
+          (k, v) -> v > k
         )
-      ) AS output_pct_soe
+      ) AS dominated_employment_soe_c,
+      
+      map_values(
+        transform_values(
+          MAP(
+            sales[ 'SOE' ], sales[ 'PRIVATE' ]
+          ), 
+          (k, v) -> v > k
+        )
+      ) AS dominated_sales_soe_c,
+      
+      map_values(
+        transform_values(
+          MAP(
+            captal[ 'SOE' ], captal[ 'PRIVATE' ]
+          ), 
+          (k, v) -> v > k
+        )
+      ) AS dominated_capital_soe_c
     FROM 
       mapping
   )
@@ -475,122 +370,86 @@ WITH test AS (
 ) 
 SELECT 
   soe_private.geocode4_corr,
-  dominated_output_soe_c,
-  dominated_employment_soe_c,
-  dominated_sales_soe_c,
-  dominated_capital_soe_c,
-  dominated_output_for_c,
-  dominated_employment_for_c,
-  dominated_sales_for_c,
-  dominated_capital_for_c
+  dominated_output_soe_c[1] AS dominated_output_soe_c,
+  dominated_employment_soe_c[1] AS dominated_employment_soe_c,
+  dominated_sales_soe_c[1] AS dominated_sales_soe_c,
+  dominated_capital_soe_c[1] AS dominated_capital_soe_c,
+  dominated_output_for_c[1] AS dominated_output_for_c,
+  dominated_employment_for_c[1] AS dominated_employment_for_c,
+  dominated_sales_for_c[1] AS dominated_sales_for_c,
+  dominated_capital_for_c[1] AS dominated_capital_for_c
 FROM 
   (
     WITH mapping AS (
       SELECT 
         geocode4_corr, 
-        map_agg(soe_vs_pri, output_pct) AS output_pct, 
-        map_agg(soe_vs_pri, employ_pct) AS employ_pct, 
-        map_agg(soe_vs_pri, sales_pct) AS sales_pct, 
-        map_agg(soe_vs_pri, captal_pct) AS captal_pct 
+        map_agg(soe_vs_pri, output) AS output, 
+        map_agg(soe_vs_pri, employ) AS employ, 
+        map_agg(soe_vs_pri, sales) AS sales, 
+        map_agg(soe_vs_pri, captal) AS captal 
       FROM 
         (
           SELECT 
             geocode4_corr, 
             soe_vs_pri, 
-            approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, 
-            approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, 
-            approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, 
-            approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct 
+            ARRAY[SUM(output) ] as output, 
+            ARRAY[SUM(employ) ] as employ, 
+            ARRAY[SUM(sales) ] as sales, 
+            ARRAY[SUM(captal) ] as captal 
           FROM 
-            (
-              SELECT
-              firm,
-              geocode4_corr,
-              soe_vs_pri,
-              SUM(output) as output,
-              SUM(employ) as employ,
-              SUM(sales) as sales,
-              SUM(captal) as captal
-              FROM test
-              GROUP BY firm, geocode4_corr, soe_vs_pri
-              ) 
+            test 
           GROUP BY 
             geocode4_corr, 
-            soe_vs_pri
+            soe_vs_pri 
           ORDER BY 
             geocode4_corr 
         ) 
       GROUP BY 
         geocode4_corr
-    )
+    ) 
     SELECT 
-    geocode4_corr,
-     map(
-        ARRAY[
-          .5, 
-          .75, 
-          .90, 
-          .95
-          ], 
-        map_values(
-          transform_values(
-            MAP(
-              output_pct[ 'SOE' ], output_pct[ 'PRIVATE' ]
-            ), 
-            (k, v) -> k > v
-          )
+      *, 
+      MAP(
+        output[ 'SOE' ], output[ 'PRIVATE' ]
+      ), 
+      map_values(
+        transform_values(
+          MAP(
+            output[ 'SOE' ], output[ 'PRIVATE' ]
+          ), 
+          (k, v) -> v > k
         )
       ) AS dominated_output_soe_c,
-     map(
-        ARRAY[
-          .5, 
-          .75, 
-          .90, 
-          .95
-          ], 
-        map_values(
-          transform_values(
-            MAP(
-              employ_pct[ 'SOE' ], employ_pct[ 'PRIVATE' ]
-            ), 
-            (k, v) -> k > v
-          )
+      
+      map_values(
+        transform_values(
+          MAP(
+            employ[ 'SOE' ], employ[ 'PRIVATE' ]
+          ), 
+          (k, v) -> v > k
         )
       ) AS dominated_employment_soe_c,
-     map(
-        ARRAY[
-          .5, 
-          .75, 
-          .90, 
-          .95
-          ], 
-        map_values(
-          transform_values(
-            MAP(
-              sales_pct[ 'SOE' ], sales_pct[ 'PRIVATE' ]
-            ), 
-            (k, v) -> k > v
-          )
+      
+      map_values(
+        transform_values(
+          MAP(
+            sales[ 'SOE' ], sales[ 'PRIVATE' ]
+          ), 
+          (k, v) -> v > k
         )
       ) AS dominated_sales_soe_c,
-     map(
-        ARRAY[
-          .5, 
-          .75, 
-          .90, 
-          .95
-          ], 
-        map_values(
-          transform_values(
-            MAP(
-              captal_pct[ 'SOE' ], captal_pct[ 'PRIVATE' ]
-            ), 
-            (k, v) -> k > v
-          )
+      
+      map_values(
+        transform_values(
+          MAP(
+            captal[ 'SOE' ], captal[ 'PRIVATE' ]
+          ), 
+          (k, v) -> v > k
         )
       ) AS dominated_capital_soe_c
-    FROM mapping
-   ) AS soe_private
+    FROM 
+      mapping
+  ) AS soe_private
 LEFT JOIN (
 SELECT 
   *
@@ -599,110 +458,74 @@ FROM
     WITH mapping AS (
       SELECT 
         geocode4_corr, 
-        map_agg(for_vs_dom, output_pct) AS output_pct, 
-        map_agg(for_vs_dom, employ_pct) AS employ_pct, 
-        map_agg(for_vs_dom, sales_pct) AS sales_pct, 
-        map_agg(for_vs_dom, captal_pct) AS captal_pct 
+        map_agg(for_vs_dom, output) AS output, 
+        map_agg(for_vs_dom, employ) AS employ, 
+        map_agg(for_vs_dom, sales) AS sales, 
+        map_agg(for_vs_dom, captal) AS captal 
       FROM 
         (
           SELECT 
             geocode4_corr, 
             for_vs_dom, 
-            approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, 
-            approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, 
-            approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, 
-            approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct 
+            ARRAY[SUM(output) ] as output, 
+            ARRAY[SUM(employ) ] as employ, 
+            ARRAY[SUM(sales) ] as sales, 
+            ARRAY[SUM(captal) ] as captal 
           FROM 
-            (
-              SELECT
-              firm,
-              geocode4_corr,
-              for_vs_dom,
-              SUM(output) as output,
-              SUM(employ) as employ,
-              SUM(sales) as sales,
-              SUM(captal) as captal
-              FROM test
-              GROUP BY firm, geocode4_corr, for_vs_dom
-              ) 
+            test 
           GROUP BY 
             geocode4_corr, 
-            for_vs_dom
+            for_vs_dom 
           ORDER BY 
             geocode4_corr 
         ) 
       GROUP BY 
         geocode4_corr
-    )
+    ) 
     SELECT 
-    geocode4_corr,
-     map(
-        ARRAY[
-          .5, 
-          .75, 
-          .90, 
-          .95
-          ], 
-        map_values(
-          transform_values(
-            MAP(
-              output_pct[ 'FOREIGN' ], output_pct[ 'DOMESTIC' ]
-            ), 
-            (k, v) -> k > v
-          )
+      *, 
+      MAP(
+        output[ 'FOREIGN' ], output[ 'DOMESTIC' ]
+      ), 
+      map_values(
+        transform_values(
+          MAP(
+            output[ 'FOREIGN' ], output[ 'DOMESTIC' ]
+          ), 
+          (k, v) -> v > k
         )
       ) AS dominated_output_for_c,
-     map(
-        ARRAY[
-          .5, 
-          .75, 
-          .90, 
-          .95
-          ], 
-        map_values(
-          transform_values(
-            MAP(
-              employ_pct[ 'FOREIGN' ], employ_pct[ 'DOMESTIC' ]
-            ), 
-            (k, v) -> k > v
-          )
+      
+      map_values(
+        transform_values(
+          MAP(
+            employ[ 'FOREIGN' ], employ[ 'DOMESTIC' ]
+          ), 
+          (k, v) -> v > k
         )
       ) AS dominated_employment_for_c,
-     map(
-        ARRAY[
-          .5, 
-          .75, 
-          .90, 
-          .95
-          ], 
-        map_values(
-          transform_values(
-            MAP(
-              sales_pct[ 'FOREIGN' ], sales_pct[ 'DOMESTIC' ]
-            ), 
-            (k, v) -> k > v
-          )
+      
+      map_values(
+        transform_values(
+          MAP(
+            sales[ 'FOREIGN' ], sales[ 'DOMESTIC' ]
+          ), 
+          (k, v) -> v > k
         )
       ) AS dominated_sales_for_c,
-     map(
-        ARRAY[
-          .5, 
-          .75, 
-          .90, 
-          .95
-          ], 
-        map_values(
-          transform_values(
-            MAP(
-              captal_pct[ 'FOREIGN' ], captal_pct[ 'DOMESTIC' ]
-            ), 
-            (k, v) -> k > v
-          )
+      
+      map_values(
+        transform_values(
+          MAP(
+            captal[ 'FOREIGN' ], captal[ 'DOMESTIC' ]
+          ), 
+          (k, v) -> v > k
         )
       ) AS dominated_capital_for_c
-    FROM mapping
-   )
-) AS foreign_dom
+    FROM 
+      mapping
+    )
+  ) AS foreign_dom
 ON soe_private.geocode4_corr = foreign_dom.geocode4_corr
 """.format(DatabaseName, table_name)
 output = s3.run_query(
@@ -723,22 +546,6 @@ output = s3.run_query(
                     database=DatabaseName,
                     s3_output=s3_output_example,
     filename = 'count_{}'.format(table_name)
-                )
-output
-```
-
-To filter a key, use `element_at`
-
-```python
-query_filter = """
-SELECT geocode4_corr,element_at(dominated_output_soe, .5) as dominated_median
-FROM asif_city_characteristics_ownership 
-"""
-output = s3.run_query(
-                    query=query_filter,
-                    database=DatabaseName,
-                    s3_output=s3_output_example,
-    filename = 'filter_{}'.format(table_name)
                 )
 output
 ```
@@ -782,27 +589,26 @@ glue.get_table_information(
 ```python
 schema = [
     {'Name': 'geocode4_corr', 'Type': 'string', 'Comment': 'City ID'},
-    {'Name': 'dominated_output_soe_c',
-        'Type': 'map<double,boolean>',
-        'Comment': 'map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of output'},
-    {'Name': 'dominated_employment_soe_c',
-        'Type': 'map<double,boolean>',
-        'Comment': 'map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of employment'},
-    {'Name': 'dominated_sales_soe_c', 'Type': 'map<double,boolean>', 'Comment': 'map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of sales'},
+    {'Name': 'dominated_output_soe_c', 'Type': 'boolean',
+        'Comment': 'SOE dominated city of output'},
+    {'Name': 'dominated_employment_soe_c', 'Type': 'boolean',
+        'Comment': 'SOE dominated city of employment'},
+    {'Name': 'dominated_sales_soe_c', 'Type': 'boolean',
+        'Comment': 'SOE dominated city of sales'},
     {'Name': 'dominated_capital_soe_c',
-        'Type': 'map<double,boolean>',
-        'Comment': 'map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of capital'},
-    
+        'Type': 'boolean',
+        'Comment': 'SOE dominated city of capital'},
     {'Name': 'dominated_output_for_c',
-        'Type': 'map<double,boolean>',
-        'Comment': 'map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of output'},
+        'Type': 'boolean',
+        'Comment': 'SOE dominated city of output'},
     {'Name': 'dominated_employment_for_c',
-        'Type': 'map<double,boolean>',
-        'Comment': 'map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of employment'},
-    {'Name': 'dominated_sales_for_c', 'Type': 'map<double,boolean>', 'Comment': 'map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of sales'},
+        'Type': 'boolean',
+        'Comment': 'SOE dominated city of employment'},
+    {'Name': 'dominated_sales_for_c', 'Type': 'boolean',
+        'Comment': 'SOE dominated cityof sales'},
     {'Name': 'dominated_capital_for_c',
-        'Type': 'map<double,boolean>',
-        'Comment': 'map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of capital'},
+        'Type': 'boolean',
+        'Comment': 'SOE dominated city of capital'},
 
 ]
 ```
