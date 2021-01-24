@@ -21,8 +21,8 @@
 - [fin_dep_pollution_baseline_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_industry)
 - [asif_financial_ratio_baseline_firm](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_financial_ratio_baseline_firm)
 - [fin_dep_pollution_baseline_city](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_city)
-- [asif_industry_characteristics_ownership](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_characteristics_ownership)
 - [asif_city_characteristics_ownership](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_city_characteristics_ownership)
+- [asif_industry_characteristics_ownership](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_characteristics_ownership)
 
     
 
@@ -750,6 +750,26 @@
 
     
 
+## Table asif_city_characteristics_ownership
+
+- Database: firms_survey
+- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/CITY_CHARACTERISTICS/OWNERSHIP`
+- Partitition: ['geocode4_corr']
+
+|    | Name                       | Type    | Comment                                                                    |
+|---:|:---------------------------|:--------|:---------------------------------------------------------------------------|
+|  0 | geocode4_corr              | string  | City ID                                                                    |
+|  1 | dominated_output_soe_c     | boolean | SOE dominated city of output. If true, then SOEs dominated city            |
+|  2 | dominated_employment_soe_c | boolean | SOE dominated city of employment. If true, then SOEs dominated city        |
+|  3 | dominated_sales_soe_c      | boolean | SOE dominated city of sales. If true, then SOEs dominated city             |
+|  4 | dominated_capital_soe_c    | boolean | SOE dominated city of capital. If true, then SOEs dominated city           |
+|  5 | dominated_output_for_c     | boolean | foreign dominated city of output. If true, then foreign dominated city     |
+|  6 | dominated_employment_for_c | boolean | foreign dominated city of employment. If true, then foreign dominated city |
+|  7 | dominated_sales_for_c      | boolean | foreign dominated cityof sales. If true, then foreign dominated city       |
+|  8 | dominated_capital_for_c    | boolean | foreign dominated city of capital. If true, then foreign dominated city    |
+
+    
+
 ## Table asif_industry_characteristics_ownership
 
 - Database: firms_survey
@@ -772,25 +792,5 @@
 | 11 | dominated_employment_for_i | map<double,boolean> | map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of employment |
 | 12 | dominated_sales_for_i      | map<double,boolean> | map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of sales      |
 | 13 | dominated_capital_for_i    | map<double,boolean> | map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of capital    |
-
-    
-
-## Table asif_city_characteristics_ownership
-
-- Database: firms_survey
-- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/CITY_CHARACTERISTICS/OWNERSHIP`
-- Partitition: ['geocode4_corr']
-
-|    | Name                       | Type    | Comment                                                                    |
-|---:|:---------------------------|:--------|:---------------------------------------------------------------------------|
-|  0 | geocode4_corr              | string  | City ID                                                                    |
-|  1 | dominated_output_soe_c     | boolean | SOE dominated city of output. If true, then SOEs dominated city            |
-|  2 | dominated_employment_soe_c | boolean | SOE dominated city of employment. If true, then SOEs dominated city        |
-|  3 | dominated_sales_soe_c      | boolean | SOE dominated city of sales. If true, then SOEs dominated city             |
-|  4 | dominated_capital_soe_c    | boolean | SOE dominated city of capital. If true, then SOEs dominated city           |
-|  5 | dominated_output_for_c     | boolean | foreign dominated city of output. If true, then foreign dominated city     |
-|  6 | dominated_employment_for_c | boolean | foreign dominated city of employment. If true, then foreign dominated city |
-|  7 | dominated_sales_for_c      | boolean | foreign dominated cityof sales. If true, then foreign dominated city       |
-|  8 | dominated_capital_for_c    | boolean | foreign dominated city of capital. If true, then foreign dominated city    |
 
     

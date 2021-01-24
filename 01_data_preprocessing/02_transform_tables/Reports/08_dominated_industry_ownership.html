@@ -14436,6 +14436,124 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span><span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">WITH test AS (</span>
+<span class="s2">  SELECT </span>
+<span class="s2">    *, </span>
+<span class="s2">    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(</span>
+<span class="s2">      &#39;0&#39;, </span>
+<span class="s2">      substr(cic, 1, 1)</span>
+<span class="s2">    ) END AS indu_2, </span>
+<span class="s2">    CASE WHEN ownership = &#39;SOE&#39; THEN &#39;SOE&#39; ELSE &#39;PRIVATE&#39; END AS soe_vs_pri, </span>
+<span class="s2">    CASE WHEN ownership in (&#39;HTM&#39;, &#39;FOREIGN&#39;) THEN &#39;FOREIGN&#39; ELSE &#39;DOMESTIC&#39; END AS for_vs_dom </span>
+<span class="s2">  FROM </span>
+<span class="s2">    firms_survey.asif_firms_prepared </span>
+<span class="s2">    INNER JOIN (</span>
+<span class="s2">      SELECT </span>
+<span class="s2">        extra_code, </span>
+<span class="s2">        geocode4_corr </span>
+<span class="s2">      FROM </span>
+<span class="s2">        chinese_lookup.china_city_code_normalised </span>
+<span class="s2">      GROUP BY </span>
+<span class="s2">        extra_code, </span>
+<span class="s2">        geocode4_corr</span>
+<span class="s2">    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code</span>
+<span class="s2">-- WHERE year = &#39;2001&#39;</span>
+<span class="s2">) </span>
+<span class="s2">SELECT </span>
+<span class="s2">  indu_2, </span>
+<span class="s2">  industry_pct.year, </span>
+<span class="s2">  industry_pct.geocode4_corr,</span>
+<span class="s2">  ci_med_output,</span>
+<span class="s2">  c_med_output</span>
+<span class="s2">FROM </span>
+<span class="s2">  (</span>
+<span class="s2">    (</span>
+<span class="s2">      SELECT </span>
+<span class="s2">        indu_2, </span>
+<span class="s2">--        year, </span>
+<span class="s2">        geocode4_corr,</span>
+<span class="s2">        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS ci_med_output </span>
+<span class="s2">      FROM </span>
+<span class="s2">        test </span>
+<span class="s2">      GROUP BY </span>
+<span class="s2">--        year, </span>
+<span class="s2">        indu_2,</span>
+<span class="s2">        geocode4_corr</span>
+<span class="s2">      ORDER BY </span>
+<span class="s2">        indu_2</span>
+<span class="s2">    ) as industry_pct </span>
+<span class="s2">    LEFT JOIN (</span>
+<span class="s2">      SELECT </span>
+<span class="s2">--        year, </span>
+<span class="s2">        geocode4_corr,</span>
+<span class="s2">        approx_percentile(output, ARRAY[.5,.75,.90,.95]) as c_med_output </span>
+<span class="s2">      FROM </span>
+<span class="s2">        test </span>
+<span class="s2">      GROUP BY </span>
+<span class="s2">        -- year,</span>
+<span class="s2">        geocode4_corr</span>
+<span class="s2">    ) as national_avg</span>
+<span class="s2">    ON industry_pct.geocode4_corr = national_avg.geocode4_corr</span>
+<span class="s2">  ) </span>
+<span class="s2">LIMIT </span>
+<span class="s2">  5</span>
+
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span>
+                    <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
+                    <span class="n">database</span><span class="o">=</span><span class="n">DatabaseName</span><span class="p">,</span>
+                    <span class="n">s3_output</span><span class="o">=</span><span class="n">s3_output_example</span><span class="p">,</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;example_1&#39;</span>
+                <span class="p">)</span>
+<span class="n">output</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;Results&#39;: {&#39;State&#39;: &#39;FAILED&#39;,
+  &#39;StateChangeReason&#39;: &#34;SYNTAX_ERROR: line 26:3: Column &#39;industry_pct.year&#39; cannot be resolved&#34;,
+  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 24, 7, 51, 4, 846000, tzinfo=tzlocal()),
+  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 24, 7, 51, 5, 358000, tzinfo=tzlocal())},
+ &#39;QueryID&#39;: &#39;0d8e5500-b447-47b7-97cb-e1dc19c334a6&#39;}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Compute the condition -&gt; True if percentile is above national median</p>
+<p>We cannot use average because the data are too much skewed so median is never above the average</p>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
@@ -14461,44 +14579,49 @@ Make sure there is no duplicates</p>
 <span class="s2">        extra_code, </span>
 <span class="s2">        geocode4_corr</span>
 <span class="s2">    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code</span>
-<span class="s2">WHERE year = &#39;2001&#39;</span>
+<span class="s2">-- WHERE year = &#39;2001&#39;</span>
 <span class="s2">) </span>
 <span class="s2">SELECT </span>
 <span class="s2">  indu_2, </span>
-<span class="s2">  industry_pct.year, </span>
+<span class="s2">--  industry_pct.year, </span>
 <span class="s2">  industry_pct.geocode4_corr,</span>
+<span class="s2">  c_med_output,</span>
 <span class="s2">  ci_med_output,</span>
-<span class="s2">  c_med_output</span>
+<span class="s2">  zip_with(</span>
+<span class="s2">  c_med_output,</span>
+<span class="s2">  ci_med_output, (x, y) -&gt; x &lt; y) AS dominated_output</span>
 <span class="s2">FROM </span>
 <span class="s2">  (</span>
 <span class="s2">    (</span>
 <span class="s2">      SELECT </span>
 <span class="s2">        indu_2, </span>
-<span class="s2">        year, </span>
+<span class="s2">--        year, </span>
 <span class="s2">        geocode4_corr,</span>
 <span class="s2">        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS ci_med_output </span>
 <span class="s2">      FROM </span>
 <span class="s2">        test </span>
 <span class="s2">      GROUP BY </span>
-<span class="s2">        year, </span>
-<span class="s2">        indu_2,</span>
-<span class="s2">        geocode4_corr</span>
+<span class="s2">--        year, </span>
+<span class="s2">        indu_2, geocode4_corr </span>
 <span class="s2">      ORDER BY </span>
 <span class="s2">        indu_2</span>
 <span class="s2">    ) as industry_pct </span>
 <span class="s2">    LEFT JOIN (</span>
 <span class="s2">      SELECT </span>
-<span class="s2">        year, </span>
+<span class="s2">--        year, </span>
 <span class="s2">        geocode4_corr,</span>
-<span class="s2">        approx_percentile(output, ARRAY[.5,.75,.90,.95]) as c_med_output </span>
+<span class="s2">        approx_percentile(output, ARRAY[.5,.75,.90,.95]) as c_med_output  </span>
 <span class="s2">      FROM </span>
 <span class="s2">        test </span>
 <span class="s2">      GROUP BY </span>
-<span class="s2">        year, geocode4_corr</span>
-<span class="s2">    ) as national_avg</span>
-<span class="s2">    ON industry_pct.year = national_avg.year AND </span>
+<span class="s2">--        year, </span>
+<span class="s2">        geocode4_corr</span>
+<span class="s2">    ) as national_avg </span>
+<span class="s2">    ON </span>
+<span class="s2">    -- industry_pct.year = national_avg.year</span>
 <span class="s2">    industry_pct.geocode4_corr = national_avg.geocode4_corr</span>
 <span class="s2">  ) </span>
+<span class="s2">  ORDER BY geocode4_corr</span>
 <span class="s2">LIMIT </span>
 <span class="s2">  5</span>
 
@@ -14507,7 +14630,7 @@ Make sure there is no duplicates</p>
                     <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
                     <span class="n">database</span><span class="o">=</span><span class="n">DatabaseName</span><span class="p">,</span>
                     <span class="n">s3_output</span><span class="o">=</span><span class="n">s3_output_example</span><span class="p">,</span>
-    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;example_1&#39;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;example_3&#39;</span>
                 <span class="p">)</span>
 <span class="n">output</span>
 </pre></div>
@@ -14549,190 +14672,6 @@ Make sure there is no duplicates</p>
     <tr style="text-align: right;">
       <th></th>
       <th>indu_2</th>
-      <th>year</th>
-      <th>geocode4_corr</th>
-      <th>ci_med_output</th>
-      <th>c_med_output</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>6</td>
-      <td>2001</td>
-      <td>4311</td>
-      <td>[13138, 66800, 66800, 66800]</td>
-      <td>[8339, 16180, 38885, 62500]</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>6</td>
-      <td>2001</td>
-      <td>1101</td>
-      <td>[14000, 50210, 1113727, 1236622]</td>
-      <td>[10983, 27691, 79761, 168363]</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>6</td>
-      <td>2001</td>
-      <td>5118</td>
-      <td>[6652, 15491, 15491, 15491]</td>
-      <td>[13914, 28235, 73800, 117304]</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>6</td>
-      <td>2001</td>
-      <td>2304</td>
-      <td>[1755393, 1755393, 1755393, 1755393]</td>
-      <td>[23123, 51886, 94387, 97342]</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>6</td>
-      <td>2001</td>
-      <td>3407</td>
-      <td>[14170, 14527, 14527, 14527]</td>
-      <td>[16903, 42898, 232273, 335463]</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Compute the condition -&gt; True if percentile is above national median</p>
-<p>We cannot use average because the data are too much skewed so median is never above the average</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span><span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">WITH test AS (</span>
-<span class="s2">  SELECT </span>
-<span class="s2">    *, </span>
-<span class="s2">    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(</span>
-<span class="s2">      &#39;0&#39;, </span>
-<span class="s2">      substr(cic, 1, 1)</span>
-<span class="s2">    ) END AS indu_2, </span>
-<span class="s2">    CASE WHEN ownership = &#39;SOE&#39; THEN &#39;SOE&#39; ELSE &#39;PRIVATE&#39; END AS soe_vs_pri, </span>
-<span class="s2">    CASE WHEN ownership in (&#39;HTM&#39;, &#39;FOREIGN&#39;) THEN &#39;FOREIGN&#39; ELSE &#39;DOMESTIC&#39; END AS for_vs_dom </span>
-<span class="s2">  FROM </span>
-<span class="s2">    firms_survey.asif_firms_prepared </span>
-<span class="s2">    INNER JOIN (</span>
-<span class="s2">      SELECT </span>
-<span class="s2">        extra_code, </span>
-<span class="s2">        geocode4_corr </span>
-<span class="s2">      FROM </span>
-<span class="s2">        chinese_lookup.china_city_code_normalised </span>
-<span class="s2">      GROUP BY </span>
-<span class="s2">        extra_code, </span>
-<span class="s2">        geocode4_corr</span>
-<span class="s2">    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code</span>
-<span class="s2">WHERE year = &#39;2001&#39;</span>
-<span class="s2">) </span>
-<span class="s2">SELECT </span>
-<span class="s2">  indu_2, </span>
-<span class="s2">  industry_pct.year, </span>
-<span class="s2">  industry_pct.geocode4_corr,</span>
-<span class="s2">  c_med_output,</span>
-<span class="s2">  ci_med_output,</span>
-<span class="s2">  zip_with(</span>
-<span class="s2">  c_med_output,</span>
-<span class="s2">  ci_med_output, (x, y) -&gt; x &lt; y) AS dominated_output</span>
-<span class="s2">FROM </span>
-<span class="s2">  (</span>
-<span class="s2">    (</span>
-<span class="s2">      SELECT </span>
-<span class="s2">        indu_2, </span>
-<span class="s2">        year, </span>
-<span class="s2">        geocode4_corr,</span>
-<span class="s2">        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS ci_med_output </span>
-<span class="s2">      FROM </span>
-<span class="s2">        test </span>
-<span class="s2">      GROUP BY </span>
-<span class="s2">        year, </span>
-<span class="s2">        indu_2, geocode4_corr </span>
-<span class="s2">      ORDER BY </span>
-<span class="s2">        indu_2</span>
-<span class="s2">    ) as industry_pct </span>
-<span class="s2">    LEFT JOIN (</span>
-<span class="s2">      SELECT </span>
-<span class="s2">        year, </span>
-<span class="s2">        geocode4_corr,</span>
-<span class="s2">        approx_percentile(output, ARRAY[.5,.75,.90,.95]) as c_med_output  </span>
-<span class="s2">      FROM </span>
-<span class="s2">        test </span>
-<span class="s2">      GROUP BY </span>
-<span class="s2">        year, geocode4_corr</span>
-<span class="s2">    ) as national_avg ON industry_pct.year = national_avg.year</span>
-<span class="s2">    AND industry_pct.geocode4_corr = national_avg.geocode4_corr</span>
-<span class="s2">  ) </span>
-<span class="s2">  ORDER BY geocode4_corr</span>
-<span class="s2">LIMIT </span>
-<span class="s2">  5</span>
-
-<span class="s2">&quot;&quot;&quot;</span>
-<span class="n">output</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span>
-                    <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
-                    <span class="n">database</span><span class="o">=</span><span class="n">DatabaseName</span><span class="p">,</span>
-                    <span class="n">s3_output</span><span class="o">=</span><span class="n">s3_output_example</span><span class="p">,</span>
-    <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;example_3&#39;</span>
-                <span class="p">)</span>
-<span class="n">output</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
-
-
-
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>indu_2</th>
-      <th>year</th>
       <th>geocode4_corr</th>
       <th>c_med_output</th>
       <th>ci_med_output</th>
@@ -14742,48 +14681,43 @@ Make sure there is no duplicates</p>
   <tbody>
     <tr>
       <th>0</th>
-      <td>6</td>
-      <td>2001</td>
+      <td>7</td>
       <td>1101</td>
-      <td>[10983, 27691, 79761, 168363]</td>
-      <td>[14000, 50210, 1113727, 1236622]</td>
+      <td>[13311, 33599, 96767, 198911]</td>
+      <td>[839452, 906014, 1155847, 1155847]</td>
       <td>[true, true, true, true]</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>7</td>
-      <td>2001</td>
+      <td>6</td>
       <td>1101</td>
-      <td>[10983, 27691, 79761, 168363]</td>
-      <td>[8191, 8191, 8191, 8191]</td>
-      <td>[false, false, false, false]</td>
+      <td>[13311, 33599, 96767, 198911]</td>
+      <td>[19754, 90470, 1113727, 2974576]</td>
+      <td>[true, true, true, true]</td>
     </tr>
     <tr>
       <th>2</th>
       <td>8</td>
-      <td>2001</td>
       <td>1101</td>
-      <td>[10983, 27691, 79761, 168363]</td>
-      <td>[43276, 44000, 44000, 44000]</td>
-      <td>[true, true, false, false]</td>
+      <td>[13311, 33599, 96767, 198911]</td>
+      <td>[76729, 201860, 292256, 315771]</td>
+      <td>[true, true, true, true]</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>10</td>
-      <td>2001</td>
+      <td>9</td>
       <td>1101</td>
-      <td>[10983, 27691, 79761, 168363]</td>
-      <td>[6420, 15840, 25000, 28030]</td>
+      <td>[13311, 33599, 96767, 198911]</td>
+      <td>[5600, 9816, 11176, 11176]</td>
       <td>[false, false, false, false]</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>13</td>
-      <td>2001</td>
+      <td>10</td>
       <td>1101</td>
-      <td>[10983, 27691, 79761, 168363]</td>
-      <td>[18110, 41255, 93000, 133857]</td>
-      <td>[true, true, true, false]</td>
+      <td>[13311, 33599, 96767, 198911]</td>
+      <td>[10028, 17457, 25691, 33202]</td>
+      <td>[false, false, false, false]</td>
     </tr>
   </tbody>
 </table>
@@ -14805,7 +14739,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -14830,11 +14764,11 @@ Make sure there is no duplicates</p>
 <span class="s2">        extra_code, </span>
 <span class="s2">        geocode4_corr</span>
 <span class="s2">    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code</span>
-<span class="s2">WHERE year = &#39;2001&#39;</span>
+<span class="s2">-- WHERE year = &#39;2001&#39;</span>
 <span class="s2">)</span>
 <span class="s2">SELECT </span>
 <span class="s2">  indu_2, </span>
-<span class="s2">  industry_pct.year, </span>
+<span class="s2">--  industry_pct.year, </span>
 <span class="s2">  industry_pct.geocode4_corr,</span>
 <span class="s2">  c_med_output,</span>
 <span class="s2">  ci_med_output,</span>
@@ -14853,13 +14787,13 @@ Make sure there is no duplicates</p>
 <span class="s2">    (</span>
 <span class="s2">      SELECT </span>
 <span class="s2">        indu_2, </span>
-<span class="s2">        year, </span>
+<span class="s2">--        year, </span>
 <span class="s2">        geocode4_corr,</span>
 <span class="s2">        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS ci_med_output </span>
 <span class="s2">      FROM </span>
 <span class="s2">        test </span>
 <span class="s2">      GROUP BY </span>
-<span class="s2">        year, </span>
+<span class="s2">--        year, </span>
 <span class="s2">        indu_2,</span>
 <span class="s2">        geocode4_corr</span>
 <span class="s2">      ORDER BY </span>
@@ -14867,16 +14801,16 @@ Make sure there is no duplicates</p>
 <span class="s2">    ) as industry_pct </span>
 <span class="s2">    LEFT JOIN (</span>
 <span class="s2">      SELECT </span>
-<span class="s2">        year, </span>
+<span class="s2">--        year, </span>
 <span class="s2">        geocode4_corr,</span>
 <span class="s2">        approx_percentile(output, ARRAY[.5,.75,.90,.95]) as c_med_output  </span>
 <span class="s2">      FROM </span>
 <span class="s2">        test </span>
 <span class="s2">      GROUP BY </span>
-<span class="s2">        year,</span>
+<span class="s2">--        year,</span>
 <span class="s2">        geocode4_corr</span>
-<span class="s2">    ) as national_avg ON industry_pct.year = national_avg.year</span>
-<span class="s2">    AND industry_pct.geocode4_corr = national_avg.geocode4_corr</span>
+<span class="s2">    ) as national_avg ON --industry_pct.year = national_avg.year</span>
+<span class="s2">    industry_pct.geocode4_corr = national_avg.geocode4_corr</span>
 <span class="s2">  ) </span>
 <span class="s2">  ORDER BY geocode4_corr</span>
 <span class="s2">LIMIT </span>
@@ -14904,7 +14838,7 @@ Make sure there is no duplicates</p>
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[29]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
 
 
 
@@ -14928,7 +14862,6 @@ Make sure there is no duplicates</p>
     <tr style="text-align: right;">
       <th></th>
       <th>indu_2</th>
-      <th>year</th>
       <th>geocode4_corr</th>
       <th>c_med_output</th>
       <th>ci_med_output</th>
@@ -14939,47 +14872,42 @@ Make sure there is no duplicates</p>
     <tr>
       <th>0</th>
       <td>7</td>
-      <td>2001</td>
       <td>1101</td>
-      <td>[10983, 27691, 79761, 168363]</td>
-      <td>[8191, 8191, 8191, 8191]</td>
-      <td>{0.5=false, 0.9=false, 0.75=false, 0.95=false}</td>
+      <td>[13311, 33567, 97279, 198655]</td>
+      <td>[839452, 906014, 1155847, 1155847]</td>
+      <td>{0.5=true, 0.9=true, 0.75=true, 0.95=true}</td>
     </tr>
     <tr>
       <th>1</th>
       <td>6</td>
-      <td>2001</td>
       <td>1101</td>
-      <td>[10983, 27691, 79761, 168363]</td>
-      <td>[14000, 50210, 1113727, 1236622]</td>
+      <td>[13311, 33567, 97279, 198655]</td>
+      <td>[19754, 90470, 1113727, 2974576]</td>
       <td>{0.5=true, 0.9=true, 0.75=true, 0.95=true}</td>
     </tr>
     <tr>
       <th>2</th>
       <td>8</td>
-      <td>2001</td>
       <td>1101</td>
-      <td>[10983, 27691, 79761, 168363]</td>
-      <td>[43276, 44000, 44000, 44000]</td>
-      <td>{0.5=true, 0.9=false, 0.75=true, 0.95=false}</td>
+      <td>[13311, 33567, 97279, 198655]</td>
+      <td>[76729, 201860, 292256, 315771]</td>
+      <td>{0.5=true, 0.9=true, 0.75=true, 0.95=true}</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>10</td>
-      <td>2001</td>
+      <td>9</td>
       <td>1101</td>
-      <td>[10983, 27691, 79761, 168363]</td>
-      <td>[6420, 15840, 25000, 28030]</td>
+      <td>[13311, 33567, 97279, 198655]</td>
+      <td>[5600, 9816, 11176, 11176]</td>
       <td>{0.5=false, 0.9=false, 0.75=false, 0.95=false}</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>13</td>
-      <td>2001</td>
+      <td>10</td>
       <td>1101</td>
-      <td>[10983, 27691, 79761, 168363]</td>
-      <td>[18110, 41255, 93000, 133857]</td>
-      <td>{0.5=true, 0.9=true, 0.75=true, 0.95=false}</td>
+      <td>[13311, 33567, 97279, 198655]</td>
+      <td>[10028, 17457, 25691, 33202]</td>
+      <td>{0.5=false, 0.9=false, 0.75=false, 0.95=false}</td>
     </tr>
   </tbody>
 </table>
@@ -15001,10 +14929,10 @@ Make sure there is no duplicates</p>
 </ol>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[23]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -15085,124 +15013,16 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[23]:</div>
-
-
-
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>indu_2</th>
-      <th>geocode4_corr</th>
-      <th>output</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>6</td>
-      <td>1101</td>
-      <td>{SOE=[869456, 1188058, 7451513, 7451513], PRIVATE=[18810, 66000, 207860, 2974576]}</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>7</td>
-      <td>1101</td>
-      <td>{PRIVATE=[839452, 906014, 1155847, 1155847]}</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>8</td>
-      <td>1101</td>
-      <td>{SOE=[229385, 292256, 408077, 461180], PRIVATE=[40000, 113467, 201860, 291171]}</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>9</td>
-      <td>1101</td>
-      <td>{SOE=[5600, 5600, 5600, 5600], PRIVATE=[9550, 9816, 11176, 11176]}</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>10</td>
-      <td>1101</td>
-      <td>{SOE=[3254, 10028, 17633, 18000], PRIVATE=[10713, 18876, 27312, 34572]}</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>13</td>
-      <td>1101</td>
-      <td>{SOE=[9350, 28524, 57755, 85893], PRIVATE=[19000, 47847, 133714, 217440]}</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>14</td>
-      <td>1101</td>
-      <td>{SOE=[4708, 11895, 25927, 38739], PRIVATE=[16581, 47883, 125096, 233251]}</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>15</td>
-      <td>1101</td>
-      <td>{SOE=[1987, 18436, 399006, 2421347], PRIVATE=[29225, 106951, 342267, 606153]}</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>16</td>
-      <td>1101</td>
-      <td>{SOE=[1368572, 1681441, 2447235, 2447235], PRIVATE=[10938, 13271, 13271, 13271]}</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>17</td>
-      <td>1101</td>
-      <td>{SOE=[7330, 40718, 94490, 169108], PRIVATE=[13551, 30548, 74842, 152890]}</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Compute the size and get the map</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -15298,125 +15118,6 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[24]:</div>
-
-
-
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>indu_2</th>
-      <th>geocode4_corr</th>
-      <th>output</th>
-      <th>dominated_output_soe</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>6</td>
-      <td>1101</td>
-      <td>{SOE=[869456, 1188058, 7451513, 7451513], PRIVATE=[18810, 66000, 207860, 2974576]}</td>
-      <td>{0.5=true, 0.9=true, 0.75=true, 0.95=true}</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>7</td>
-      <td>1101</td>
-      <td>{PRIVATE=[839452, 906014, 1155847, 1155847]}</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>8</td>
-      <td>1101</td>
-      <td>{SOE=[229385, 292256, 408077, 461180], PRIVATE=[40000, 113467, 201860, 291171]}</td>
-      <td>{0.5=true, 0.9=true, 0.75=true, 0.95=true}</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>9</td>
-      <td>1101</td>
-      <td>{SOE=[5600, 5600, 5600, 5600], PRIVATE=[9550, 9816, 11176, 11176]}</td>
-      <td>{0.5=false, 0.9=false, 0.75=false, 0.95=false}</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>10</td>
-      <td>1101</td>
-      <td>{SOE=[3254, 10028, 17633, 18000], PRIVATE=[10713, 18876, 27312, 34572]}</td>
-      <td>{0.5=false, 0.9=false, 0.75=false, 0.95=false}</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>13</td>
-      <td>1101</td>
-      <td>{SOE=[9350, 28524, 57755, 85893], PRIVATE=[19000, 47847, 133714, 217440]}</td>
-      <td>{0.5=false, 0.9=false, 0.75=false, 0.95=false}</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>14</td>
-      <td>1101</td>
-      <td>{SOE=[4708, 11895, 25927, 38739], PRIVATE=[16581, 47883, 125096, 233251]}</td>
-      <td>{0.5=false, 0.9=false, 0.75=false, 0.95=false}</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>15</td>
-      <td>1101</td>
-      <td>{SOE=[1987, 18436, 399006, 2421347], PRIVATE=[29225, 106951, 342267, 606153]}</td>
-      <td>{0.5=false, 0.9=true, 0.75=false, 0.95=true}</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>16</td>
-      <td>1101</td>
-      <td>{SOE=[1368572, 1681441, 2447235, 2447235], PRIVATE=[10938, 13271, 13271, 13271]}</td>
-      <td>{0.5=true, 0.9=true, 0.75=true, 0.95=true}</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>17</td>
-      <td>1101</td>
-      <td>{SOE=[7330, 40718, 94490, 169108], PRIVATE=[13551, 30548, 74842, 152890]}</td>
-      <td>{0.5=false, 0.9=true, 0.75=true, 0.95=true}</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
@@ -15434,7 +15135,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[25]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s3_output</span> <span class="o">=</span> <span class="s1">&#39;DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/INDUSTRY_CHARACTERISTICS/OWNERSHIP&#39;</span>
@@ -15455,7 +15156,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">try</span><span class="p">:</span>
@@ -15485,7 +15186,7 @@ Make sure there is no duplicates</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;452bcc7e-46c8-474a-abed-a797f6480c15&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 24 Jan 2021 05:15:08 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;452bcc7e-46c8-474a-abed-a797f6480c15&#39;}, &#39;RetryAttempts&#39;: 0}}
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;009aadae-3d3b-4002-b378-285cc86fd9cf&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 24 Jan 2021 07:54:41 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;009aadae-3d3b-4002-b378-285cc86fd9cf&#39;}, &#39;RetryAttempts&#39;: 0}}
 </pre>
 </div>
 </div>
@@ -15503,7 +15204,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s3</span><span class="o">.</span><span class="n">remove_all_bucket</span><span class="p">(</span><span class="n">path_remove</span> <span class="o">=</span> <span class="n">s3_output</span><span class="p">)</span>
@@ -15522,7 +15223,7 @@ Make sure there is no duplicates</p>
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[27]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[18]:</div>
 
 
 
@@ -15540,7 +15241,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[30]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%time</span>
@@ -15567,8 +15268,7 @@ Make sure there is no duplicates</p>
 <span class="s2">        extra_code, </span>
 <span class="s2">        geocode4_corr</span>
 <span class="s2">    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code </span>
-<span class="s2">  WHERE </span>
-<span class="s2">    year = &#39;2001&#39;</span>
+<span class="s2">    WHERE year in (&#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;,&#39;2004&#39;, &#39;2005&#39;, &#39;2006&#39;, &#39;2007&#39;)</span>
 <span class="s2">) </span>
 <span class="s2">SELECT </span>
 <span class="s2">  national.indu_2, </span>
@@ -15630,7 +15330,7 @@ Make sure there is no duplicates</p>
 <span class="s2">    (</span>
 <span class="s2">      SELECT </span>
 <span class="s2">        indu_2, </span>
-<span class="s2">        year, </span>
+<span class="s2">--        year, </span>
 <span class="s2">        geocode4_corr AS geo, </span>
 <span class="s2">        -- rename to avoid ambiguous name</span>
 <span class="s2">        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS ci_med_output, </span>
@@ -15640,13 +15340,13 @@ Make sure there is no duplicates</p>
 <span class="s2">      FROM </span>
 <span class="s2">        test </span>
 <span class="s2">      GROUP BY </span>
-<span class="s2">        year, </span>
+<span class="s2">--        year, </span>
 <span class="s2">        indu_2, </span>
 <span class="s2">        geocode4_corr</span>
 <span class="s2">    ) as industry_pct </span>
 <span class="s2">    LEFT JOIN (</span>
 <span class="s2">      SELECT </span>
-<span class="s2">        year, </span>
+<span class="s2">--        year, </span>
 <span class="s2">        geocode4_corr, </span>
 <span class="s2">        approx_percentile(output, ARRAY[.5,.75,.90,.95]) as c_med_output, </span>
 <span class="s2">        approx_percentile(employ, ARRAY[.5,.75,.90,.95]) as c_med_employ, </span>
@@ -15655,10 +15355,11 @@ Make sure there is no duplicates</p>
 <span class="s2">      FROM </span>
 <span class="s2">        test </span>
 <span class="s2">      GROUP BY </span>
-<span class="s2">        year, </span>
+<span class="s2">--        year, </span>
 <span class="s2">        geocode4_corr</span>
-<span class="s2">    ) as national_avg ON industry_pct.year = national_avg.year </span>
-<span class="s2">    AND industry_pct.geo = national_avg.geocode4_corr</span>
+<span class="s2">    ) as national_avg ON --industry_pct.year = national_avg.year </span>
+<span class="s2">--    AND </span>
+<span class="s2">    industry_pct.geo = national_avg.geocode4_corr</span>
 <span class="s2">  ) AS national </span>
 <span class="s2">  LEFT JOIN (</span>
 <span class="s2">    SELECT </span>
@@ -15878,8 +15579,8 @@ Make sure there is no duplicates</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>CPU times: user 235 ms, sys: 14.6 ms, total: 249 ms
-Wall time: 8.19 s
+<pre>CPU times: user 331 ms, sys: 14.1 ms, total: 345 ms
+Wall time: 7.52 s
 </pre>
 </div>
 </div>
@@ -15887,16 +15588,16 @@ Wall time: 8.19 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[30]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[20]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
 <pre>{&#39;Results&#39;: {&#39;State&#39;: &#39;SUCCEEDED&#39;,
-  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 24, 6, 17, 19, 848000, tzinfo=tzlocal()),
-  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 24, 6, 17, 27, 465000, tzinfo=tzlocal())},
- &#39;QueryID&#39;: &#39;d9d5b221-08dd-4c89-af61-7252c7c42694&#39;}</pre>
+  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 24, 7, 54, 56, 851000, tzinfo=tzlocal()),
+  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 24, 7, 55, 4, 115000, tzinfo=tzlocal())},
+ &#39;QueryID&#39;: &#39;12ff9794-d683-4e65-8fe6-78805477cc9a&#39;}</pre>
 </div>
 
 </div>
@@ -15908,7 +15609,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[31]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[21]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_count</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -15937,7 +15638,7 @@ Wall time: 8.19 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[31]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[21]:</div>
 
 
 
@@ -15966,7 +15667,7 @@ Wall time: 8.19 s
   <tbody>
     <tr>
       <th>0</th>
-      <td>6811</td>
+      <td>9308</td>
     </tr>
   </tbody>
 </table>
@@ -15988,7 +15689,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[32]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[22]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_filter</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -16024,7 +15725,7 @@ Wall time: 8.19 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[32]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[22]:</div>
 
 
 
@@ -16055,12 +15756,12 @@ Wall time: 8.19 s
     <tr>
       <th>0</th>
       <td>True</td>
-      <td>3683</td>
+      <td>4371</td>
     </tr>
     <tr>
       <th>1</th>
       <td>False</td>
-      <td>3128</td>
+      <td>4937</td>
     </tr>
   </tbody>
 </table>
@@ -16105,7 +15806,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[33]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[23]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;geocode4_corr&#39;</span><span class="p">,</span><span class="s1">&#39;indu_2&#39;</span><span class="p">]</span>
@@ -16127,7 +15828,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[34]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">step</span> <span class="o">=</span> <span class="mi">7</span>
@@ -16150,7 +15851,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[35]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[25]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">get_table_information</span><span class="p">(</span>
@@ -16171,7 +15872,7 @@ Wall time: 8.19 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[35]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[25]:</div>
 
 
 
@@ -16218,7 +15919,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[36]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span>
@@ -16291,7 +15992,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[37]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -16320,7 +16021,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[38]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[28]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">json_etl</span> <span class="o">=</span> <span class="p">{</span>
@@ -16352,7 +16053,7 @@ Wall time: 8.19 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[38]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[28]:</div>
 
 
 
@@ -16360,7 +16061,7 @@ Wall time: 8.19 s
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
 <pre>{&#39;step&#39;: 7,
  &#39;description&#39;: &#39;\nTransform asif firms prepared data by merging china city code normalised data by constructing foreign_vs_domestic, foreign_size, domestic_size, private_size, public_size, soe_vs_private (create dominated industry by ownership (public-private, foreign-domestic) using industry size) to asif industry characteristics  ownership\n&#39;,
- &#39;query&#39;: &#34;\nCREATE TABLE firms_survey.asif_industry_characteristics_ownership WITH (format = &#39;PARQUET&#39;) AS\nWITH test AS (\n  SELECT \n    *, \n    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(\n      &#39;0&#39;, \n      substr(cic, 1, 1)\n    ) END AS indu_2, \n    CASE WHEN ownership = &#39;SOE&#39; THEN &#39;SOE&#39; ELSE &#39;PRIVATE&#39; END AS soe_vs_pri, \n    CASE WHEN ownership in (&#39;HTM&#39;, &#39;FOREIGN&#39;) THEN &#39;FOREIGN&#39; ELSE &#39;DOMESTIC&#39; END AS for_vs_dom \n  FROM \n    firms_survey.asif_firms_prepared \n    INNER JOIN (\n      SELECT \n        extra_code, \n        geocode4_corr \n      FROM \n        chinese_lookup.china_city_code_normalised \n      GROUP BY \n        extra_code, \n        geocode4_corr\n    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code \n  WHERE \n    year = &#39;2001&#39;\n) \nSELECT \n  national.indu_2, \n  national.geocode4_corr, \n  MAP(\n    ARRAY[.5, \n    .75, \n    .90, \n    .95 ], \n    zip_with(\n      c_med_output, \n      ci_med_output, \n      (x, y) -&gt; x &lt; y\n    )\n  ) AS dominated_output_i, \n  MAP(\n    ARRAY[.5, \n    .75, \n    .90, \n    .95 ], \n    zip_with(\n      c_med_employ, \n      ci_med_employ, \n      (x, y) -&gt; x &lt; y\n    )\n  ) AS dominated_employ_i, \n  MAP(\n    ARRAY[.5, \n    .75, \n    .90, \n    .95 ], \n    zip_with(\n      c_med_sales, \n      ci_med_sales, \n      (x, y) -&gt; x &lt; y\n    )\n  ) AS dominated_sales_i, \n  MAP(\n    ARRAY[.5, \n    .75, \n    .90, \n    .95 ], \n    zip_with(\n      c_med_captal, \n      ci_med_captal, \n      (x, y) -&gt; x &lt; y\n    )\n  ) AS dominated_capital_i, \n  dominated_output_soe AS dominated_output_soe_i, \n  dominated_employment_soe AS dominated_employment_soe_i, \n  dominated_sales_soe AS dominated_sales_soe_i, \n  dominated_capital_soe AS dominated_capital_soe_i, \n  dominated_output_for AS dominated_output_for_i, \n  dominated_employment_for AS dominated_employment_for_i, \n  dominated_sales_for AS dominated_sales_for_i, \n  dominated_capital_for AS dominated_capital_for_i \nFROM \n  (\n    (\n      SELECT \n        indu_2, \n        year, \n        geocode4_corr AS geo, \n        -- rename to avoid ambiguous name\n        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS ci_med_output, \n        approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS ci_med_employ, \n        approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS ci_med_sales, \n        approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS ci_med_captal \n      FROM \n        test \n      GROUP BY \n        year, \n        indu_2, \n        geocode4_corr\n    ) as industry_pct \n    LEFT JOIN (\n      SELECT \n        year, \n        geocode4_corr, \n        approx_percentile(output, ARRAY[.5,.75,.90,.95]) as c_med_output, \n        approx_percentile(employ, ARRAY[.5,.75,.90,.95]) as c_med_employ, \n        approx_percentile(sales, ARRAY[.5,.75,.90,.95]) as c_med_sales, \n        approx_percentile(captal, ARRAY[.5,.75,.90,.95]) as c_med_captal \n      FROM \n        test \n      GROUP BY \n        year, \n        geocode4_corr\n    ) as national_avg ON industry_pct.year = national_avg.year \n    AND industry_pct.geo = national_avg.geocode4_corr\n  ) AS national \n  LEFT JOIN (\n    SELECT \n      * \n    FROM \n      (\n        WITH mapping AS (\n          SELECT \n            indu_2, \n            geocode4_corr, \n            map_agg(soe_vs_pri, output) AS output, \n            map_agg(soe_vs_pri, employ) AS employ, \n            map_agg(soe_vs_pri, sales) AS sales, \n            map_agg(soe_vs_pri, captal) AS captal \n          FROM \n            (\n              SELECT \n                geocode4_corr, \n                indu_2, \n                soe_vs_pri, \n                approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output, \n                approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ, \n                approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales, \n                approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal \n              FROM \n                test \n              GROUP BY \n                geocode4_corr, \n                indu_2, \n                soe_vs_pri\n            ) \n          GROUP BY \n            geocode4_corr, \n            indu_2\n        ) \n        SELECT \n          *, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  output[ &#39;SOE&#39; ], output[ &#39;PRIVATE&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_output_soe, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  employ[ &#39;SOE&#39; ], employ[ &#39;PRIVATE&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_employment_soe, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(sales[ &#39;SOE&#39; ], sales[ &#39;PRIVATE&#39; ]), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_sales_soe, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  captal[ &#39;SOE&#39; ], captal[ &#39;PRIVATE&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_capital_soe \n        FROM \n          mapping\n      )\n  ) AS soe_private ON national.indu_2 = soe_private.indu_2 \n  AND national.geocode4_corr = soe_private.geocode4_corr \n  LEFT JOIN (\n    SELECT \n      * \n    FROM \n      (\n        WITH mapping AS (\n          SELECT \n            indu_2, \n            geocode4_corr, \n            map_agg(for_vs_dom, output) AS output, \n            map_agg(for_vs_dom, employ) AS employ, \n            map_agg(for_vs_dom, sales) AS sales, \n            map_agg(for_vs_dom, captal) AS captal \n          FROM \n            (\n              SELECT \n                geocode4_corr, \n                indu_2, \n                for_vs_dom, \n                approx_percentile(output, ARRAY[.5,.75,.90,.95]) as output, \n                approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ, \n                approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales, \n                approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal \n              FROM \n                test \n              GROUP BY \n                geocode4_corr, \n                indu_2, \n                for_vs_dom\n            ) \n          GROUP BY \n            geocode4_corr, \n            indu_2\n        ) \n        SELECT \n          *, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  output[ &#39;FOREIGN&#39; ], output[ &#39;DOMESTIC&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_output_for, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  employ[ &#39;FOREIGN&#39; ], employ[ &#39;DOMESTIC&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_employment_for, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  sales[ &#39;FOREIGN&#39; ], sales[ &#39;DOMESTIC&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_sales_for, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  captal[ &#39;FOREIGN&#39; ], captal[ &#39;DOMESTIC&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_capital_for \n        FROM \n          mapping\n      )\n  ) AS foreign_dom ON national.indu_2 = foreign_dom.indu_2 \n  AND national.geocode4_corr = foreign_dom.geocode4_corr \n&#34;,
+ &#39;query&#39;: &#34;\nCREATE TABLE firms_survey.asif_industry_characteristics_ownership WITH (format = &#39;PARQUET&#39;) AS\nWITH test AS (\n  SELECT \n    *, \n    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(\n      &#39;0&#39;, \n      substr(cic, 1, 1)\n    ) END AS indu_2, \n    CASE WHEN ownership = &#39;SOE&#39; THEN &#39;SOE&#39; ELSE &#39;PRIVATE&#39; END AS soe_vs_pri, \n    CASE WHEN ownership in (&#39;HTM&#39;, &#39;FOREIGN&#39;) THEN &#39;FOREIGN&#39; ELSE &#39;DOMESTIC&#39; END AS for_vs_dom \n  FROM \n    firms_survey.asif_firms_prepared \n    INNER JOIN (\n      SELECT \n        extra_code, \n        geocode4_corr \n      FROM \n        chinese_lookup.china_city_code_normalised \n      GROUP BY \n        extra_code, \n        geocode4_corr\n    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code \n    WHERE year in (&#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;,&#39;2004&#39;, &#39;2005&#39;, &#39;2006&#39;, &#39;2007&#39;)\n) \nSELECT \n  national.indu_2, \n  national.geocode4_corr, \n  MAP(\n    ARRAY[.5, \n    .75, \n    .90, \n    .95 ], \n    zip_with(\n      c_med_output, \n      ci_med_output, \n      (x, y) -&gt; x &lt; y\n    )\n  ) AS dominated_output_i, \n  MAP(\n    ARRAY[.5, \n    .75, \n    .90, \n    .95 ], \n    zip_with(\n      c_med_employ, \n      ci_med_employ, \n      (x, y) -&gt; x &lt; y\n    )\n  ) AS dominated_employ_i, \n  MAP(\n    ARRAY[.5, \n    .75, \n    .90, \n    .95 ], \n    zip_with(\n      c_med_sales, \n      ci_med_sales, \n      (x, y) -&gt; x &lt; y\n    )\n  ) AS dominated_sales_i, \n  MAP(\n    ARRAY[.5, \n    .75, \n    .90, \n    .95 ], \n    zip_with(\n      c_med_captal, \n      ci_med_captal, \n      (x, y) -&gt; x &lt; y\n    )\n  ) AS dominated_capital_i, \n  dominated_output_soe AS dominated_output_soe_i, \n  dominated_employment_soe AS dominated_employment_soe_i, \n  dominated_sales_soe AS dominated_sales_soe_i, \n  dominated_capital_soe AS dominated_capital_soe_i, \n  dominated_output_for AS dominated_output_for_i, \n  dominated_employment_for AS dominated_employment_for_i, \n  dominated_sales_for AS dominated_sales_for_i, \n  dominated_capital_for AS dominated_capital_for_i \nFROM \n  (\n    (\n      SELECT \n        indu_2, \n--        year, \n        geocode4_corr AS geo, \n        -- rename to avoid ambiguous name\n        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS ci_med_output, \n        approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS ci_med_employ, \n        approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS ci_med_sales, \n        approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS ci_med_captal \n      FROM \n        test \n      GROUP BY \n--        year, \n        indu_2, \n        geocode4_corr\n    ) as industry_pct \n    LEFT JOIN (\n      SELECT \n--        year, \n        geocode4_corr, \n        approx_percentile(output, ARRAY[.5,.75,.90,.95]) as c_med_output, \n        approx_percentile(employ, ARRAY[.5,.75,.90,.95]) as c_med_employ, \n        approx_percentile(sales, ARRAY[.5,.75,.90,.95]) as c_med_sales, \n        approx_percentile(captal, ARRAY[.5,.75,.90,.95]) as c_med_captal \n      FROM \n        test \n      GROUP BY \n--        year, \n        geocode4_corr\n    ) as national_avg ON --industry_pct.year = national_avg.year \n--    AND \n    industry_pct.geo = national_avg.geocode4_corr\n  ) AS national \n  LEFT JOIN (\n    SELECT \n      * \n    FROM \n      (\n        WITH mapping AS (\n          SELECT \n            indu_2, \n            geocode4_corr, \n            map_agg(soe_vs_pri, output) AS output, \n            map_agg(soe_vs_pri, employ) AS employ, \n            map_agg(soe_vs_pri, sales) AS sales, \n            map_agg(soe_vs_pri, captal) AS captal \n          FROM \n            (\n              SELECT \n                geocode4_corr, \n                indu_2, \n                soe_vs_pri, \n                approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output, \n                approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ, \n                approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales, \n                approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal \n              FROM \n                test \n              GROUP BY \n                geocode4_corr, \n                indu_2, \n                soe_vs_pri\n            ) \n          GROUP BY \n            geocode4_corr, \n            indu_2\n        ) \n        SELECT \n          *, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  output[ &#39;SOE&#39; ], output[ &#39;PRIVATE&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_output_soe, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  employ[ &#39;SOE&#39; ], employ[ &#39;PRIVATE&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_employment_soe, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(sales[ &#39;SOE&#39; ], sales[ &#39;PRIVATE&#39; ]), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_sales_soe, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  captal[ &#39;SOE&#39; ], captal[ &#39;PRIVATE&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_capital_soe \n        FROM \n          mapping\n      )\n  ) AS soe_private ON national.indu_2 = soe_private.indu_2 \n  AND national.geocode4_corr = soe_private.geocode4_corr \n  LEFT JOIN (\n    SELECT \n      * \n    FROM \n      (\n        WITH mapping AS (\n          SELECT \n            indu_2, \n            geocode4_corr, \n            map_agg(for_vs_dom, output) AS output, \n            map_agg(for_vs_dom, employ) AS employ, \n            map_agg(for_vs_dom, sales) AS sales, \n            map_agg(for_vs_dom, captal) AS captal \n          FROM \n            (\n              SELECT \n                geocode4_corr, \n                indu_2, \n                for_vs_dom, \n                approx_percentile(output, ARRAY[.5,.75,.90,.95]) as output, \n                approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ, \n                approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales, \n                approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal \n              FROM \n                test \n              GROUP BY \n                geocode4_corr, \n                indu_2, \n                for_vs_dom\n            ) \n          GROUP BY \n            geocode4_corr, \n            indu_2\n        ) \n        SELECT \n          *, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  output[ &#39;FOREIGN&#39; ], output[ &#39;DOMESTIC&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_output_for, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  employ[ &#39;FOREIGN&#39; ], employ[ &#39;DOMESTIC&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_employment_for, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  sales[ &#39;FOREIGN&#39; ], sales[ &#39;DOMESTIC&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_sales_for, \n          map(\n            ARRAY[.5, \n            .75, \n            .90, \n            .95 ], \n            map_values(\n              transform_values(\n                MAP(\n                  captal[ &#39;FOREIGN&#39; ], captal[ &#39;DOMESTIC&#39; ]\n                ), \n                (k, v) -&gt; k &gt; v\n              )\n            )\n          ) AS dominated_capital_for \n        FROM \n          mapping\n      )\n  ) AS foreign_dom ON national.indu_2 = foreign_dom.indu_2 \n  AND national.geocode4_corr = foreign_dom.geocode4_corr \n&#34;,
  &#39;schema&#39;: [{&#39;Name&#39;: &#39;indu_2&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
   {&#39;Name&#39;: &#39;geocode4_corr&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;city code&#39;},
   {&#39;Name&#39;: &#39;dominated_output_i&#39;,
@@ -16415,7 +16116,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[39]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
@@ -16436,7 +16137,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[40]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[30]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">index_to_remove</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
@@ -16459,7 +16160,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[41]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[31]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;TABLES&#39;</span><span class="p">][</span><span class="s1">&#39;TRANSFORMATION&#39;</span><span class="p">][</span><span class="s1">&#39;STEPS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">json_etl</span><span class="p">)</span>
@@ -16479,7 +16180,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[42]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[32]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span><span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
@@ -16521,7 +16222,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[43]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[33]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">update_schema_table</span><span class="p">(</span>
@@ -16543,19 +16244,19 @@ Wall time: 8.19 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[43]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[33]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;4a42a451-ab37-4dca-bbd7-a665ac1a97f0&#39;,
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;751c99d4-f6fd-437a-946a-bbbfd36c908f&#39;,
   &#39;HTTPStatusCode&#39;: 200,
-  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 24 Jan 2021 06:19:03 GMT&#39;,
+  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 24 Jan 2021 07:56:02 GMT&#39;,
    &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;,
    &#39;content-length&#39;: &#39;2&#39;,
    &#39;connection&#39;: &#39;keep-alive&#39;,
-   &#39;x-amzn-requestid&#39;: &#39;4a42a451-ab37-4dca-bbd7-a665ac1a97f0&#39;},
+   &#39;x-amzn-requestid&#39;: &#39;751c99d4-f6fd-437a-946a-bbbfd36c908f&#39;},
   &#39;RetryAttempts&#39;: 0}}</pre>
 </div>
 
@@ -16575,7 +16276,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[45]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[34]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;geocode4_corr&#39;</span><span class="p">,</span> <span class="s1">&#39;indu_2&#39;</span><span class="p">]</span>
@@ -16592,7 +16293,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[46]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[35]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### COUNT DUPLICATES</span>
@@ -16654,7 +16355,7 @@ Wall time: 8.19 s
     <tr>
       <th>0</th>
       <td>1</td>
-      <td>6811</td>
+      <td>9308</td>
     </tr>
   </tbody>
 </table>
@@ -16677,7 +16378,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[47]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[36]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">README</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -16760,7 +16461,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[48]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[37]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">urllib</span><span class="o">,</span> <span class="nn">ipykernel</span><span class="o">,</span> <span class="nn">json</span>
@@ -16776,7 +16477,7 @@ Wall time: 8.19 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[49]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[38]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">create_report</span><span class="p">(</span><span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">keep_code</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">notebookname</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>

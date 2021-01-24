@@ -187,7 +187,7 @@ WITH test AS (
         extra_code, 
         geocode4_corr
     ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
-WHERE year = '2001'
+-- WHERE year = '2001'
 ) 
 SELECT 
   indu_2, 
@@ -200,13 +200,13 @@ FROM
     (
       SELECT 
         indu_2, 
-        year, 
+--        year, 
         geocode4_corr,
         approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS ci_med_output 
       FROM 
         test 
       GROUP BY 
-        year, 
+--        year, 
         indu_2,
         geocode4_corr
       ORDER BY 
@@ -214,16 +214,16 @@ FROM
     ) as industry_pct 
     LEFT JOIN (
       SELECT 
-        year, 
+--        year, 
         geocode4_corr,
         approx_percentile(output, ARRAY[.5,.75,.90,.95]) as c_med_output 
       FROM 
         test 
       GROUP BY 
-        year, geocode4_corr
+        -- year,
+        geocode4_corr
     ) as national_avg
-    ON industry_pct.year = national_avg.year AND 
-    industry_pct.geocode4_corr = national_avg.geocode4_corr
+    ON industry_pct.geocode4_corr = national_avg.geocode4_corr
   ) 
 LIMIT 
   5
@@ -265,11 +265,11 @@ WITH test AS (
         extra_code, 
         geocode4_corr
     ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
-WHERE year = '2001'
+-- WHERE year = '2001'
 ) 
 SELECT 
   indu_2, 
-  industry_pct.year, 
+--  industry_pct.year, 
   industry_pct.geocode4_corr,
   c_med_output,
   ci_med_output,
@@ -281,28 +281,31 @@ FROM
     (
       SELECT 
         indu_2, 
-        year, 
+--        year, 
         geocode4_corr,
         approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS ci_med_output 
       FROM 
         test 
       GROUP BY 
-        year, 
+--        year, 
         indu_2, geocode4_corr 
       ORDER BY 
         indu_2
     ) as industry_pct 
     LEFT JOIN (
       SELECT 
-        year, 
+--        year, 
         geocode4_corr,
         approx_percentile(output, ARRAY[.5,.75,.90,.95]) as c_med_output  
       FROM 
         test 
       GROUP BY 
-        year, geocode4_corr
-    ) as national_avg ON industry_pct.year = national_avg.year
-    AND industry_pct.geocode4_corr = national_avg.geocode4_corr
+--        year, 
+        geocode4_corr
+    ) as national_avg 
+    ON 
+    -- industry_pct.year = national_avg.year
+    industry_pct.geocode4_corr = national_avg.geocode4_corr
   ) 
   ORDER BY geocode4_corr
 LIMIT 
@@ -343,11 +346,11 @@ WITH test AS (
         extra_code, 
         geocode4_corr
     ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
-WHERE year = '2001'
+-- WHERE year = '2001'
 )
 SELECT 
   indu_2, 
-  industry_pct.year, 
+--  industry_pct.year, 
   industry_pct.geocode4_corr,
   c_med_output,
   ci_med_output,
@@ -366,13 +369,13 @@ FROM
     (
       SELECT 
         indu_2, 
-        year, 
+--        year, 
         geocode4_corr,
         approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS ci_med_output 
       FROM 
         test 
       GROUP BY 
-        year, 
+--        year, 
         indu_2,
         geocode4_corr
       ORDER BY 
@@ -380,16 +383,16 @@ FROM
     ) as industry_pct 
     LEFT JOIN (
       SELECT 
-        year, 
+--        year, 
         geocode4_corr,
         approx_percentile(output, ARRAY[.5,.75,.90,.95]) as c_med_output  
       FROM 
         test 
       GROUP BY 
-        year,
+--        year,
         geocode4_corr
-    ) as national_avg ON industry_pct.year = national_avg.year
-    AND industry_pct.geocode4_corr = national_avg.geocode4_corr
+    ) as national_avg ON --industry_pct.year = national_avg.year
+    industry_pct.geocode4_corr = national_avg.geocode4_corr
   ) 
   ORDER BY geocode4_corr
 LIMIT 
@@ -634,8 +637,7 @@ WITH test AS (
         extra_code, 
         geocode4_corr
     ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code 
-  WHERE 
-    year = '2001'
+    WHERE year in ('2001', '2002', '2003','2004', '2005', '2006', '2007')
 ) 
 SELECT 
   national.indu_2, 
@@ -697,7 +699,7 @@ FROM
     (
       SELECT 
         indu_2, 
-        year, 
+--        year, 
         geocode4_corr AS geo, 
         -- rename to avoid ambiguous name
         approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS ci_med_output, 
@@ -707,13 +709,13 @@ FROM
       FROM 
         test 
       GROUP BY 
-        year, 
+--        year, 
         indu_2, 
         geocode4_corr
     ) as industry_pct 
     LEFT JOIN (
       SELECT 
-        year, 
+--        year, 
         geocode4_corr, 
         approx_percentile(output, ARRAY[.5,.75,.90,.95]) as c_med_output, 
         approx_percentile(employ, ARRAY[.5,.75,.90,.95]) as c_med_employ, 
@@ -722,10 +724,11 @@ FROM
       FROM 
         test 
       GROUP BY 
-        year, 
+--        year, 
         geocode4_corr
-    ) as national_avg ON industry_pct.year = national_avg.year 
-    AND industry_pct.geo = national_avg.geocode4_corr
+    ) as national_avg ON --industry_pct.year = national_avg.year 
+--    AND 
+    industry_pct.geo = national_avg.geocode4_corr
   ) AS national 
   LEFT JOIN (
     SELECT 
