@@ -136,11 +136,11 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
 
 # Steps
 
-1. Aggregate output, employment, capital and sales by city (use all years to get all city sample)
-2. Compute the percentile .5, .75, .90,.95
-3. Compute dominated city for each percentile
-  1. If public > private then public else private
-  2. If foreign > domestic then foreign else domestic
+* city ownership public vs private
+  * Change computation city public vs private
+  * Aggregate output by ownership and city
+    * A given city will have SOE asset tangibility and PRIVATE asset tangibility [output, employment, capital and sales]
+  * If asset tangibility SOE above Private then city is dominated by SOE
 
 
 ## Example step by step
@@ -268,7 +268,7 @@ FROM
           MAP(
             output[ 'SOE' ], output[ 'PRIVATE' ]
           ), 
-          (k, v) -> v > k
+          (k, v) -> k > v
         )
       ) AS dominated_output_soe_c,
       
@@ -277,7 +277,7 @@ FROM
           MAP(
             employ[ 'SOE' ], employ[ 'PRIVATE' ]
           ), 
-          (k, v) -> v > k
+          (k, v) -> k > v
         )
       ) AS dominated_employment_soe_c,
       
@@ -286,7 +286,7 @@ FROM
           MAP(
             sales[ 'SOE' ], sales[ 'PRIVATE' ]
           ), 
-          (k, v) -> v > k
+          (k, v) -> k > v
         )
       ) AS dominated_sales_soe_c,
       
@@ -295,7 +295,7 @@ FROM
           MAP(
             captal[ 'SOE' ], captal[ 'PRIVATE' ]
           ), 
-          (k, v) -> v > k
+          (k, v) -> k > v
         )
       ) AS dominated_capital_soe_c
     FROM 
@@ -320,6 +320,11 @@ Since we need to make the computation for domestic vs foreign and public vs priv
 
 
 Choose a location in S3 to save the CSV. It is recommended to save in it the `datalake-datascience` bucket. Locate an appropriate folder in the bucket, and make sure all output have the same format
+
+### How to read
+
+- `dominated_output_soe_c`: If true, then SOE's dominated city
+- `dominated_output_for_c`: If true, then foreign's dominated city
 
 ```python
 s3_output = 'DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/CITY_CHARACTERISTICS/OWNERSHIP'
@@ -417,7 +422,7 @@ FROM
           MAP(
             output[ 'SOE' ], output[ 'PRIVATE' ]
           ), 
-          (k, v) -> v > k
+          (k, v) -> k > v
         )
       ) AS dominated_output_soe_c,
       
@@ -426,7 +431,7 @@ FROM
           MAP(
             employ[ 'SOE' ], employ[ 'PRIVATE' ]
           ), 
-          (k, v) -> v > k
+          (k, v) -> k > v
         )
       ) AS dominated_employment_soe_c,
       
@@ -435,7 +440,7 @@ FROM
           MAP(
             sales[ 'SOE' ], sales[ 'PRIVATE' ]
           ), 
-          (k, v) -> v > k
+          (k, v) -> k > v
         )
       ) AS dominated_sales_soe_c,
       
@@ -444,7 +449,7 @@ FROM
           MAP(
             captal[ 'SOE' ], captal[ 'PRIVATE' ]
           ), 
-          (k, v) -> v > k
+          (k, v) -> k > v
         )
       ) AS dominated_capital_soe_c
     FROM 
@@ -492,7 +497,7 @@ FROM
           MAP(
             output[ 'FOREIGN' ], output[ 'DOMESTIC' ]
           ), 
-          (k, v) -> v > k
+          (k, v) -> k > v
         )
       ) AS dominated_output_for_c,
       
@@ -501,7 +506,7 @@ FROM
           MAP(
             employ[ 'FOREIGN' ], employ[ 'DOMESTIC' ]
           ), 
-          (k, v) -> v > k
+          (k, v) -> k > v
         )
       ) AS dominated_employment_for_c,
       
@@ -510,7 +515,7 @@ FROM
           MAP(
             sales[ 'FOREIGN' ], sales[ 'DOMESTIC' ]
           ), 
-          (k, v) -> v > k
+          (k, v) -> k > v
         )
       ) AS dominated_sales_for_c,
       
@@ -519,7 +524,7 @@ FROM
           MAP(
             captal[ 'FOREIGN' ], captal[ 'DOMESTIC' ]
           ), 
-          (k, v) -> v > k
+          (k, v) -> k > v
         )
       ) AS dominated_capital_for_c
     FROM 
@@ -590,25 +595,25 @@ glue.get_table_information(
 schema = [
     {'Name': 'geocode4_corr', 'Type': 'string', 'Comment': 'City ID'},
     {'Name': 'dominated_output_soe_c', 'Type': 'boolean',
-        'Comment': 'SOE dominated city of output'},
+        'Comment': 'SOE dominated city of output. If true, then SOEs dominated city'},
     {'Name': 'dominated_employment_soe_c', 'Type': 'boolean',
-        'Comment': 'SOE dominated city of employment'},
+        'Comment': 'SOE dominated city of employment. If true, then SOEs dominated city'},
     {'Name': 'dominated_sales_soe_c', 'Type': 'boolean',
-        'Comment': 'SOE dominated city of sales'},
+        'Comment': 'SOE dominated city of sales. If true, then SOEs dominated city'},
     {'Name': 'dominated_capital_soe_c',
         'Type': 'boolean',
-        'Comment': 'SOE dominated city of capital'},
+        'Comment': 'SOE dominated city of capital. If true, then SOEs dominated city'},
     {'Name': 'dominated_output_for_c',
         'Type': 'boolean',
-        'Comment': 'SOE dominated city of output'},
+        'Comment': 'foreign dominated city of output. If true, then foreign dominated city'},
     {'Name': 'dominated_employment_for_c',
         'Type': 'boolean',
-        'Comment': 'SOE dominated city of employment'},
+        'Comment': 'foreign dominated city of employment. If true, then foreign dominated city'},
     {'Name': 'dominated_sales_for_c', 'Type': 'boolean',
-        'Comment': 'SOE dominated cityof sales'},
+        'Comment': 'foreign dominated cityof sales. If true, then foreign dominated city'},
     {'Name': 'dominated_capital_for_c',
         'Type': 'boolean',
-        'Comment': 'SOE dominated city of capital'},
+        'Comment': 'foreign dominated city of capital. If true, then foreign dominated city'},
 
 ]
 ```

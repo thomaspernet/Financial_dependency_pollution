@@ -19,9 +19,9 @@
 - [china_sector_pollution_threshold](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-china_sector_pollution_threshold)
 - [asif_industry_financial_ratio_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_financial_ratio_industry)
 - [fin_dep_pollution_baseline_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_industry)
-- [asif_industry_characteristics_ownership](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_characteristics_ownership)
 - [asif_financial_ratio_baseline_firm](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_financial_ratio_baseline_firm)
 - [fin_dep_pollution_baseline_city](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_city)
+- [asif_industry_characteristics_ownership](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_characteristics_ownership)
 - [asif_city_characteristics_ownership](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_city_characteristics_ownership)
 
     
@@ -584,34 +584,6 @@
 
     
 
-## Table asif_industry_characteristics_ownership
-
-- Database: firms_survey
-- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/INDUSTRY_CHARACTERISTICS/OWNERSHIP`
-- Partitition: ['indu_2']
-
-|    | Name                       | Type                | Comment                                                                                              |
-|---:|:---------------------------|:--------------------|:-----------------------------------------------------------------------------------------------------|
-|  0 | indu_2                     | string              |                                                                                                      |
-|  1 | med_dominated_output_i     | varchar(5)          | Output industry above national median                                                                |
-|  2 | med_dominated_capital_i    | varchar(5)          | Capital industry above national median                                                               |
-|  3 | med_dominated_sales_i      | varchar(5)          | Sales industry above national median                                                                 |
-|  4 | med_dominated_employ_i     | varchar(5)          | Employment industry above national median                                                            |
-|  5 | dominated_output_i         | map<double,boolean> | map with information dominated industry knowing percentile .5, .75, .9, .95 of output                |
-|  6 | dominated_employment_i     | map<double,boolean> | map with information on dominated industry knowing percentile .5, .75, .9, .95 of employment         |
-|  7 | dominated_capital_i        | map<double,boolean> | map with information on dominated industry knowing percentile .5, .75, .9, .95 of capital            |
-|  8 | dominated_sales_i          | map<double,boolean> | map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of sales          |
-|  9 | dominated_output_soe_i     | map<double,boolean> | map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of output         |
-| 10 | dominated_employment_soe_i | map<double,boolean> | map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of employment     |
-| 11 | dominated_sales_soe_i      | map<double,boolean> | map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of sales          |
-| 12 | dominated_capital_soe_i    | map<double,boolean> | map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of capital        |
-| 13 | dominated_output_for_i     | map<double,boolean> | map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of output     |
-| 14 | dominated_employment_for_i | map<double,boolean> | map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of employment |
-| 15 | dominated_sales_for_i      | map<double,boolean> | map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of sales      |
-| 16 | dominated_capital_for_i    | map<double,boolean> | map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of capital    |
-
-    
-
 ## Table asif_financial_ratio_baseline_firm
 
 - Database: firms_survey
@@ -778,22 +750,47 @@
 
     
 
+## Table asif_industry_characteristics_ownership
+
+- Database: firms_survey
+- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/INDUSTRY_CHARACTERISTICS/OWNERSHIP`
+- Partitition: ['geocode4_corr', 'indu_2']
+
+|    | Name                       | Type                | Comment                                                                                              |
+|---:|:---------------------------|:--------------------|:-----------------------------------------------------------------------------------------------------|
+|  0 | indu_2                     | string              |                                                                                                      |
+|  1 | geocode4_corr              | string              | city code                                                                                            |
+|  2 | dominated_output_i         | map<double,boolean> | map with information dominated industry knowing percentile .5, .75, .9, .95 of output                |
+|  3 | dominated_employment_i     | map<double,boolean> | map with information on dominated industry knowing percentile .5, .75, .9, .95 of employment         |
+|  4 | dominated_capital_i        | map<double,boolean> | map with information on dominated industry knowing percentile .5, .75, .9, .95 of capital            |
+|  5 | dominated_sales_i          | map<double,boolean> | map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of sales          |
+|  6 | dominated_output_soe_i     | map<double,boolean> | map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of output         |
+|  7 | dominated_employment_soe_i | map<double,boolean> | map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of employment     |
+|  8 | dominated_sales_soe_i      | map<double,boolean> | map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of sales          |
+|  9 | dominated_capital_soe_i    | map<double,boolean> | map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of capital        |
+| 10 | dominated_output_for_i     | map<double,boolean> | map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of output     |
+| 11 | dominated_employment_for_i | map<double,boolean> | map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of employment |
+| 12 | dominated_sales_for_i      | map<double,boolean> | map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of sales      |
+| 13 | dominated_capital_for_i    | map<double,boolean> | map with information on foreign dominated industry knowing percentile .5, .75, .9, .95 of capital    |
+
+    
+
 ## Table asif_city_characteristics_ownership
 
 - Database: firms_survey
 - S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/CITY_CHARACTERISTICS/OWNERSHIP`
 - Partitition: ['geocode4_corr']
 
-|    | Name                       | Type    | Comment                          |
-|---:|:---------------------------|:--------|:---------------------------------|
-|  0 | geocode4_corr              | string  | City ID                          |
-|  1 | dominated_output_soe_c     | boolean | SOE dominated city of output     |
-|  2 | dominated_employment_soe_c | boolean | SOE dominated city of employment |
-|  3 | dominated_sales_soe_c      | boolean | SOE dominated city of sales      |
-|  4 | dominated_capital_soe_c    | boolean | SOE dominated city of capital    |
-|  5 | dominated_output_for_c     | boolean | SOE dominated city of output     |
-|  6 | dominated_employment_for_c | boolean | SOE dominated city of employment |
-|  7 | dominated_sales_for_c      | boolean | SOE dominated cityof sales       |
-|  8 | dominated_capital_for_c    | boolean | SOE dominated city of capital    |
+|    | Name                       | Type    | Comment                                                                    |
+|---:|:---------------------------|:--------|:---------------------------------------------------------------------------|
+|  0 | geocode4_corr              | string  | City ID                                                                    |
+|  1 | dominated_output_soe_c     | boolean | SOE dominated city of output. If true, then SOEs dominated city            |
+|  2 | dominated_employment_soe_c | boolean | SOE dominated city of employment. If true, then SOEs dominated city        |
+|  3 | dominated_sales_soe_c      | boolean | SOE dominated city of sales. If true, then SOEs dominated city             |
+|  4 | dominated_capital_soe_c    | boolean | SOE dominated city of capital. If true, then SOEs dominated city           |
+|  5 | dominated_output_for_c     | boolean | foreign dominated city of output. If true, then foreign dominated city     |
+|  6 | dominated_employment_for_c | boolean | foreign dominated city of employment. If true, then foreign dominated city |
+|  7 | dominated_sales_for_c      | boolean | foreign dominated cityof sales. If true, then foreign dominated city       |
+|  8 | dominated_capital_for_c    | boolean | foreign dominated city of capital. If true, then foreign dominated city    |
 
     

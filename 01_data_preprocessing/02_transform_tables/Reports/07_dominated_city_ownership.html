@@ -14394,15 +14394,17 @@ Make sure there is no duplicates</p>
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Steps">Steps<a class="anchor-link" href="#Steps">&#182;</a></h1><ol>
-<li>Aggregate output, employment, capital and sales by city (use all years to get all city sample)</li>
-<li>Compute the percentile .5, .75, .90,.95</li>
-<li>Compute dominated city for each percentile<ol>
-<li>If public &gt; private then public else private</li>
-<li>If foreign &gt; domestic then foreign else domestic</li>
-</ol>
+<h1 id="Steps">Steps<a class="anchor-link" href="#Steps">&#182;</a></h1><ul>
+<li>city ownership public vs private<ul>
+<li>Change computation city public vs private</li>
+<li>Aggregate output by ownership and city<ul>
+<li>A given city will have SOE asset tangibility and PRIVATE asset tangibility [output, employment, capital and sales]</li>
+</ul>
 </li>
-</ol>
+<li>If asset tangibility SOE above Private then city is dominated by SOE</li>
+</ul>
+</li>
+</ul>
 
 </div>
 </div>
@@ -14531,20 +14533,20 @@ Make sure there is no duplicates</p>
     <tr>
       <th>0</th>
       <td>1101</td>
-      <td>PRIVATE</td>
-      <td>2913125288</td>
-      <td>5786090</td>
-      <td>2998209721</td>
-      <td>815581762</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1101</td>
       <td>SOE</td>
       <td>882751712</td>
       <td>3321257</td>
       <td>1010135702</td>
       <td>1399473600</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1101</td>
+      <td>PRIVATE</td>
+      <td>2913125288</td>
+      <td>5786090</td>
+      <td>2998209721</td>
+      <td>815581762</td>
     </tr>
     <tr>
       <th>2</th>
@@ -14567,15 +14569,6 @@ Make sure there is no duplicates</p>
     <tr>
       <th>4</th>
       <td>1301</td>
-      <td>PRIVATE</td>
-      <td>923594618</td>
-      <td>2892473</td>
-      <td>880269616</td>
-      <td>121062243</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>1301</td>
       <td>SOE</td>
       <td>315419352</td>
       <td>1666456</td>
@@ -14583,22 +14576,31 @@ Make sure there is no duplicates</p>
       <td>111096245</td>
     </tr>
     <tr>
-      <th>6</th>
-      <td>1302</td>
-      <td>SOE</td>
-      <td>321341874</td>
-      <td>2050653</td>
-      <td>345058672</td>
-      <td>118279843</td>
+      <th>5</th>
+      <td>1301</td>
+      <td>PRIVATE</td>
+      <td>923594618</td>
+      <td>2892473</td>
+      <td>880269616</td>
+      <td>121062243</td>
     </tr>
     <tr>
-      <th>7</th>
+      <th>6</th>
       <td>1302</td>
       <td>PRIVATE</td>
       <td>1093731003</td>
       <td>2662552</td>
       <td>1080221852</td>
       <td>167966712</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>1302</td>
+      <td>SOE</td>
+      <td>321341874</td>
+      <td>2050653</td>
+      <td>345058672</td>
+      <td>118279843</td>
     </tr>
     <tr>
       <th>8</th>
@@ -14707,7 +14709,7 @@ Make sure there is no duplicates</p>
 <span class="s2">          MAP(</span>
 <span class="s2">            output[ &#39;SOE&#39; ], output[ &#39;PRIVATE&#39; ]</span>
 <span class="s2">          ), </span>
-<span class="s2">          (k, v) -&gt; v &gt; k</span>
+<span class="s2">          (k, v) -&gt; k &gt; v</span>
 <span class="s2">        )</span>
 <span class="s2">      ) AS dominated_output_soe_c,</span>
 <span class="s2">      </span>
@@ -14716,7 +14718,7 @@ Make sure there is no duplicates</p>
 <span class="s2">          MAP(</span>
 <span class="s2">            employ[ &#39;SOE&#39; ], employ[ &#39;PRIVATE&#39; ]</span>
 <span class="s2">          ), </span>
-<span class="s2">          (k, v) -&gt; v &gt; k</span>
+<span class="s2">          (k, v) -&gt; k &gt; v</span>
 <span class="s2">        )</span>
 <span class="s2">      ) AS dominated_employment_soe_c,</span>
 <span class="s2">      </span>
@@ -14725,7 +14727,7 @@ Make sure there is no duplicates</p>
 <span class="s2">          MAP(</span>
 <span class="s2">            sales[ &#39;SOE&#39; ], sales[ &#39;PRIVATE&#39; ]</span>
 <span class="s2">          ), </span>
-<span class="s2">          (k, v) -&gt; v &gt; k</span>
+<span class="s2">          (k, v) -&gt; k &gt; v</span>
 <span class="s2">        )</span>
 <span class="s2">      ) AS dominated_sales_soe_c,</span>
 <span class="s2">      </span>
@@ -14734,7 +14736,7 @@ Make sure there is no duplicates</p>
 <span class="s2">          MAP(</span>
 <span class="s2">            captal[ &#39;SOE&#39; ], captal[ &#39;PRIVATE&#39; ]</span>
 <span class="s2">          ), </span>
-<span class="s2">          (k, v) -&gt; v &gt; k</span>
+<span class="s2">          (k, v) -&gt; k &gt; v</span>
 <span class="s2">        )</span>
 <span class="s2">      ) AS dominated_capital_soe_c</span>
 <span class="s2">    FROM </span>
@@ -14808,10 +14810,10 @@ Make sure there is no duplicates</p>
       <td>{SOE=[315391604], PRIVATE=[880269616]}</td>
       <td>{SOE=[111096245], PRIVATE=[121062243]}</td>
       <td>{315419352=923594618}</td>
-      <td>[true]</td>
-      <td>[true]</td>
-      <td>[true]</td>
-      <td>[true]</td>
+      <td>[false]</td>
+      <td>[false]</td>
+      <td>[false]</td>
+      <td>[false]</td>
     </tr>
     <tr>
       <th>1</th>
@@ -14821,10 +14823,10 @@ Make sure there is no duplicates</p>
       <td>{SOE=[1010135702], PRIVATE=[2998209721]}</td>
       <td>{SOE=[1399473600], PRIVATE=[815581762]}</td>
       <td>{882751712=2913125288}</td>
-      <td>[true]</td>
-      <td>[true]</td>
-      <td>[true]</td>
       <td>[false]</td>
+      <td>[false]</td>
+      <td>[false]</td>
+      <td>[true]</td>
     </tr>
     <tr>
       <th>2</th>
@@ -14834,10 +14836,10 @@ Make sure there is no duplicates</p>
       <td>{SOE=[665852774], PRIVATE=[3337350648]}</td>
       <td>{SOE=[314919342], PRIVATE=[777488112]}</td>
       <td>{573683677=3324695790}</td>
-      <td>[true]</td>
-      <td>[true]</td>
-      <td>[true]</td>
-      <td>[true]</td>
+      <td>[false]</td>
+      <td>[false]</td>
+      <td>[false]</td>
+      <td>[false]</td>
     </tr>
     <tr>
       <th>3</th>
@@ -14847,10 +14849,10 @@ Make sure there is no duplicates</p>
       <td>{SOE=[345058672], PRIVATE=[1080221852]}</td>
       <td>{SOE=[118279843], PRIVATE=[167966712]}</td>
       <td>{321341874=1093731003}</td>
-      <td>[true]</td>
-      <td>[true]</td>
-      <td>[true]</td>
-      <td>[true]</td>
+      <td>[false]</td>
+      <td>[false]</td>
+      <td>[false]</td>
+      <td>[false]</td>
     </tr>
     <tr>
       <th>4</th>
@@ -14860,10 +14862,10 @@ Make sure there is no duplicates</p>
       <td>{SOE=[47659024], PRIVATE=[231776105]}</td>
       <td>{SOE=[25347163], PRIVATE=[63792523]}</td>
       <td>{42463693=231504928}</td>
-      <td>[true]</td>
-      <td>[true]</td>
-      <td>[true]</td>
-      <td>[true]</td>
+      <td>[false]</td>
+      <td>[false]</td>
+      <td>[false]</td>
+      <td>[false]</td>
     </tr>
   </tbody>
 </table>
@@ -14887,6 +14889,10 @@ Make sure there is no duplicates</p>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Choose a location in S3 to save the CSV. It is recommended to save in it the <code>datalake-datascience</code> bucket. Locate an appropriate folder in the bucket, and make sure all output have the same format</p>
+<h3 id="How-to-read">How to read<a class="anchor-link" href="#How-to-read">&#182;</a></h3><ul>
+<li><code>dominated_output_soe_c</code>: If true, then SOE's dominated city</li>
+<li><code>dominated_output_for_c</code>: If true, then foreign's dominated city</li>
+</ul>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
@@ -14943,7 +14949,7 @@ Make sure there is no duplicates</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>An error occurred (EntityNotFoundException) when calling the DeleteTable operation: Table asif_city_characteristics_ownership not found.
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;13a824da-7c8e-435b-b7f9-762ccadc74ed&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 24 Jan 2021 07:18:34 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;13a824da-7c8e-435b-b7f9-762ccadc74ed&#39;}, &#39;RetryAttempts&#39;: 0}}
 </pre>
 </div>
 </div>
@@ -14961,7 +14967,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s3</span><span class="o">.</span><span class="n">remove_all_bucket</span><span class="p">(</span><span class="n">path_remove</span> <span class="o">=</span> <span class="n">s3_output</span><span class="p">)</span>
@@ -14980,7 +14986,7 @@ Make sure there is no duplicates</p>
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
 
 
 
@@ -14998,7 +15004,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%time</span>
@@ -15072,7 +15078,7 @@ Make sure there is no duplicates</p>
 <span class="s2">          MAP(</span>
 <span class="s2">            output[ &#39;SOE&#39; ], output[ &#39;PRIVATE&#39; ]</span>
 <span class="s2">          ), </span>
-<span class="s2">          (k, v) -&gt; v &gt; k</span>
+<span class="s2">          (k, v) -&gt; k &gt; v</span>
 <span class="s2">        )</span>
 <span class="s2">      ) AS dominated_output_soe_c,</span>
 <span class="s2">      </span>
@@ -15081,7 +15087,7 @@ Make sure there is no duplicates</p>
 <span class="s2">          MAP(</span>
 <span class="s2">            employ[ &#39;SOE&#39; ], employ[ &#39;PRIVATE&#39; ]</span>
 <span class="s2">          ), </span>
-<span class="s2">          (k, v) -&gt; v &gt; k</span>
+<span class="s2">          (k, v) -&gt; k &gt; v</span>
 <span class="s2">        )</span>
 <span class="s2">      ) AS dominated_employment_soe_c,</span>
 <span class="s2">      </span>
@@ -15090,7 +15096,7 @@ Make sure there is no duplicates</p>
 <span class="s2">          MAP(</span>
 <span class="s2">            sales[ &#39;SOE&#39; ], sales[ &#39;PRIVATE&#39; ]</span>
 <span class="s2">          ), </span>
-<span class="s2">          (k, v) -&gt; v &gt; k</span>
+<span class="s2">          (k, v) -&gt; k &gt; v</span>
 <span class="s2">        )</span>
 <span class="s2">      ) AS dominated_sales_soe_c,</span>
 <span class="s2">      </span>
@@ -15099,7 +15105,7 @@ Make sure there is no duplicates</p>
 <span class="s2">          MAP(</span>
 <span class="s2">            captal[ &#39;SOE&#39; ], captal[ &#39;PRIVATE&#39; ]</span>
 <span class="s2">          ), </span>
-<span class="s2">          (k, v) -&gt; v &gt; k</span>
+<span class="s2">          (k, v) -&gt; k &gt; v</span>
 <span class="s2">        )</span>
 <span class="s2">      ) AS dominated_capital_soe_c</span>
 <span class="s2">    FROM </span>
@@ -15147,7 +15153,7 @@ Make sure there is no duplicates</p>
 <span class="s2">          MAP(</span>
 <span class="s2">            output[ &#39;FOREIGN&#39; ], output[ &#39;DOMESTIC&#39; ]</span>
 <span class="s2">          ), </span>
-<span class="s2">          (k, v) -&gt; v &gt; k</span>
+<span class="s2">          (k, v) -&gt; k &gt; v</span>
 <span class="s2">        )</span>
 <span class="s2">      ) AS dominated_output_for_c,</span>
 <span class="s2">      </span>
@@ -15156,7 +15162,7 @@ Make sure there is no duplicates</p>
 <span class="s2">          MAP(</span>
 <span class="s2">            employ[ &#39;FOREIGN&#39; ], employ[ &#39;DOMESTIC&#39; ]</span>
 <span class="s2">          ), </span>
-<span class="s2">          (k, v) -&gt; v &gt; k</span>
+<span class="s2">          (k, v) -&gt; k &gt; v</span>
 <span class="s2">        )</span>
 <span class="s2">      ) AS dominated_employment_for_c,</span>
 <span class="s2">      </span>
@@ -15165,7 +15171,7 @@ Make sure there is no duplicates</p>
 <span class="s2">          MAP(</span>
 <span class="s2">            sales[ &#39;FOREIGN&#39; ], sales[ &#39;DOMESTIC&#39; ]</span>
 <span class="s2">          ), </span>
-<span class="s2">          (k, v) -&gt; v &gt; k</span>
+<span class="s2">          (k, v) -&gt; k &gt; v</span>
 <span class="s2">        )</span>
 <span class="s2">      ) AS dominated_sales_for_c,</span>
 <span class="s2">      </span>
@@ -15174,7 +15180,7 @@ Make sure there is no duplicates</p>
 <span class="s2">          MAP(</span>
 <span class="s2">            captal[ &#39;FOREIGN&#39; ], captal[ &#39;DOMESTIC&#39; ]</span>
 <span class="s2">          ), </span>
-<span class="s2">          (k, v) -&gt; v &gt; k</span>
+<span class="s2">          (k, v) -&gt; k &gt; v</span>
 <span class="s2">        )</span>
 <span class="s2">      ) AS dominated_capital_for_c</span>
 <span class="s2">    FROM </span>
@@ -15208,8 +15214,8 @@ Make sure there is no duplicates</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>CPU times: user 346 ms, sys: 8.17 ms, total: 354 ms
-Wall time: 6.04 s
+<pre>CPU times: user 291 ms, sys: 3.78 ms, total: 295 ms
+Wall time: 7.55 s
 </pre>
 </div>
 </div>
@@ -15217,16 +15223,16 @@ Wall time: 6.04 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
 <pre>{&#39;Results&#39;: {&#39;State&#39;: &#39;SUCCEEDED&#39;,
-  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 23, 17, 2, 7, 861000, tzinfo=tzlocal()),
-  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 23, 17, 2, 13, 779000, tzinfo=tzlocal())},
- &#39;QueryID&#39;: &#39;4b8058e1-d73c-4b6e-9019-73b0d510170b&#39;}</pre>
+  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 24, 7, 18, 40, 609000, tzinfo=tzlocal()),
+  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 24, 7, 18, 46, 177000, tzinfo=tzlocal())},
+ &#39;QueryID&#39;: &#39;2cb3f9fb-1530-4965-9195-13660964bda1&#39;}</pre>
 </div>
 
 </div>
@@ -15238,7 +15244,7 @@ Wall time: 6.04 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_count</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -15267,7 +15273,7 @@ Wall time: 6.04 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
 
 
 
@@ -15341,7 +15347,7 @@ Wall time: 6.04 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;geocode4_corr&quot;</span><span class="p">]</span>
@@ -15363,7 +15369,7 @@ Wall time: 6.04 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">step</span> <span class="o">=</span> <span class="mi">6</span>
@@ -15386,7 +15392,7 @@ Wall time: 6.04 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">get_table_information</span><span class="p">(</span>
@@ -15407,7 +15413,7 @@ Wall time: 6.04 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[18]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
 
 
 
@@ -15433,31 +15439,31 @@ Wall time: 6.04 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;geocode4_corr&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;City ID&#39;</span><span class="p">},</span>
-    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_output_soe_c&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;SOE dominated city of output&#39;</span><span class="p">},</span>
-    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_employment_soe_c&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;boolean,</span>
-        <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;SOE dominated city of employment&#39;</span><span class="p">},</span>
-    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_sales_soe_c&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of sales&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_output_soe_c&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;SOE dominated city of output. If true, then SOEs dominated city&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_employment_soe_c&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;SOE dominated city of employment. If true, then SOEs dominated city&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_sales_soe_c&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;SOE dominated city of sales. If true, then SOEs dominated city&#39;</span><span class="p">},</span>
     <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_capital_soe_c&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of capital&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;SOE dominated city of capital. If true, then SOEs dominated city&#39;</span><span class="p">},</span>
     <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_output_for_c&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of output&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;foreign dominated city of output. If true, then foreign dominated city&#39;</span><span class="p">},</span>
     <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_employment_for_c&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of employment&#39;</span><span class="p">},</span>
-    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_sales_for_c&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of sales&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;foreign dominated city of employment. If true, then foreign dominated city&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_sales_for_c&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;foreign dominated cityof sales. If true, then foreign dominated city&#39;</span><span class="p">},</span>
     <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;dominated_capital_for_c&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;boolean&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of capital&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;foreign dominated city of capital. If true, then foreign dominated city&#39;</span><span class="p">},</span>
 
 <span class="p">]</span>
 </pre></div>
@@ -15478,7 +15484,7 @@ Wall time: 6.04 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -15504,10 +15510,10 @@ Wall time: 6.04 s
 </ul>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">json_etl</span> <span class="o">=</span> <span class="p">{</span>
@@ -15531,10 +15537,65 @@ Wall time: 6.04 s
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[17]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;step&#39;: 6,
+ &#39;description&#39;: &#39;\nTransform asif firms prepared and others data by merging china city code normalised data by constructing domestic_size, foreign_size, private_size, public_size (create dominated city by ownership (public-private, foreign-domestic) using city size) to asif city characteristics ownership\n&#39;,
+ &#39;query&#39;: &#34;\nCREATE TABLE firms_survey.asif_city_characteristics_ownership WITH (format = &#39;PARQUET&#39;) AS\nWITH test AS (\n  SELECT \n    *, \n    CASE WHEN ownership = &#39;SOE&#39; THEN &#39;SOE&#39; ELSE &#39;PRIVATE&#39; END AS soe_vs_pri,\n    CASE WHEN ownership in (&#39;HTM&#39;, &#39;FOREIGN&#39;) THEN &#39;FOREIGN&#39; ELSE &#39;DOMESTIC&#39; END AS for_vs_dom \n  FROM \n    firms_survey.asif_firms_prepared \n    INNER JOIN (\n      SELECT \n        extra_code, \n        geocode4_corr \n      FROM \n        chinese_lookup.china_city_code_normalised \n      GROUP BY \n        extra_code, \n        geocode4_corr\n    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code\n  \n) \nSELECT \n  soe_private.geocode4_corr,\n  dominated_output_soe_c[1] AS dominated_output_soe_c,\n  dominated_employment_soe_c[1] AS dominated_employment_soe_c,\n  dominated_sales_soe_c[1] AS dominated_sales_soe_c,\n  dominated_capital_soe_c[1] AS dominated_capital_soe_c,\n  dominated_output_for_c[1] AS dominated_output_for_c,\n  dominated_employment_for_c[1] AS dominated_employment_for_c,\n  dominated_sales_for_c[1] AS dominated_sales_for_c,\n  dominated_capital_for_c[1] AS dominated_capital_for_c\nFROM \n  (\n    WITH mapping AS (\n      SELECT \n        geocode4_corr, \n        map_agg(soe_vs_pri, output) AS output, \n        map_agg(soe_vs_pri, employ) AS employ, \n        map_agg(soe_vs_pri, sales) AS sales, \n        map_agg(soe_vs_pri, captal) AS captal \n      FROM \n        (\n          SELECT \n            geocode4_corr, \n            soe_vs_pri, \n            ARRAY[SUM(output) ] as output, \n            ARRAY[SUM(employ) ] as employ, \n            ARRAY[SUM(sales) ] as sales, \n            ARRAY[SUM(captal) ] as captal \n          FROM \n            test \n          GROUP BY \n            geocode4_corr, \n            soe_vs_pri \n          ORDER BY \n            geocode4_corr \n        ) \n      GROUP BY \n        geocode4_corr\n    ) \n    SELECT \n      *, \n      MAP(\n        output[ &#39;SOE&#39; ], output[ &#39;PRIVATE&#39; ]\n      ), \n      map_values(\n        transform_values(\n          MAP(\n            output[ &#39;SOE&#39; ], output[ &#39;PRIVATE&#39; ]\n          ), \n          (k, v) -&gt; k &gt; v\n        )\n      ) AS dominated_output_soe_c,\n      \n      map_values(\n        transform_values(\n          MAP(\n            employ[ &#39;SOE&#39; ], employ[ &#39;PRIVATE&#39; ]\n          ), \n          (k, v) -&gt; k &gt; v\n        )\n      ) AS dominated_employment_soe_c,\n      \n      map_values(\n        transform_values(\n          MAP(\n            sales[ &#39;SOE&#39; ], sales[ &#39;PRIVATE&#39; ]\n          ), \n          (k, v) -&gt; k &gt; v\n        )\n      ) AS dominated_sales_soe_c,\n      \n      map_values(\n        transform_values(\n          MAP(\n            captal[ &#39;SOE&#39; ], captal[ &#39;PRIVATE&#39; ]\n          ), \n          (k, v) -&gt; k &gt; v\n        )\n      ) AS dominated_capital_soe_c\n    FROM \n      mapping\n  ) AS soe_private\nLEFT JOIN (\nSELECT \n  *\nFROM \n  (\n    WITH mapping AS (\n      SELECT \n        geocode4_corr, \n        map_agg(for_vs_dom, output) AS output, \n        map_agg(for_vs_dom, employ) AS employ, \n        map_agg(for_vs_dom, sales) AS sales, \n        map_agg(for_vs_dom, captal) AS captal \n      FROM \n        (\n          SELECT \n            geocode4_corr, \n            for_vs_dom, \n            ARRAY[SUM(output) ] as output, \n            ARRAY[SUM(employ) ] as employ, \n            ARRAY[SUM(sales) ] as sales, \n            ARRAY[SUM(captal) ] as captal \n          FROM \n            test \n          GROUP BY \n            geocode4_corr, \n            for_vs_dom \n          ORDER BY \n            geocode4_corr \n        ) \n      GROUP BY \n        geocode4_corr\n    ) \n    SELECT \n      *, \n      MAP(\n        output[ &#39;FOREIGN&#39; ], output[ &#39;DOMESTIC&#39; ]\n      ), \n      map_values(\n        transform_values(\n          MAP(\n            output[ &#39;FOREIGN&#39; ], output[ &#39;DOMESTIC&#39; ]\n          ), \n          (k, v) -&gt; k &gt; v\n        )\n      ) AS dominated_output_for_c,\n      \n      map_values(\n        transform_values(\n          MAP(\n            employ[ &#39;FOREIGN&#39; ], employ[ &#39;DOMESTIC&#39; ]\n          ), \n          (k, v) -&gt; k &gt; v\n        )\n      ) AS dominated_employment_for_c,\n      \n      map_values(\n        transform_values(\n          MAP(\n            sales[ &#39;FOREIGN&#39; ], sales[ &#39;DOMESTIC&#39; ]\n          ), \n          (k, v) -&gt; k &gt; v\n        )\n      ) AS dominated_sales_for_c,\n      \n      map_values(\n        transform_values(\n          MAP(\n            captal[ &#39;FOREIGN&#39; ], captal[ &#39;DOMESTIC&#39; ]\n          ), \n          (k, v) -&gt; k &gt; v\n        )\n      ) AS dominated_capital_for_c\n    FROM \n      mapping\n    )\n  ) AS foreign_dom\nON soe_private.geocode4_corr = foreign_dom.geocode4_corr\n&#34;,
+ &#39;schema&#39;: [{&#39;Name&#39;: &#39;geocode4_corr&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;City ID&#39;},
+  {&#39;Name&#39;: &#39;dominated_output_soe_c&#39;,
+   &#39;Type&#39;: &#39;boolean&#39;,
+   &#39;Comment&#39;: &#39;SOE dominated city of output. If true, then SOEs dominated city&#39;},
+  {&#39;Name&#39;: &#39;dominated_employment_soe_c&#39;,
+   &#39;Type&#39;: &#39;boolean&#39;,
+   &#39;Comment&#39;: &#39;SOE dominated city of employment. If true, then SOEs dominated city&#39;},
+  {&#39;Name&#39;: &#39;dominated_sales_soe_c&#39;,
+   &#39;Type&#39;: &#39;boolean&#39;,
+   &#39;Comment&#39;: &#39;SOE dominated city of sales. If true, then SOEs dominated city&#39;},
+  {&#39;Name&#39;: &#39;dominated_capital_soe_c&#39;,
+   &#39;Type&#39;: &#39;boolean&#39;,
+   &#39;Comment&#39;: &#39;SOE dominated city of capital. If true, then SOEs dominated city&#39;},
+  {&#39;Name&#39;: &#39;dominated_output_for_c&#39;,
+   &#39;Type&#39;: &#39;boolean&#39;,
+   &#39;Comment&#39;: &#39;foreign dominated city of output. If true, then foreign dominated city&#39;},
+  {&#39;Name&#39;: &#39;dominated_employment_for_c&#39;,
+   &#39;Type&#39;: &#39;boolean&#39;,
+   &#39;Comment&#39;: &#39;foreign dominated city of employment. If true, then foreign dominated city&#39;},
+  {&#39;Name&#39;: &#39;dominated_sales_for_c&#39;,
+   &#39;Type&#39;: &#39;boolean&#39;,
+   &#39;Comment&#39;: &#39;foreign dominated cityof sales. If true, then foreign dominated city&#39;},
+  {&#39;Name&#39;: &#39;dominated_capital_for_c&#39;,
+   &#39;Type&#39;: &#39;boolean&#39;,
+   &#39;Comment&#39;: &#39;foreign dominated city of capital. If true, then foreign dominated city&#39;}],
+ &#39;partition_keys&#39;: [&#39;geocode4_corr&#39;],
+ &#39;metadata&#39;: {&#39;DatabaseName&#39;: &#39;firms_survey&#39;,
+  &#39;TableName&#39;: &#39;asif_city_characteristics_ownership&#39;,
+  &#39;target_S3URI&#39;: &#39;s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/CITY_CHARACTERISTICS/OWNERSHIP&#39;,
+  &#39;from_athena&#39;: &#39;True&#39;}}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
@@ -15555,7 +15616,7 @@ Wall time: 6.04 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">index_to_remove</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
@@ -15578,7 +15639,7 @@ Wall time: 6.04 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;TABLES&#39;</span><span class="p">][</span><span class="s1">&#39;TRANSFORMATION&#39;</span><span class="p">][</span><span class="s1">&#39;STEPS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">json_etl</span><span class="p">)</span>
@@ -15598,7 +15659,7 @@ Wall time: 6.04 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[21]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span><span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
@@ -15637,10 +15698,10 @@ Wall time: 6.04 s
 ]</code></pre>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[22]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">update_schema_table</span><span class="p">(</span>
@@ -15654,6 +15715,36 @@ Wall time: 6.04 s
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[22]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;fd6fe4d9-b617-47b4-962c-b646df18a048&#39;,
+  &#39;HTTPStatusCode&#39;: 200,
+  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 24 Jan 2021 07:19:47 GMT&#39;,
+   &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;,
+   &#39;content-length&#39;: &#39;2&#39;,
+   &#39;connection&#39;: &#39;keep-alive&#39;,
+   &#39;x-amzn-requestid&#39;: &#39;fd6fe4d9-b617-47b4-962c-b646df18a048&#39;},
+  &#39;RetryAttempts&#39;: 0}}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
@@ -15664,7 +15755,7 @@ Wall time: 6.04 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[23]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;geocode4_corr&#39;</span><span class="p">]</span>
@@ -15678,10 +15769,10 @@ Wall time: 6.04 s
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### COUNT DUPLICATES</span>
@@ -15704,6 +15795,58 @@ Wall time: 6.04 s
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output " data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>CNT</th>
+      <th>CNT_DUPLICATE</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>286</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
@@ -15714,7 +15857,7 @@ Wall time: 6.04 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[25]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">README</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -15797,7 +15940,7 @@ Wall time: 6.04 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">urllib</span><span class="o">,</span> <span class="nn">ipykernel</span><span class="o">,</span> <span class="nn">json</span>
@@ -15813,7 +15956,7 @@ Wall time: 6.04 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">create_report</span><span class="p">(</span><span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">keep_code</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">notebookname</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
