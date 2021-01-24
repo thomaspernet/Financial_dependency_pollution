@@ -135,11 +135,11 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
 
 # Steps
 
-1. Aggregate output, employment, capital and sales by industry (use 2000)
-2. Compute the percentile .5, .75, .90,.95
-3. Compute dominated city for each percentile
-  1. If public > private then public else private
-  2. If foreign > domestic then foreign else domestic
+* Industrial size effect
+  * Change computation large vs small industry
+    * Compute the median (percentile) within a city taking all firms
+    * Compute the median (percentile) within a city-industry taking all firms within the industry
+  *  For instance, Shanghai has 3 sectors, compute the median for Shanghai, and 3 median for each sector
 
 The notebook reference is the following https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/07_dominated_city_ownership.md#steps-1
 
@@ -157,19 +157,18 @@ s3_output_example = 'SQL_OUTPUT_ATHENA'
 
 ### Example with National Average
 
-Compute mean and percentile for year 2001. Bear in mind that we get the median and percentile from the firm level of output, employment, capital and sales.
+Compute percentile for year 2001. 
+
+Bear in mind that we get the median and percentile from the city-industry level of output, employment, capital and sales.
+
+- `ci_med_output`: Percentile output by city-industry
+- `c_med_output`:Percentile output by city
 
 ```python
 query= """
-WITH test as (
+WITH test AS (
   SELECT 
-    year, 
-    firm, 
-    cic, 
-    output, 
-    employ, 
-    sales, 
-    captal, 
+    *, 
     CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
       '0', 
       substr(cic, 1, 1)
@@ -178,40 +177,53 @@ WITH test as (
     CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
   FROM 
     firms_survey.asif_firms_prepared 
-  WHERE 
-    year = '2001'
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+WHERE year = '2001'
 ) 
 SELECT 
   indu_2, 
   industry_pct.year, 
-  output_pct,
-  f_med_output,
-  n_med_output
+  industry_pct.geocode4_corr,
+  ci_med_output,
+  c_med_output
 FROM 
   (
     (
       SELECT 
         indu_2, 
         year, 
-        approx_percentile(output, .5) as f_med_output, 
-        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct 
+        geocode4_corr,
+        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS ci_med_output 
       FROM 
         test 
       GROUP BY 
         year, 
-        indu_2 
+        indu_2,
+        geocode4_corr
       ORDER BY 
         indu_2
     ) as industry_pct 
     LEFT JOIN (
       SELECT 
         year, 
-        approx_percentile(output, .5) as n_med_output 
+        geocode4_corr,
+        approx_percentile(output, ARRAY[.5,.75,.90,.95]) as c_med_output 
       FROM 
         test 
       GROUP BY 
-        year
-    ) as national_avg ON industry_pct.year = national_avg.year
+        year, geocode4_corr
+    ) as national_avg
+    ON industry_pct.year = national_avg.year AND 
+    industry_pct.geocode4_corr = national_avg.geocode4_corr
   ) 
 LIMIT 
   5
@@ -232,15 +244,9 @@ We cannot use average because the data are too much skewed so median is never ab
 
 ```python
 query= """
-WITH test as (
+WITH test AS (
   SELECT 
-    year, 
-    firm, 
-    cic, 
-    output, 
-    employ, 
-    sales, 
-    captal, 
+    *, 
     CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
       '0', 
       substr(cic, 1, 1)
@@ -249,50 +255,56 @@ WITH test as (
     CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
   FROM 
     firms_survey.asif_firms_prepared 
-  WHERE 
-    year = '2001'
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+WHERE year = '2001'
 ) 
 SELECT 
   indu_2, 
   industry_pct.year, 
-  output_pct,
-  n_med_output,
-  f_med_output,
+  industry_pct.geocode4_corr,
+  c_med_output,
+  ci_med_output,
   zip_with(
-      transform(
-        sequence(
-          1, 
-          4
-        ), 
-        x -> n_med_output
-      ),
-        output_pct, (x, y) -> x < y) AS dominated_output
+  c_med_output,
+  ci_med_output, (x, y) -> x < y) AS dominated_output
 FROM 
   (
     (
       SELECT 
         indu_2, 
         year, 
-        approx_percentile(output, .5) as f_med_output, 
-        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct 
+        geocode4_corr,
+        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS ci_med_output 
       FROM 
         test 
       GROUP BY 
         year, 
-        indu_2 
+        indu_2, geocode4_corr 
       ORDER BY 
         indu_2
     ) as industry_pct 
     LEFT JOIN (
       SELECT 
         year, 
-        approx_percentile(output, .5) as n_med_output 
+        geocode4_corr,
+        approx_percentile(output, ARRAY[.5,.75,.90,.95]) as c_med_output  
       FROM 
         test 
       GROUP BY 
-        year
+        year, geocode4_corr
     ) as national_avg ON industry_pct.year = national_avg.year
+    AND industry_pct.geocode4_corr = national_avg.geocode4_corr
   ) 
+  ORDER BY geocode4_corr
 LIMIT 
   5
 
@@ -310,15 +322,9 @@ Last, we need to reconstruct the map
 
 ```python
 query = """
-WITH test as (
+WITH test AS (
   SELECT 
-    year, 
-    firm, 
-    cic, 
-    output, 
-    employ, 
-    sales, 
-    captal, 
+    *, 
     CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
       '0', 
       substr(cic, 1, 1)
@@ -327,15 +333,24 @@ WITH test as (
     CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
   FROM 
     firms_survey.asif_firms_prepared 
-  WHERE 
-    year = '2001'
-) 
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+WHERE year = '2001'
+)
 SELECT 
   indu_2, 
   industry_pct.year, 
-  output_pct,
-  n_med_output,
-  CASE WHEN f_med_output > n_med_output THEN 'ABOVE' ELSE 'BELOW' END AS med_dominated_output_i,
+  industry_pct.geocode4_corr,
+  c_med_output,
+  ci_med_output,
   MAP(
         ARRAY[
           .5, 
@@ -344,41 +359,39 @@ SELECT
           .95
           ],
   zip_with(
-      transform(
-        sequence(
-          1, 
-          4
-        ), 
-        x -> n_med_output
-      ),
-        output_pct, (x, y) -> x < y)
-        ) AS dominated_output_i
+  c_med_output,
+  ci_med_output, (x, y) -> x < y)) AS dominated_output_i
 FROM 
   (
     (
       SELECT 
         indu_2, 
         year, 
-        approx_percentile(output, .5) as f_med_output,
-        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct 
+        geocode4_corr,
+        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS ci_med_output 
       FROM 
         test 
       GROUP BY 
         year, 
-        indu_2 
+        indu_2,
+        geocode4_corr
       ORDER BY 
         indu_2
     ) as industry_pct 
     LEFT JOIN (
       SELECT 
         year, 
-        approx_percentile(output, .5) as n_med_output 
+        geocode4_corr,
+        approx_percentile(output, ARRAY[.5,.75,.90,.95]) as c_med_output  
       FROM 
         test 
       GROUP BY 
-        year
+        year,
+        geocode4_corr
     ) as national_avg ON industry_pct.year = national_avg.year
+    AND industry_pct.geocode4_corr = national_avg.geocode4_corr
   ) 
+  ORDER BY geocode4_corr
 LIMIT 
   5
 """
@@ -391,23 +404,16 @@ output = s3.run_query(
 output
 ```
 
-### Example with SOE vs private
+## Test with ownership private SOE
 
-Compute mean and percentile for year 2001 by firm's ownership. Bear in mind that we get the median and percentile from the firm level of output, employment, capital and sales.
-
-If percentile of SOE above Private, then sector dominated by SOE
+1. Compute the percentile by city-industry-ownership 
+2. If the percentile of SOE above Private, then sector dominated by SOE 
 
 ```python
 query = """
-WITH test as (
+WITH test AS (
   SELECT 
-    year, 
-    firm, 
-    cic, 
-    output, 
-    employ, 
-    sales, 
-    captal, 
+    *, 
     CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
       '0', 
       substr(cic, 1, 1)
@@ -416,8 +422,16 @@ WITH test as (
     CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
   FROM 
     firms_survey.asif_firms_prepared 
-  WHERE 
-    year = '2001'
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
 ) 
 SELECT 
   * 
@@ -425,57 +439,57 @@ FROM
   (
     WITH mapping AS (
       SELECT 
-        indu_2, 
-        map_agg(soe_vs_pri, output_pct) AS output_pct 
+        indu_2,
+        geocode4_corr,
+        -- soe_vs_pri,
+        -- output,
+        map_agg(soe_vs_pri, output) AS output
+        -- map_agg(soe_vs_pri, employ) AS employ, 
+        -- map_agg(soe_vs_pri, sales) AS sales, 
+        -- map_agg(soe_vs_pri, captal) AS captal 
       FROM 
         (
           SELECT 
-            indu_2, 
-            year, 
+            geocode4_corr, 
+            indu_2,
             soe_vs_pri, 
-            approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct 
+            approx_percentile(output, ARRAY[.5,.75,.90,.95]) as output
           FROM 
             test 
           GROUP BY 
-            year, 
-            indu_2, 
+            geocode4_corr, 
+            indu_2,
             soe_vs_pri 
-          ORDER BY 
-            indu_2
         ) 
       GROUP BY 
-        indu_2
+      geocode4_corr,
+      indu_2
     ) 
     SELECT 
-      * 
+      *
     FROM 
       mapping
+    -- WHERE geocode4_corr = '1101' AND indu_2 = '13'
+    ORDER BY geocode4_corr, indu_2
     LIMIT 10
   )
-
 """
 output = s3.run_query(
                     query=query,
                     database=DatabaseName,
                     s3_output=s3_output_example,
-    filename = 'example_5'
+    filename = 'example_4'
                 )
 output
 ```
 
-Last, we need to compute the condition and reconstruct the map
+Compute the size and get the map
 
 ```python
 query = """
-WITH test as (
+WITH test AS (
   SELECT 
-    year, 
-    firm, 
-    cic, 
-    output, 
-    employ, 
-    sales, 
-    captal, 
+    *, 
     CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
       '0', 
       substr(cic, 1, 1)
@@ -484,36 +498,51 @@ WITH test as (
     CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
   FROM 
     firms_survey.asif_firms_prepared 
-  WHERE 
-    year = '2001'
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
 ) 
-SELECT *
+SELECT 
+  * 
 FROM 
   (
     WITH mapping AS (
-SELECT 
-  indu_2, 
-  map_agg(soe_vs_pri, output_pct) AS output_pct
-FROM 
-  (
       SELECT 
-        indu_2, 
-        year, 
-      soe_vs_pri,
-        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct 
-      FROM 
-        test 
-      GROUP BY 
-        year, 
         indu_2,
-      soe_vs_pri
-      ORDER BY 
-        indu_2
-      )
- GROUP BY indu_2
-  )
+        geocode4_corr,
+        -- soe_vs_pri,
+        -- output,
+        map_agg(soe_vs_pri, output) AS output
+        -- map_agg(soe_vs_pri, employ) AS employ, 
+        -- map_agg(soe_vs_pri, sales) AS sales, 
+        -- map_agg(soe_vs_pri, captal) AS captal 
+      FROM 
+        (
+          SELECT 
+            geocode4_corr, 
+            indu_2,
+            soe_vs_pri, 
+            approx_percentile(output, ARRAY[.5,.75,.90,.95]) as output
+          FROM 
+            test 
+          GROUP BY 
+            geocode4_corr, 
+            indu_2,
+            soe_vs_pri 
+        ) 
+      GROUP BY 
+      geocode4_corr,
+      indu_2
+    ) 
     SELECT 
-    indu_2,
+      *,
     map(
         ARRAY[
           .5, 
@@ -524,21 +553,23 @@ FROM
         map_values(
           transform_values(
             MAP(
-              output_pct[ 'SOE' ], output_pct[ 'PRIVATE' ]
+              output[ 'SOE' ], output[ 'PRIVATE' ]
             ), 
             (k, v) -> k > v
           )
         )
       ) AS dominated_output_soe
-    FROM mapping
+    FROM 
+      mapping
+    ORDER BY geocode4_corr, indu_2
     LIMIT 10
-    )
+  )
 """
 output = s3.run_query(
                     query=query,
                     database=DatabaseName,
                     s3_output=s3_output_example,
-    filename = 'example_5'
+    filename = 'example_4'
                 )
 output
 ```
@@ -582,15 +613,9 @@ s3.remove_all_bucket(path_remove = s3_output)
 %%time
 query = """
 CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS
-WITH test as (
+WITH test AS (
   SELECT 
-    year, 
-    firm, 
-    cic, 
-    output, 
-    employ, 
-    sales, 
-    captal, 
+    *, 
     CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
       '0', 
       substr(cic, 1, 1)
@@ -599,26 +624,30 @@ WITH test as (
     CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
   FROM 
     firms_survey.asif_firms_prepared 
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code 
   WHERE 
     year = '2001'
 ) 
 SELECT 
   national.indu_2, 
-  CASE WHEN f_med_output > n_med_output THEN 'ABOVE' ELSE 'BELOW' END AS med_dominated_output_i,
-  CASE WHEN f_med_captal > n_med_capital THEN 'ABOVE' ELSE 'BELOW' END AS med_dominated_capital_i,
-  CASE WHEN f_med_sales > n_med_sales THEN 'ABOVE' ELSE 'BELOW' END AS med_dominated_sales_i,
-  CASE WHEN f_med_employ > n_med_employ THEN 'ABOVE' ELSE 'BELOW' END AS med_dominated_employ_i,
+  national.geocode4_corr, 
   MAP(
     ARRAY[.5, 
     .75, 
     .90, 
     .95 ], 
     zip_with(
-      transform(
-        sequence(1, 4), 
-        x -> n_med_output
-      ), 
-      output_pct, 
+      c_med_output, 
+      ci_med_output, 
       (x, y) -> x < y
     )
   ) AS dominated_output_i, 
@@ -628,42 +657,33 @@ SELECT
     .90, 
     .95 ], 
     zip_with(
-      transform(
-        sequence(1, 4), 
-        x -> n_med_employ
-      ), 
-      employ_pct, 
+      c_med_employ, 
+      ci_med_employ, 
       (x, y) -> x < y
     )
-  ) AS dominated_employment_i, 
+  ) AS dominated_employ_i, 
   MAP(
     ARRAY[.5, 
     .75, 
     .90, 
     .95 ], 
     zip_with(
-      transform(
-        sequence(1, 4), 
-        x -> n_med_capital
-      ), 
-      captal_pct, 
-      (x, y) -> x < y
-    )
-  ) AS dominated_capital_i, 
-  MAP(
-    ARRAY[.5, 
-    .75, 
-    .90, 
-    .95 ], 
-    zip_with(
-      transform(
-        sequence(1, 4), 
-        x -> n_med_sales
-      ), 
-      sales_pct, 
+      c_med_sales, 
+      ci_med_sales, 
       (x, y) -> x < y
     )
   ) AS dominated_sales_i, 
+  MAP(
+    ARRAY[.5, 
+    .75, 
+    .90, 
+    .95 ], 
+    zip_with(
+      c_med_captal, 
+      ci_med_captal, 
+      (x, y) -> x < y
+    )
+  ) AS dominated_capital_i, 
   dominated_output_soe AS dominated_output_soe_i, 
   dominated_employment_soe AS dominated_employment_soe_i, 
   dominated_sales_soe AS dominated_sales_soe_i, 
@@ -678,35 +698,35 @@ FROM
       SELECT 
         indu_2, 
         year, 
-        approx_percentile(output, .5) as f_med_output,
-        approx_percentile(employ, .5) as f_med_employ,
-        approx_percentile(sales, .5) as f_med_sales,
-        approx_percentile(captal, .5) as f_med_captal,
-        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, 
-        approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, 
-        approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, 
-        approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct 
+        geocode4_corr AS geo, 
+        -- rename to avoid ambiguous name
+        approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS ci_med_output, 
+        approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS ci_med_employ, 
+        approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS ci_med_sales, 
+        approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS ci_med_captal 
       FROM 
         test 
       GROUP BY 
         year, 
-        indu_2 
-      ORDER BY 
-        indu_2
+        indu_2, 
+        geocode4_corr
     ) as industry_pct 
     LEFT JOIN (
       SELECT 
         year, 
-        approx_percentile(output, .5) as n_med_output, 
-        approx_percentile(employ, .5) as n_med_employ, 
-        approx_percentile(sales, .5) as n_med_sales, 
-        approx_percentile(captal, .5) as n_med_capital 
+        geocode4_corr, 
+        approx_percentile(output, ARRAY[.5,.75,.90,.95]) as c_med_output, 
+        approx_percentile(employ, ARRAY[.5,.75,.90,.95]) as c_med_employ, 
+        approx_percentile(sales, ARRAY[.5,.75,.90,.95]) as c_med_sales, 
+        approx_percentile(captal, ARRAY[.5,.75,.90,.95]) as c_med_captal 
       FROM 
         test 
       GROUP BY 
-        year
-    ) as national_avg ON industry_pct.year = national_avg.year
-  ) as national 
+        year, 
+        geocode4_corr
+    ) as national_avg ON industry_pct.year = national_avg.year 
+    AND industry_pct.geo = national_avg.geocode4_corr
+  ) AS national 
   LEFT JOIN (
     SELECT 
       * 
@@ -715,34 +735,34 @@ FROM
         WITH mapping AS (
           SELECT 
             indu_2, 
-            map_agg(soe_vs_pri, output_pct) AS output_pct, 
-            map_agg(soe_vs_pri, employ_pct) AS employ_pct, 
-            map_agg(soe_vs_pri, sales_pct) AS sales_pct, 
-            map_agg(soe_vs_pri, captal_pct) AS captal_pct 
+            geocode4_corr, 
+            map_agg(soe_vs_pri, output) AS output, 
+            map_agg(soe_vs_pri, employ) AS employ, 
+            map_agg(soe_vs_pri, sales) AS sales, 
+            map_agg(soe_vs_pri, captal) AS captal 
           FROM 
             (
               SELECT 
+                geocode4_corr, 
                 indu_2, 
-                year, 
                 soe_vs_pri, 
-                approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, 
-                approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, 
-                approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, 
-                approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct 
+                approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output, 
+                approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ, 
+                approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales, 
+                approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal 
               FROM 
                 test 
               GROUP BY 
-                year, 
+                geocode4_corr, 
                 indu_2, 
-                soe_vs_pri 
-              ORDER BY 
-                indu_2
+                soe_vs_pri
             ) 
           GROUP BY 
+            geocode4_corr, 
             indu_2
         ) 
         SELECT 
-          indu_2, 
+          *, 
           map(
             ARRAY[.5, 
             .75, 
@@ -751,7 +771,7 @@ FROM
             map_values(
               transform_values(
                 MAP(
-                  output_pct[ 'SOE' ], output_pct[ 'PRIVATE' ]
+                  output[ 'SOE' ], output[ 'PRIVATE' ]
                 ), 
                 (k, v) -> k > v
               )
@@ -765,7 +785,7 @@ FROM
             map_values(
               transform_values(
                 MAP(
-                  employ_pct[ 'SOE' ], employ_pct[ 'PRIVATE' ]
+                  employ[ 'SOE' ], employ[ 'PRIVATE' ]
                 ), 
                 (k, v) -> k > v
               )
@@ -778,9 +798,7 @@ FROM
             .95 ], 
             map_values(
               transform_values(
-                MAP(
-                  sales_pct[ 'SOE' ], sales_pct[ 'PRIVATE' ]
-                ), 
+                MAP(sales[ 'SOE' ], sales[ 'PRIVATE' ]), 
                 (k, v) -> k > v
               )
             )
@@ -793,7 +811,7 @@ FROM
             map_values(
               transform_values(
                 MAP(
-                  captal_pct[ 'SOE' ], captal_pct[ 'PRIVATE' ]
+                  captal[ 'SOE' ], captal[ 'PRIVATE' ]
                 ), 
                 (k, v) -> k > v
               )
@@ -803,6 +821,7 @@ FROM
           mapping
       )
   ) AS soe_private ON national.indu_2 = soe_private.indu_2 
+  AND national.geocode4_corr = soe_private.geocode4_corr 
   LEFT JOIN (
     SELECT 
       * 
@@ -811,34 +830,34 @@ FROM
         WITH mapping AS (
           SELECT 
             indu_2, 
-            map_agg(for_vs_dom, output_pct) AS output_pct, 
-            map_agg(for_vs_dom, employ_pct) AS employ_pct, 
-            map_agg(for_vs_dom, sales_pct) AS sales_pct, 
-            map_agg(for_vs_dom, captal_pct) AS captal_pct 
+            geocode4_corr, 
+            map_agg(for_vs_dom, output) AS output, 
+            map_agg(for_vs_dom, employ) AS employ, 
+            map_agg(for_vs_dom, sales) AS sales, 
+            map_agg(for_vs_dom, captal) AS captal 
           FROM 
             (
               SELECT 
+                geocode4_corr, 
                 indu_2, 
-                year, 
                 for_vs_dom, 
-                approx_percentile(output, ARRAY[.5,.75,.90,.95]) AS output_pct, 
-                approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ_pct, 
-                approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales_pct, 
-                approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal_pct 
+                approx_percentile(output, ARRAY[.5,.75,.90,.95]) as output, 
+                approx_percentile(employ, ARRAY[.5,.75,.90,.95]) AS employ, 
+                approx_percentile(sales, ARRAY[.5,.75,.90,.95]) AS sales, 
+                approx_percentile(captal, ARRAY[.5,.75,.90,.95]) AS captal 
               FROM 
                 test 
               GROUP BY 
-                year, 
+                geocode4_corr, 
                 indu_2, 
-                for_vs_dom 
-              ORDER BY 
-                indu_2
+                for_vs_dom
             ) 
           GROUP BY 
+            geocode4_corr, 
             indu_2
         ) 
         SELECT 
-          indu_2, 
+          *, 
           map(
             ARRAY[.5, 
             .75, 
@@ -847,7 +866,7 @@ FROM
             map_values(
               transform_values(
                 MAP(
-                  output_pct[ 'FOREIGN' ], output_pct[ 'DOMESTIC' ]
+                  output[ 'FOREIGN' ], output[ 'DOMESTIC' ]
                 ), 
                 (k, v) -> k > v
               )
@@ -861,7 +880,7 @@ FROM
             map_values(
               transform_values(
                 MAP(
-                  employ_pct[ 'FOREIGN' ], employ_pct[ 'DOMESTIC' ]
+                  employ[ 'FOREIGN' ], employ[ 'DOMESTIC' ]
                 ), 
                 (k, v) -> k > v
               )
@@ -875,7 +894,7 @@ FROM
             map_values(
               transform_values(
                 MAP(
-                  sales_pct[ 'FOREIGN' ], sales_pct[ 'DOMESTIC' ]
+                  sales[ 'FOREIGN' ], sales[ 'DOMESTIC' ]
                 ), 
                 (k, v) -> k > v
               )
@@ -889,7 +908,7 @@ FROM
             map_values(
               transform_values(
                 MAP(
-                  captal_pct[ 'FOREIGN' ], captal_pct[ 'DOMESTIC' ]
+                  captal[ 'FOREIGN' ], captal[ 'DOMESTIC' ]
                 ), 
                 (k, v) -> k > v
               )
@@ -898,8 +917,8 @@ FROM
         FROM 
           mapping
       )
-  ) AS foreign_dom ON national.indu_2 = foreign_dom.indu_2
-
+  ) AS foreign_dom ON national.indu_2 = foreign_dom.indu_2 
+  AND national.geocode4_corr = foreign_dom.geocode4_corr 
 """.format(DatabaseName, table_name)
 output = s3.run_query(
                     query=query,
@@ -963,7 +982,7 @@ To validate the query, please fillin the json below. Don't forget to change the 
 1. Add a partition key
 
 ```python
-partition_keys = ['indu_2']
+partition_keys = ['geocode4_corr','indu_2']
 ```
 
 2. Add the steps number
@@ -985,10 +1004,7 @@ glue.get_table_information(
 ```python
 schema = [
     {"Name": "indu_2", "Type": "string", "Comment": ""},
-    {'Name': 'med_dominated_output_i', 'Type': 'varchar(5)', 'Comment': 'Output industry above national median'},
-    {'Name': 'med_dominated_capital_i', 'Type': 'varchar(5)', 'Comment': 'Capital industry above national median'},
-    {'Name': 'med_dominated_sales_i', 'Type': 'varchar(5)', 'Comment': 'Sales industry above national median'},
-   {'Name': 'med_dominated_employ_i', 'Type': 'varchar(5)', 'Comment': 'Employment industry above national median'},
+    {'Name': 'geocode4_corr', 'Type': 'string', 'Comment': 'city code'},
     {
         "Name": "dominated_output_i",
         "Type": "map<double,boolean>",
@@ -1144,7 +1160,7 @@ One of the most important step when creating a table is to check if the table co
 You are required to define the group(s) that Athena will use to compute the duplicate. For instance, your table can be grouped by COL1 and COL2 (need to be string or varchar), then pass the list ['COL1', 'COL2'] 
 
 ```python
-partition_keys = ['indu_2']
+partition_keys = ['geocode4_corr', 'indu_2']
 
 with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
