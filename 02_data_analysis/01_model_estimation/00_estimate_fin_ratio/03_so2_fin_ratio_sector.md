@@ -139,7 +139,7 @@ for key, value in enumerate(schema):
 ```
 
 ```sos kernel="SoS"
-download_data = True
+download_data = False
 filename = 'df_{}'.format(table)
 full_path_filename = 'SQL_OUTPUT_ATHENA/CSV/{}.csv'.format(filename)
 path_local = os.path.join(str(Path(path).parent.parent.parent), 
@@ -805,13 +805,12 @@ City ownership are available for the following variables:
 
 **How is it constructed** 
 
-1. From the firms table, Aggregate output, employment, capital and sales by firm-city (use all years to get all city sample)
-2. Compute the percentile .5, .75, .90,.95
-3. Compute dominated city for each percentile
-  1. If public > private then public else private
-  2. If foreign > domestic then foreign else domestic
+* city ownership public vs private
+  * Aggregate output by ownership and city
+    * A given city will have SOE asset tangibility and PRIVATE asset tangibility [output, employment, capital and sales]
+  * If asset tangibility SOE above Private then city is dominated by SOE
   
-In our computation, .5 means the median output [employment, capital and sales] for a firm with ownership SOE or Private. If the median output value for a given SOE firm is above the output value of a given private firm, then the sector is labeled as 'Dominated' by SOE
+Notebook reference: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/07_dominated_city_ownership.md
 <!-- #endregion -->
 
 ```sos kernel="SoS"
@@ -1341,20 +1340,13 @@ Industrial are available for the following variables:
 - employment
 - sales
 
-- Aggregate output, employment, capital and sales by industry (use 2000)
-    - Compute the percentile .5, .75, .90,.95
-    - Compute dominated city for each percentile
-    - If public > private then public else private
-    - If foreign > domestic then foreign else domestic
-
-The notebook reference is the following https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/07_dominated_city_ownership.md#steps-1
-
-A dominated sector is defined as positive when the average output of the firms is above the cross secteur average
-
-- Compute the firm’s industrial output average
-- Compute the firm’s national median
+* Industrial size effect
+  * Change computation large vs small industry
+    * Compute the median (percentile) within a city taking all firms
+    * Compute the median (percentile) within a city-industry taking all firms within the industry
+  *  For instance, Shanghai has 3 sectors, compute the median for Shanghai, and 3 median for each sector
   
-In our computation, .5 means the median output [employment, capital and sales] for a firm in industry $k$. If the median output value for firm in industry $k$ is above the output value of the national median, then the sector is labeled as 'Large'
+Notebook reference: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/08_dominated_industry_ownership.md
 <!-- #endregion -->
 
 ```sos kernel="SoS"
