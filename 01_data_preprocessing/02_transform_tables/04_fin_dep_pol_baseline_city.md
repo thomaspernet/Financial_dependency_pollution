@@ -583,15 +583,11 @@ SELECT
   dominated_output_for_c,
   dominated_employment_for_c,
   dominated_sales_for_c,
-  dominated_capital_for_c, 
-  med_dominated_output_i, 
-  med_dominated_capital_i,
-  med_dominated_sales_i,
-  med_dominated_employ_i,
+  dominated_capital_for_c,  
   dominated_output_i,
-  dominated_employment_i,
-  dominated_capital_i,
+  dominated_employ_i,
   dominated_sales_i,
+  dominated_capital_i,
   dominated_output_soe_i,
   dominated_employment_soe_i,
   dominated_sales_soe_i,
@@ -599,7 +595,7 @@ SELECT
   dominated_output_for_i,
   dominated_employment_for_i,
   dominated_sales_for_i,
-  dominated_capital_for_i, 
+  dominated_capital_for_i,  
   DENSE_RANK() OVER (
     ORDER BY 
       city_mandate.geocode4_corr, 
@@ -758,10 +754,11 @@ FROM
   AND aggregate_pol.year = agg_output.year 
   
   LEFT JOIN firms_survey.asif_industry_characteristics_ownership
-    ON aggregate_pol.ind2 = asif_industry_characteristics_ownership.indu_2
-    LEFT JOIN firms_survey.asif_city_characteristics_ownership
+    ON aggregate_pol.geocode4_corr = asif_industry_characteristics_ownership.geocode4_corr
+    AND aggregate_pol.ind2 = asif_industry_characteristics_ownership.indu_2
+  LEFT JOIN firms_survey.asif_city_characteristics_ownership
     ON aggregate_pol.geocode4_corr = asif_city_characteristics_ownership.geocode4_corr
-  
+
 WHERE 
   tso2 > 4863 
   AND output > 0 
@@ -1163,70 +1160,34 @@ schema = [
         "Comment": "Location city. one of Eastern, Central, Western",
     },
     {"Name": "coastal", "Type": "string", "Comment": "City is bordered by sea or not"},
-    {
-        "Name": "dominated_output_soe_c",
-        "Type": "map<double,boolean>",
-        "Comment": "map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of output",
-    },
-    {
-        "Name": "dominated_employment_soe_c",
-        "Type": "map<double,boolean>",
-        "Comment": "map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of employment",
-    },
-    {
-        "Name": "dominated_sales_soe_c",
-        "Type": "map<double,boolean>",
-        "Comment": "map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of sales",
-    },
-    {
-        "Name": "dominated_capital_soe_c",
-        "Type": "map<double,boolean>",
-        "Comment": "map with information on SOE dominated city knowing percentile .5, .75, .9, .95 of capital",
-    },
-    {
-        "Name": "dominated_output_for_c",
-        "Type": "map<double,boolean>",
-        "Comment": "map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of output",
-    },
-    {
-        "Name": "dominated_employment_for_c",
-        "Type": "map<double,boolean>",
-        "Comment": "map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of employment",
-    },
-    {
-        "Name": "dominated_sales_for_c",
-        "Type": "map<double,boolean>",
-        "Comment": "map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of sales",
-    },
-    {
-        "Name": "dominated_capital_for_c",
-        "Type": "map<double,boolean>",
-        "Comment": "map with information on foreign dominated city knowing percentile .5, .75, .9, .95 of capital",
-    },
-    {'Name': 'med_dominated_output_i', 'Type': 'varchar(5)', 'Comment': 'Output industry above national median'},
- {'Name': 'med_dominated_capital_i', 'Type': 'varchar(5)', 'Comment': 'Capital industry above national median'},
- {'Name': 'med_dominated_sales_i', 'Type': 'varchar(5)', 'Comment': 'Sales industry above national median'},
- {'Name': 'med_dominated_employ_i', 'Type': 'varchar(5)', 'Comment': 'Employment industry above national median'},
-    {
+    {'Name': 'dominated_output_soe_c', 'Type': 'boolean',
+        'Comment': 'SOE dominated city of output. If true, then SOEs dominated city'},
+    {'Name': 'dominated_employment_soe_c', 'Type': 'boolean',
+        'Comment': 'SOE dominated city of employment. If true, then SOEs dominated city'},
+    {'Name': 'dominated_sales_soe_c', 'Type': 'boolean',
+        'Comment': 'SOE dominated city of sales. If true, then SOEs dominated city'},
+    {'Name': 'dominated_capital_soe_c',
+        'Type': 'boolean',
+        'Comment': 'SOE dominated city of capital. If true, then SOEs dominated city'},
+    {'Name': 'dominated_output_for_c',
+        'Type': 'boolean',
+        'Comment': 'foreign dominated city of output. If true, then foreign dominated city'},
+    {'Name': 'dominated_employment_for_c',
+        'Type': 'boolean',
+        'Comment': 'foreign dominated city of employment. If true, then foreign dominated city'},
+    {'Name': 'dominated_sales_for_c', 'Type': 'boolean',
+        'Comment': 'foreign dominated cityof sales. If true, then foreign dominated city'},
+    {'Name': 'dominated_capital_for_c',
+        'Type': 'boolean',
+        'Comment': 'foreign dominated city of capital. If true, then foreign dominated city'},
+ {
         "Name": "dominated_output_i",
         "Type": "map<double,boolean>",
         "Comment": "map with information dominated industry knowing percentile .5, .75, .9, .95 of output",
     },
-    {
-        "Name": "dominated_employment_i",
-        "Type": "map<double,boolean>",
-        "Comment": "map with information on dominated industry knowing percentile .5, .75, .9, .95 of employment",
-    },
-    {
-        "Name": "dominated_capital_i",
-        "Type": "map<double,boolean>",
-        "Comment": "map with information on dominated industry knowing percentile .5, .75, .9, .95 of capital",
-    },
-    {
-        "Name": "dominated_sales_i",
-        "Type": "map<double,boolean>",
-        "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of sales",
-    },
+    {"Name": "dominated_employment_i", "Type": "map<double,boolean>", "Comment": "map with information on dominated industry knowing percentile .5, .75, .9, .95 of employment"},
+    {"Name": "dominated_capital_i", "Type": "map<double,boolean>", "Comment": "map with information on dominated industry knowing percentile .5, .75, .9, .95 of capital"},
+    {"Name": "dominated_sales_i", "Type": "map<double,boolean>", "Comment": "map with information on SOE dominated industry knowing percentile .5, .75, .9, .95 of sales"},
     {
         "Name": "dominated_output_soe_i",
         "Type": "map<double,boolean>",
