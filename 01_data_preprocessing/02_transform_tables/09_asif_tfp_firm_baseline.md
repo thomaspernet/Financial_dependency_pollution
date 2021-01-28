@@ -1211,6 +1211,7 @@ FROM
       AND liabilities_tot_asset > 0
       AND sales_tot_asset > 0
       AND cash_tot_asset > 0
+      AND cashflow_tot_asset > 0
       
     --  AND ratio.year in (
     --    '2001', '2002', '2003', '2004', '2005', 
