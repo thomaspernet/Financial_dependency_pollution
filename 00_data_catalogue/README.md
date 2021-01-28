@@ -20,9 +20,9 @@
 - [asif_industry_financial_ratio_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_financial_ratio_industry)
 - [fin_dep_pollution_baseline_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_industry)
 - [asif_financial_ratio_baseline_firm](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_financial_ratio_baseline_firm)
-- [asif_city_characteristics_ownership](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_city_characteristics_ownership)
 - [asif_industry_characteristics_ownership](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_characteristics_ownership)
 - [fin_dep_pollution_baseline_city](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_city)
+- [asif_tfp_credit_constraint](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_tfp_credit_constraint)
 
     
 
@@ -650,26 +650,6 @@
 
     
 
-## Table asif_city_characteristics_ownership
-
-- Database: firms_survey
-- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/CITY_CHARACTERISTICS/OWNERSHIP`
-- Partitition: ['geocode4_corr']
-
-|    | Name                       | Type    | Comment                                                                    |
-|---:|:---------------------------|:--------|:---------------------------------------------------------------------------|
-|  0 | geocode4_corr              | string  | City ID                                                                    |
-|  1 | dominated_output_soe_c     | boolean | SOE dominated city of output. If true, then SOEs dominated city            |
-|  2 | dominated_employment_soe_c | boolean | SOE dominated city of employment. If true, then SOEs dominated city        |
-|  3 | dominated_sales_soe_c      | boolean | SOE dominated city of sales. If true, then SOEs dominated city             |
-|  4 | dominated_capital_soe_c    | boolean | SOE dominated city of capital. If true, then SOEs dominated city           |
-|  5 | dominated_output_for_c     | boolean | foreign dominated city of output. If true, then foreign dominated city     |
-|  6 | dominated_employment_for_c | boolean | foreign dominated city of employment. If true, then foreign dominated city |
-|  7 | dominated_sales_for_c      | boolean | foreign dominated cityof sales. If true, then foreign dominated city       |
-|  8 | dominated_capital_for_c    | boolean | foreign dominated city of capital. If true, then foreign dominated city    |
-
-    
-
 ## Table asif_industry_characteristics_ownership
 
 - Database: firms_survey
@@ -788,5 +768,80 @@
 | 82 | fe_c_i                             | bigint              | City industry fixed effect                                                                                                                                                                                |
 | 83 | fe_t_i                             | bigint              | year industry fixed effect                                                                                                                                                                                |
 | 84 | fe_c_t                             | bigint              | city industry fixed effect                                                                                                                                                                                |
+
+    
+
+## Table asif_tfp_credit_constraint
+
+- Database: firms_survey
+- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/TFP/CREDIT_CONSTRAINT`
+- Partitition: ['firm', 'year', 'cic', 'geocode4_corr']
+
+|    | Name                        | Type                | Comment                                                                                                                                                       |
+|---:|:----------------------------|:--------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|  0 | firm                        | string              | firm ID                                                                                                                                                       |
+|  1 | year                        | string              | year                                                                                                                                                          |
+|  2 | period                      | varchar(5)          | if year prior to 2006 then False else true. Indicate break from 10 and 11 FYP                                                                                 |
+|  3 | cic                         | string              | 4 digits industry code                                                                                                                                        |
+|  4 | indu_2                      | string              | Two digits industry. If length cic equals to 3, then add 0 to indu_2                                                                                          |
+|  5 | short                       | string              | Industry short description                                                                                                                                    |
+|  6 | geocode4_corr               | string              | city code                                                                                                                                                     |
+|  7 | tcz                         | string              | Two control zone policy                                                                                                                                       |
+|  8 | spz                         | string              | Special policy zone                                                                                                                                           |
+|  9 | ownership                   | string              | Firms ownership                                                                                                                                               |
+| 10 | soe_vs_pri                  | varchar(7)          | SOE vs PRIVATE                                                                                                                                                |
+| 11 | for_vs_dom                  | varchar(8)          | FOREIGN vs DOMESTICT if ownership is HTM then FOREIGN                                                                                                         |
+| 12 | tso2_mandate_c              | float               | city reduction mandate in tonnes                                                                                                                              |
+| 13 | in_10_000_tonnes            | float               | city reduction mandate in 10k tonnes                                                                                                                          |
+| 14 | output                      | decimal(16,5)       | Output                                                                                                                                                        |
+| 15 | employment                  | decimal(16,5)       | employment                                                                                                                                                    |
+| 16 | capital                     | decimal(16,5)       | capital                                                                                                                                                       |
+| 17 | cuasset                     | int                 | current asset                                                                                                                                                 |
+| 18 | tofixed                     | int                 | total fixed asset                                                                                                                                             |
+| 19 | error                       | int                 | difference between cuasset+tofixed and total liabilities +equity. Error makes the balance sheet equation right                                                |
+| 20 | total_liabilities           | int                 | total adjusted liabilities                                                                                                                                    |
+| 21 | total_asset                 | int                 | total adjusted asset                                                                                                                                          |
+| 22 | intangible                  | int                 | intangible asset measured as the sum of intangibles variables                                                                                                 |
+| 23 | tangible                    | int                 | tangible asset measured as the difference between total fixed asset minus intangible asset                                                                    |
+| 24 | c91                         | int                 | Intangible and Deferred                                                                                                                                       |
+| 25 | c92                         | int                 | Intangible assets                                                                                                                                             |
+| 26 | cash                        | int                 | cash                                                                                                                                                          |
+| 27 | cashflow                    | int                 | cash flow                                                                                                                                                     |
+| 28 | sales                       | decimal(16,5)       | sales                                                                                                                                                         |
+| 29 | tfp_op                      | double              | TFP. Computed from https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md |
+| 30 | credit_constraint           | float               | Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311                                                          |
+| 31 | current_ratio               | decimal(21,5)       | current ratio cuasset/流动负债合计 (c95)                                                                                                                      |
+| 32 | quick_ratio                 | decimal(21,5)       | quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                        |
+| 33 | liabilities_tot_asset       | decimal(21,5)       | liabilities to total asset                                                                                                                                    |
+| 34 | sales_tot_asset             | decimal(21,5)       | sales to total asset                                                                                                                                          |
+| 35 | cash_tot_asset              | decimal(21,5)       | cash to total asset                                                                                                                                           |
+| 36 | investment_tot_asset        | decimal(21,5)       | investment to total asset                                                                                                                                     |
+| 37 | rd_tot_asset                | decimal(21,5)       | rd to total asset                                                                                                                                             |
+| 38 | asset_tangibility_tot_asset | decimal(21,5)       | asset tangibility to total asset                                                                                                                              |
+| 39 | cashflow_tot_asset          | decimal(21,5)       | cashflow to total asset                                                                                                                                       |
+| 40 | cashflow_to_tangible        | decimal(21,5)       | cashflow to tangible asset                                                                                                                                    |
+| 41 | avg_size_asset_f            | varchar(5)          | if firm s asset tangibility average is above average of firm s average then firm is large                                                                     |
+| 42 | avg_size_output_f           | varchar(5)          | if firm s ouptut average is above average of firm s average then firm is large                                                                                |
+| 43 | avg_employment_f            | varchar(5)          | if firm s employment average is above average of firm s average then firm is large                                                                            |
+| 44 | avg_size_capital_f          | varchar(5)          | if firm s capital average is above average of firm s average then firm is large                                                                               |
+| 45 | avg_sales_f                 | varchar(5)          | if firm s sale is above average of firm s average then firm is large                                                                                          |
+| 46 | size_asset_fci              | map<double,boolean> | if firm s asset tangibility average is above average of firm city industry s decile then firm is large                                                        |
+| 47 | size_asset_fc               | map<double,boolean> | if firm s asset tangibility average is above average of firm s city decile then firm is large                                                                 |
+| 48 | size_asset_fi               | map<double,boolean> | if firm s asset tangibility average is above average of firm s industry decile then firm is large                                                             |
+| 49 | size_output_fci             | map<double,boolean> | if firm s ouptut average is above average of firm s city industry decile then firm is large                                                                   |
+| 50 | size_output_fc              | map<double,boolean> | if firm s ouptut average is above average of firm s city decile then firm is large                                                                            |
+| 51 | size_output_fi              | map<double,boolean> | if firm s ouptut average is above average of firm s industry decile then firm is large                                                                        |
+| 52 | size_employment_fci         | map<double,boolean> | if firm s employment average is above average of firm s city industry decile then firm is large                                                               |
+| 53 | size_employment_fc          | map<double,boolean> | if firm s employment average is above average of firm s city decile then firm is large                                                                        |
+| 54 | size_employment_fi          | map<double,boolean> | if firm s employment average is above average of firm s industry decile then firm is large                                                                    |
+| 55 | size_capital_fci            | map<double,boolean> | if firm s capital average is above average of firm s city industry decile then firm is large                                                                  |
+| 56 | size_capital_fc             | map<double,boolean> | if firm s capital average is above average of firm s city decile then firm is large                                                                           |
+| 57 | size_capital_fi             | map<double,boolean> | if firm s capital average is above average of firm s industry decile then firm is large                                                                       |
+| 58 | size_sales_fci              | map<double,boolean> | if firm s sale is above average of firm s city industry decile then firm is large                                                                             |
+| 59 | size_sales_fc               | map<double,boolean> | if firm s sale is above average of firm s city decile then firm is large                                                                                      |
+| 60 | size_sales_fi               | map<double,boolean> | if firm s sale is above average of firm s industry decile then firm is large                                                                                  |
+| 61 | fe_c_i                      | bigint              | City industry fixed effect                                                                                                                                    |
+| 62 | fe_t_i                      | bigint              | year industry fixed effect                                                                                                                                    |
+| 63 | fe_c_t                      | bigint              | city industry fixed effect                                                                                                                                    |
 
     
