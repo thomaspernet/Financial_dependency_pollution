@@ -1206,11 +1206,12 @@ FROM
       AND ratio.indu_2 != '43' 
       AND total_asset > 0 
       AND tangible > 0
-      AND cash_tot_asset IS NOT NULL 
-      AND sales_tot_asset IS NOT NULL
-      AND liabilities_tot_asset IS NOT NULL 
-      AND quick_ratio IS NOT NULL 
-      AND current_ratio IS NOT NULL
+      AND quick_ratio > 0
+      AND current_ratio > 0
+      AND liabilities_tot_asset > 0
+      AND sales_tot_asset > 0
+      AND cash_tot_asset > 0
+      
     --  AND ratio.year in (
     --    '2001', '2002', '2003', '2004', '2005', 
     --    '2006', '2007'
