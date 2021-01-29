@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.2'
-      jupytext_version: 1.4.2
+      jupytext_version: 1.8.0
   kernel_info:
     name: python3
   kernelspec:
@@ -110,7 +110,7 @@ We will clean the table by doing the following steps:
 
 * [Analytical raw dataset (HTML)](https://s3.console.aws.amazon.com/s3/buckets/datalake-datascience?region=eu-west-3&prefix=ANALYTICS/HTML_OUTPUT/ASIF_UNZIP_DATA_CSV/)
 <!-- #endregion -->
-```python inputHidden=false outputHidden=false jupyter={"outputs_hidden": false}
+```python inputHidden=false jupyter={"outputs_hidden": false} outputHidden=false
 from awsPy.aws_authorization import aws_connector
 from awsPy.aws_s3 import service_s3
 from awsPy.aws_glue import service_glue
@@ -130,7 +130,7 @@ bucket = 'datalake-datascience'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 ```
 
-```python inputHidden=false outputHidden=false jupyter={"outputs_hidden": false}
+```python inputHidden=false jupyter={"outputs_hidden": false} outputHidden=false
 con = aws_connector.aws_instantiate(credential = path_cred,
                                        region = region)
 client= con.client_boto()
@@ -559,73 +559,187 @@ Just for the record, it took 17 seconds to manipulate 1.7gib of data
 ```python
 %%time
 query = """
-CREATE TABLE firms_survey.asif_firms_prepared WITH (format = 'PARQUET') AS
-WITH own AS(
-SELECT *,
-array_max(
-    ARRAY[e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign]
-    ) AS max_array_equity,
-map_keys(
-  map_filter(
-  map(
-  ARRAY[1,2,3,4,5, 6],
-  ARRAY[e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign]
-  ),
-  (k, v) -> v = array_max(
-  ARRAY[e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign]
-  )
-  )
-  ) AS max_key_array_equity
-FROM "firms_survey"."asif_unzip_data_csv"
-WHERE 
- (
-  year in ('1998', '1999', '2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007')
-  )
-  AND 
+CREATE TABLE firms_survey.asif_firms_prepared WITH (format = 'PARQUET') AS WITH own AS(
+  SELECT 
+    *, 
+    array_max(
+      ARRAY[e_state, e_collective, e_legal_person, 
+      e_individual, e_hmt, e_foreign]
+    ) AS max_array_equity, 
+    map_keys(
+      map_filter(
+        map(
+          ARRAY[1, 2, 3, 4, 5, 6], ARRAY[e_state, 
+          e_collective, e_legal_person, e_individual, 
+          e_hmt, e_foreign]
+        ), 
+        (k, v) -> v = array_max(
+          ARRAY[e_state, e_collective, e_legal_person, 
+          e_individual, e_hmt, e_foreign]
+        )
+      )
+    ) AS max_key_array_equity 
+  FROM 
+    "firms_survey"."asif_unzip_data_csv" 
+  WHERE 
+    (
+      year in (
+        '1998', '1999', '2000', '2001', '2002', 
+        '2003', '2004', '2005', '2006', '2007'
+      )
+    ) 
+    AND (
+      LENGTH(citycode) = 4 
+      AND LENGTH(setup) = 4 
+      AND LENGTH(cic) <= 4 
+      AND regexp_like(firm, '\d+') = TRUE
+    )
+) 
+SELECT 
+  firm, 
+  year, 
+  export, 
+  dq, 
+  name, 
+  town, 
+  village, 
+  street, 
+  c15, 
+  zip, 
+  product1_, 
+  c26, 
+  c27, 
+  cic, 
+  type, 
+  c44, 
+  c45, 
+  setup, 
+  c47, 
+  c60, 
+  c61, 
+  employ, 
+  c69, 
+  output, 
+  new_product, 
+  c74, 
+  addval, 
+  cuasset, 
+  c80, 
+  c81, 
+  c82, 
+  c83, 
+  c84, 
+  c85, 
+  tofixed, 
+  c87, 
+  todepre, 
+  cudepre, 
+  netfixed, 
+  c91, 
+  c92, 
+  toasset, 
+  c95, 
+  c97, 
+  c98, 
+  c99, 
+  captal, 
+  e_state, 
+  e_collective, 
+  e_legal_person, 
+  e_individual, 
+  e_hmt, 
+  e_foreign, 
+  sales, 
+  c108, 
+  c113, 
+  c110, 
+  c111, 
+  c114, 
+  c115, 
+  c116, 
+  c118, 
+  c124, 
+  c125, 
+  profit, 
+  c128, 
+  c131, 
+  c132, 
+  c133, 
+  c134, 
+  c136, 
+  wage, 
+  c140, 
+  c141, 
+  c142, 
+  c143, 
+  c144, 
+  c145, 
+  midput, 
+  c62, 
+  c147, 
+  c64, 
+  c65, 
+  c93, 
+  c16, 
+  c9, 
+  c10, 
+  c11, 
+  c17, 
+  c29, 
+  c167, 
+  c168, 
+  v90, 
+  CASE WHEN c79 IS NULL THEN 0 ELSE c79 END AS c79, 
+  c96, 
+  c117, 
+  c119, 
+  c121, 
+  trainfee, 
+  c123, 
+  c127, 
+  c135, 
+  c120, 
+  c138, 
+  c148, 
+  c149, 
+  c150, 
+  c151, 
+  rdfee, 
+  c156, 
+  c157, 
+  citycode, 
+  prov, 
+  ownership 
+FROM 
   (
-  LENGTH(citycode) = 4
-  AND 
-  LENGTH(setup) = 4
-  AND 
-  LENGTH(cic) <= 4
-  AND 
-  regexp_like(firm, '\d+') = TRUE
-    )
-    )
-     SELECT 
-     
-     firm, year, export, dq, name, town, village, street, c15, zip, product1_, c26, c27, cic, type, c44, c45, setup, c47, c60, c61, employ, c69, output, new_product, c74, addval, cuasset, c80, c81, c82, c83, c84, c85, tofixed, c87, todepre, cudepre, netfixed, c91, c92, toasset, c95, c97, c98, c99, captal, e_state, e_collective, e_legal_person, e_individual, e_hmt, e_foreign, sales, c108, c113, c110, c111, c114, c115, c116, c118, c124, c125, profit, c128, c131, c132, c133, c134, c136, wage, c140, c141, c142, c143, c144, c145, midput, c62, c147, c64, c65, c93, c16, c9, c10, c11, c17, c29, c167, c168, v90, c79, c96, c117, c119, c121, trainfee,c123, c127, c135, c120, c138, c148, c149, c150, c151, rdfee, c156, c157, citycode, prov, ownership 
-     
-     FROM (
-       SELECT
-     *,
-  CASE 
-  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[1] THEN 'COLLECTIVE'
-  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[2] THEN 'SOE'
-  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[3] THEN 'PRIVATE'
-  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[4] THEN 'PRIVATE'
-  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[5] THEN 'HTM'
-  WHEN type in ('159','160') AND max_key_array_equity = ARRAY[6] THEN 'FOREIGN'
-  WHEN type in ('110','141','143','151') THEN 'SOE' 
-  WHEN type in ('120','130','142','149') THEN 'COLLECTIVE' 
-  WHEN type in ('171','172','173','174','190') THEN 'PRIVATE' 
-  WHEN type in ('210','220','230','240') THEN 'FOREIGN' 
-  WHEN type in ( '310','320','330','340') THEN 'HTM'
-  END AS ownership
-       FROM own
-  
-       )
-       WHERE (
-         ownership in ('COLLECTIVE', 'SOE', 'PRIVATE', 'HTM', 'FOREIGN')  
-         AND
-         c98 > 0 AND c99 >0 AND tofixed > 0 AND sales > 0 AND output > 0
-         -- AND
-         -- c62 > 10 
-         AND 
-         (c98 + c99) > tofixed
-         AND 
-         (c98 + c99) > netfixed
-       )   
+    SELECT 
+      *, 
+      CASE WHEN type in ('159', '160') 
+      AND max_key_array_equity = ARRAY[1] THEN 'COLLECTIVE' WHEN type in ('159', '160') 
+      AND max_key_array_equity = ARRAY[2] THEN 'SOE' WHEN type in ('159', '160') 
+      AND max_key_array_equity = ARRAY[3] THEN 'PRIVATE' WHEN type in ('159', '160') 
+      AND max_key_array_equity = ARRAY[4] THEN 'PRIVATE' WHEN type in ('159', '160') 
+      AND max_key_array_equity = ARRAY[5] THEN 'HTM' WHEN type in ('159', '160') 
+      AND max_key_array_equity = ARRAY[6] THEN 'FOREIGN' WHEN type in ('110', '141', '143', '151') THEN 'SOE' WHEN type in ('120', '130', '142', '149') THEN 'COLLECTIVE' WHEN type in ('171', '172', '173', '174', '190') THEN 'PRIVATE' WHEN type in ('210', '220', '230', '240') THEN 'FOREIGN' WHEN type in ('310', '320', '330', '340') THEN 'HTM' END AS ownership 
+    FROM 
+      own
+  ) 
+WHERE 
+  (
+    ownership in (
+      'COLLECTIVE', 'SOE', 'PRIVATE', 'HTM', 
+      'FOREIGN'
+    ) 
+    AND c98 > 0 
+    AND c99 > 0 
+    AND tofixed > 0 
+    AND sales > 0 
+    AND output > 0 -- AND
+    -- c62 > 10 
+    AND (c98 + c99) > tofixed 
+    AND (c98 + c99) > netfixed
+  )
+
 """
 output = s3.run_query(
                     query=query,
