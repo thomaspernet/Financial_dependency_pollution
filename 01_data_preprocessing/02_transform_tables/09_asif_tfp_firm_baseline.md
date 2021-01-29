@@ -225,10 +225,33 @@ WITH test AS (
   WHEN c92 is NULL THEN tofixed - c91
   ELSE tofixed - (c91 + c92) END AS tangible,
     CASE WHEN c79 IS NULL THEN cuasset - c80 - c81 - c82 ELSE cuasset - c79 - c80 - c81 - c82 END AS cash, 
-    c131 + cudepre as cashflow, 
-    CASE WHEN c79 IS NULL THEN 0 ELSE c79 END AS short_term_investment
-  -- CASE WHEN c125 IS NULL THEN 0 ELSE c125 END as interest_paid,  
-  -- CASE WHEN export IS NULL THEN 0 ELSE export END as exports
+  c131 + cudepre as cashflow,
+  CAST(
+          cuasset AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            c95 AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS current_ratio, 
+  CASE WHEN c79 IS NULL THEN 
+        CAST(
+          cuasset - c80 - c81 AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            c95 AS DECIMAL(16, 5)
+          ), 
+          0
+        )
+        ELSE  
+        CAST(
+          cuasset - c79 - c80 - c81 AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            c95 AS DECIMAL(16, 5)
+          ), 
+          0
+        ) END AS quick_ratio
     
   FROM 
     firms_survey.asif_firms_prepared 
@@ -244,6 +267,16 @@ WITH test AS (
       province_en,
         geocode4_corr
     ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+  WHERE
+    c95 > 0 -- current liabilities
+  AND c97 >0 -- long term liabilities
+  AND c98 > 0 -- total liabilities
+  AND c99 > 0 -- equity
+  AND cuasset >0
+  AND tofixed >0
+  AND output > 0 
+  -- and captal > 0 
+  and employ > 0
 ) 
 SELECT 
   * 
@@ -281,22 +314,8 @@ FROM
         tangible, 
         cash, 
         cashflow, 
-        CAST(
-          cuasset AS DECIMAL(16, 5)
-        ) / NULLIF(
-          CAST(
-            c95 AS DECIMAL(16, 5)
-          ), 
-          0
-        ) AS current_ratio, 
-        CAST(
-          cuasset - short_term_investment - c80 - c81 AS DECIMAL(16, 5)
-        ) / NULLIF(
-          CAST(
-            c95 AS DECIMAL(16, 5)
-          ), 
-          0
-        ) AS quick_ratio, 
+        current_ratio,
+        quick_ratio,
         CAST(
           c98 AS DECIMAL(16, 5)
         ) / NULLIF(
@@ -321,6 +340,7 @@ FROM
           ), 
           0
         ) AS cash_tot_asset, 
+        
         CAST(
           c84 AS DECIMAL(16, 5)
         ) / NULLIF(
@@ -362,14 +382,14 @@ FROM
           0
         ) AS cashflow_to_tangible,
        -- update
-       -- CAST(
-       --   c131 AS DECIMAL(16, 5)
-       -- ) / NULLIF(
-       --   CAST(
-       --     sales AS DECIMAL(16, 5)
-       --   ), 
-       --   0
-       -- ) AS return_to_sale,
+       CAST(
+          c131 AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            sales AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS return_to_sale,
        CAST(
           c131 AS DECIMAL(16, 5)
         ) / NULLIF(
@@ -385,24 +405,32 @@ FROM
             total_asset AS DECIMAL(16, 5)
           ), 
           0
-         ) AS liquidity
-        -- CAST(
-        --  sales AS DECIMAL(16, 5)
-        -- ) / NULLIF(
-        --  CAST(
-        --    employ AS DECIMAL(16, 5)
-        --  ), 
-        --  0
-        -- ) AS labor_productivity,
-        -- CAST(year AS DECIMAL(16, 5)) - CAST(setup AS DECIMAL(16, 5)) AS age,
-        -- CAST(
-        --   export AS DECIMAL(16, 5)
-        -- ) / NULLIF(
-        --  CAST(
-        --    sales AS DECIMAL(16, 5)
-        --  ), 
-        --  0
-        -- ) AS export_to_sale
+         ) AS liquidity,
+         CAST(
+          sales AS DECIMAL(16, 5)
+         ) / NULLIF(
+          CAST(
+            employ AS DECIMAL(16, 5)
+          ), 
+          0
+         ) AS labor_productivity,
+         CAST(
+          employ AS DECIMAL(16, 5)
+         ) / NULLIF(
+          CAST(
+            tangible/10  AS DECIMAL(16, 5)
+          ), 
+          0
+         ) AS labor_capital,
+        CAST(year AS DECIMAL(16, 5)) - CAST(setup AS DECIMAL(16, 5)) AS age,
+        CAST(
+           export AS DECIMAL(16, 5)
+         ) / NULLIF(
+          CAST(
+            sales AS DECIMAL(16, 5)
+          ), 
+          0
+         ) AS export_to_sale
         
       FROM 
         test 
@@ -411,6 +439,11 @@ FROM
           '2001', '2002', '2003', '2004', '2005', 
           '2006', '2007'
         )
+        AND total_asset > 0 
+        AND tangible > 0
+        AND quick_ratio > 0
+        AND current_ratio > 0
+        
     ) 
     SELECT 
       ratio.firm, 
@@ -461,13 +494,13 @@ FROM
       asset_tangibility_tot_asset, 
       cashflow_tot_asset, 
       cashflow_to_tangible,
-      -- return_to_sale,
+      return_to_sale,
       CASE WHEN coverage_ratio IS NULL THEN 0 ELSE coverage_ratio END AS coverage_ratio,
       liquidity,
-      -- CASE WHEN export_to_sale IS NULL THEN 0 ELSE export_to_sale END AS export_to_sale,
-      -- labor_productivity,
-      -- age,
-      -- export_to_sale,
+      CASE WHEN export_to_sale IS NULL THEN 0 ELSE export_to_sale END AS export_to_sale,
+      labor_productivity /1000 as labor_productivity,
+      labor_capital,
+      age,
       DENSE_RANK() OVER (
         ORDER BY 
           ratio.geocode4_corr, 
@@ -512,22 +545,10 @@ FROM
       AND ratio.ownership = asif_tfp_firm_level.ownership 
       AND ratio.indu_2 = asif_tfp_firm_level.indu_2 
     WHERE 
-      -- count_ownership = '1' 
-      -- AND count_city = '1' 
-      -- AND count_industry = '1' 
-    ratio.output > 0 
-      and ratio.capital > 0 
-      and ratio.employment > 0 
-      AND ratio.indu_2 != '43' 
-      AND total_asset > 0 
-      AND tangible > 0
-      AND cash_tot_asset IS NOT NULL 
-      AND sales_tot_asset IS NOT NULL 
-      AND liabilities_tot_asset IS NOT NULL 
-      AND quick_ratio IS NOT NULL 
-      AND current_ratio IS NOT NULL 
+    liabilities_tot_asset > 0
+    AND sales_tot_asset > 0
     ORDER BY 
-      year 
+      year
     LIMIT 
       10
   )
@@ -587,6 +608,8 @@ WITH test AS (
       '0', 
       substr(cic, 1, 1)
     ) END AS indu_2, 
+    c98 + c99 as total_liabilities_1, 
+    cuasset + tofixed as total_asset_1, 
     (cuasset + tofixed) - (c98 + c99) AS error, 
     CASE WHEN (cuasset + tofixed) - (c98 + c99) > 0 THEN (c98 + c99) + ABS(
       (cuasset + tofixed) - (c98 + c99)
@@ -601,24 +624,60 @@ WITH test AS (
   CASE
   WHEN c91 is NULL THEN tofixed - c92 
   WHEN c92 is NULL THEN tofixed - c91
-  ELSE tofixed - (c91 + c92) END AS tangible, 
+  ELSE tofixed - (c91 + c92) END AS tangible,
     CASE WHEN c79 IS NULL THEN cuasset - c80 - c81 - c82 ELSE cuasset - c79 - c80 - c81 - c82 END AS cash, 
-    c131 + cudepre as cashflow, 
-    CASE WHEN c79 IS NULL THEN 0 ELSE c79 END AS short_term_investment 
+  c131 + cudepre as cashflow,
+  CAST(
+          cuasset AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            c95 AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS current_ratio, 
+  CASE WHEN c79 IS NULL THEN 
+        CAST(
+          cuasset - c80 - c81 AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            c95 AS DECIMAL(16, 5)
+          ), 
+          0
+        )
+        ELSE  
+        CAST(
+          cuasset - c79 - c80 - c81 AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            c95 AS DECIMAL(16, 5)
+          ), 
+          0
+        ) END AS quick_ratio
+    
   FROM 
     firms_survey.asif_firms_prepared 
     INNER JOIN (
       SELECT 
         extra_code, 
         geocode4_corr,
-        province_en
+      province_en
       FROM 
         chinese_lookup.china_city_code_normalised 
       GROUP BY 
         extra_code, 
-        geocode4_corr,
-        province_en
+      province_en,
+        geocode4_corr
     ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+  WHERE
+  c95 > 0 -- current liabilities
+  AND c97 >0 -- long term liabilities
+  AND c98 > 0 -- total liabilities
+  AND c99 > 0 -- equity
+  AND cuasset > 0
+  AND tofixed > 0
+  AND output > 0 
+  -- and captal > 0 
+  and employ > 0
 ) 
 SELECT 
   * 
@@ -651,29 +710,15 @@ FROM
         tofixed, 
         error, 
         total_liabilities, 
-        total_asset,
+        total_asset, 
         c91,
         c92,
         intangible, 
         tangible, 
         cash, 
         cashflow, 
-        CAST(
-          cuasset AS DECIMAL(16, 5)
-        ) / NULLIF(
-          CAST(
-            c95 AS DECIMAL(16, 5)
-          ), 
-          0
-        ) AS current_ratio, 
-        CAST(
-          cuasset - short_term_investment - c80 - c81 AS DECIMAL(16, 5)
-        ) / NULLIF(
-          CAST(
-            c95 AS DECIMAL(16, 5)
-          ), 
-          0
-        ) AS quick_ratio, 
+        current_ratio,
+        quick_ratio,
         CAST(
           c98 AS DECIMAL(16, 5)
         ) / NULLIF(
@@ -698,6 +743,7 @@ FROM
           ), 
           0
         ) AS cash_tot_asset, 
+        
         CAST(
           c84 AS DECIMAL(16, 5)
         ) / NULLIF(
@@ -738,7 +784,16 @@ FROM
           ), 
           0
         ) AS cashflow_to_tangible,
-        CAST(
+       -- update
+       CAST(
+          c131 AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            sales AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS return_to_sale,
+       CAST(
           c131 AS DECIMAL(16, 5)
         ) / NULLIF(
           CAST(
@@ -754,6 +809,31 @@ FROM
           ), 
           0
          ) AS liquidity,
+         CAST(
+          sales AS DECIMAL(16, 5)
+         ) / NULLIF(
+          CAST(
+            employ AS DECIMAL(16, 5)
+          ), 
+          0
+         ) AS labor_productivity,
+         CAST(
+          employ AS DECIMAL(16, 5)
+         ) / NULLIF(
+          CAST(
+            tangible/10  AS DECIMAL(16, 5)
+          ), 
+          0
+         ) AS labor_capital,
+        CAST(year AS DECIMAL(16, 5)) - CAST(setup AS DECIMAL(16, 5)) AS age,
+        CAST(
+           export AS DECIMAL(16, 5)
+         ) / NULLIF(
+          CAST(
+            sales AS DECIMAL(16, 5)
+          ), 
+          0
+         ) AS export_to_sale,
         'FAKE' AS fake 
       FROM 
         test 
@@ -812,8 +892,13 @@ FROM
       asset_tangibility_tot_asset, 
       cashflow_tot_asset, 
       cashflow_to_tangible, 
-      CASE WHEN coverage_ratio IS NULL THEN 0 ELSE coverage_ratio END AS coverage_ratio,
+      return_to_sale,
+      CASE WHEN coverage_ratio IS NULL THEN 0 ELSE coverage_ratio /100 END AS coverage_ratio,
       liquidity,
+      CASE WHEN export_to_sale IS NULL THEN 0 ELSE export_to_sale END AS export_to_sale,
+      labor_productivity /1000 as labor_productivity,
+      labor_capital,
+      age,
       CASE WHEN avg_asset_tangibility_f > avg_asset_tangibility_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_size_asset_fci, 
       CASE WHEN avg_output_f > avg_output_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_size_output_fci, 
       CASE WHEN avg_employment_f > avg_employment_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_employment_fci, 
@@ -1293,21 +1378,10 @@ FROM
       AND ratio.geocode4_corr = asif_tfp_firm_level.geocode4_corr
       AND ratio.ownership = asif_tfp_firm_level.ownership
     -- WHERE 
-    --  count_ownership = '1' 
-    --  AND count_city = '1' 
-    --  AND count_industry = '1' 
-      AND ratio.output > 0 
-      and ratio.capital > 0 
-      and ratio.employment > 0 
-      AND ratio.indu_2 != '43' 
-      AND total_asset > 0 
-      AND tangible > 0
-      AND quick_ratio > 0
-      AND current_ratio > 0
-      AND liabilities_tot_asset > 0
-      AND sales_tot_asset > 0
-      AND cash_tot_asset > 0
-      AND cashflow_tot_asset > 0
+    -- liabilities_tot_asset > 0
+    -- AND sales_tot_asset > 0
+    -- AND cash_tot_asset > 0
+    -- AND cashflow_tot_asset > 0
     ORDER BY 
       year 
   )
@@ -1398,11 +1472,16 @@ Without filtering data
 ```python
 query_test = """
 SELECT ownership,
-AVG(asset_tangibility_tot_asset) AS avg_asset_tangibility_tot_asset, 
-AVG(total_asset) / 100 AS avg_total_asset, 
-AVG(cashflow_tot_asset) AS avg_cashflow_tot_asset, 
+AVG(tfp_op) AS avg_tfp_op, 
+AVG(return_to_sale)AS avg_return_to_sale, 
+AVG(liabilities_tot_asset) AS avg_liabilities_tot_asset, 
 AVG(cashflow_to_tangible) AS avg_cashflow_to_tangible,
-AVG(liabilities_tot_asset) AS avg_liabilities_tot_asset
+AVG(liquidity) AS avg_liquidity,
+AVG(age) AS avg_age,
+AVG(labor_capital) AS avg_labor_capital,
+AVG(coverage_ratio) AS avg_coverage_ratio,
+AVG(export_to_sale) AS avg_export_to_sale
+
 FROM asif_tfp_credit_constraint  
 GROUP BY ownership
 """
@@ -1420,16 +1499,20 @@ After filtering data
 ```python
 query_test = """
 SELECT ownership,
-AVG(asset_tangibility_tot_asset) AS avg_asset_tangibility_tot_asset, 
-AVG(total_asset) / 100 AS avg_total_asset, 
-AVG(cashflow_tot_asset) AS avg_cashflow_tot_asset, 
+AVG(tfp_op) AS avg_tfp_op, 
+AVG(return_to_sale)AS avg_return_to_sale, 
+AVG(liabilities_tot_asset) AS avg_liabilities_tot_asset, 
 AVG(cashflow_to_tangible) AS avg_cashflow_to_tangible,
-AVG(liabilities_tot_asset) AS avg_liabilities_tot_asset
+AVG(liquidity) AS avg_liquidity,
+AVG(age) AS avg_age,
+AVG(labor_capital) AS avg_labor_capital,
+AVG(coverage_ratio) AS avg_coverage_ratio,
+AVG(export_to_sale) AS avg_export_to_sale
 FROM asif_tfp_credit_constraint  
 WHERE 
-    count_ownership = '1' 
-    AND count_city = '1' 
-    AND count_industry = '1'
+cashflow_to_tangible > 0
+AND current_ratio > 0
+AND liabilities_tot_asset > 0
 GROUP BY ownership
 """
 output = s3.run_query(
@@ -1546,6 +1629,11 @@ schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'firm ID'},
            'Type': 'decimal(21,5)', 'Comment': 'cashflow to total asset'},
           {'Name': 'cashflow_to_tangible',
            'Type': 'decimal(21,5)', 'Comment': 'cashflow to tangible asset'},
+          {'Name': 'return_to_sale', 'Type': 'decimal(21,5)', 'Comment': ''},
+ {'Name': 'export_to_sale', 'Type': 'decimal(21,5)', 'Comment': 'overseas turnover / sales'},
+ {'Name': 'labor_productivity', 'Type': 'decimal(21,5)', 'Comment': 'real sales/number of employees.'},
+ {'Name': 'labor_capital', 'Type': 'decimal(21,5)', 'Comment': 'Labor / tangible asset'},
+ {'Name': 'age', 'Type': 'decimal(17,5)', 'Comment': 'current year – firms year of establishment'},
           {'Name': 'coverage_ratio', 'Type': 'decimal(21,5)', 'Comment': 'net income(c131) /total interest payments'},
           {'Name': 'liquidity', 'Type': 'decimal(21,5)', 'Comment': 'current assets-current liabilities/total assets'},
           {'Name': 'avg_size_asset_f',
