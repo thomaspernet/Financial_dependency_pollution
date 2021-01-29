@@ -35,6 +35,11 @@ Use existing tables asif tfp firm level, asif firms prepared, china credit const
 - cash_over_total_asset
 - sales over asset Andersen method
 - current ratio
+* investment to total asset
+* RD to total asset
+* tangible asset to total asset
+* cash flow to total tangible asset
+* cash_over_total_asset
 
 ### Steps 
 
@@ -148,6 +153,34 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
 
 ## Example step by step
 
+- total asset = fixed asset + current assets
+    - fixed assets = tangible + intangible + other fixed assets
+    - current asset = inventories + accounts receivable + other current assets
+        - other current assets = cash and equivalents + prepaid expenses and advances +other current assets + deferred charges+ and short term investments
+
+- total asset = (tangible + intangible + other fixed assets) + (inventories + accounts receivable + other current assets
+    - fixed asset (tofixed):
+        - tangible: tofixed - (c91 + c92)
+        - intangible: c91 (无形及递延) + c92 (无形资产)
+        - other fixed asset: Missing in the dataset
+   - current assets (cuasset):
+       - account receivable: c80 (应收帐款)
+       - inventories: c81 (存货)
+       - other current asset: cuasset - c80 - c81
+            - cash and equivalents
+            - prepaid expenses and advances
+            - other current assets
+            - deferred charges
+            - short term investments: c79 (其中：短期投资)
+
+need to compute:
+
+- tangible: tofixed - (c91 + c92)
+- intangible: c91 (无形及递延) + c92 (无形资产)
+- other current asset: cuasset - c80 - c81
+
+Source: https://www.sciencedirect.com/science/article/pii/S0147596713000760#s0130
+
 ```python
 DatabaseName = 'firms_survey'
 s3_output_example = 'SQL_OUTPUT_ATHENA'
@@ -162,7 +195,25 @@ WITH test AS (
       '0', 
       substr(cic, 1, 1)
     ) END AS indu_2, 
-    c98 + c99 as total_asset, 
+    c98 + c99 as total_liabilities_1, 
+    cuasset + tofixed as total_asset_1, 
+    (cuasset + tofixed) - (c98 + c99) AS error, 
+    CASE WHEN (cuasset + tofixed) - (c98 + c99) > 0 THEN (c98 + c99) + ABS(
+      (cuasset + tofixed) - (c98 + c99)
+    ) ELSE (c98 + c99) END AS total_liabilities, 
+    CASE WHEN (cuasset + tofixed) - (c98 + c99) < 0 THEN (cuasset + tofixed) + ABS(
+      (cuasset + tofixed) - (c98 + c99)
+    ) ELSE (cuasset + tofixed) END AS total_asset, 
+    CASE 
+  WHEN c91 is NULL THEN c92 
+  WHEN c92 is NULL THEN c91
+  ELSE c91 + c92 END AS intangible,
+  CASE
+  WHEN c91 is NULL THEN tofixed - c92 
+  WHEN c92 is NULL THEN tofixed - c91
+  ELSE tofixed - (c91 + c92) END AS tangible,
+    CASE WHEN c79 IS NULL THEN cuasset - c80 - c81 - c82 ELSE cuasset - c79 - c80 - c81 - c82 END AS cash, 
+    c131 + cudepre as cashflow, 
     CASE WHEN c79 IS NULL THEN 0 ELSE c79 END AS short_term_investment 
   FROM 
     firms_survey.asif_firms_prepared 
@@ -188,11 +239,9 @@ FROM
         cic, 
         indu_2, 
         geocode4_corr, 
-        ownership,
-        CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri,
-        CASE WHEN ownership in (
-        'HTM', 'FOREIGN'
-      ) THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom,
+        ownership, 
+        CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri, 
+        CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom, 
         CAST(
           output AS DECIMAL(16, 5)
         ) AS output, 
@@ -205,9 +254,15 @@ FROM
         CAST(
           captal AS DECIMAL(16, 5)
         ) AS capital, 
-        CAST(
-          toasset AS DECIMAL(16, 5)
-        ) AS total_asset, 
+        cuasset, 
+        tofixed, 
+        error, 
+        total_liabilities, 
+        total_asset, 
+        intangible, 
+        tangible, 
+        cash, 
+        cashflow, 
         CAST(
           cuasset AS DECIMAL(16, 5)
         ) / NULLIF(
@@ -215,8 +270,7 @@ FROM
             c95 AS DECIMAL(16, 5)
           ), 
           0
-        ) AS current_ratio_fcit,
-      
+        ) AS current_ratio, 
         CAST(
           cuasset - short_term_investment - c80 - c81 AS DECIMAL(16, 5)
         ) / NULLIF(
@@ -224,93 +278,72 @@ FROM
             c95 AS DECIMAL(16, 5)
           ), 
           0
-        ) AS quick_ratio_fcit, 
-        -- Need to add asset or debt when bs requirement not meet
-        CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
-          c95 + c97 AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset + ABS(
-              toasset - (c98 + c99)
-            ) AS DECIMAL(16, 5)
-          ), 
-          0
-        ) WHEN toasset - (c98 + c99) > 0 THEN CAST(
-          c95 + c97 + toasset - (c98 + c99) AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset AS DECIMAL(16, 5)
-          ), 
-          0
-        ) ELSE CAST(
-          c95 + c97 AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset AS DECIMAL(16, 5)
-          ), 
-          0
-        ) END AS liabilities_assets_fcit, 
-        CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
-          sales - (
-            c108 + c113 + c114 + c116 + c118 + c124 + wage
-          ) AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset + ABS(
-              toasset - (c98 + c99)
-            ) AS DECIMAL(16, 5)
-          ), 
-          0
-        ) ELSE CAST(
-          sales - (
-            c108 + c113 + c114 + c116 + c118 + c124 + wage
-          ) AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset AS DECIMAL(16, 5)
-          ), 
-          0
-        ) END AS return_on_asset_fcit, 
-      
-        CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
-          sales AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset + ABS(
-              toasset - (c98 + c99)
-            ) AS DECIMAL(16, 5)
-          ), 
-          0
-        ) ELSE CAST(
-          sales AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset AS DECIMAL(16, 5)
-          ), 
-          0
-        ) END AS sales_assets_andersen_fcit,
-      
-        CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
-          cuasset - short_term_investment - c80 - c81 - c82 AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset + ABS(
-              toasset - (c98 + c99)
-            ) AS DECIMAL(16, 5)
-          ), 
-          0
-        ) ELSE CAST(
-          cuasset - short_term_investment - c80 - c81 - c82 AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset AS DECIMAL(16, 5)
-          ), 
-          0
-        ) END AS cash_over_totasset_fcit, 
-      
+        ) AS quick_ratio, 
         CAST(
-          tofixed - c92 AS DECIMAL(16, 5)
-        ) AS asset_tangibility_fcit 
+          c98 AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            total_asset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS liabilities_tot_asset, 
+        CAST(
+          sales AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            total_asset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS sales_tot_asset, 
+        CAST(
+          cash AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            total_asset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS cash_tot_asset, 
+        CAST(
+          c84 AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            total_asset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS investment_tot_asset, 
+        CAST(
+          rdfee AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            total_asset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS rd_tot_asset, 
+        CAST(
+          tangible AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            total_asset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) asset_tangibility_tot_asset, 
+        CAST(
+          cashflow AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            total_asset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS cashflow_tot_asset, 
+        CAST(
+          cashflow AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            tangible AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS cashflow_to_tangible
+
       FROM 
         test 
       WHERE 
@@ -332,9 +365,9 @@ FROM
       CASE WHEN tcz IS NULL THEN '0' ELSE tcz END AS tcz, 
       CASE WHEN spz IS NULL 
       OR spz = '#N/A' THEN '0' ELSE spz END AS spz, 
-      ratio.ownership,
+      ratio.ownership, 
       soe_vs_pri, 
-      for_vs_dom,
+      for_vs_dom, 
       count_ownership, 
       count_city, 
       count_industry, 
@@ -343,17 +376,28 @@ FROM
       ratio.output, 
       ratio.employment, 
       ratio.capital, 
-      sales, 
-      tfp_op,
+      cuasset, 
+      tofixed, 
+      error, 
+      total_liabilities, 
       total_asset, 
+      intangible, 
+      tangible, 
+      cash, 
+      cashflow, 
+      sales, 
+      tfp_op, 
       credit_constraint, 
-      asset_tangibility_fcit, 
-      cash_over_totasset_fcit, 
-      sales_assets_andersen_fcit, 
-      return_on_asset_fcit, 
-      liabilities_assets_fcit, 
-      quick_ratio_fcit, 
-      current_ratio_fcit, 
+      current_ratio, 
+      quick_ratio, 
+      liabilities_tot_asset, 
+      sales_tot_asset, 
+      cash_tot_asset, 
+      investment_tot_asset, 
+      rd_tot_asset, 
+      asset_tangibility_tot_asset, 
+      cashflow_tot_asset, 
+      cashflow_to_tangible, 
       DENSE_RANK() OVER (
         ORDER BY 
           ratio.geocode4_corr, 
@@ -391,33 +435,32 @@ FROM
         FROM 
           industry.china_credit_constraint
       ) as cred_constraint ON ratio.indu_2 = cred_constraint.cic 
-      INNER JOIN firms_survey.asif_tfp_firm_level on 
-      ratio.firm = asif_tfp_firm_level.firm 
-      AND ratio.year = asif_tfp_firm_level.year
-      AND ratio.geocode4_corr = asif_tfp_firm_level.geocode4_corr
-      AND ratio.ownership = asif_tfp_firm_level.ownership
-      AND ratio.indu_2 = asif_tfp_firm_level.indu_2
+      INNER JOIN firms_survey.asif_tfp_firm_level on ratio.firm = asif_tfp_firm_level.firm 
+      AND ratio.year = asif_tfp_firm_level.year 
+      AND ratio.geocode4_corr = asif_tfp_firm_level.geocode4_corr 
+      AND ratio.ownership = asif_tfp_firm_level.ownership 
+      AND ratio.indu_2 = asif_tfp_firm_level.indu_2 
     WHERE 
-      count_ownership = '1' 
-      AND count_city = '1' 
-      AND count_industry = '1' 
-      AND ratio.output > 0 
+      -- count_ownership = '1' 
+      -- AND count_city = '1' 
+      -- AND count_industry = '1' 
+    ratio.output > 0 
       and ratio.capital > 0 
       and ratio.employment > 0 
       AND ratio.indu_2 != '43' 
-      AND total_asset IS NOT NULL
-      AND asset_tangibility_fcit IS NOT NULL
-      AND cash_over_totasset_fcit IS NOT NULL 
-      AND sales_assets_andersen_fcit IS NOT NULL 
-      AND return_on_asset_fcit IS NOT NULL
-      AND liabilities_assets_fcit IS NOT NULL 
-      AND quick_ratio_fcit IS NOT NULL
-      AND current_ratio_fcit IS NOT NULL
+      AND total_asset > 0 
+      AND tangible > 0
+      AND cash_tot_asset IS NOT NULL 
+      AND sales_tot_asset IS NOT NULL 
+      AND liabilities_tot_asset IS NOT NULL 
+      AND quick_ratio IS NOT NULL 
+      AND current_ratio IS NOT NULL 
     ORDER BY 
       year 
     LIMIT 
       10
   )
+
 """
 output = s3.run_query(
                     query=query,
@@ -474,7 +517,23 @@ WITH test AS (
       '0', 
       substr(cic, 1, 1)
     ) END AS indu_2, 
-    c98 + c99 as total_asset, 
+    (cuasset + tofixed) - (c98 + c99) AS error, 
+    CASE WHEN (cuasset + tofixed) - (c98 + c99) > 0 THEN (c98 + c99) + ABS(
+      (cuasset + tofixed) - (c98 + c99)
+    ) ELSE (c98 + c99) END AS total_liabilities, 
+    CASE WHEN (cuasset + tofixed) - (c98 + c99) < 0 THEN (cuasset + tofixed) + ABS(
+      (cuasset + tofixed) - (c98 + c99)
+    ) ELSE (cuasset + tofixed) END AS total_asset, 
+    CASE 
+  WHEN c91 is NULL THEN c92 
+  WHEN c92 is NULL THEN c91
+  ELSE c91 + c92 END AS intangible,
+  CASE
+  WHEN c91 is NULL THEN tofixed - c92 
+  WHEN c92 is NULL THEN tofixed - c91
+  ELSE tofixed - (c91 + c92) END AS tangible, 
+    CASE WHEN c79 IS NULL THEN cuasset - c80 - c81 - c82 ELSE cuasset - c79 - c80 - c81 - c82 END AS cash, 
+    c131 + cudepre as cashflow, 
     CASE WHEN c79 IS NULL THEN 0 ELSE c79 END AS short_term_investment 
   FROM 
     firms_survey.asif_firms_prepared 
@@ -515,9 +574,17 @@ FROM
         CAST(
           captal AS DECIMAL(16, 5)
         ) AS capital, 
-        CAST(
-          toasset AS DECIMAL(16, 5)
-        ) AS total_asset, 
+        cuasset, 
+        tofixed, 
+        error, 
+        total_liabilities, 
+        total_asset,
+        c91,
+        c92,
+        intangible, 
+        tangible, 
+        cash, 
+        cashflow, 
         CAST(
           cuasset AS DECIMAL(16, 5)
         ) / NULLIF(
@@ -525,7 +592,7 @@ FROM
             c95 AS DECIMAL(16, 5)
           ), 
           0
-        ) AS current_ratio_fcit, 
+        ) AS current_ratio, 
         CAST(
           cuasset - short_term_investment - c80 - c81 AS DECIMAL(16, 5)
         ) / NULLIF(
@@ -533,90 +600,71 @@ FROM
             c95 AS DECIMAL(16, 5)
           ), 
           0
-        ) AS quick_ratio_fcit, 
-        -- Need to add asset or debt when bs requirement not meet
-        CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
-          c95 + c97 AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset + ABS(
-              toasset - (c98 + c99)
-            ) AS DECIMAL(16, 5)
-          ), 
-          0
-        ) WHEN toasset - (c98 + c99) > 0 THEN CAST(
-          c95 + c97 + toasset - (c98 + c99) AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset AS DECIMAL(16, 5)
-          ), 
-          0
-        ) ELSE CAST(
-          c95 + c97 AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset AS DECIMAL(16, 5)
-          ), 
-          0
-        ) END AS liabilities_assets_fcit, 
-        CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
-          sales - (
-            c108 + c113 + c114 + c116 + c118 + c124 + wage
-          ) AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset + ABS(
-              toasset - (c98 + c99)
-            ) AS DECIMAL(16, 5)
-          ), 
-          0
-        ) ELSE CAST(
-          sales - (
-            c108 + c113 + c114 + c116 + c118 + c124 + wage
-          ) AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset AS DECIMAL(16, 5)
-          ), 
-          0
-        ) END AS return_on_asset_fcit, 
-        CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
-          sales AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset + ABS(
-              toasset - (c98 + c99)
-            ) AS DECIMAL(16, 5)
-          ), 
-          0
-        ) ELSE CAST(
-          sales AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset AS DECIMAL(16, 5)
-          ), 
-          0
-        ) END AS sales_assets_andersen_fcit, 
-        CASE WHEN toasset - (c98 + c99) < 0 THEN CAST(
-          cuasset - short_term_investment - c80 - c81 - c82 AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset + ABS(
-              toasset - (c98 + c99)
-            ) AS DECIMAL(16, 5)
-          ), 
-          0
-        ) ELSE CAST(
-          cuasset - short_term_investment - c80 - c81 - c82 AS DECIMAL(16, 5)
-        )/ NULLIF(
-          CAST(
-            toasset AS DECIMAL(16, 5)
-          ), 
-          0
-        ) END AS cash_over_totasset_fcit, 
+        ) AS quick_ratio, 
         CAST(
-          tofixed - c92 AS DECIMAL(16, 5)
-        ) AS asset_tangibility_fcit, 
+          c98 AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            total_asset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS liabilities_tot_asset, 
+        CAST(
+          sales AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            total_asset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS sales_tot_asset, 
+        CAST(
+          cash AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            total_asset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS cash_tot_asset, 
+        CAST(
+          c84 AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            total_asset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS investment_tot_asset, 
+        CAST(
+          rdfee AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            total_asset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS rd_tot_asset, 
+        CAST(
+          tangible AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            total_asset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) asset_tangibility_tot_asset, 
+        CAST(
+          cashflow AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            total_asset AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS cashflow_tot_asset, 
+        CAST(
+          cashflow AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            tangible AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS cashflow_to_tangible,
         'FAKE' AS fake 
       FROM 
         test 
@@ -647,38 +695,31 @@ FROM
       ratio.output, 
       ratio.employment, 
       ratio.capital, 
-      sales, 
-      tfp_op,
+      cuasset, 
+      tofixed, 
+      error, 
+      total_liabilities, 
       total_asset, 
-      credit_constraint, 
-      d_credit_constraint, 
-      asset_tangibility_fcit, 
-      cash_over_totasset_fcit, 
-      LAG(cash_over_totasset_fcit, 1) OVER (
-        PARTITION BY ratio.firm 
-        ORDER BY 
-          ratio.year
-      ) as lag_cash_over_totasset_fcit, 
-      current_ratio_fcit, 
-      LAG(current_ratio_fcit, 1) OVER (
-        PARTITION BY ratio.firm 
-        ORDER BY 
-          ratio.year
-      ) as lag_current_ratio_fcit, 
-      quick_ratio_fcit, 
-      LAG(quick_ratio_fcit, 1) OVER (
-        PARTITION BY ratio.firm 
-        ORDER BY 
-          ratio.year
-      ) as lag_quick_ratio_fcit, 
-      liabilities_assets_fcit, 
-      LAG(liabilities_assets_fcit, 1) OVER (
-        PARTITION BY ratio.firm 
-        ORDER BY 
-          ratio.year
-      ) as lag_liabilities_assets_fcit, 
-      sales_assets_andersen_fcit, 
-      return_on_asset_fcit, 
+      intangible, 
+      tangible,
+      c91,
+      c92,
+      cash, 
+      cashflow, 
+      sales, 
+      tfp_op, 
+      credit_constraint,
+      d_credit_constraint,
+      current_ratio, 
+      quick_ratio, 
+      liabilities_tot_asset, 
+      sales_tot_asset, 
+      cash_tot_asset, 
+      investment_tot_asset, 
+      rd_tot_asset, 
+      asset_tangibility_tot_asset, 
+      cashflow_tot_asset, 
+      cashflow_to_tangible, 
       CASE WHEN avg_asset_tangibility_f > avg_asset_tangibility_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_size_asset_fci, 
       CASE WHEN avg_output_f > avg_output_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_size_output_fci, 
       CASE WHEN avg_employment_f > avg_employment_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_employment_fci, 
@@ -894,6 +935,9 @@ FROM
           (x, y) -> x > y
         )
       ) AS size_sales_fi,
+      count_ownership,
+      count_city,
+      count_industry,
       DENSE_RANK() OVER (
         ORDER BY 
           ratio.geocode4_corr, 
@@ -1016,7 +1060,7 @@ FROM
               geocode4_corr,
               indu_2,
               -- fake, 
-              AVG(asset_tangibility_fcit) as avg_asset_tangibility_f, 
+              AVG(tangible) as avg_asset_tangibility_f, 
               AVG(output) as avg_output_f, 
               AVG(employment) as avg_employment_f, 
               AVG(capital) as avg_capital_f, 
@@ -1068,7 +1112,7 @@ FROM
               firm, 
               geocode4_corr,
               -- fake, 
-              AVG(asset_tangibility_fcit) as avg_asset_tangibility_f, 
+              AVG(tangible) as avg_asset_tangibility_f, 
               AVG(output) as avg_output_f, 
               AVG(employment) as avg_employment_f, 
               AVG(capital) as avg_capital_f, 
@@ -1117,7 +1161,7 @@ FROM
               firm, 
               indu_2,
               -- fake, 
-              AVG(asset_tangibility_fcit) as avg_asset_tangibility_f, 
+              AVG(tangible) as avg_asset_tangibility_f, 
               AVG(output) as avg_output_f, 
               AVG(employment) as avg_employment_f, 
               AVG(capital) as avg_capital_f, 
@@ -1137,7 +1181,7 @@ FROM
         SELECT 
           firm, 
           -- fake, 
-          AVG(asset_tangibility_fcit) as avg_asset_tangibility_f,
+          AVG(tangible) as avg_asset_tangibility_f,
           AVG(output) as avg_output_f, 
           AVG(employment) as avg_employment_f, 
           AVG(capital) as avg_capital_f, 
@@ -1153,26 +1197,27 @@ FROM
       AND ratio.year = asif_tfp_firm_level.year
       AND ratio.geocode4_corr = asif_tfp_firm_level.geocode4_corr
       AND ratio.ownership = asif_tfp_firm_level.ownership
-    WHERE 
-      count_ownership = '1' 
-      AND count_city = '1' 
-      AND count_industry = '1' 
+    -- WHERE 
+    --  count_ownership = '1' 
+    --  AND count_city = '1' 
+    --  AND count_industry = '1' 
       AND ratio.output > 0 
       and ratio.capital > 0 
       and ratio.employment > 0 
       AND ratio.indu_2 != '43' 
-      AND total_asset IS NOT NULL 
-      AND asset_tangibility_fcit > 0 
-      AND cash_over_totasset_fcit > 0 
-      AND sales_assets_andersen_fcit IS NOT NULL 
-      AND return_on_asset_fcit IS NOT NULL 
-      AND liabilities_assets_fcit > 0 
-      AND quick_ratio_fcit > 0 
-      AND current_ratio_fcit > 0 
-      AND ratio.year in (
-        '2001', '2002', '2003', '2004', '2005', 
-        '2006', '2007'
-      ) 
+      AND total_asset > 0 
+      AND tangible > 0
+      AND quick_ratio > 0
+      AND current_ratio > 0
+      AND liabilities_tot_asset > 0
+      AND sales_tot_asset > 0
+      AND cash_tot_asset > 0
+      AND cashflow_tot_asset > 0
+      
+    --  AND ratio.year in (
+    --    '2001', '2002', '2003', '2004', '2005', 
+    --    '2006', '2007'
+    --  ) 
     ORDER BY 
       year 
   )
@@ -1251,6 +1296,61 @@ for i in [.5, .75, .9, .95]:
     display(output)
 ```
 
+Check if the data roughly matches with the following paper: [Internal finance and growth: Microeconometric evidence on Chinese firms](https://www.sciencedirect.com/science/article/pii/S0304387810000805)
+
+![](https://drive.google.com/uc?export=view&id=1mE8QEMpxtDsPT200DKmcWKmwY2qqSBpp)
+
+![](https://drive.google.com/uc?export=view&id=1RDpaBEcgtXxe2muW7BqVvhtoIGGg2Itv)
+
+
+Without filtering data
+
+```python
+query_test = """
+SELECT ownership,
+AVG(asset_tangibility_tot_asset) AS avg_asset_tangibility_tot_asset, 
+AVG(total_asset) / 100 AS avg_total_asset, 
+AVG(cashflow_tot_asset) AS avg_cashflow_tot_asset, 
+AVG(cashflow_to_tangible) AS avg_cashflow_to_tangible,
+AVG(liabilities_tot_asset) AS avg_liabilities_tot_asset
+FROM asif_tfp_credit_constraint  
+GROUP BY ownership
+"""
+output = s3.run_query(
+                    query=query_test,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'count_{}'.format(table_name)
+                )
+output.set_index('ownership').T
+```
+
+After filtering data
+
+```python
+query_test = """
+SELECT ownership,
+AVG(asset_tangibility_tot_asset) AS avg_asset_tangibility_tot_asset, 
+AVG(total_asset) / 100 AS avg_total_asset, 
+AVG(cashflow_tot_asset) AS avg_cashflow_tot_asset, 
+AVG(cashflow_to_tangible) AS avg_cashflow_to_tangible,
+AVG(liabilities_tot_asset) AS avg_liabilities_tot_asset
+FROM asif_tfp_credit_constraint  
+WHERE 
+    count_ownership = '1' 
+    AND count_city = '1' 
+    AND count_industry = '1'
+GROUP BY ownership
+"""
+output = s3.run_query(
+                    query=query_test,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'count_{}'.format(table_name)
+                )
+output.set_index('ownership').T
+```
+
 # Validate query
 
 This step is mandatory to validate the query in the ETL. If you are not sure about the quality of the query, go to the next step.
@@ -1288,8 +1388,8 @@ glue.get_table_information(
 ```
 
 ```python
-schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'Firms ID'},
-          {'Name': 'year', 'Type': 'string', 'Comment': ''},
+schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'firm ID'},
+          {'Name': 'year', 'Type': 'string', 'Comment': 'year'},
           {'Name': 'period',
               'Type': 'varchar(5)', 'Comment': 'if year prior to 2006 then False else true. Indicate break from 10 and 11 FYP'},
           {'Name': 'cic', 'Type': 'string', 'Comment': '4 digits industry code'},
@@ -1304,7 +1404,7 @@ schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'Firms ID'},
           {'Name': 'soe_vs_pri',
               'Type': 'varchar(7)', 'Comment': 'SOE vs PRIVATE'},
           {'Name': 'for_vs_dom',
-           'Type': 'varchar(8)', 'Comment': ' FOREIGN vs DOMESTICT if ownership is HTM then FOREIGN'},
+           'Type': 'varchar(8)', 'Comment': 'FOREIGN vs DOMESTICT if ownership is HTM then FOREIGN'},
           {'Name': 'tso2_mandate_c', 'Type': 'float',
            'Comment': 'city reduction mandate in tonnes'},
           {'Name': 'in_10_000_tonnes', 'Type': 'float',
@@ -1313,41 +1413,49 @@ schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'Firms ID'},
           {'Name': 'employment',
               'Type': 'decimal(16,5)', 'Comment': 'employment'},
           {'Name': 'capital', 'Type': 'decimal(16,5)', 'Comment': 'capital'},
+          {'Name': 'cuasset', 'Type': 'int', 'Comment': 'current asset'},
+          {'Name': 'tofixed', 'Type': 'int', 'Comment': 'total fixed asset'},
+          {'Name': 'error', 'Type': 'int',
+           'Comment': 'difference between cuasset+tofixed and total liabilities +equity. Error makes the balance sheet equation right'},
+          {'Name': 'total_liabilities', 'Type': 'int',
+           'Comment': 'total adjusted liabilities'},
+          {'Name': 'total_asset', 'Type': 'int',
+              'Comment': 'total adjusted asset'},
+          {'Name': 'intangible', 'Type': 'int',
+           'Comment': 'intangible asset measured as the sum of intangibles variables'},
+          {'Name': 'tangible', 'Type': 'int',
+           'Comment': 'tangible asset measured as the difference between total fixed asset minus intangible asset'},
+          {'Name': 'c91', 'Type': 'int', 'Comment': 'Intangible and Deferred'},
+          {'Name': 'c92', 'Type': 'int', 'Comment': 'Intangible assets'},
+          {'Name': 'cash', 'Type': 'int', 'Comment': 'cash '},
+          {'Name': 'cashflow', 'Type': 'int', 'Comment': 'cash flow'},
           {'Name': 'sales', 'Type': 'decimal(16,5)', 'Comment': 'sales'},
           {'Name': 'tfp_op', 'Type': 'double', 'Comment': 'TFP. Computed from https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md'},
-          {'Name': 'total_asset',
-              'Type': 'decimal(16,5)', 'Comment': 'Total asset'},
           {'Name': 'credit_constraint', 'Type': 'float',
            'Comment': 'Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311'},
-          {'Name': 'd_credit_constraint',
-           'Type': 'varchar(5)', 'Comment': 'Sectors financially dependant when above median'},
-          {'Name': 'asset_tangibility_fcit',
-           'Type': 'decimal(16,5)', 'Comment': 'Total fixed assets - Intangible assets'},
-          {'Name': 'cash_over_totasset_fcit',
-              'Type': 'decimal(21,5)', 'Comment': 'cuasset - short_term_investment - c80 - c81 - c82 divided by toasset'},
-          {'Name': 'lag_cash_over_totasset_fcit',
+          {'Name': 'current_ratio',
+           'Type': 'decimal(21,5)', 'Comment': 'current ratio cuasset/流动负债合计 (c95)'},
+          {'Name': 'quick_ratio',
+           'Type': 'decimal(21,5)', 'Comment': 'quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)'},
+          {'Name': 'liabilities_tot_asset',
+           'Type': 'decimal(21,5)', 'Comment': 'liabilities to total asset'},
+          {'Name': 'sales_tot_asset',
+           'Type': 'decimal(21,5)', 'Comment': 'sales to total asset'},
+          {'Name': 'cash_tot_asset',
+           'Type': 'decimal(21,5)', 'Comment': 'cash to total asset'},
+          {'Name': 'investment_tot_asset',
+           'Type': 'decimal(21,5)', 'Comment': 'investment to total asset'},
+          {'Name': 'rd_tot_asset',
+           'Type': 'decimal(21,5)', 'Comment': 'rd to total asset'},
+          {'Name': 'asset_tangibility_tot_asset',
            'Type': 'decimal(21,5)',
-           'Comment': 'lag cash over total asset'},
-          {'Name': 'current_ratio_fcit',
-              'Type': 'decimal(21,5)', 'Comment': 'cuasset/流动负债合计 (c95)'},
-          {'Name': 'lag_current_ratio_fcit',
-              'Type': 'decimal(21,5)', 'Comment': 'lag current ratio'},
-          {'Name': 'quick_ratio_fcit',
-           'Type': 'decimal(21,5)', 'Comment': '(cuasset-存货 (c81) ) / 流动负债合计 (c95)'},
-          {'Name': 'lag_quick_ratio_fcit',
-           'Type': 'decimal(21,5)', 'Comment': 'lag quick ratio'},
-          {'Name': 'liabilities_assets_fcit',
-           'Type': 'decimal(21,5)', 'Comment': '(流动负债合计 (c95) + 长期负债合计 (c97)) / toasset'},
-          {'Name': 'lag_liabilities_assets_fcit',
-           'Type': 'decimal(21,5)',
-           'Comment': 'lag liabilities over total asset'},
-          {'Name': 'sales_assets_andersen_fcit',
-           'Type': 'decimal(21,5)',
-           'Comment': 'Sales divided by total asset'},
-          {'Name': 'return_on_asset_fcit',
-           'Type': 'decimal(21,5)', 'Comment': 'sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset'},
+           'Comment': 'asset tangibility to total asset'},
+          {'Name': 'cashflow_tot_asset',
+           'Type': 'decimal(21,5)', 'Comment': 'cashflow to total asset'},
+          {'Name': 'cashflow_to_tangible',
+           'Type': 'decimal(21,5)', 'Comment': 'cashflow to tangible asset'},
           {'Name': 'avg_size_asset_f',
-              'Type': 'varchar(5)', 'Comment': 'if firm s asset tangibility average is above average of firm s average then firm is large'},
+           'Type': 'varchar(5)', 'Comment': 'if firm s asset tangibility average is above average of firm s average then firm is large'},
           {'Name': 'avg_size_output_f',
               'Type': 'varchar(5)', 'Comment': 'if firm s ouptut average is above average of firm s average then firm is large'},
           {'Name': 'avg_employment_f',
@@ -1714,7 +1822,7 @@ payload = {
         "group": "{}".format(','.join(partition_keys)),
         "keys": "{},{}".format(primary_key,secondary_key),
         "y_var": "{}".format(y_var),
-        "threshold":0
+        "threshold":0.5
     },
 }
 payload
