@@ -14271,7 +14271,19 @@ a.anchor-link {
 <li>RD to total asset</li>
 <li>tangible asset to total asset</li>
 <li>cash flow to total tangible asset</li>
-<li>cash_over_total_asset</li>
+<li>cash_over_total_asset
+[UPDATE] → add the following variables</li>
+<li>all credits to gdp → from "chinese_lookup"."province_credit_constraint"<ul>
+<li>from US yrq43zfhl56557i</li>
+</ul>
+</li>
+<li>long term loan to gdp → from "chinese_lookup"."province_credit_constraint"</li>
+<li>return on sale: net income (c111)/sales</li>
+<li>coverage ratio: net income(c111) /total interest payments</li>
+<li>liquidity: (current assets − current liabilities)/total assets.</li>
+<li>labor productivity: real sales/number of employees.</li>
+<li>age: current year – firm’s year of establishment.</li>
+<li>export to sale: overseas turnover / sales</li>
 </ul>
 <h3 id="Steps">Steps<a class="anchor-link" href="#Steps">&#182;</a></h3><p><strong>Cautious</strong>
 Make sure there is no duplicates</p>
@@ -14303,6 +14315,7 @@ Make sure there is no duplicates</p>
 <li>DATA/ECON/LOOKUP_DATA/CITY_CODE_NORMALISED</li>
 <li>DATA/ECON/POLICY/CHINA/STRUCTURAL_TRANSFORMATION/CITY_TARGET/TCZ_SPZ</li>
 <li>DATA/ENVIRONMENT/CHINA/FYP/CITY_REDUCTION_MANDATE</li>
+<li>DATA/ECON/INDUSTRY/ADDITIONAL_DATA/CHINA/PROVINCES/CREDIT_CONSTRAINT</li>
 </ul>
 <p><strong>Github</strong></p>
 <ul>
@@ -14313,6 +14326,7 @@ Make sure there is no duplicates</p>
 <li><a href="https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py">https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py</a></li>
 <li><a href="https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/TCZ_SPZ/tcz_spz_policy.py">https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/TCZ_SPZ/tcz_spz_policy.py</a></li>
 <li><a href="https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_REDUCTION_MANDATE/city_reduction_mandate.py">https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_REDUCTION_MANDATE/city_reduction_mandate.py</a></li>
+<li><a href="https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/PROVINCE_CREDIT_CONSTRAINT/supply_credit.py">https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/PROVINCE_CREDIT_CONSTRAINT/supply_credit.py</a></li>
 </ul>
 <h1 id="Destination-Output/Delivery">Destination Output/Delivery<a class="anchor-link" href="#Destination-Output/Delivery">&#182;</a></h1><h2 id="Table/file">Table/file<a class="anchor-link" href="#Table/file">&#182;</a></h2><p><strong>Name</strong></p>
 <p>asif_tfp_credit_constraint</p>
@@ -14325,7 +14339,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">awsPy.aws_authorization</span> <span class="kn">import</span> <span class="n">aws_connector</span>
@@ -14355,7 +14369,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">con</span> <span class="o">=</span> <span class="n">aws_connector</span><span class="o">.</span><span class="n">aws_instantiate</span><span class="p">(</span><span class="n">credential</span> <span class="o">=</span> <span class="n">path_cred</span><span class="p">,</span>
@@ -14374,7 +14388,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">pandas_setting</span> <span class="o">=</span> <span class="kc">True</span>
@@ -14449,7 +14463,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">DatabaseName</span> <span class="o">=</span> <span class="s1">&#39;firms_survey&#39;</span>
@@ -14461,10 +14475,10 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span><span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -14494,17 +14508,22 @@ Make sure there is no duplicates</p>
 <span class="s2">  ELSE tofixed - (c91 + c92) END AS tangible,</span>
 <span class="s2">    CASE WHEN c79 IS NULL THEN cuasset - c80 - c81 - c82 ELSE cuasset - c79 - c80 - c81 - c82 END AS cash, </span>
 <span class="s2">    c131 + cudepre as cashflow, </span>
-<span class="s2">    CASE WHEN c79 IS NULL THEN 0 ELSE c79 END AS short_term_investment </span>
+<span class="s2">    CASE WHEN c79 IS NULL THEN 0 ELSE c79 END AS short_term_investment</span>
+<span class="s2">  -- CASE WHEN c125 IS NULL THEN 0 ELSE c125 END as interest_paid,  </span>
+<span class="s2">  -- CASE WHEN export IS NULL THEN 0 ELSE export END as exports</span>
+<span class="s2">    </span>
 <span class="s2">  FROM </span>
 <span class="s2">    firms_survey.asif_firms_prepared </span>
 <span class="s2">    INNER JOIN (</span>
 <span class="s2">      SELECT </span>
 <span class="s2">        extra_code, </span>
-<span class="s2">        geocode4_corr </span>
+<span class="s2">        geocode4_corr,</span>
+<span class="s2">      province_en</span>
 <span class="s2">      FROM </span>
 <span class="s2">        chinese_lookup.china_city_code_normalised </span>
 <span class="s2">      GROUP BY </span>
 <span class="s2">        extra_code, </span>
+<span class="s2">      province_en,</span>
 <span class="s2">        geocode4_corr</span>
 <span class="s2">    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code</span>
 <span class="s2">) </span>
@@ -14518,7 +14537,8 @@ Make sure there is no duplicates</p>
 <span class="s2">        year, </span>
 <span class="s2">        cic, </span>
 <span class="s2">        indu_2, </span>
-<span class="s2">        geocode4_corr, </span>
+<span class="s2">        geocode4_corr,</span>
+<span class="s2">        province_en,</span>
 <span class="s2">        ownership, </span>
 <span class="s2">        CASE WHEN ownership = &#39;SOE&#39; THEN &#39;SOE&#39; ELSE &#39;PRIVATE&#39; END AS soe_vs_pri, </span>
 <span class="s2">        CASE WHEN ownership in (&#39;HTM&#39;, &#39;FOREIGN&#39;) THEN &#39;FOREIGN&#39; ELSE &#39;DOMESTIC&#39; END AS for_vs_dom, </span>
@@ -14622,8 +14642,50 @@ Make sure there is no duplicates</p>
 <span class="s2">            tangible AS DECIMAL(16, 5)</span>
 <span class="s2">          ), </span>
 <span class="s2">          0</span>
-<span class="s2">        ) AS cashflow_to_tangible</span>
-
+<span class="s2">        ) AS cashflow_to_tangible,</span>
+<span class="s2">       -- update</span>
+<span class="s2">       -- CAST(</span>
+<span class="s2">       --   c131 AS DECIMAL(16, 5)</span>
+<span class="s2">       -- ) / NULLIF(</span>
+<span class="s2">       --   CAST(</span>
+<span class="s2">       --     sales AS DECIMAL(16, 5)</span>
+<span class="s2">       --   ), </span>
+<span class="s2">       --   0</span>
+<span class="s2">       -- ) AS return_to_sale,</span>
+<span class="s2">       CAST(</span>
+<span class="s2">          c131 AS DECIMAL(16, 5)</span>
+<span class="s2">        ) / NULLIF(</span>
+<span class="s2">          CAST(</span>
+<span class="s2">            c125 AS DECIMAL(16, 5)</span>
+<span class="s2">          ), </span>
+<span class="s2">          0</span>
+<span class="s2">        ) AS coverage_ratio,</span>
+<span class="s2">       CAST(</span>
+<span class="s2">          cuasset - c95 AS DECIMAL(16, 5)</span>
+<span class="s2">         ) / NULLIF(</span>
+<span class="s2">           CAST(</span>
+<span class="s2">            total_asset AS DECIMAL(16, 5)</span>
+<span class="s2">          ), </span>
+<span class="s2">          0</span>
+<span class="s2">         ) AS liquidity</span>
+<span class="s2">        -- CAST(</span>
+<span class="s2">        --  sales AS DECIMAL(16, 5)</span>
+<span class="s2">        -- ) / NULLIF(</span>
+<span class="s2">        --  CAST(</span>
+<span class="s2">        --    employ AS DECIMAL(16, 5)</span>
+<span class="s2">        --  ), </span>
+<span class="s2">        --  0</span>
+<span class="s2">        -- ) AS labor_productivity,</span>
+<span class="s2">        -- CAST(year AS DECIMAL(16, 5)) - CAST(setup AS DECIMAL(16, 5)) AS age,</span>
+<span class="s2">        -- CAST(</span>
+<span class="s2">        --   export AS DECIMAL(16, 5)</span>
+<span class="s2">        -- ) / NULLIF(</span>
+<span class="s2">        --  CAST(</span>
+<span class="s2">        --    sales AS DECIMAL(16, 5)</span>
+<span class="s2">        --  ), </span>
+<span class="s2">        --  0</span>
+<span class="s2">        -- ) AS export_to_sale</span>
+<span class="s2">        </span>
 <span class="s2">      FROM </span>
 <span class="s2">        test </span>
 <span class="s2">      WHERE </span>
@@ -14641,7 +14703,8 @@ Make sure there is no duplicates</p>
 <span class="s2">      ratio.cic, </span>
 <span class="s2">      ratio.indu_2, </span>
 <span class="s2">      CASE WHEN short IS NULL THEN &#39;Unknown&#39; ELSE short END AS short, </span>
-<span class="s2">      ratio.geocode4_corr, </span>
+<span class="s2">      ratio.geocode4_corr,</span>
+<span class="s2">      ratio. province_en,</span>
 <span class="s2">      CASE WHEN tcz IS NULL THEN &#39;0&#39; ELSE tcz END AS tcz, </span>
 <span class="s2">      CASE WHEN spz IS NULL </span>
 <span class="s2">      OR spz = &#39;#N/A&#39; THEN &#39;0&#39; ELSE spz END AS spz, </span>
@@ -14667,7 +14730,9 @@ Make sure there is no duplicates</p>
 <span class="s2">      cashflow, </span>
 <span class="s2">      sales, </span>
 <span class="s2">      tfp_op, </span>
-<span class="s2">      credit_constraint, </span>
+<span class="s2">      credit_constraint,</span>
+<span class="s2">      supply_all_credit,</span>
+<span class="s2">      supply_long_term_credit,</span>
 <span class="s2">      current_ratio, </span>
 <span class="s2">      quick_ratio, </span>
 <span class="s2">      liabilities_tot_asset, </span>
@@ -14677,7 +14742,14 @@ Make sure there is no duplicates</p>
 <span class="s2">      rd_tot_asset, </span>
 <span class="s2">      asset_tangibility_tot_asset, </span>
 <span class="s2">      cashflow_tot_asset, </span>
-<span class="s2">      cashflow_to_tangible, </span>
+<span class="s2">      cashflow_to_tangible,</span>
+<span class="s2">      -- return_to_sale,</span>
+<span class="s2">      CASE WHEN coverage_ratio IS NULL THEN 0 ELSE coverage_ratio END AS coverage_ratio,</span>
+<span class="s2">      liquidity,</span>
+<span class="s2">      -- CASE WHEN export_to_sale IS NULL THEN 0 ELSE export_to_sale END AS export_to_sale,</span>
+<span class="s2">      -- labor_productivity,</span>
+<span class="s2">      -- age,</span>
+<span class="s2">      -- export_to_sale,</span>
 <span class="s2">      DENSE_RANK() OVER (</span>
 <span class="s2">        ORDER BY </span>
 <span class="s2">          ratio.geocode4_corr, </span>
@@ -14707,7 +14779,8 @@ Make sure there is no duplicates</p>
 <span class="s2">          extra_code = geocode4_corr</span>
 <span class="s2">      ) as city_mandate ON ratio.geocode4_corr = city_mandate.geocode4_corr </span>
 <span class="s2">      LEFT JOIN policy.china_city_tcz_spz ON ratio.geocode4_corr = china_city_tcz_spz.geocode4_corr </span>
-<span class="s2">      LEFT JOIN chinese_lookup.ind_cic_2_name ON ratio.indu_2 = ind_cic_2_name.cic </span>
+<span class="s2">      LEFT JOIN chinese_lookup.ind_cic_2_name ON ratio.indu_2 = ind_cic_2_name.cic</span>
+<span class="s2">      LEFT JOIN chinese_lookup.province_credit_constraint ON ratio.province_en = province_credit_constraint.Province</span>
 <span class="s2">      LEFT JOIN (</span>
 <span class="s2">        SELECT </span>
 <span class="s2">          cic, </span>
@@ -14740,7 +14813,6 @@ Make sure there is no duplicates</p>
 <span class="s2">    LIMIT </span>
 <span class="s2">      10</span>
 <span class="s2">  )</span>
-
 <span class="s2">&quot;&quot;&quot;</span>
 <span class="n">output</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span>
                     <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
@@ -14754,6 +14826,631 @@ Make sure there is no duplicates</p>
      </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>firm</th>
+      <th>year</th>
+      <th>period</th>
+      <th>cic</th>
+      <th>indu_2</th>
+      <th>short</th>
+      <th>geocode4_corr</th>
+      <th>province_en</th>
+      <th>tcz</th>
+      <th>spz</th>
+      <th>ownership</th>
+      <th>soe_vs_pri</th>
+      <th>for_vs_dom</th>
+      <th>count_ownership</th>
+      <th>count_city</th>
+      <th>count_industry</th>
+      <th>tso2_mandate_c</th>
+      <th>in_10_000_tonnes</th>
+      <th>output</th>
+      <th>employment</th>
+      <th>capital</th>
+      <th>cuasset</th>
+      <th>tofixed</th>
+      <th>error</th>
+      <th>total_liabilities</th>
+      <th>total_asset</th>
+      <th>intangible</th>
+      <th>tangible</th>
+      <th>cash</th>
+      <th>cashflow</th>
+      <th>sales</th>
+      <th>tfp_op</th>
+      <th>credit_constraint</th>
+      <th>supply_all_credit</th>
+      <th>supply_long_term_credit</th>
+      <th>current_ratio</th>
+      <th>quick_ratio</th>
+      <th>liabilities_tot_asset</th>
+      <th>sales_tot_asset</th>
+      <th>cash_tot_asset</th>
+      <th>investment_tot_asset</th>
+      <th>rd_tot_asset</th>
+      <th>asset_tangibility_tot_asset</th>
+      <th>cashflow_tot_asset</th>
+      <th>cashflow_to_tangible</th>
+      <th>coverage_ratio</th>
+      <th>liquidity</th>
+      <th>fe_c_i</th>
+      <th>fe_t_i</th>
+      <th>fe_c_t</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>311839</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>2685</td>
+      <td>26</td>
+      <td>Raw Chemical Materials</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>HTM</td>
+      <td>PRIVATE</td>
+      <td>FOREIGN</td>
+      <td>1</td>
+      <td>1</td>
+      <td>2</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>463195.0</td>
+      <td>1358.0</td>
+      <td>94300.0</td>
+      <td>320515</td>
+      <td>88784</td>
+      <td>15499</td>
+      <td>409299</td>
+      <td>409299</td>
+      <td>5354</td>
+      <td>83430</td>
+      <td>167489</td>
+      <td>142940</td>
+      <td>420728.0</td>
+      <td>11.298006</td>
+      <td>-0.23</td>
+      <td>2.29</td>
+      <td>1.27</td>
+      <td>2.84404</td>
+      <td>1.69812</td>
+      <td>0.29204</td>
+      <td>1.02792</td>
+      <td>0.40921</td>
+      <td>0.00000</td>
+      <td>NaN</td>
+      <td>0.20384</td>
+      <td>0.34923</td>
+      <td>1.71329</td>
+      <td>-95.27216</td>
+      <td>0.50774</td>
+      <td>234</td>
+      <td>221</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>311776</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>1810</td>
+      <td>18</td>
+      <td>Footwear</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>HTM</td>
+      <td>PRIVATE</td>
+      <td>FOREIGN</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>15530.0</td>
+      <td>191.0</td>
+      <td>12483.0</td>
+      <td>15268</td>
+      <td>11314</td>
+      <td>6757</td>
+      <td>26582</td>
+      <td>26582</td>
+      <td>0</td>
+      <td>11314</td>
+      <td>5545</td>
+      <td>5</td>
+      <td>15483.0</td>
+      <td>8.244598</td>
+      <td>-1.32</td>
+      <td>2.29</td>
+      <td>1.27</td>
+      <td>2.15437</td>
+      <td>1.04812</td>
+      <td>0.26661</td>
+      <td>0.58246</td>
+      <td>0.20860</td>
+      <td>0.00000</td>
+      <td>NaN</td>
+      <td>0.42563</td>
+      <td>0.00019</td>
+      <td>0.00044</td>
+      <td>-3.54140</td>
+      <td>0.30776</td>
+      <td>121</td>
+      <td>126</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>188403</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>2685</td>
+      <td>26</td>
+      <td>Raw Chemical Materials</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>SOE</td>
+      <td>SOE</td>
+      <td>DOMESTIC</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>22121.0</td>
+      <td>312.0</td>
+      <td>20305.0</td>
+      <td>64397</td>
+      <td>33489</td>
+      <td>-25894</td>
+      <td>123780</td>
+      <td>123780</td>
+      <td>0</td>
+      <td>33489</td>
+      <td>27106</td>
+      <td>543</td>
+      <td>15292.0</td>
+      <td>8.515165</td>
+      <td>-0.23</td>
+      <td>2.29</td>
+      <td>1.27</td>
+      <td>1.41448</td>
+      <td>0.61673</td>
+      <td>0.37545</td>
+      <td>0.12354</td>
+      <td>0.21899</td>
+      <td>0.22769</td>
+      <td>NaN</td>
+      <td>0.27055</td>
+      <td>0.00439</td>
+      <td>0.01621</td>
+      <td>-0.16150</td>
+      <td>0.15245</td>
+      <td>234</td>
+      <td>221</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>242592</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>2685</td>
+      <td>26</td>
+      <td>Raw Chemical Materials</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>HTM</td>
+      <td>PRIVATE</td>
+      <td>FOREIGN</td>
+      <td>1</td>
+      <td>1</td>
+      <td>2</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>9342.0</td>
+      <td>42.0</td>
+      <td>947.0</td>
+      <td>13544</td>
+      <td>2131</td>
+      <td>967</td>
+      <td>15675</td>
+      <td>15675</td>
+      <td>172</td>
+      <td>1959</td>
+      <td>886</td>
+      <td>393</td>
+      <td>9297.0</td>
+      <td>8.124553</td>
+      <td>-0.23</td>
+      <td>2.29</td>
+      <td>1.27</td>
+      <td>1.14489</td>
+      <td>0.25765</td>
+      <td>0.75470</td>
+      <td>0.59311</td>
+      <td>0.05652</td>
+      <td>0.00000</td>
+      <td>NaN</td>
+      <td>0.12498</td>
+      <td>0.02507</td>
+      <td>0.20061</td>
+      <td>-1.29825</td>
+      <td>0.10935</td>
+      <td>234</td>
+      <td>221</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>242985</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>3431</td>
+      <td>34</td>
+      <td>Metals</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>COLLECTIVE</td>
+      <td>PRIVATE</td>
+      <td>DOMESTIC</td>
+      <td>1</td>
+      <td>1</td>
+      <td>3</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>11833.0</td>
+      <td>74.0</td>
+      <td>500.0</td>
+      <td>5039</td>
+      <td>572</td>
+      <td>239</td>
+      <td>5611</td>
+      <td>5611</td>
+      <td>0</td>
+      <td>572</td>
+      <td>418</td>
+      <td>170</td>
+      <td>11055.0</td>
+      <td>8.411370</td>
+      <td>-0.93</td>
+      <td>2.29</td>
+      <td>1.27</td>
+      <td>1.03854</td>
+      <td>0.13829</td>
+      <td>0.86473</td>
+      <td>1.97024</td>
+      <td>0.07450</td>
+      <td>0.01782</td>
+      <td>NaN</td>
+      <td>0.10194</td>
+      <td>0.03030</td>
+      <td>0.29720</td>
+      <td>0.00000</td>
+      <td>0.03333</td>
+      <td>340</td>
+      <td>310</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>153227</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>3465</td>
+      <td>34</td>
+      <td>Metals</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>PRIVATE</td>
+      <td>PRIVATE</td>
+      <td>DOMESTIC</td>
+      <td>1</td>
+      <td>1</td>
+      <td>2</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>25932.0</td>
+      <td>456.0</td>
+      <td>5000.0</td>
+      <td>7897</td>
+      <td>1218</td>
+      <td>-4380</td>
+      <td>13495</td>
+      <td>13495</td>
+      <td>13</td>
+      <td>1205</td>
+      <td>-1350</td>
+      <td>3126</td>
+      <td>25932.0</td>
+      <td>8.826708</td>
+      <td>-0.93</td>
+      <td>2.29</td>
+      <td>1.27</td>
+      <td>1.29928</td>
+      <td>0.15235</td>
+      <td>0.45039</td>
+      <td>1.92160</td>
+      <td>-0.10004</td>
+      <td>0.00000</td>
+      <td>NaN</td>
+      <td>0.08929</td>
+      <td>0.23164</td>
+      <td>2.59419</td>
+      <td>0.00000</td>
+      <td>0.13479</td>
+      <td>357</td>
+      <td>319</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>14254</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>3131</td>
+      <td>31</td>
+      <td>Non-metallic Products</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>COLLECTIVE</td>
+      <td>PRIVATE</td>
+      <td>DOMESTIC</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>7335.0</td>
+      <td>328.0</td>
+      <td>1987.0</td>
+      <td>3582</td>
+      <td>3354</td>
+      <td>1029</td>
+      <td>6936</td>
+      <td>6936</td>
+      <td>0</td>
+      <td>3354</td>
+      <td>-1067</td>
+      <td>164</td>
+      <td>6948.0</td>
+      <td>7.692489</td>
+      <td>-0.29</td>
+      <td>2.29</td>
+      <td>1.27</td>
+      <td>1.09441</td>
+      <td>0.31836</td>
+      <td>0.47189</td>
+      <td>1.00173</td>
+      <td>-0.15384</td>
+      <td>0.04859</td>
+      <td>NaN</td>
+      <td>0.48356</td>
+      <td>0.02364</td>
+      <td>0.04890</td>
+      <td>0.23729</td>
+      <td>0.04455</td>
+      <td>277</td>
+      <td>268</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>497896</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>4212</td>
+      <td>42</td>
+      <td>Artwork</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>FOREIGN</td>
+      <td>PRIVATE</td>
+      <td>FOREIGN</td>
+      <td>2</td>
+      <td>1</td>
+      <td>3</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>47119.0</td>
+      <td>269.0</td>
+      <td>23378.0</td>
+      <td>82519</td>
+      <td>4269</td>
+      <td>-3874</td>
+      <td>90662</td>
+      <td>90662</td>
+      <td>56</td>
+      <td>4213</td>
+      <td>38228</td>
+      <td>1616</td>
+      <td>46635.0</td>
+      <td>9.261315</td>
+      <td>-0.62</td>
+      <td>2.29</td>
+      <td>1.27</td>
+      <td>1.33063</td>
+      <td>0.78737</td>
+      <td>0.68402</td>
+      <td>0.51438</td>
+      <td>0.42165</td>
+      <td>0.00000</td>
+      <td>NaN</td>
+      <td>0.04647</td>
+      <td>0.01782</td>
+      <td>0.38357</td>
+      <td>0.00000</td>
+      <td>0.22616</td>
+      <td>609</td>
+      <td>499</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>347522</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>2685</td>
+      <td>26</td>
+      <td>Raw Chemical Materials</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>PRIVATE</td>
+      <td>PRIVATE</td>
+      <td>DOMESTIC</td>
+      <td>1</td>
+      <td>1</td>
+      <td>2</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>8595.0</td>
+      <td>37.0</td>
+      <td>4000.0</td>
+      <td>5127</td>
+      <td>464</td>
+      <td>76</td>
+      <td>5591</td>
+      <td>5591</td>
+      <td>0</td>
+      <td>464</td>
+      <td>2631</td>
+      <td>702</td>
+      <td>6118.0</td>
+      <td>7.871554</td>
+      <td>-0.23</td>
+      <td>2.29</td>
+      <td>1.27</td>
+      <td>8.68983</td>
+      <td>5.29322</td>
+      <td>0.16205</td>
+      <td>1.09426</td>
+      <td>0.47058</td>
+      <td>0.00000</td>
+      <td>NaN</td>
+      <td>0.08299</td>
+      <td>0.12556</td>
+      <td>1.51293</td>
+      <td>0.00000</td>
+      <td>0.81148</td>
+      <td>234</td>
+      <td>221</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>155973</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>2685</td>
+      <td>26</td>
+      <td>Raw Chemical Materials</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>SOE</td>
+      <td>SOE</td>
+      <td>DOMESTIC</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>2593.0</td>
+      <td>438.0</td>
+      <td>58131.0</td>
+      <td>221016</td>
+      <td>80995</td>
+      <td>-163594</td>
+      <td>465605</td>
+      <td>465605</td>
+      <td>14912</td>
+      <td>66083</td>
+      <td>77033</td>
+      <td>26532</td>
+      <td>10016.0</td>
+      <td>6.226635</td>
+      <td>-0.23</td>
+      <td>2.29</td>
+      <td>1.27</td>
+      <td>0.75745</td>
+      <td>0.46847</td>
+      <td>0.69024</td>
+      <td>0.02151</td>
+      <td>0.16545</td>
+      <td>0.36277</td>
+      <td>NaN</td>
+      <td>0.14193</td>
+      <td>0.05698</td>
+      <td>0.40150</td>
+      <td>6.13126</td>
+      <td>-0.15201</td>
+      <td>234</td>
+      <td>221</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -14773,7 +15470,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s3_output</span> <span class="o">=</span> <span class="s1">&#39;DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/TFP/CREDIT_CONSTRAINT&#39;</span>
@@ -14791,10 +15488,10 @@ Make sure there is no duplicates</p>
 <p>First, we need to delete the table (if exist)</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">try</span><span class="p">:</span>
@@ -14812,16 +15509,37 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;cda3ac7c-c169-45a9-b310-8e5f5f0ee921&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Fri, 29 Jan 2021 10:05:09 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;cda3ac7c-c169-45a9-b310-8e5f5f0ee921&#39;}, &#39;RetryAttempts&#39;: 0}}
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Clean up the folder with the previous csv file. Be careful, it will erase all files inside the folder</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s3</span><span class="o">.</span><span class="n">remove_all_bucket</span><span class="p">(</span><span class="n">path_remove</span> <span class="o">=</span> <span class="n">s3_output</span><span class="p">)</span>
@@ -14832,10 +15550,33 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>True</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%time</span>
@@ -14871,12 +15612,14 @@ Make sure there is no duplicates</p>
 <span class="s2">    INNER JOIN (</span>
 <span class="s2">      SELECT </span>
 <span class="s2">        extra_code, </span>
-<span class="s2">        geocode4_corr </span>
+<span class="s2">        geocode4_corr,</span>
+<span class="s2">        province_en</span>
 <span class="s2">      FROM </span>
 <span class="s2">        chinese_lookup.china_city_code_normalised </span>
 <span class="s2">      GROUP BY </span>
 <span class="s2">        extra_code, </span>
-<span class="s2">        geocode4_corr</span>
+<span class="s2">        geocode4_corr,</span>
+<span class="s2">        province_en</span>
 <span class="s2">    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code</span>
 <span class="s2">) </span>
 <span class="s2">SELECT </span>
@@ -14889,7 +15632,8 @@ Make sure there is no duplicates</p>
 <span class="s2">        year, </span>
 <span class="s2">        cic, </span>
 <span class="s2">        indu_2, </span>
-<span class="s2">        geocode4_corr, </span>
+<span class="s2">        geocode4_corr,</span>
+<span class="s2">        province_en,</span>
 <span class="s2">        ownership, </span>
 <span class="s2">        CASE WHEN ownership = &#39;SOE&#39; THEN &#39;SOE&#39; ELSE &#39;PRIVATE&#39; END AS soe_vs_pri, </span>
 <span class="s2">        CASE WHEN ownership in (&#39;HTM&#39;, &#39;FOREIGN&#39;) THEN &#39;FOREIGN&#39; ELSE &#39;DOMESTIC&#39; END AS for_vs_dom, </span>
@@ -14996,6 +15740,22 @@ Make sure there is no duplicates</p>
 <span class="s2">          ), </span>
 <span class="s2">          0</span>
 <span class="s2">        ) AS cashflow_to_tangible,</span>
+<span class="s2">        CAST(</span>
+<span class="s2">          c131 AS DECIMAL(16, 5)</span>
+<span class="s2">        ) / NULLIF(</span>
+<span class="s2">          CAST(</span>
+<span class="s2">            c125 AS DECIMAL(16, 5)</span>
+<span class="s2">          ), </span>
+<span class="s2">          0</span>
+<span class="s2">        ) AS coverage_ratio,</span>
+<span class="s2">       CAST(</span>
+<span class="s2">          cuasset - c95 AS DECIMAL(16, 5)</span>
+<span class="s2">         ) / NULLIF(</span>
+<span class="s2">           CAST(</span>
+<span class="s2">            total_asset AS DECIMAL(16, 5)</span>
+<span class="s2">          ), </span>
+<span class="s2">          0</span>
+<span class="s2">         ) AS liquidity,</span>
 <span class="s2">        &#39;FAKE&#39; AS fake </span>
 <span class="s2">      FROM </span>
 <span class="s2">        test </span>
@@ -15014,7 +15774,8 @@ Make sure there is no duplicates</p>
 <span class="s2">      ratio.cic, </span>
 <span class="s2">      ratio.indu_2, </span>
 <span class="s2">      CASE WHEN short IS NULL THEN &#39;Unknown&#39; ELSE short END AS short, </span>
-<span class="s2">      ratio.geocode4_corr, </span>
+<span class="s2">      ratio.geocode4_corr,</span>
+<span class="s2">      province_en,</span>
 <span class="s2">      CASE WHEN tcz IS NULL THEN &#39;0&#39; ELSE tcz END AS tcz, </span>
 <span class="s2">      CASE WHEN spz IS NULL </span>
 <span class="s2">      OR spz = &#39;#N/A&#39; THEN &#39;0&#39; ELSE spz END AS spz, </span>
@@ -15039,7 +15800,10 @@ Make sure there is no duplicates</p>
 <span class="s2">      cashflow, </span>
 <span class="s2">      sales, </span>
 <span class="s2">      tfp_op, </span>
-<span class="s2">      credit_constraint, </span>
+<span class="s2">      credit_constraint,</span>
+<span class="s2">      d_credit_constraint,</span>
+<span class="s2">      supply_all_credit,</span>
+<span class="s2">      supply_long_term_credit,</span>
 <span class="s2">      current_ratio, </span>
 <span class="s2">      quick_ratio, </span>
 <span class="s2">      liabilities_tot_asset, </span>
@@ -15050,6 +15814,8 @@ Make sure there is no duplicates</p>
 <span class="s2">      asset_tangibility_tot_asset, </span>
 <span class="s2">      cashflow_tot_asset, </span>
 <span class="s2">      cashflow_to_tangible, </span>
+<span class="s2">      CASE WHEN coverage_ratio IS NULL THEN 0 ELSE coverage_ratio END AS coverage_ratio,</span>
+<span class="s2">      liquidity,</span>
 <span class="s2">      CASE WHEN avg_asset_tangibility_f &gt; avg_asset_tangibility_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_size_asset_fci, </span>
 <span class="s2">      CASE WHEN avg_output_f &gt; avg_output_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_size_output_fci, </span>
 <span class="s2">      CASE WHEN avg_employment_f &gt; avg_employment_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_employment_fci, </span>
@@ -15346,7 +16112,8 @@ Make sure there is no duplicates</p>
 <span class="s2">          extra_code = geocode4_corr</span>
 <span class="s2">      ) as city_mandate ON ratio.geocode4_corr = city_mandate.geocode4_corr </span>
 <span class="s2">      LEFT JOIN policy.china_city_tcz_spz ON ratio.geocode4_corr = china_city_tcz_spz.geocode4_corr </span>
-<span class="s2">      LEFT JOIN chinese_lookup.ind_cic_2_name ON ratio.indu_2 = ind_cic_2_name.cic </span>
+<span class="s2">      LEFT JOIN chinese_lookup.ind_cic_2_name ON ratio.indu_2 = ind_cic_2_name.cic</span>
+<span class="s2">      LEFT JOIN chinese_lookup.province_credit_constraint ON ratio.province_en = province_credit_constraint.Province</span>
 <span class="s2">      LEFT JOIN (</span>
 <span class="s2">        SELECT </span>
 <span class="s2">          cic, </span>
@@ -15543,11 +16310,6 @@ Make sure there is no duplicates</p>
 <span class="s2">      AND sales_tot_asset &gt; 0</span>
 <span class="s2">      AND cash_tot_asset &gt; 0</span>
 <span class="s2">      AND cashflow_tot_asset &gt; 0</span>
-<span class="s2">      </span>
-<span class="s2">    --  AND ratio.year in (</span>
-<span class="s2">    --    &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;, </span>
-<span class="s2">    --    &#39;2006&#39;, &#39;2007&#39;</span>
-<span class="s2">    --  ) </span>
 <span class="s2">    ORDER BY </span>
 <span class="s2">      year </span>
 <span class="s2">  )</span>
@@ -15565,10 +16327,49 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>CPU times: user 1.8 s, sys: 45.3 ms, total: 1.84 s
+Wall time: 40.9 s
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;Results&#39;: {&#39;State&#39;: &#39;SUCCEEDED&#39;,
+  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 29, 10, 5, 10, 268000, tzinfo=tzlocal()),
+  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 29, 10, 5, 48, 692000, tzinfo=tzlocal())},
+ &#39;QueryID&#39;: &#39;4d8a7740-14f5-450f-a27e-eabd3387853f&#39;}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_count</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -15589,16 +16390,66 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>CNT</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>447766</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Test if the methodology works -&gt; One firm one status</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_test</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -15630,16 +16481,68 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>count</th>
+      <th>count_m</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>139997</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>Number of observations per size</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="o">.</span><span class="mi">75</span><span class="p">,</span> <span class="o">.</span><span class="mi">9</span><span class="p">,</span> <span class="o">.</span><span class="mi">95</span><span class="p">]:</span>
@@ -15669,6 +16572,255 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Decile 0.5
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output " data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dominated</th>
+      <th>count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>False</td>
+      <td>133358</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>True</td>
+      <td>131594</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Decile 0.75
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output " data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dominated</th>
+      <th>count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>False</td>
+      <td>200808</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>True</td>
+      <td>64144</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Decile 0.9
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output " data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dominated</th>
+      <th>count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>False</td>
+      <td>240325</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>True</td>
+      <td>24627</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>Decile 0.95
+</pre>
+</div>
+</div>
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output " data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dominated</th>
+      <th>count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>False</td>
+      <td>253078</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>True</td>
+      <td>11874</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
@@ -15683,10 +16835,10 @@ Make sure there is no duplicates</p>
 <p>Without filtering data</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_test</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -15713,16 +16865,106 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>ownership</th>
+      <th>COLLECTIVE</th>
+      <th>PRIVATE</th>
+      <th>SOE</th>
+      <th>HTM</th>
+      <th>FOREIGN</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>avg_asset_tangibility_tot_asset</th>
+      <td>0.391500</td>
+      <td>0.384890</td>
+      <td>0.424140</td>
+      <td>0.37512</td>
+      <td>0.366830</td>
+    </tr>
+    <tr>
+      <th>avg_total_asset</th>
+      <td>1174.397008</td>
+      <td>815.031314</td>
+      <td>6160.221408</td>
+      <td>2106.37825</td>
+      <td>1218.432869</td>
+    </tr>
+    <tr>
+      <th>avg_cashflow_tot_asset</th>
+      <td>0.120800</td>
+      <td>0.126510</td>
+      <td>0.070650</td>
+      <td>0.13028</td>
+      <td>0.104800</td>
+    </tr>
+    <tr>
+      <th>avg_cashflow_to_tangible</th>
+      <td>0.648800</td>
+      <td>0.762730</td>
+      <td>0.601280</td>
+      <td>1.04719</td>
+      <td>0.715550</td>
+    </tr>
+    <tr>
+      <th>avg_liabilities_tot_asset</th>
+      <td>0.499750</td>
+      <td>0.525920</td>
+      <td>0.540060</td>
+      <td>0.43568</td>
+      <td>0.446640</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>After filtering data</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_test</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -15751,6 +16993,96 @@ Make sure there is no duplicates</p>
      </div>
 </div>
 </div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>ownership</th>
+      <th>COLLECTIVE</th>
+      <th>SOE</th>
+      <th>HTM</th>
+      <th>FOREIGN</th>
+      <th>PRIVATE</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>avg_asset_tangibility_tot_asset</th>
+      <td>0.394370</td>
+      <td>0.436840</td>
+      <td>0.373330</td>
+      <td>0.355910</td>
+      <td>0.386440</td>
+    </tr>
+    <tr>
+      <th>avg_total_asset</th>
+      <td>572.135267</td>
+      <td>8089.630565</td>
+      <td>1531.831071</td>
+      <td>836.683386</td>
+      <td>445.238114</td>
+    </tr>
+    <tr>
+      <th>avg_cashflow_tot_asset</th>
+      <td>0.132650</td>
+      <td>0.068080</td>
+      <td>0.136170</td>
+      <td>0.108330</td>
+      <td>0.134430</td>
+    </tr>
+    <tr>
+      <th>avg_cashflow_to_tangible</th>
+      <td>0.736000</td>
+      <td>0.374030</td>
+      <td>1.572980</td>
+      <td>0.917420</td>
+      <td>0.836210</td>
+    </tr>
+    <tr>
+      <th>avg_liabilities_tot_asset</th>
+      <td>0.486420</td>
+      <td>0.538220</td>
+      <td>0.442110</td>
+      <td>0.446530</td>
+      <td>0.521880</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -15785,7 +17117,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;firm&quot;</span><span class="p">,</span><span class="s2">&quot;year&quot;</span><span class="p">,</span><span class="s2">&quot;cic&quot;</span><span class="p">,</span><span class="s2">&quot;geocode4_corr&quot;</span><span class="p">]</span>
@@ -15807,7 +17139,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">step</span> <span class="o">=</span> <span class="mi">6</span>
@@ -15827,10 +17159,10 @@ Make sure there is no duplicates</p>
 <p>Bear in mind that CSV SerDe (OpenCSVSerDe) does not support empty fields in columns defined as a numeric data type. All columns with missing values should be saved as string.</p>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">get_table_information</span><span class="p">(</span>
@@ -15843,10 +17175,107 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[17]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>[{&#39;Name&#39;: &#39;firm&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;year&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;period&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;cic&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;indu_2&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;short&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;geocode4_corr&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;province_en&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;tcz&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;spz&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;ownership&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;soe_vs_pri&#39;, &#39;Type&#39;: &#39;varchar(7)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;for_vs_dom&#39;, &#39;Type&#39;: &#39;varchar(8)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;tso2_mandate_c&#39;, &#39;Type&#39;: &#39;float&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;in_10_000_tonnes&#39;, &#39;Type&#39;: &#39;float&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;output&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;employment&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;capital&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;cuasset&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;tofixed&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;error&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;total_liabilities&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;total_asset&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;intangible&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;tangible&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;c91&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;c92&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;cash&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;cashflow&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;sales&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;tfp_op&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;credit_constraint&#39;, &#39;Type&#39;: &#39;float&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;d_credit_constraint&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;supply_all_credit&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;supply_long_term_credit&#39;, &#39;Type&#39;: &#39;float&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;current_ratio&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;quick_ratio&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;liabilities_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;sales_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;cash_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;investment_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;rd_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;asset_tangibility_tot_asset&#39;,
+  &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+  &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;cashflow_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;cashflow_to_tangible&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;coverage_ratio&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;liquidity&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;avg_size_asset_fci&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;avg_size_output_fci&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;avg_employment_fci&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;avg_size_capital_fci&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;avg_sales_fci&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;size_asset_fci&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;size_asset_fc&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;size_asset_fi&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;size_output_fci&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;size_output_fc&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;size_output_fi&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;size_employment_fci&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;size_employment_fc&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;size_employment_fi&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;size_capital_fci&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;size_capital_fc&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;size_capital_fi&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;size_sales_fci&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;size_sales_fc&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;size_sales_fi&#39;, &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;count_ownership&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;count_city&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;count_industry&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;fe_c_i&#39;, &#39;Type&#39;: &#39;bigint&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;fe_t_i&#39;, &#39;Type&#39;: &#39;bigint&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;fe_c_t&#39;, &#39;Type&#39;: &#39;bigint&#39;, &#39;Comment&#39;: &#39;&#39;}]</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;firm&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;firm ID&#39;</span><span class="p">},</span>
@@ -15894,6 +17323,8 @@ Make sure there is no duplicates</p>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;tfp_op&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;TFP. Computed from https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;credit_constraint&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span>
            <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311&#39;</span><span class="p">},</span>
+          <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;supply_all_credit&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;total credit over gdp province&#39;</span><span class="p">},</span>
+          <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;supply_long_term_credit&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;total long term credit over gdp province&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;current_ratio&#39;</span><span class="p">,</span>
            <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;current ratio cuasset/流动负债合计 (c95)&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;quick_ratio&#39;</span><span class="p">,</span>
@@ -15915,6 +17346,8 @@ Make sure there is no duplicates</p>
            <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;cashflow to total asset&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;cashflow_to_tangible&#39;</span><span class="p">,</span>
            <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;cashflow to tangible asset&#39;</span><span class="p">},</span>
+          <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;coverage_ratio&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;net income(c131) /total interest payments&#39;</span><span class="p">},</span>
+          <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;liquidity&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;current assets-current liabilities/total assets&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;avg_size_asset_f&#39;</span><span class="p">,</span>
            <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;varchar(5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;if firm s asset tangibility average is above average of firm s average then firm is large&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;avg_size_output_f&#39;</span><span class="p">,</span>
@@ -15978,7 +17411,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -16004,10 +17437,10 @@ Make sure there is no duplicates</p>
 </ul>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">json_etl</span> <span class="o">=</span> <span class="p">{</span>
@@ -16031,10 +17464,204 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[20]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;step&#39;: 6,
+ &#39;description&#39;: &#39;\nTransform asif tfp firm level and others data by merging asif firms prepared, china credit constraint, ind cic 2 name, china city code normalised, china tcz spz, china city reduction mandate data by constructing asset_tangibility, cash_over_total_asset, sales over asset Andersen method, current ratio (Compute proxy for credit constraint , Construct main variable asset tangibility) to asif tfp credit constraint\n&#39;,
+ &#39;query&#39;: &#34;\nCREATE TABLE firms_survey.asif_tfp_credit_constraint WITH (format = &#39;PARQUET&#39;) AS\nWITH test AS (\n  SELECT \n    *, \n    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(\n      &#39;0&#39;, \n      substr(cic, 1, 1)\n    ) END AS indu_2, \n    (cuasset + tofixed) - (c98 + c99) AS error, \n    CASE WHEN (cuasset + tofixed) - (c98 + c99) &gt; 0 THEN (c98 + c99) + ABS(\n      (cuasset + tofixed) - (c98 + c99)\n    ) ELSE (c98 + c99) END AS total_liabilities, \n    CASE WHEN (cuasset + tofixed) - (c98 + c99) &lt; 0 THEN (cuasset + tofixed) + ABS(\n      (cuasset + tofixed) - (c98 + c99)\n    ) ELSE (cuasset + tofixed) END AS total_asset, \n    CASE \n  WHEN c91 is NULL THEN c92 \n  WHEN c92 is NULL THEN c91\n  ELSE c91 + c92 END AS intangible,\n  CASE\n  WHEN c91 is NULL THEN tofixed - c92 \n  WHEN c92 is NULL THEN tofixed - c91\n  ELSE tofixed - (c91 + c92) END AS tangible, \n    CASE WHEN c79 IS NULL THEN cuasset - c80 - c81 - c82 ELSE cuasset - c79 - c80 - c81 - c82 END AS cash, \n    c131 + cudepre as cashflow, \n    CASE WHEN c79 IS NULL THEN 0 ELSE c79 END AS short_term_investment \n  FROM \n    firms_survey.asif_firms_prepared \n    INNER JOIN (\n      SELECT \n        extra_code, \n        geocode4_corr,\n        province_en\n      FROM \n        chinese_lookup.china_city_code_normalised \n      GROUP BY \n        extra_code, \n        geocode4_corr,\n        province_en\n    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code\n) \nSELECT \n  * \nFROM \n  (\n    WITH ratio AS (\n      SELECT \n        firm, \n        year, \n        cic, \n        indu_2, \n        geocode4_corr,\n        province_en,\n        ownership, \n        CASE WHEN ownership = &#39;SOE&#39; THEN &#39;SOE&#39; ELSE &#39;PRIVATE&#39; END AS soe_vs_pri, \n        CASE WHEN ownership in (&#39;HTM&#39;, &#39;FOREIGN&#39;) THEN &#39;FOREIGN&#39; ELSE &#39;DOMESTIC&#39; END AS for_vs_dom, \n        CAST(\n          output AS DECIMAL(16, 5)\n        ) AS output, \n        CAST(\n          sales AS DECIMAL(16, 5)\n        ) AS sales, \n        CAST(\n          employ AS DECIMAL(16, 5)\n        ) AS employment, \n        CAST(\n          captal AS DECIMAL(16, 5)\n        ) AS capital, \n        cuasset, \n        tofixed, \n        error, \n        total_liabilities, \n        total_asset,\n        c91,\n        c92,\n        intangible, \n        tangible, \n        cash, \n        cashflow, \n        CAST(\n          cuasset AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            c95 AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS current_ratio, \n        CAST(\n          cuasset - short_term_investment - c80 - c81 AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            c95 AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS quick_ratio, \n        CAST(\n          c98 AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS liabilities_tot_asset, \n        CAST(\n          sales AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS sales_tot_asset, \n        CAST(\n          cash AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS cash_tot_asset, \n        CAST(\n          c84 AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS investment_tot_asset, \n        CAST(\n          rdfee AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS rd_tot_asset, \n        CAST(\n          tangible AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) asset_tangibility_tot_asset, \n        CAST(\n          cashflow AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS cashflow_tot_asset, \n        CAST(\n          cashflow AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            tangible AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS cashflow_to_tangible,\n        CAST(\n          c131 AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            c125 AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS coverage_ratio,\n       CAST(\n          cuasset - c95 AS DECIMAL(16, 5)\n         ) / NULLIF(\n           CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n         ) AS liquidity,\n        &#39;FAKE&#39; AS fake \n      FROM \n        test \n      WHERE \n        year in (\n          &#39;2000&#39;, &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, \n          &#39;2005&#39;, &#39;2006&#39;, &#39;2007&#39;\n        )\n    ) \n    SELECT \n      ratio.firm, \n      ratio.year, \n      CASE WHEN ratio.year in (\n        &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;\n      ) THEN &#39;FALSE&#39; WHEN ratio.year in (&#39;2006&#39;, &#39;2007&#39;) THEN &#39;TRUE&#39; END AS period, \n      ratio.cic, \n      ratio.indu_2, \n      CASE WHEN short IS NULL THEN &#39;Unknown&#39; ELSE short END AS short, \n      ratio.geocode4_corr,\n      province_en,\n      CASE WHEN tcz IS NULL THEN &#39;0&#39; ELSE tcz END AS tcz, \n      CASE WHEN spz IS NULL \n      OR spz = &#39;#N/A&#39; THEN &#39;0&#39; ELSE spz END AS spz, \n      ratio.ownership, \n      soe_vs_pri, \n      for_vs_dom, \n      tso2_mandate_c, \n      in_10_000_tonnes, \n      ratio.output, \n      ratio.employment, \n      ratio.capital, \n      cuasset, \n      tofixed, \n      error, \n      total_liabilities, \n      total_asset, \n      intangible, \n      tangible,\n      c91,\n      c92,\n      cash, \n      cashflow, \n      sales, \n      tfp_op, \n      credit_constraint,\n      d_credit_constraint,\n      supply_all_credit,\n      supply_long_term_credit,\n      current_ratio, \n      quick_ratio, \n      liabilities_tot_asset, \n      sales_tot_asset, \n      cash_tot_asset, \n      investment_tot_asset, \n      rd_tot_asset, \n      asset_tangibility_tot_asset, \n      cashflow_tot_asset, \n      cashflow_to_tangible, \n      CASE WHEN coverage_ratio IS NULL THEN 0 ELSE coverage_ratio END AS coverage_ratio,\n      liquidity,\n      CASE WHEN avg_asset_tangibility_f &gt; avg_asset_tangibility_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_size_asset_fci, \n      CASE WHEN avg_output_f &gt; avg_output_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_size_output_fci, \n      CASE WHEN avg_employment_f &gt; avg_employment_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_employment_fci, \n      CASE WHEN avg_capital_f &gt; avg_capital_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_size_capital_fci, \n      CASE WHEN avg_sales_f &gt; avg_sales_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_sales_fci, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_asset_tangibility_f\n          ), \n          pct_asset_tangibility_ci, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_asset_fci,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_asset_tangibility_f\n          ), \n          pct_asset_tangibility_c, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_asset_fc, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_asset_tangibility_f\n          ), \n          pct_asset_tangibility_i, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_asset_fi,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_output_f\n          ), \n          pct_output_ci, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_output_fci,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_output_f\n          ), \n          pct_output_c, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_output_fc,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_output_f\n          ), \n          pct_output_i, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_output_fi,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_employment_f\n          ), \n          pct_employment_ci, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_employment_fci, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_employment_f\n          ), \n          pct_employment_c, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_employment_fc, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_employment_f\n          ), \n          pct_employment_i, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_employment_fi, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_capital_f\n          ), \n          pct_capital_ci, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_capital_fci, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_capital_f\n          ), \n          pct_capital_c, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_capital_fc, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_capital_f\n          ), \n          pct_capital_i, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_capital_fi, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_sales_f\n          ), \n          pct_sales_ci, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_sales_fci, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_sales_f\n          ), \n          pct_sales_c, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_sales_fc,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_sales_f\n          ), \n          pct_sales_i, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_sales_fi,\n      count_ownership,\n      count_city,\n      count_industry,\n      DENSE_RANK() OVER (\n        ORDER BY \n          ratio.geocode4_corr, \n          ratio.cic\n      ) AS fe_c_i, \n      DENSE_RANK() OVER (\n        ORDER BY \n          ratio.year, \n          ratio.cic\n      ) AS fe_t_i, \n      DENSE_RANK() OVER (\n        ORDER BY \n          ratio.geocode4_corr, \n          ratio.year\n      ) AS fe_c_t \n    FROM \n      ratio \n      INNER JOIN (\n        SELECT \n          year, \n          geocode4_corr, \n          provinces, \n          cityen, \n          indus_code AS cic, \n          SUM(tso2) as tso2, \n          lower_location, \n          larger_location, \n          coastal \n        FROM \n          (\n            SELECT \n              year, \n              provinces, \n              citycode, \n              geocode4_corr, \n              china_city_sector_pollution.cityen, \n              indus_code, \n              tso2, \n              lower_location, \n              larger_location, \n              coastal \n            FROM \n              environment.china_city_sector_pollution \n              INNER JOIN (\n                SELECT \n                  extra_code, \n                  geocode4_corr \n                FROM \n                  chinese_lookup.china_city_code_normalised \n                GROUP BY \n                  extra_code, \n                  geocode4_corr\n              ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code\n          ) \n        GROUP BY \n          year, \n          provinces, \n          geocode4_corr, \n          cityen, \n          indus_code, \n          lower_location, \n          larger_location, \n          coastal\n      ) as aggregate_pol ON ratio.year = aggregate_pol.year \n      AND ratio.geocode4_corr = aggregate_pol.geocode4_corr \n      AND ratio.cic = aggregate_pol.cic \n      INNER JOIN (\n        SELECT \n          geocode4_corr, \n          tso2_mandate_c, \n          in_10_000_tonnes \n        FROM \n          policy.china_city_reduction_mandate \n          INNER JOIN chinese_lookup.china_city_code_normalised ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn \n        WHERE \n          extra_code = geocode4_corr\n      ) as city_mandate ON ratio.geocode4_corr = city_mandate.geocode4_corr \n      LEFT JOIN policy.china_city_tcz_spz ON ratio.geocode4_corr = china_city_tcz_spz.geocode4_corr \n      LEFT JOIN chinese_lookup.ind_cic_2_name ON ratio.indu_2 = ind_cic_2_name.cic\n      LEFT JOIN chinese_lookup.province_credit_constraint ON ratio.province_en = province_credit_constraint.Province\n      LEFT JOIN (\n        SELECT \n          cic, \n          financial_dep_china AS credit_constraint, \n          CASE WHEN financial_dep_china &gt; -.47 THEN &#39;ABOVE&#39; ELSE &#39;BELOW&#39; END AS d_credit_constraint \n        FROM \n          industry.china_credit_constraint\n      ) as cred_constraint ON ratio.indu_2 = cred_constraint.cic \n      LEFT JOIN (\n        SELECT \n          -- fake, \n          geocode4_corr, \n          indu_2,\n          approx_percentile(\n            avg_asset_tangibility_f, ARRAY[.5, \n            .75,.90,.95]\n          ) as pct_asset_tangibility_ci, \n          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility_ci, \n          approx_percentile(\n            avg_output_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_output_ci, \n          AVG(avg_output_f) AS avg_output_ci, \n          approx_percentile(\n            avg_employment_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_employment_ci, \n          AVG(avg_employment_f) AS avg_employment_ci, \n          approx_percentile(\n            avg_capital_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_capital_ci, \n          AVG(avg_capital_f) AS avg_capital_ci, \n          approx_percentile(\n            avg_sales_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_sales_ci, \n          AVG(avg_sales_f) AS avg_sales_ci \n        FROM \n          (\n            SELECT \n              firm, \n              geocode4_corr,\n              indu_2,\n              -- fake, \n              AVG(tangible) as avg_asset_tangibility_f, \n              AVG(output) as avg_output_f, \n              AVG(employment) as avg_employment_f, \n              AVG(capital) as avg_capital_f, \n              AVG(sales) as avg_sales_f \n            FROM \n              ratio \n            GROUP BY \n              -- fake, \n              firm,\n              geocode4_corr,\n              indu_2\n          ) \n        GROUP BY \n          -- fake\n          geocode4_corr, \n          indu_2\n      ) as pct_ci ON ratio.geocode4_corr = pct_ci.geocode4_corr \n    AND ratio.indu_2 = pct_ci.indu_2\n    LEFT JOIN (\n        SELECT \n          -- fake, \n          geocode4_corr, \n          approx_percentile(\n            avg_asset_tangibility_f, ARRAY[.5, \n            .75,.90,.95]\n          ) as pct_asset_tangibility_c, \n          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility_c, \n          approx_percentile(\n            avg_output_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_output_c, \n          AVG(avg_output_f) AS avg_output_c, \n          approx_percentile(\n            avg_employment_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_employment_c, \n          AVG(avg_employment_f) AS avg_employment_c, \n          approx_percentile(\n            avg_capital_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_capital_c, \n          AVG(avg_capital_f) AS avg_capital_c, \n          approx_percentile(\n            avg_sales_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_sales_c, \n          AVG(avg_sales_f) AS avg_sales_c\n        FROM \n          (\n            SELECT \n              firm, \n              geocode4_corr,\n              -- fake, \n              AVG(tangible) as avg_asset_tangibility_f, \n              AVG(output) as avg_output_f, \n              AVG(employment) as avg_employment_f, \n              AVG(capital) as avg_capital_f, \n              AVG(sales) as avg_sales_f \n            FROM \n              ratio \n            GROUP BY \n              -- fake, \n              firm,\n              geocode4_corr\n          ) \n        GROUP BY \n          -- fake\n          geocode4_corr\n      ) as pct_c ON ratio.geocode4_corr = pct_c.geocode4_corr\n      LEFT JOIN (\n        SELECT \n          -- fake, \n          indu_2, \n          approx_percentile(\n            avg_asset_tangibility_f, ARRAY[.5, \n            .75,.90,.95]\n          ) as pct_asset_tangibility_i, \n          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility_i, \n          approx_percentile(\n            avg_output_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_output_i, \n          AVG(avg_output_f) AS avg_output_i, \n          approx_percentile(\n            avg_employment_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_employment_i, \n          AVG(avg_employment_f) AS avg_employment_i, \n          approx_percentile(\n            avg_capital_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_capital_i, \n          AVG(avg_capital_f) AS avg_capital_i, \n          approx_percentile(\n            avg_sales_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_sales_i, \n          AVG(avg_sales_f) AS avg_sales_i\n        FROM \n          (\n            SELECT \n              firm, \n              indu_2,\n              -- fake, \n              AVG(tangible) as avg_asset_tangibility_f, \n              AVG(output) as avg_output_f, \n              AVG(employment) as avg_employment_f, \n              AVG(capital) as avg_capital_f, \n              AVG(sales) as avg_sales_f \n            FROM \n              ratio \n            GROUP BY \n              -- fake, \n              firm,\n              indu_2\n          ) \n        GROUP BY \n          -- fake\n          indu_2\n      ) as pct_i ON ratio.indu_2 = pct_i.indu_2 \n      INNER JOIN (\n        SELECT \n          firm, \n          -- fake, \n          AVG(tangible) as avg_asset_tangibility_f,\n          AVG(output) as avg_output_f, \n          AVG(employment) as avg_employment_f, \n          AVG(capital) as avg_capital_f, \n          AVG(sales) as avg_sales_f\n        FROM \n          ratio \n        GROUP BY \n          -- fake, \n          firm\n      ) as firm_avg ON ratio.firm = firm_avg.firm\n    INNER JOIN firms_survey.asif_tfp_firm_level on \n      ratio.firm = asif_tfp_firm_level.firm \n      AND ratio.year = asif_tfp_firm_level.year\n      AND ratio.geocode4_corr = asif_tfp_firm_level.geocode4_corr\n      AND ratio.ownership = asif_tfp_firm_level.ownership\n    -- WHERE \n    --  count_ownership = &#39;1&#39; \n    --  AND count_city = &#39;1&#39; \n    --  AND count_industry = &#39;1&#39; \n      AND ratio.output &gt; 0 \n      and ratio.capital &gt; 0 \n      and ratio.employment &gt; 0 \n      AND ratio.indu_2 != &#39;43&#39; \n      AND total_asset &gt; 0 \n      AND tangible &gt; 0\n      AND quick_ratio &gt; 0\n      AND current_ratio &gt; 0\n      AND liabilities_tot_asset &gt; 0\n      AND sales_tot_asset &gt; 0\n      AND cash_tot_asset &gt; 0\n      AND cashflow_tot_asset &gt; 0\n    ORDER BY \n      year \n  )\n&#34;,
+ &#39;schema&#39;: [{&#39;Name&#39;: &#39;firm&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;firm ID&#39;},
+  {&#39;Name&#39;: &#39;year&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;year&#39;},
+  {&#39;Name&#39;: &#39;period&#39;,
+   &#39;Type&#39;: &#39;varchar(5)&#39;,
+   &#39;Comment&#39;: &#39;if year prior to 2006 then False else true. Indicate break from 10 and 11 FYP&#39;},
+  {&#39;Name&#39;: &#39;cic&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;4 digits industry code&#39;},
+  {&#39;Name&#39;: &#39;indu_2&#39;,
+   &#39;Type&#39;: &#39;string&#39;,
+   &#39;Comment&#39;: &#39;Two digits industry. If length cic equals to 3, then add 0 to indu_2&#39;},
+  {&#39;Name&#39;: &#39;short&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;Industry short description&#39;},
+  {&#39;Name&#39;: &#39;geocode4_corr&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;city code&#39;},
+  {&#39;Name&#39;: &#39;tcz&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;Two control zone policy&#39;},
+  {&#39;Name&#39;: &#39;spz&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;Special policy zone&#39;},
+  {&#39;Name&#39;: &#39;ownership&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;Firms ownership&#39;},
+  {&#39;Name&#39;: &#39;soe_vs_pri&#39;, &#39;Type&#39;: &#39;varchar(7)&#39;, &#39;Comment&#39;: &#39;SOE vs PRIVATE&#39;},
+  {&#39;Name&#39;: &#39;for_vs_dom&#39;,
+   &#39;Type&#39;: &#39;varchar(8)&#39;,
+   &#39;Comment&#39;: &#39;FOREIGN vs DOMESTICT if ownership is HTM then FOREIGN&#39;},
+  {&#39;Name&#39;: &#39;tso2_mandate_c&#39;,
+   &#39;Type&#39;: &#39;float&#39;,
+   &#39;Comment&#39;: &#39;city reduction mandate in tonnes&#39;},
+  {&#39;Name&#39;: &#39;in_10_000_tonnes&#39;,
+   &#39;Type&#39;: &#39;float&#39;,
+   &#39;Comment&#39;: &#39;city reduction mandate in 10k tonnes&#39;},
+  {&#39;Name&#39;: &#39;output&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;Output&#39;},
+  {&#39;Name&#39;: &#39;employment&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;employment&#39;},
+  {&#39;Name&#39;: &#39;capital&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;capital&#39;},
+  {&#39;Name&#39;: &#39;cuasset&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;current asset&#39;},
+  {&#39;Name&#39;: &#39;tofixed&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;total fixed asset&#39;},
+  {&#39;Name&#39;: &#39;error&#39;,
+   &#39;Type&#39;: &#39;int&#39;,
+   &#39;Comment&#39;: &#39;difference between cuasset+tofixed and total liabilities +equity. Error makes the balance sheet equation right&#39;},
+  {&#39;Name&#39;: &#39;total_liabilities&#39;,
+   &#39;Type&#39;: &#39;int&#39;,
+   &#39;Comment&#39;: &#39;total adjusted liabilities&#39;},
+  {&#39;Name&#39;: &#39;total_asset&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;total adjusted asset&#39;},
+  {&#39;Name&#39;: &#39;intangible&#39;,
+   &#39;Type&#39;: &#39;int&#39;,
+   &#39;Comment&#39;: &#39;intangible asset measured as the sum of intangibles variables&#39;},
+  {&#39;Name&#39;: &#39;tangible&#39;,
+   &#39;Type&#39;: &#39;int&#39;,
+   &#39;Comment&#39;: &#39;tangible asset measured as the difference between total fixed asset minus intangible asset&#39;},
+  {&#39;Name&#39;: &#39;c91&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;Intangible and Deferred&#39;},
+  {&#39;Name&#39;: &#39;c92&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;Intangible assets&#39;},
+  {&#39;Name&#39;: &#39;cash&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;cash &#39;},
+  {&#39;Name&#39;: &#39;cashflow&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;cash flow&#39;},
+  {&#39;Name&#39;: &#39;sales&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;sales&#39;},
+  {&#39;Name&#39;: &#39;tfp_op&#39;,
+   &#39;Type&#39;: &#39;double&#39;,
+   &#39;Comment&#39;: &#39;TFP. Computed from https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md&#39;},
+  {&#39;Name&#39;: &#39;credit_constraint&#39;,
+   &#39;Type&#39;: &#39;float&#39;,
+   &#39;Comment&#39;: &#39;Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311&#39;},
+  {&#39;Name&#39;: &#39;supply_all_credit&#39;,
+   &#39;Type&#39;: &#39;double&#39;,
+   &#39;Comment&#39;: &#39;total credit over gdp province&#39;},
+  {&#39;Name&#39;: &#39;supply_long_term_credit&#39;,
+   &#39;Type&#39;: &#39;float&#39;,
+   &#39;Comment&#39;: &#39;total long term credit over gdp province&#39;},
+  {&#39;Name&#39;: &#39;current_ratio&#39;,
+   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+   &#39;Comment&#39;: &#39;current ratio cuasset/流动负债合计 (c95)&#39;},
+  {&#39;Name&#39;: &#39;quick_ratio&#39;,
+   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+   &#39;Comment&#39;: &#39;quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)&#39;},
+  {&#39;Name&#39;: &#39;liabilities_tot_asset&#39;,
+   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+   &#39;Comment&#39;: &#39;liabilities to total asset&#39;},
+  {&#39;Name&#39;: &#39;sales_tot_asset&#39;,
+   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+   &#39;Comment&#39;: &#39;sales to total asset&#39;},
+  {&#39;Name&#39;: &#39;cash_tot_asset&#39;,
+   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+   &#39;Comment&#39;: &#39;cash to total asset&#39;},
+  {&#39;Name&#39;: &#39;investment_tot_asset&#39;,
+   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+   &#39;Comment&#39;: &#39;investment to total asset&#39;},
+  {&#39;Name&#39;: &#39;rd_tot_asset&#39;,
+   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+   &#39;Comment&#39;: &#39;rd to total asset&#39;},
+  {&#39;Name&#39;: &#39;asset_tangibility_tot_asset&#39;,
+   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+   &#39;Comment&#39;: &#39;asset tangibility to total asset&#39;},
+  {&#39;Name&#39;: &#39;cashflow_tot_asset&#39;,
+   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+   &#39;Comment&#39;: &#39;cashflow to total asset&#39;},
+  {&#39;Name&#39;: &#39;cashflow_to_tangible&#39;,
+   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+   &#39;Comment&#39;: &#39;cashflow to tangible asset&#39;},
+  {&#39;Name&#39;: &#39;coverage_ratio&#39;,
+   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+   &#39;Comment&#39;: &#39;net income(c131) /total interest payments&#39;},
+  {&#39;Name&#39;: &#39;liquidity&#39;,
+   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+   &#39;Comment&#39;: &#39;current assets-current liabilities/total assets&#39;},
+  {&#39;Name&#39;: &#39;avg_size_asset_f&#39;,
+   &#39;Type&#39;: &#39;varchar(5)&#39;,
+   &#39;Comment&#39;: &#39;if firm s asset tangibility average is above average of firm s average then firm is large&#39;},
+  {&#39;Name&#39;: &#39;avg_size_output_f&#39;,
+   &#39;Type&#39;: &#39;varchar(5)&#39;,
+   &#39;Comment&#39;: &#39;if firm s ouptut average is above average of firm s average then firm is large&#39;},
+  {&#39;Name&#39;: &#39;avg_employment_f&#39;,
+   &#39;Type&#39;: &#39;varchar(5)&#39;,
+   &#39;Comment&#39;: &#39;if firm s employment average is above average of firm s average then firm is large&#39;},
+  {&#39;Name&#39;: &#39;avg_size_capital_f&#39;,
+   &#39;Type&#39;: &#39;varchar(5)&#39;,
+   &#39;Comment&#39;: &#39;if firm s capital average is above average of firm s average then firm is large&#39;},
+  {&#39;Name&#39;: &#39;avg_sales_f&#39;,
+   &#39;Type&#39;: &#39;varchar(5)&#39;,
+   &#39;Comment&#39;: &#39;if firm s sale is above average of firm s average then firm is large&#39;},
+  {&#39;Name&#39;: &#39;size_asset_fci&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+   &#39;Comment&#39;: &#39;if firm s asset tangibility average is above average of firm city industry s decile then firm is large&#39;},
+  {&#39;Name&#39;: &#39;size_asset_fc&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+   &#39;Comment&#39;: &#39;if firm s asset tangibility average is above average of firm s city decile then firm is large&#39;},
+  {&#39;Name&#39;: &#39;size_asset_fi&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+   &#39;Comment&#39;: &#39;if firm s asset tangibility average is above average of firm s industry decile then firm is large&#39;},
+  {&#39;Name&#39;: &#39;size_output_fci&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+   &#39;Comment&#39;: &#39;if firm s ouptut average is above average of firm s city industry decile then firm is large&#39;},
+  {&#39;Name&#39;: &#39;size_output_fc&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+   &#39;Comment&#39;: &#39;if firm s ouptut average is above average of firm s city decile then firm is large&#39;},
+  {&#39;Name&#39;: &#39;size_output_fi&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+   &#39;Comment&#39;: &#39;if firm s ouptut average is above average of firm s industry decile then firm is large&#39;},
+  {&#39;Name&#39;: &#39;size_employment_fci&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+   &#39;Comment&#39;: &#39;if firm s employment average is above average of firm s city industry decile then firm is large&#39;},
+  {&#39;Name&#39;: &#39;size_employment_fc&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+   &#39;Comment&#39;: &#39;if firm s employment average is above average of firm s city decile then firm is large&#39;},
+  {&#39;Name&#39;: &#39;size_employment_fi&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+   &#39;Comment&#39;: &#39;if firm s employment average is above average of firm s industry decile then firm is large&#39;},
+  {&#39;Name&#39;: &#39;size_capital_fci&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+   &#39;Comment&#39;: &#39;if firm s capital average is above average of firm s city industry decile then firm is large&#39;},
+  {&#39;Name&#39;: &#39;size_capital_fc&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+   &#39;Comment&#39;: &#39;if firm s capital average is above average of firm s city decile then firm is large&#39;},
+  {&#39;Name&#39;: &#39;size_capital_fi&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+   &#39;Comment&#39;: &#39;if firm s capital average is above average of firm s industry decile then firm is large&#39;},
+  {&#39;Name&#39;: &#39;size_sales_fci&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+   &#39;Comment&#39;: &#39;if firm s sale is above average of firm s city industry decile then firm is large&#39;},
+  {&#39;Name&#39;: &#39;size_sales_fc&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+   &#39;Comment&#39;: &#39;if firm s sale is above average of firm s city decile then firm is large&#39;},
+  {&#39;Name&#39;: &#39;size_sales_fi&#39;,
+   &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+   &#39;Comment&#39;: &#39;if firm s sale is above average of firm s industry decile then firm is large&#39;},
+  {&#39;Name&#39;: &#39;fe_c_i&#39;,
+   &#39;Type&#39;: &#39;bigint&#39;,
+   &#39;Comment&#39;: &#39;City industry fixed effect&#39;},
+  {&#39;Name&#39;: &#39;fe_t_i&#39;,
+   &#39;Type&#39;: &#39;bigint&#39;,
+   &#39;Comment&#39;: &#39;year industry fixed effect&#39;},
+  {&#39;Name&#39;: &#39;fe_c_t&#39;,
+   &#39;Type&#39;: &#39;bigint&#39;,
+   &#39;Comment&#39;: &#39;city industry fixed effect&#39;}],
+ &#39;partition_keys&#39;: [&#39;firm&#39;, &#39;year&#39;, &#39;cic&#39;, &#39;geocode4_corr&#39;],
+ &#39;metadata&#39;: {&#39;DatabaseName&#39;: &#39;firms_survey&#39;,
+  &#39;TableName&#39;: &#39;asif_tfp_credit_constraint&#39;,
+  &#39;target_S3URI&#39;: &#39;s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/TFP/CREDIT_CONSTRAINT&#39;,
+  &#39;from_athena&#39;: &#39;True&#39;}}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[21]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
@@ -16055,7 +17682,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[22]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">index_to_remove</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
@@ -16078,7 +17705,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[23]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;TABLES&#39;</span><span class="p">][</span><span class="s1">&#39;TRANSFORMATION&#39;</span><span class="p">][</span><span class="s1">&#39;STEPS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">json_etl</span><span class="p">)</span>
@@ -16098,7 +17725,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span><span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
@@ -16137,10 +17764,10 @@ Make sure there is no duplicates</p>
 ]</code></pre>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[25]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">update_schema_table</span><span class="p">(</span>
@@ -16154,6 +17781,36 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[25]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;6104f234-af68-4dae-b23e-21aa2461d035&#39;,
+  &#39;HTTPStatusCode&#39;: 200,
+  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Fri, 29 Jan 2021 10:06:02 GMT&#39;,
+   &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;,
+   &#39;content-length&#39;: &#39;2&#39;,
+   &#39;connection&#39;: &#39;keep-alive&#39;,
+   &#39;x-amzn-requestid&#39;: &#39;6104f234-af68-4dae-b23e-21aa2461d035&#39;},
+  &#39;RetryAttempts&#39;: 0}}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
@@ -16164,7 +17821,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;firm&quot;</span><span class="p">,</span><span class="s2">&quot;year&quot;</span><span class="p">,</span><span class="s2">&quot;cic&quot;</span><span class="p">,</span><span class="s2">&quot;geocode4_corr&quot;</span><span class="p">]</span>
@@ -16178,10 +17835,10 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### COUNT DUPLICATES</span>
@@ -16204,15 +17861,67 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output " data-mime-type="text/html">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>CNT</th>
+      <th>CNT_DUPLICATE</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>447766</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Count-missing-values">Count missing values<a class="anchor-link" href="#Count-missing-values">&#182;</a></h2>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[28]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#table = &#39;XX&#39;</span>
@@ -16228,10 +17937,222 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[28]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;Name&#39;: &#39;asif_tfp_credit_constraint&#39;,
+ &#39;DatabaseName&#39;: &#39;firms_survey&#39;,
+ &#39;Owner&#39;: &#39;468786073381&#39;,
+ &#39;CreateTime&#39;: datetime.datetime(2021, 1, 29, 10, 5, 48, tzinfo=tzlocal()),
+ &#39;UpdateTime&#39;: datetime.datetime(2021, 1, 29, 10, 6, 2, tzinfo=tzlocal()),
+ &#39;LastAccessTime&#39;: datetime.datetime(1970, 1, 1, 0, 0, tzinfo=tzlocal()),
+ &#39;Retention&#39;: 0,
+ &#39;StorageDescriptor&#39;: {&#39;Columns&#39;: [{&#39;Name&#39;: &#39;firm&#39;,
+    &#39;Type&#39;: &#39;string&#39;,
+    &#39;Comment&#39;: &#39;firm ID&#39;},
+   {&#39;Name&#39;: &#39;year&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;year&#39;},
+   {&#39;Name&#39;: &#39;period&#39;,
+    &#39;Type&#39;: &#39;varchar(5)&#39;,
+    &#39;Comment&#39;: &#39;if year prior to 2006 then False else true. Indicate break from 10 and 11 FYP&#39;},
+   {&#39;Name&#39;: &#39;cic&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;4 digits industry code&#39;},
+   {&#39;Name&#39;: &#39;indu_2&#39;,
+    &#39;Type&#39;: &#39;string&#39;,
+    &#39;Comment&#39;: &#39;Two digits industry. If length cic equals to 3, then add 0 to indu_2&#39;},
+   {&#39;Name&#39;: &#39;short&#39;,
+    &#39;Type&#39;: &#39;string&#39;,
+    &#39;Comment&#39;: &#39;Industry short description&#39;},
+   {&#39;Name&#39;: &#39;geocode4_corr&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;city code&#39;},
+   {&#39;Name&#39;: &#39;province_en&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;tcz&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;Two control zone policy&#39;},
+   {&#39;Name&#39;: &#39;spz&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;Special policy zone&#39;},
+   {&#39;Name&#39;: &#39;ownership&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;Firms ownership&#39;},
+   {&#39;Name&#39;: &#39;soe_vs_pri&#39;, &#39;Type&#39;: &#39;varchar(7)&#39;, &#39;Comment&#39;: &#39;SOE vs PRIVATE&#39;},
+   {&#39;Name&#39;: &#39;for_vs_dom&#39;,
+    &#39;Type&#39;: &#39;varchar(8)&#39;,
+    &#39;Comment&#39;: &#39;FOREIGN vs DOMESTICT if ownership is HTM then FOREIGN&#39;},
+   {&#39;Name&#39;: &#39;tso2_mandate_c&#39;,
+    &#39;Type&#39;: &#39;float&#39;,
+    &#39;Comment&#39;: &#39;city reduction mandate in tonnes&#39;},
+   {&#39;Name&#39;: &#39;in_10_000_tonnes&#39;,
+    &#39;Type&#39;: &#39;float&#39;,
+    &#39;Comment&#39;: &#39;city reduction mandate in 10k tonnes&#39;},
+   {&#39;Name&#39;: &#39;output&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;Output&#39;},
+   {&#39;Name&#39;: &#39;employment&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;employment&#39;},
+   {&#39;Name&#39;: &#39;capital&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;capital&#39;},
+   {&#39;Name&#39;: &#39;cuasset&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;current asset&#39;},
+   {&#39;Name&#39;: &#39;tofixed&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;total fixed asset&#39;},
+   {&#39;Name&#39;: &#39;error&#39;,
+    &#39;Type&#39;: &#39;int&#39;,
+    &#39;Comment&#39;: &#39;difference between cuasset+tofixed and total liabilities +equity. Error makes the balance sheet equation right&#39;},
+   {&#39;Name&#39;: &#39;total_liabilities&#39;,
+    &#39;Type&#39;: &#39;int&#39;,
+    &#39;Comment&#39;: &#39;total adjusted liabilities&#39;},
+   {&#39;Name&#39;: &#39;total_asset&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;total adjusted asset&#39;},
+   {&#39;Name&#39;: &#39;intangible&#39;,
+    &#39;Type&#39;: &#39;int&#39;,
+    &#39;Comment&#39;: &#39;intangible asset measured as the sum of intangibles variables&#39;},
+   {&#39;Name&#39;: &#39;tangible&#39;,
+    &#39;Type&#39;: &#39;int&#39;,
+    &#39;Comment&#39;: &#39;tangible asset measured as the difference between total fixed asset minus intangible asset&#39;},
+   {&#39;Name&#39;: &#39;c91&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;Intangible and Deferred&#39;},
+   {&#39;Name&#39;: &#39;c92&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;Intangible assets&#39;},
+   {&#39;Name&#39;: &#39;cash&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;cash &#39;},
+   {&#39;Name&#39;: &#39;cashflow&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;cash flow&#39;},
+   {&#39;Name&#39;: &#39;sales&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;sales&#39;},
+   {&#39;Name&#39;: &#39;tfp_op&#39;,
+    &#39;Type&#39;: &#39;double&#39;,
+    &#39;Comment&#39;: &#39;TFP. Computed from https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md&#39;},
+   {&#39;Name&#39;: &#39;credit_constraint&#39;,
+    &#39;Type&#39;: &#39;float&#39;,
+    &#39;Comment&#39;: &#39;Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311&#39;},
+   {&#39;Name&#39;: &#39;d_credit_constraint&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;supply_all_credit&#39;,
+    &#39;Type&#39;: &#39;double&#39;,
+    &#39;Comment&#39;: &#39;total credit over gdp province&#39;},
+   {&#39;Name&#39;: &#39;supply_long_term_credit&#39;,
+    &#39;Type&#39;: &#39;float&#39;,
+    &#39;Comment&#39;: &#39;total long term credit over gdp province&#39;},
+   {&#39;Name&#39;: &#39;current_ratio&#39;,
+    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+    &#39;Comment&#39;: &#39;current ratio cuasset/流动负债合计 (c95)&#39;},
+   {&#39;Name&#39;: &#39;quick_ratio&#39;,
+    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+    &#39;Comment&#39;: &#39;quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)&#39;},
+   {&#39;Name&#39;: &#39;liabilities_tot_asset&#39;,
+    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+    &#39;Comment&#39;: &#39;liabilities to total asset&#39;},
+   {&#39;Name&#39;: &#39;sales_tot_asset&#39;,
+    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+    &#39;Comment&#39;: &#39;sales to total asset&#39;},
+   {&#39;Name&#39;: &#39;cash_tot_asset&#39;,
+    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+    &#39;Comment&#39;: &#39;cash to total asset&#39;},
+   {&#39;Name&#39;: &#39;investment_tot_asset&#39;,
+    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+    &#39;Comment&#39;: &#39;investment to total asset&#39;},
+   {&#39;Name&#39;: &#39;rd_tot_asset&#39;,
+    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+    &#39;Comment&#39;: &#39;rd to total asset&#39;},
+   {&#39;Name&#39;: &#39;asset_tangibility_tot_asset&#39;,
+    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+    &#39;Comment&#39;: &#39;asset tangibility to total asset&#39;},
+   {&#39;Name&#39;: &#39;cashflow_tot_asset&#39;,
+    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+    &#39;Comment&#39;: &#39;cashflow to total asset&#39;},
+   {&#39;Name&#39;: &#39;cashflow_to_tangible&#39;,
+    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+    &#39;Comment&#39;: &#39;cashflow to tangible asset&#39;},
+   {&#39;Name&#39;: &#39;coverage_ratio&#39;,
+    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+    &#39;Comment&#39;: &#39;net income(c131) /total interest payments&#39;},
+   {&#39;Name&#39;: &#39;liquidity&#39;,
+    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+    &#39;Comment&#39;: &#39;current assets-current liabilities/total assets&#39;},
+   {&#39;Name&#39;: &#39;avg_size_asset_fci&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;avg_size_output_fci&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;avg_employment_fci&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;avg_size_capital_fci&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;avg_sales_fci&#39;, &#39;Type&#39;: &#39;varchar(5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;size_asset_fci&#39;,
+    &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+    &#39;Comment&#39;: &#39;if firm s asset tangibility average is above average of firm city industry s decile then firm is large&#39;},
+   {&#39;Name&#39;: &#39;size_asset_fc&#39;,
+    &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+    &#39;Comment&#39;: &#39;if firm s asset tangibility average is above average of firm s city decile then firm is large&#39;},
+   {&#39;Name&#39;: &#39;size_asset_fi&#39;,
+    &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+    &#39;Comment&#39;: &#39;if firm s asset tangibility average is above average of firm s industry decile then firm is large&#39;},
+   {&#39;Name&#39;: &#39;size_output_fci&#39;,
+    &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+    &#39;Comment&#39;: &#39;if firm s ouptut average is above average of firm s city industry decile then firm is large&#39;},
+   {&#39;Name&#39;: &#39;size_output_fc&#39;,
+    &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+    &#39;Comment&#39;: &#39;if firm s ouptut average is above average of firm s city decile then firm is large&#39;},
+   {&#39;Name&#39;: &#39;size_output_fi&#39;,
+    &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+    &#39;Comment&#39;: &#39;if firm s ouptut average is above average of firm s industry decile then firm is large&#39;},
+   {&#39;Name&#39;: &#39;size_employment_fci&#39;,
+    &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+    &#39;Comment&#39;: &#39;if firm s employment average is above average of firm s city industry decile then firm is large&#39;},
+   {&#39;Name&#39;: &#39;size_employment_fc&#39;,
+    &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+    &#39;Comment&#39;: &#39;if firm s employment average is above average of firm s city decile then firm is large&#39;},
+   {&#39;Name&#39;: &#39;size_employment_fi&#39;,
+    &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+    &#39;Comment&#39;: &#39;if firm s employment average is above average of firm s industry decile then firm is large&#39;},
+   {&#39;Name&#39;: &#39;size_capital_fci&#39;,
+    &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+    &#39;Comment&#39;: &#39;if firm s capital average is above average of firm s city industry decile then firm is large&#39;},
+   {&#39;Name&#39;: &#39;size_capital_fc&#39;,
+    &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+    &#39;Comment&#39;: &#39;if firm s capital average is above average of firm s city decile then firm is large&#39;},
+   {&#39;Name&#39;: &#39;size_capital_fi&#39;,
+    &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+    &#39;Comment&#39;: &#39;if firm s capital average is above average of firm s industry decile then firm is large&#39;},
+   {&#39;Name&#39;: &#39;size_sales_fci&#39;,
+    &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+    &#39;Comment&#39;: &#39;if firm s sale is above average of firm s city industry decile then firm is large&#39;},
+   {&#39;Name&#39;: &#39;size_sales_fc&#39;,
+    &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+    &#39;Comment&#39;: &#39;if firm s sale is above average of firm s city decile then firm is large&#39;},
+   {&#39;Name&#39;: &#39;size_sales_fi&#39;,
+    &#39;Type&#39;: &#39;map&lt;double,boolean&gt;&#39;,
+    &#39;Comment&#39;: &#39;if firm s sale is above average of firm s industry decile then firm is large&#39;},
+   {&#39;Name&#39;: &#39;count_ownership&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;count_city&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;count_industry&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
+   {&#39;Name&#39;: &#39;fe_c_i&#39;,
+    &#39;Type&#39;: &#39;bigint&#39;,
+    &#39;Comment&#39;: &#39;City industry fixed effect&#39;},
+   {&#39;Name&#39;: &#39;fe_t_i&#39;,
+    &#39;Type&#39;: &#39;bigint&#39;,
+    &#39;Comment&#39;: &#39;year industry fixed effect&#39;},
+   {&#39;Name&#39;: &#39;fe_c_t&#39;,
+    &#39;Type&#39;: &#39;bigint&#39;,
+    &#39;Comment&#39;: &#39;city industry fixed effect&#39;}],
+  &#39;Location&#39;: &#39;s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/TFP/CREDIT_CONSTRAINT/tables/4d8a7740-14f5-450f-a27e-eabd3387853f&#39;,
+  &#39;InputFormat&#39;: &#39;org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat&#39;,
+  &#39;OutputFormat&#39;: &#39;org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat&#39;,
+  &#39;Compressed&#39;: False,
+  &#39;NumberOfBuckets&#39;: 0,
+  &#39;SerdeInfo&#39;: {&#39;Name&#39;: &#39;asif_tfp_credit_constraint&#39;,
+   &#39;SerializationLibrary&#39;: &#39;org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe&#39;,
+   &#39;Parameters&#39;: {}},
+  &#39;BucketColumns&#39;: [],
+  &#39;SortColumns&#39;: [],
+  &#39;Parameters&#39;: {},
+  &#39;StoredAsSubDirectories&#39;: False},
+ &#39;PartitionKeys&#39;: [],
+ &#39;ViewOriginalText&#39;: &#39;&#39;,
+ &#39;ViewExpandedText&#39;: &#39;&#39;,
+ &#39;TableType&#39;: &#39;EXTERNAL_TABLE&#39;,
+ &#39;Parameters&#39;: {&#39;EXTERNAL&#39;: &#39;TRUE&#39;, &#39;has_encrypted_data&#39;: &#39;false&#39;},
+ &#39;CreatedBy&#39;: &#39;arn:aws:iam::468786073381:user/financial_dep_SO2&#39;,
+ &#39;IsRegisteredWithLakeFormation&#39;: False,
+ &#39;CatalogId&#39;: &#39;468786073381&#39;}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
@@ -16243,10 +18164,10 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[30]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">table_top</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;ANALYSIS&quot;</span><span class="p">][</span><span class="s2">&quot;COUNT_MISSING&quot;</span><span class="p">][</span><span class="s2">&quot;top&quot;</span><span class="p">]</span>
@@ -16287,6 +18208,415 @@ Make sure there is no duplicates</p>
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output " data-mime-type="text/html">
+<style  type="text/css" >
+#T_a143dea6_6219_11eb_8e84_852472d599e3row0_col1{
+            width:  10em;
+             height:  80%;
+            background:  linear-gradient(90deg,#d65f5f 100.0%, transparent 100.0%);
+        }#T_a143dea6_6219_11eb_8e84_852472d599e3row1_col1{
+            width:  10em;
+             height:  80%;
+            background:  linear-gradient(90deg,#d65f5f 81.8%, transparent 81.8%);
+        }#T_a143dea6_6219_11eb_8e84_852472d599e3row2_col1{
+            width:  10em;
+             height:  80%;
+            background:  linear-gradient(90deg,#d65f5f 43.4%, transparent 43.4%);
+        }#T_a143dea6_6219_11eb_8e84_852472d599e3row3_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row4_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row5_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row6_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row7_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row8_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row9_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row10_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row11_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row12_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row13_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row14_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row15_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row16_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row17_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row18_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row19_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row20_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row21_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row22_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row23_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row24_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row25_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row26_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row27_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row28_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row29_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row30_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row31_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row32_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row33_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row34_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row35_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row36_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row37_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row38_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row39_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row40_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row41_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row42_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row43_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row44_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row45_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row46_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row47_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row48_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row49_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row50_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row51_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row52_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row53_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row54_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row55_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row56_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row57_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row58_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row59_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row60_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row61_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row62_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row63_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row64_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row65_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row66_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row67_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row68_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row69_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row70_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row71_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row72_col1,#T_a143dea6_6219_11eb_8e84_852472d599e3row73_col1{
+            width:  10em;
+             height:  80%;
+        }</style><table id="T_a143dea6_6219_11eb_8e84_852472d599e3" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >total_missing</th>        <th class="col_heading level0 col1" >total_missing_pct</th>    </tr></thead><tbody>
+                <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row0" class="row_heading level0 row0" >nb_obs</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row0_col0" class="data row0 col0" >447766</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row0_col1" class="data row0 col1" >100.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row1" class="row_heading level0 row1" >c91</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row1_col0" class="data row1 col0" >366260</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row1_col1" class="data row1 col1" >81.80%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row2" class="row_heading level0 row2" >rd_tot_asset</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row2_col0" class="data row2 col0" >194402</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row2_col1" class="data row2 col1" >43.42%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row3" class="row_heading level0 row3" >avg_size_asset_fci</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row3_col0" class="data row3 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row3_col1" class="data row3 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row4" class="row_heading level0 row4" >size_asset_fci</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row4_col0" class="data row4 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row4_col1" class="data row4 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row5" class="row_heading level0 row5" >avg_sales_fci</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row5_col0" class="data row5 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row5_col1" class="data row5 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row6" class="row_heading level0 row6" >avg_size_capital_fci</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row6_col0" class="data row6 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row6_col1" class="data row6 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row7" class="row_heading level0 row7" >avg_employment_fci</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row7_col0" class="data row7 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row7_col1" class="data row7 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row8" class="row_heading level0 row8" >avg_size_output_fci</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row8_col0" class="data row8 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row8_col1" class="data row8 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row9" class="row_heading level0 row9" >liquidity</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row9_col0" class="data row9 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row9_col1" class="data row9 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row10" class="row_heading level0 row10" >size_asset_fi</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row10_col0" class="data row10 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row10_col1" class="data row10 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row11" class="row_heading level0 row11" >coverage_ratio</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row11_col0" class="data row11 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row11_col1" class="data row11 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row12" class="row_heading level0 row12" >cashflow_to_tangible</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row12_col0" class="data row12 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row12_col1" class="data row12 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row13" class="row_heading level0 row13" >cashflow_tot_asset</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row13_col0" class="data row13 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row13_col1" class="data row13 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row14" class="row_heading level0 row14" >asset_tangibility_tot_asset</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row14_col0" class="data row14 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row14_col1" class="data row14 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row15" class="row_heading level0 row15" >investment_tot_asset</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row15_col0" class="data row15 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row15_col1" class="data row15 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row16" class="row_heading level0 row16" >cash_tot_asset</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row16_col0" class="data row16 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row16_col1" class="data row16 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row17" class="row_heading level0 row17" >size_asset_fc</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row17_col0" class="data row17 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row17_col1" class="data row17 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row18" class="row_heading level0 row18" >size_output_fci</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row18_col0" class="data row18 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row18_col1" class="data row18 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row19" class="row_heading level0 row19" >liabilities_tot_asset</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row19_col0" class="data row19 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row19_col1" class="data row19 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row20" class="row_heading level0 row20" >size_output_fc</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row20_col0" class="data row20 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row20_col1" class="data row20 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row21" class="row_heading level0 row21" >fe_t_i</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row21_col0" class="data row21 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row21_col1" class="data row21 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row22" class="row_heading level0 row22" >fe_c_i</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row22_col0" class="data row22 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row22_col1" class="data row22 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row23" class="row_heading level0 row23" >count_industry</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row23_col0" class="data row23 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row23_col1" class="data row23 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row24" class="row_heading level0 row24" >count_city</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row24_col0" class="data row24 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row24_col1" class="data row24 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row25" class="row_heading level0 row25" >count_ownership</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row25_col0" class="data row25 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row25_col1" class="data row25 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row26" class="row_heading level0 row26" >size_sales_fi</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row26_col0" class="data row26 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row26_col1" class="data row26 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row27" class="row_heading level0 row27" >size_sales_fc</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row27_col0" class="data row27 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row27_col1" class="data row27 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row28" class="row_heading level0 row28" >size_sales_fci</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row28_col0" class="data row28 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row28_col1" class="data row28 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row29" class="row_heading level0 row29" >size_capital_fi</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row29_col0" class="data row29 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row29_col1" class="data row29 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row30" class="row_heading level0 row30" >size_capital_fc</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row30_col0" class="data row30 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row30_col1" class="data row30 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row31" class="row_heading level0 row31" >size_capital_fci</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row31_col0" class="data row31 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row31_col1" class="data row31 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row32" class="row_heading level0 row32" >size_employment_fi</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row32_col0" class="data row32 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row32_col1" class="data row32 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row33" class="row_heading level0 row33" >size_employment_fc</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row33_col0" class="data row33 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row33_col1" class="data row33 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row34" class="row_heading level0 row34" >size_employment_fci</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row34_col0" class="data row34 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row34_col1" class="data row34 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row35" class="row_heading level0 row35" >size_output_fi</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row35_col0" class="data row35 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row35_col1" class="data row35 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row36" class="row_heading level0 row36" >sales_tot_asset</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row36_col0" class="data row36 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row36_col1" class="data row36 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row37" class="row_heading level0 row37" >quick_ratio</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row37_col0" class="data row37 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row37_col1" class="data row37 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row38" class="row_heading level0 row38" >firm</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row38_col0" class="data row38 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row38_col1" class="data row38 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row39" class="row_heading level0 row39" >current_ratio</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row39_col0" class="data row39 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row39_col1" class="data row39 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row40" class="row_heading level0 row40" >output</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row40_col0" class="data row40 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row40_col1" class="data row40 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row41" class="row_heading level0 row41" >in_10_000_tonnes</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row41_col0" class="data row41 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row41_col1" class="data row41 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row42" class="row_heading level0 row42" >tso2_mandate_c</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row42_col0" class="data row42 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row42_col1" class="data row42 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row43" class="row_heading level0 row43" >for_vs_dom</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row43_col0" class="data row43 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row43_col1" class="data row43 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row44" class="row_heading level0 row44" >soe_vs_pri</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row44_col0" class="data row44 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row44_col1" class="data row44 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row45" class="row_heading level0 row45" >ownership</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row45_col0" class="data row45 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row45_col1" class="data row45 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row46" class="row_heading level0 row46" >spz</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row46_col0" class="data row46 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row46_col1" class="data row46 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row47" class="row_heading level0 row47" >tcz</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row47_col0" class="data row47 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row47_col1" class="data row47 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row48" class="row_heading level0 row48" >province_en</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row48_col0" class="data row48 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row48_col1" class="data row48 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row49" class="row_heading level0 row49" >geocode4_corr</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row49_col0" class="data row49 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row49_col1" class="data row49 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row50" class="row_heading level0 row50" >short</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row50_col0" class="data row50 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row50_col1" class="data row50 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row51" class="row_heading level0 row51" >indu_2</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row51_col0" class="data row51 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row51_col1" class="data row51 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row52" class="row_heading level0 row52" >cic</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row52_col0" class="data row52 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row52_col1" class="data row52 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row53" class="row_heading level0 row53" >period</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row53_col0" class="data row53 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row53_col1" class="data row53 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row54" class="row_heading level0 row54" >year</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row54_col0" class="data row54 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row54_col1" class="data row54 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row55" class="row_heading level0 row55" >employment</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row55_col0" class="data row55 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row55_col1" class="data row55 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row56" class="row_heading level0 row56" >capital</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row56_col0" class="data row56 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row56_col1" class="data row56 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row57" class="row_heading level0 row57" >cuasset</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row57_col0" class="data row57 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row57_col1" class="data row57 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row58" class="row_heading level0 row58" >cashflow</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row58_col0" class="data row58 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row58_col1" class="data row58 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row59" class="row_heading level0 row59" >supply_long_term_credit</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row59_col0" class="data row59 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row59_col1" class="data row59 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row60" class="row_heading level0 row60" >supply_all_credit</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row60_col0" class="data row60 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row60_col1" class="data row60 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row61" class="row_heading level0 row61" >d_credit_constraint</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row61_col0" class="data row61 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row61_col1" class="data row61 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row62" class="row_heading level0 row62" >credit_constraint</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row62_col0" class="data row62 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row62_col1" class="data row62 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row63" class="row_heading level0 row63" >tfp_op</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row63_col0" class="data row63 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row63_col1" class="data row63 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row64" class="row_heading level0 row64" >sales</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row64_col0" class="data row64 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row64_col1" class="data row64 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row65" class="row_heading level0 row65" >cash</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row65_col0" class="data row65 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row65_col1" class="data row65 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row66" class="row_heading level0 row66" >tofixed</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row66_col0" class="data row66 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row66_col1" class="data row66 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row67" class="row_heading level0 row67" >c92</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row67_col0" class="data row67 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row67_col1" class="data row67 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row68" class="row_heading level0 row68" >tangible</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row68_col0" class="data row68 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row68_col1" class="data row68 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row69" class="row_heading level0 row69" >intangible</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row69_col0" class="data row69 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row69_col1" class="data row69 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row70" class="row_heading level0 row70" >total_asset</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row70_col0" class="data row70 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row70_col1" class="data row70 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row71" class="row_heading level0 row71" >total_liabilities</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row71_col0" class="data row71 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row71_col1" class="data row71 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row72" class="row_heading level0 row72" >error</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row72_col0" class="data row72 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row72_col1" class="data row72 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_a143dea6_6219_11eb_8e84_852472d599e3level0_row73" class="row_heading level0 row73" >fe_c_t</th>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row73_col0" class="data row73 col0" >0</td>
+                        <td id="T_a143dea6_6219_11eb_8e84_852472d599e3row73_col1" class="data row73 col1" >0.00%</td>
+            </tr>
+    </tbody></table>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
@@ -16297,7 +18627,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[31]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">README</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -16413,7 +18743,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[32]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">boto3</span>
@@ -16434,7 +18764,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[33]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">primary_key</span> <span class="o">=</span> <span class="s1">&#39;year&#39;</span>
@@ -16447,10 +18777,10 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[34]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
@@ -16475,10 +18805,42 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[34]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;input_path&#39;: &#39;s3://datalake-datascience/ANALYTICS/TEMPLATE_NOTEBOOKS/template_analysis_from_lambda.ipynb&#39;,
+ &#39;output_prefix&#39;: &#39;s3://datalake-datascience/ANALYTICS/OUTPUT/ASIF_TFP_CREDIT_CONSTRAINT/&#39;,
+ &#39;parameters&#39;: {&#39;region&#39;: &#39;eu-west-3&#39;,
+  &#39;bucket&#39;: &#39;datalake-datascience&#39;,
+  &#39;DatabaseName&#39;: &#39;firms_survey&#39;,
+  &#39;table_name&#39;: &#39;asif_tfp_credit_constraint&#39;,
+  &#39;group&#39;: &#39;firm,year,cic,geocode4_corr&#39;,
+  &#39;keys&#39;: &#39;year,short&#39;,
+  &#39;y_var&#39;: &#39;tfp_op&#39;,
+  &#39;threshold&#39;: 0.5}}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[35]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">client_lambda</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
@@ -16495,6 +18857,44 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[35]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;3a4d8fc6-7faf-4bb5-9f23-62b022b271ae&#39;,
+  &#39;HTTPStatusCode&#39;: 200,
+  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Fri, 29 Jan 2021 10:06:51 GMT&#39;,
+   &#39;content-type&#39;: &#39;application/json&#39;,
+   &#39;content-length&#39;: &#39;75&#39;,
+   &#39;connection&#39;: &#39;keep-alive&#39;,
+   &#39;x-amzn-requestid&#39;: &#39;3a4d8fc6-7faf-4bb5-9f23-62b022b271ae&#39;,
+   &#39;x-amzn-remapped-content-length&#39;: &#39;0&#39;,
+   &#39;x-amz-executed-version&#39;: &#39;$LATEST&#39;,
+   &#39;x-amz-log-result&#39;: &#39;U1RBUlQgUmVxdWVzdElkOiAzYTRkOGZjNi03ZmFmLTRiYjUtOWYyMy02MmIwMjJiMjcxYWUgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiAzYTRkOGZjNi03ZmFmLTRiYjUtOWYyMy02MmIwMjJiMjcxYWUKUkVQT1JUIFJlcXVlc3RJZDogM2E0ZDhmYzYtN2ZhZi00YmI1LTlmMjMtNjJiMDIyYjI3MWFlCUR1cmF0aW9uOiAyNDgyLjA0IG1zCUJpbGxlZCBEdXJhdGlvbjogMjQ4MyBtcwlNZW1vcnkgU2l6ZTogMTI4IE1CCU1heCBNZW1vcnkgVXNlZDogODQgTUIJSW5pdCBEdXJhdGlvbjogMzA3LjUxIG1zCQo=&#39;,
+   &#39;x-amzn-trace-id&#39;: &#39;root=1-6013de38-28faf6eb3c9101e733d78d39;sampled=0&#39;},
+  &#39;RetryAttempts&#39;: 0},
+ &#39;StatusCode&#39;: 200,
+ &#39;LogResult&#39;: &#39;U1RBUlQgUmVxdWVzdElkOiAzYTRkOGZjNi03ZmFmLTRiYjUtOWYyMy02MmIwMjJiMjcxYWUgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiAzYTRkOGZjNi03ZmFmLTRiYjUtOWYyMy02MmIwMjJiMjcxYWUKUkVQT1JUIFJlcXVlc3RJZDogM2E0ZDhmYzYtN2ZhZi00YmI1LTlmMjMtNjJiMDIyYjI3MWFlCUR1cmF0aW9uOiAyNDgyLjA0IG1zCUJpbGxlZCBEdXJhdGlvbjogMjQ4MyBtcwlNZW1vcnkgU2l6ZTogMTI4IE1CCU1heCBNZW1vcnkgVXNlZDogODQgTUIJSW5pdCBEdXJhdGlvbjogMzA3LjUxIG1zCQo=&#39;,
+ &#39;ExecutedVersion&#39;: &#39;$LATEST&#39;,
+ &#39;Payload&#39;: &lt;botocore.response.StreamingBody at 0x7f5fb252cbb0&gt;}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
@@ -16503,7 +18903,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[36]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">urllib</span><span class="o">,</span> <span class="nn">ipykernel</span><span class="o">,</span> <span class="nn">json</span>
@@ -16519,7 +18919,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[37]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">create_report</span><span class="p">(</span><span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">keep_code</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">notebookname</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>

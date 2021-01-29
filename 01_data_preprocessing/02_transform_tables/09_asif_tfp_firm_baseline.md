@@ -40,6 +40,16 @@ Use existing tables asif tfp firm level, asif firms prepared, china credit const
 * tangible asset to total asset
 * cash flow to total tangible asset
 * cash_over_total_asset
+[UPDATE] → add the following variables
+* all credits to gdp → from "chinese_lookup"."province_credit_constraint"
+  * from US yrq43zfhl56557i
+* long term loan to gdp → from "chinese_lookup"."province_credit_constraint"
+* return on sale: net income (c111)/sales
+* coverage ratio: net income(c111) /total interest payments
+* liquidity: (current assets − current liabilities)/total assets.
+* labor productivity: real sales/number of employees.
+* age: current year – firm’s year of establishment.
+* export to sale: overseas turnover / sales
 
 ### Steps 
 
@@ -83,6 +93,7 @@ Make sure there is no duplicates
 - DATA/ECON/LOOKUP_DATA/CITY_CODE_NORMALISED
 - DATA/ECON/POLICY/CHINA/STRUCTURAL_TRANSFORMATION/CITY_TARGET/TCZ_SPZ
 - DATA/ENVIRONMENT/CHINA/FYP/CITY_REDUCTION_MANDATE
+- DATA/ECON/INDUSTRY/ADDITIONAL_DATA/CHINA/PROVINCES/CREDIT_CONSTRAINT
 
 **Github**
 
@@ -93,6 +104,7 @@ Make sure there is no duplicates
 - https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py
 - https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/TCZ_SPZ/tcz_spz_policy.py
 - https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_REDUCTION_MANDATE/city_reduction_mandate.py
+- https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/PROVINCE_CREDIT_CONSTRAINT/supply_credit.py
 
 # Destination Output/Delivery
 
@@ -214,17 +226,22 @@ WITH test AS (
   ELSE tofixed - (c91 + c92) END AS tangible,
     CASE WHEN c79 IS NULL THEN cuasset - c80 - c81 - c82 ELSE cuasset - c79 - c80 - c81 - c82 END AS cash, 
     c131 + cudepre as cashflow, 
-    CASE WHEN c79 IS NULL THEN 0 ELSE c79 END AS short_term_investment 
+    CASE WHEN c79 IS NULL THEN 0 ELSE c79 END AS short_term_investment
+  -- CASE WHEN c125 IS NULL THEN 0 ELSE c125 END as interest_paid,  
+  -- CASE WHEN export IS NULL THEN 0 ELSE export END as exports
+    
   FROM 
     firms_survey.asif_firms_prepared 
     INNER JOIN (
       SELECT 
         extra_code, 
-        geocode4_corr 
+        geocode4_corr,
+      province_en
       FROM 
         chinese_lookup.china_city_code_normalised 
       GROUP BY 
         extra_code, 
+      province_en,
         geocode4_corr
     ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
 ) 
@@ -238,7 +255,8 @@ FROM
         year, 
         cic, 
         indu_2, 
-        geocode4_corr, 
+        geocode4_corr,
+        province_en,
         ownership, 
         CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri, 
         CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom, 
@@ -342,8 +360,50 @@ FROM
             tangible AS DECIMAL(16, 5)
           ), 
           0
-        ) AS cashflow_to_tangible
-
+        ) AS cashflow_to_tangible,
+       -- update
+       -- CAST(
+       --   c131 AS DECIMAL(16, 5)
+       -- ) / NULLIF(
+       --   CAST(
+       --     sales AS DECIMAL(16, 5)
+       --   ), 
+       --   0
+       -- ) AS return_to_sale,
+       CAST(
+          c131 AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            c125 AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS coverage_ratio,
+       CAST(
+          cuasset - c95 AS DECIMAL(16, 5)
+         ) / NULLIF(
+           CAST(
+            total_asset AS DECIMAL(16, 5)
+          ), 
+          0
+         ) AS liquidity
+        -- CAST(
+        --  sales AS DECIMAL(16, 5)
+        -- ) / NULLIF(
+        --  CAST(
+        --    employ AS DECIMAL(16, 5)
+        --  ), 
+        --  0
+        -- ) AS labor_productivity,
+        -- CAST(year AS DECIMAL(16, 5)) - CAST(setup AS DECIMAL(16, 5)) AS age,
+        -- CAST(
+        --   export AS DECIMAL(16, 5)
+        -- ) / NULLIF(
+        --  CAST(
+        --    sales AS DECIMAL(16, 5)
+        --  ), 
+        --  0
+        -- ) AS export_to_sale
+        
       FROM 
         test 
       WHERE 
@@ -361,7 +421,8 @@ FROM
       ratio.cic, 
       ratio.indu_2, 
       CASE WHEN short IS NULL THEN 'Unknown' ELSE short END AS short, 
-      ratio.geocode4_corr, 
+      ratio.geocode4_corr,
+      ratio. province_en,
       CASE WHEN tcz IS NULL THEN '0' ELSE tcz END AS tcz, 
       CASE WHEN spz IS NULL 
       OR spz = '#N/A' THEN '0' ELSE spz END AS spz, 
@@ -387,7 +448,9 @@ FROM
       cashflow, 
       sales, 
       tfp_op, 
-      credit_constraint, 
+      credit_constraint,
+      supply_all_credit,
+      supply_long_term_credit,
       current_ratio, 
       quick_ratio, 
       liabilities_tot_asset, 
@@ -397,7 +460,14 @@ FROM
       rd_tot_asset, 
       asset_tangibility_tot_asset, 
       cashflow_tot_asset, 
-      cashflow_to_tangible, 
+      cashflow_to_tangible,
+      -- return_to_sale,
+      CASE WHEN coverage_ratio IS NULL THEN 0 ELSE coverage_ratio END AS coverage_ratio,
+      liquidity,
+      -- CASE WHEN export_to_sale IS NULL THEN 0 ELSE export_to_sale END AS export_to_sale,
+      -- labor_productivity,
+      -- age,
+      -- export_to_sale,
       DENSE_RANK() OVER (
         ORDER BY 
           ratio.geocode4_corr, 
@@ -427,7 +497,8 @@ FROM
           extra_code = geocode4_corr
       ) as city_mandate ON ratio.geocode4_corr = city_mandate.geocode4_corr 
       LEFT JOIN policy.china_city_tcz_spz ON ratio.geocode4_corr = china_city_tcz_spz.geocode4_corr 
-      LEFT JOIN chinese_lookup.ind_cic_2_name ON ratio.indu_2 = ind_cic_2_name.cic 
+      LEFT JOIN chinese_lookup.ind_cic_2_name ON ratio.indu_2 = ind_cic_2_name.cic
+      LEFT JOIN chinese_lookup.province_credit_constraint ON ratio.province_en = province_credit_constraint.Province
       LEFT JOIN (
         SELECT 
           cic, 
@@ -460,7 +531,6 @@ FROM
     LIMIT 
       10
   )
-
 """
 output = s3.run_query(
                     query=query,
@@ -540,12 +610,14 @@ WITH test AS (
     INNER JOIN (
       SELECT 
         extra_code, 
-        geocode4_corr 
+        geocode4_corr,
+        province_en
       FROM 
         chinese_lookup.china_city_code_normalised 
       GROUP BY 
         extra_code, 
-        geocode4_corr
+        geocode4_corr,
+        province_en
     ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
 ) 
 SELECT 
@@ -558,7 +630,8 @@ FROM
         year, 
         cic, 
         indu_2, 
-        geocode4_corr, 
+        geocode4_corr,
+        province_en,
         ownership, 
         CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri, 
         CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom, 
@@ -665,6 +738,22 @@ FROM
           ), 
           0
         ) AS cashflow_to_tangible,
+        CAST(
+          c131 AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            c125 AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS coverage_ratio,
+       CAST(
+          cuasset - c95 AS DECIMAL(16, 5)
+         ) / NULLIF(
+           CAST(
+            total_asset AS DECIMAL(16, 5)
+          ), 
+          0
+         ) AS liquidity,
         'FAKE' AS fake 
       FROM 
         test 
@@ -683,7 +772,8 @@ FROM
       ratio.cic, 
       ratio.indu_2, 
       CASE WHEN short IS NULL THEN 'Unknown' ELSE short END AS short, 
-      ratio.geocode4_corr, 
+      ratio.geocode4_corr,
+      province_en,
       CASE WHEN tcz IS NULL THEN '0' ELSE tcz END AS tcz, 
       CASE WHEN spz IS NULL 
       OR spz = '#N/A' THEN '0' ELSE spz END AS spz, 
@@ -710,6 +800,8 @@ FROM
       tfp_op, 
       credit_constraint,
       d_credit_constraint,
+      supply_all_credit,
+      supply_long_term_credit,
       current_ratio, 
       quick_ratio, 
       liabilities_tot_asset, 
@@ -720,6 +812,8 @@ FROM
       asset_tangibility_tot_asset, 
       cashflow_tot_asset, 
       cashflow_to_tangible, 
+      CASE WHEN coverage_ratio IS NULL THEN 0 ELSE coverage_ratio END AS coverage_ratio,
+      liquidity,
       CASE WHEN avg_asset_tangibility_f > avg_asset_tangibility_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_size_asset_fci, 
       CASE WHEN avg_output_f > avg_output_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_size_output_fci, 
       CASE WHEN avg_employment_f > avg_employment_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_employment_fci, 
@@ -1016,7 +1110,8 @@ FROM
           extra_code = geocode4_corr
       ) as city_mandate ON ratio.geocode4_corr = city_mandate.geocode4_corr 
       LEFT JOIN policy.china_city_tcz_spz ON ratio.geocode4_corr = china_city_tcz_spz.geocode4_corr 
-      LEFT JOIN chinese_lookup.ind_cic_2_name ON ratio.indu_2 = ind_cic_2_name.cic 
+      LEFT JOIN chinese_lookup.ind_cic_2_name ON ratio.indu_2 = ind_cic_2_name.cic
+      LEFT JOIN chinese_lookup.province_credit_constraint ON ratio.province_en = province_credit_constraint.Province
       LEFT JOIN (
         SELECT 
           cic, 
@@ -1213,11 +1308,6 @@ FROM
       AND sales_tot_asset > 0
       AND cash_tot_asset > 0
       AND cashflow_tot_asset > 0
-      
-    --  AND ratio.year in (
-    --    '2001', '2002', '2003', '2004', '2005', 
-    --    '2006', '2007'
-    --  ) 
     ORDER BY 
       year 
   )
@@ -1433,6 +1523,8 @@ schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'firm ID'},
           {'Name': 'tfp_op', 'Type': 'double', 'Comment': 'TFP. Computed from https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md'},
           {'Name': 'credit_constraint', 'Type': 'float',
            'Comment': 'Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311'},
+          {'Name': 'supply_all_credit', 'Type': 'double', 'Comment': 'total credit over gdp province'},
+          {'Name': 'supply_long_term_credit', 'Type': 'float', 'Comment': 'total long term credit over gdp province'},
           {'Name': 'current_ratio',
            'Type': 'decimal(21,5)', 'Comment': 'current ratio cuasset/流动负债合计 (c95)'},
           {'Name': 'quick_ratio',
@@ -1454,6 +1546,8 @@ schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'firm ID'},
            'Type': 'decimal(21,5)', 'Comment': 'cashflow to total asset'},
           {'Name': 'cashflow_to_tangible',
            'Type': 'decimal(21,5)', 'Comment': 'cashflow to tangible asset'},
+          {'Name': 'coverage_ratio', 'Type': 'decimal(21,5)', 'Comment': 'net income(c131) /total interest payments'},
+          {'Name': 'liquidity', 'Type': 'decimal(21,5)', 'Comment': 'current assets-current liabilities/total assets'},
           {'Name': 'avg_size_asset_f',
            'Type': 'varchar(5)', 'Comment': 'if firm s asset tangibility average is above average of firm s average then firm is large'},
           {'Name': 'avg_size_output_f',
