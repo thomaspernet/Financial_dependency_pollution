@@ -190,6 +190,8 @@ need to compute:
 - tangible: tofixed - (c91 + c92)
 - intangible: c91 (无形及递延) + c92 (无形资产)
 - other current asset: cuasset - c80 - c81
+- current asset -> c80 + c81 + c82 + c79
+- Net income -> (c131 - c134)
 
 Source: https://www.sciencedirect.com/science/article/pii/S0147596713000760#s0130
 
@@ -207,15 +209,14 @@ WITH test AS (
       '0', 
       substr(cic, 1, 1)
     ) END AS indu_2, 
-    c98 + c99 as total_liabilities_1, 
-    cuasset + tofixed as total_asset_1, 
-    (cuasset + tofixed) - (c98 + c99) AS error, 
-    CASE WHEN (cuasset + tofixed) - (c98 + c99) > 0 THEN (c98 + c99) + ABS(
-      (cuasset + tofixed) - (c98 + c99)
+    c80 + c81 + c82 + c79 as current_asset,
+    (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99) AS error, 
+    CASE WHEN (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99) > 0 THEN (c98 + c99) + ABS(
+      (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99)
     ) ELSE (c98 + c99) END AS total_liabilities, 
-    CASE WHEN (cuasset + tofixed) - (c98 + c99) < 0 THEN (cuasset + tofixed) + ABS(
-      (cuasset + tofixed) - (c98 + c99)
-    ) ELSE (cuasset + tofixed) END AS total_asset, 
+    CASE WHEN (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99) < 0 THEN (c80 + c81 + c82 + c79 + tofixed) + ABS(
+      (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99)
+    ) ELSE (c80 + c81 + c82 + c79 + tofixed) END AS total_asset, 
     CASE 
   WHEN c91 is NULL THEN c92 
   WHEN c92 is NULL THEN c91
@@ -224,10 +225,11 @@ WITH test AS (
   WHEN c91 is NULL THEN tofixed - c92 
   WHEN c92 is NULL THEN tofixed - c91
   ELSE tofixed - (c91 + c92) END AS tangible,
-    CASE WHEN c79 IS NULL THEN cuasset - c80 - c81 - c82 ELSE cuasset - c79 - c80 - c81 - c82 END AS cash, 
-  c131 + cudepre as cashflow,
+  
+  -- CASE WHEN c79 IS NULL THEN cuasset - c80 - c81 - c82 ELSE cuasset - c79 - c80 - c81 - c82 END AS cash, 
+  (c131 - c134) + cudepre as cashflow,
   CAST(
-          cuasset AS DECIMAL(16, 5)
+          c80 + c81 + c82 + c79 AS DECIMAL(16, 5)
         ) / NULLIF(
           CAST(
             c95 AS DECIMAL(16, 5)
@@ -236,7 +238,7 @@ WITH test AS (
         ) AS current_ratio, 
   CASE WHEN c79 IS NULL THEN 
         CAST(
-          cuasset - c80 - c81 AS DECIMAL(16, 5)
+          c80 + c81 + c82 + c79 - c80 - c81 AS DECIMAL(16, 5)
         ) / NULLIF(
           CAST(
             c95 AS DECIMAL(16, 5)
@@ -245,7 +247,7 @@ WITH test AS (
         )
         ELSE  
         CAST(
-          cuasset - c79 - c80 - c81 AS DECIMAL(16, 5)
+          c80 + c81 + c82 + c79 - c79 - c80 - c81 AS DECIMAL(16, 5)
         ) / NULLIF(
           CAST(
             c95 AS DECIMAL(16, 5)
@@ -272,7 +274,7 @@ WITH test AS (
   AND c97 >0 -- long term liabilities
   AND c98 > 0 -- total liabilities
   AND c99 > 0 -- equity
-  AND cuasset >0
+  AND c80 + c81 + c82 + c79 >0
   AND tofixed >0
   AND output > 0 
   -- and captal > 0 
@@ -305,14 +307,14 @@ FROM
         CAST(
           captal AS DECIMAL(16, 5)
         ) AS capital, 
-        cuasset, 
+        current_asset, 
         tofixed, 
         error, 
         total_liabilities, 
         total_asset, 
         intangible, 
         tangible, 
-        cash, 
+        --cash, 
         cashflow, 
         current_ratio,
         quick_ratio,
@@ -332,14 +334,14 @@ FROM
           ), 
           0
         ) AS sales_tot_asset, 
-        CAST(
-          cash AS DECIMAL(16, 5)
-        ) / NULLIF(
-          CAST(
-            total_asset AS DECIMAL(16, 5)
-          ), 
-          0
-        ) AS cash_tot_asset, 
+        -- CAST(
+        --  cash AS DECIMAL(16, 5)
+        --) / NULLIF(
+        --  CAST(
+        --    total_asset AS DECIMAL(16, 5)
+        --  ), 
+        --  0
+        --) AS cash_tot_asset, 
         
         CAST(
           c84 AS DECIMAL(16, 5)
@@ -402,7 +404,7 @@ FROM
           cuasset - c95 AS DECIMAL(16, 5)
          ) / NULLIF(
            CAST(
-            total_asset AS DECIMAL(16, 5)
+            tangible AS DECIMAL(16, 5)
           ), 
           0
          ) AS liquidity,
@@ -470,25 +472,25 @@ FROM
       ratio.output, 
       ratio.employment, 
       ratio.capital, 
-      cuasset, 
+      current_asset, 
       tofixed, 
       error, 
       total_liabilities, 
       total_asset, 
       intangible, 
       tangible, 
-      cash, 
+      -- cash, 
       cashflow, 
       sales, 
       tfp_op, 
       credit_constraint,
-      supply_all_credit,
-      supply_long_term_credit,
+      1/ supply_all_credit as supply_all_credit,
+      1/ supply_long_term_credit as supply_long_term_credit,
       current_ratio, 
       quick_ratio, 
       liabilities_tot_asset, 
       sales_tot_asset, 
-      cash_tot_asset, 
+      -- cash_tot_asset, 
       investment_tot_asset, 
       rd_tot_asset, 
       asset_tangibility_tot_asset, 
@@ -608,15 +610,14 @@ WITH test AS (
       '0', 
       substr(cic, 1, 1)
     ) END AS indu_2, 
-    c98 + c99 as total_liabilities_1, 
-    cuasset + tofixed as total_asset_1, 
-    (cuasset + tofixed) - (c98 + c99) AS error, 
-    CASE WHEN (cuasset + tofixed) - (c98 + c99) > 0 THEN (c98 + c99) + ABS(
-      (cuasset + tofixed) - (c98 + c99)
+    c80 + c81 + c82 + c79 as current_asset,
+    (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99) AS error, 
+    CASE WHEN (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99) > 0 THEN (c98 + c99) + ABS(
+      (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99)
     ) ELSE (c98 + c99) END AS total_liabilities, 
-    CASE WHEN (cuasset + tofixed) - (c98 + c99) < 0 THEN (cuasset + tofixed) + ABS(
-      (cuasset + tofixed) - (c98 + c99)
-    ) ELSE (cuasset + tofixed) END AS total_asset, 
+    CASE WHEN (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99) < 0 THEN (c80 + c81 + c82 + c79 + tofixed) + ABS(
+      (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99)
+    ) ELSE (c80 + c81 + c82 + c79 + tofixed) END AS total_asset, 
     CASE 
   WHEN c91 is NULL THEN c92 
   WHEN c92 is NULL THEN c91
@@ -625,10 +626,11 @@ WITH test AS (
   WHEN c91 is NULL THEN tofixed - c92 
   WHEN c92 is NULL THEN tofixed - c91
   ELSE tofixed - (c91 + c92) END AS tangible,
-    CASE WHEN c79 IS NULL THEN cuasset - c80 - c81 - c82 ELSE cuasset - c79 - c80 - c81 - c82 END AS cash, 
-  c131 + cudepre as cashflow,
+  
+  -- CASE WHEN c79 IS NULL THEN cuasset - c80 - c81 - c82 ELSE cuasset - c79 - c80 - c81 - c82 END AS cash, 
+  (c131 - c134) + cudepre as cashflow,
   CAST(
-          cuasset AS DECIMAL(16, 5)
+          c80 + c81 + c82 + c79 AS DECIMAL(16, 5)
         ) / NULLIF(
           CAST(
             c95 AS DECIMAL(16, 5)
@@ -637,7 +639,7 @@ WITH test AS (
         ) AS current_ratio, 
   CASE WHEN c79 IS NULL THEN 
         CAST(
-          cuasset - c80 - c81 AS DECIMAL(16, 5)
+          c80 + c81 + c82 + c79 - c80 - c81 AS DECIMAL(16, 5)
         ) / NULLIF(
           CAST(
             c95 AS DECIMAL(16, 5)
@@ -646,7 +648,7 @@ WITH test AS (
         )
         ELSE  
         CAST(
-          cuasset - c79 - c80 - c81 AS DECIMAL(16, 5)
+          c80 + c81 + c82 + c79 - c79 - c80 - c81 AS DECIMAL(16, 5)
         ) / NULLIF(
           CAST(
             c95 AS DECIMAL(16, 5)
@@ -673,7 +675,7 @@ WITH test AS (
   AND c97 >0 -- long term liabilities
   AND c98 > 0 -- total liabilities
   AND c99 > 0 -- equity
-  AND cuasset > 0
+  AND c80 + c81 + c82 + c79 > 0
   AND tofixed > 0
   AND output > 0 
   -- and captal > 0 
@@ -706,7 +708,7 @@ FROM
         CAST(
           captal AS DECIMAL(16, 5)
         ) AS capital, 
-        cuasset, 
+        current_asset, 
         tofixed, 
         error, 
         total_liabilities, 
@@ -715,7 +717,7 @@ FROM
         c92,
         intangible, 
         tangible, 
-        cash, 
+        -- cash, 
         cashflow, 
         current_ratio,
         quick_ratio,
@@ -735,14 +737,14 @@ FROM
           ), 
           0
         ) AS sales_tot_asset, 
-        CAST(
-          cash AS DECIMAL(16, 5)
-        ) / NULLIF(
-          CAST(
-            total_asset AS DECIMAL(16, 5)
-          ), 
-          0
-        ) AS cash_tot_asset, 
+        -- CAST(
+        --  cash AS DECIMAL(16, 5)
+        --) / NULLIF(
+        --  CAST(
+        --    total_asset AS DECIMAL(16, 5)
+        --  ), 
+        --  0
+        --) AS cash_tot_asset, 
         
         CAST(
           c84 AS DECIMAL(16, 5)
@@ -802,13 +804,11 @@ FROM
           0
         ) AS coverage_ratio,
        CAST(
-          cuasset - c95 AS DECIMAL(16, 5)
-         ) / NULLIF(
+          current_asset - c95 AS DECIMAL(16, 5)
+         ) /
            CAST(
-            total_asset AS DECIMAL(16, 5)
-          ), 
-          0
-         ) AS liquidity,
+            tangible AS DECIMAL(16, 5)
+          ) AS liquidity,
          CAST(
           sales AS DECIMAL(16, 5)
          ) / NULLIF(
@@ -842,6 +842,7 @@ FROM
           '2000', '2001', '2002', '2003', '2004', 
           '2005', '2006', '2007'
         )
+        AND tangible > 0
     ) 
     SELECT 
       ratio.firm, 
@@ -865,7 +866,7 @@ FROM
       ratio.output, 
       ratio.employment, 
       ratio.capital, 
-      cuasset, 
+      current_asset, 
       tofixed, 
       error, 
       total_liabilities, 
@@ -874,19 +875,19 @@ FROM
       tangible,
       c91,
       c92,
-      cash, 
+      --cash, 
       cashflow, 
       sales, 
       tfp_op, 
       credit_constraint,
       d_credit_constraint,
-      supply_all_credit,
-      supply_long_term_credit,
+      1/supply_all_credit as supply_all_credit,
+      1/supply_long_term_credit as supply_long_term_credit,
       current_ratio, 
       quick_ratio, 
       liabilities_tot_asset, 
       sales_tot_asset, 
-      cash_tot_asset, 
+      --cash_tot_asset, 
       investment_tot_asset, 
       rd_tot_asset, 
       asset_tangibility_tot_asset, 
@@ -1586,7 +1587,7 @@ schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'firm ID'},
           {'Name': 'employment',
               'Type': 'decimal(16,5)', 'Comment': 'employment'},
           {'Name': 'capital', 'Type': 'decimal(16,5)', 'Comment': 'capital'},
-          {'Name': 'cuasset', 'Type': 'int', 'Comment': 'current asset'},
+          {'Name': 'current_asset', 'Type': 'int', 'Comment': 'current asset'},
           {'Name': 'tofixed', 'Type': 'int', 'Comment': 'total fixed asset'},
           {'Name': 'error', 'Type': 'int',
            'Comment': 'difference between cuasset+tofixed and total liabilities +equity. Error makes the balance sheet equation right'},
@@ -1600,7 +1601,7 @@ schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'firm ID'},
            'Comment': 'tangible asset measured as the difference between total fixed asset minus intangible asset'},
           {'Name': 'c91', 'Type': 'int', 'Comment': 'Intangible and Deferred'},
           {'Name': 'c92', 'Type': 'int', 'Comment': 'Intangible assets'},
-          {'Name': 'cash', 'Type': 'int', 'Comment': 'cash '},
+          #{'Name': 'cash', 'Type': 'int', 'Comment': 'cash '},
           {'Name': 'cashflow', 'Type': 'int', 'Comment': 'cash flow'},
           {'Name': 'sales', 'Type': 'decimal(16,5)', 'Comment': 'sales'},
           {'Name': 'tfp_op', 'Type': 'double', 'Comment': 'TFP. Computed from https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md'},
@@ -1616,8 +1617,8 @@ schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'firm ID'},
            'Type': 'decimal(21,5)', 'Comment': 'liabilities to total asset'},
           {'Name': 'sales_tot_asset',
            'Type': 'decimal(21,5)', 'Comment': 'sales to total asset'},
-          {'Name': 'cash_tot_asset',
-           'Type': 'decimal(21,5)', 'Comment': 'cash to total asset'},
+          #{'Name': 'cash_tot_asset',
+          # 'Type': 'decimal(21,5)', 'Comment': 'cash to total asset'},
           {'Name': 'investment_tot_asset',
            'Type': 'decimal(21,5)', 'Comment': 'investment to total asset'},
           {'Name': 'rd_tot_asset',
