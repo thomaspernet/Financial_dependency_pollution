@@ -900,7 +900,7 @@ FROM
       CASE WHEN export_to_sale IS NULL THEN 0 ELSE export_to_sale END AS export_to_sale,
       labor_productivity /1000 as labor_productivity,
       labor_capital,
-      age,
+      age + 1 AS age,
       CASE WHEN avg_asset_tangibility_f > avg_asset_tangibility_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_size_asset_fci, 
       CASE WHEN avg_output_f > avg_output_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_size_output_fci, 
       CASE WHEN avg_employment_f > avg_employment_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_employment_fci, 
