@@ -191,9 +191,9 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
 | Balance sheet variables | intangible                  | c91 + c92                                                                                                                                                                    | #intangible-asset  |
 | Balance sheet variables | tangible                    | tofixed - cudepre - (c91 + c92)                                                                                                                                              | #tangible-asset    |
 | Balance sheet variables | net fixed asset             | tofixed - cudepre + (c91 + c92)                                                                                                                                              | #net-fixed-asset   |
-| Balance sheet variables | error                       | (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c98 + c99)                                                                                                     |                    |
-| Balance sheet variables | total_liabilities           | if (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c98 + c99). > 0 then allocate error to liabilities else c98 + c99                                           | #total-liabilities |
-| Balance sheet variables | total_asset                 | if (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c98 + c99). <  0 then allocate error to asset else c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)  |                    |
+| Balance sheet variables | error                       | (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c95 + c97  + c99)                                                                                                     |                    |
+| Balance sheet variables | total_liabilities           | if (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c95 + c97  + c99). > 0 then allocate error to liabilities else c98 + c99                                           | #total-liabilities |
+| Balance sheet variables | total_asset                 | if (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c95 + c97  + c99). <  0 then allocate error to asset else c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)  |                    |
 | Financial metric        | cashflow                    | (c131 - c134) + cudepre                                                                                                                                                      | #cashflow          |
 | Financial metric        | current_ratio               |  c80 + c81 + c82 + c79 / c95                                                                                                                                                 | #current-ratio     |
 | Financial metric        | quick ratio                 |  c80 + c81 + c82 + c79 - c80 - c81 / c95                                                                                                                                     | #quick-ratio       |
@@ -415,7 +415,7 @@ FROM
           current_asset - c95 AS DECIMAL(16, 5)
          ) / NULLIF(
            CAST(
-            total_asset AS DECIMAL(16, 5)
+            tangible AS DECIMAL(16, 5)
           ), 
           0
          ) AS liquidity,
