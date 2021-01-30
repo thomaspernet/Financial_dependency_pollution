@@ -14,8 +14,8 @@
 - [geo_chinese_province_location](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-geo_chinese_province_location)
 - [china_city_tcz_spz](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-china_city_tcz_spz)
 - [china_credit_constraint](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-china_credit_constraint)
-- [asif_firms_prepared](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_firms_prepared)
 - [asif_industry_financial_ratio_city](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_financial_ratio_city)
+- [asif_firms_prepared](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_firms_prepared)
 - [china_sector_pollution_threshold](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-china_sector_pollution_threshold)
 - [asif_industry_financial_ratio_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_financial_ratio_industry)
 - [fin_dep_pollution_baseline_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_industry)
@@ -281,6 +281,51 @@
 
     
 
+## Table asif_industry_financial_ratio_city
+
+- Database: firms_survey
+- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/CITY`
+- Partitition: ['geocode4_corr', 'indu_2']
+
+|    | Name                               | Type   | Comment                                                                                                                                                             |
+|---:|:-----------------------------------|:-------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|  0 | indu_2                             | string | Two digits industry. If length cic equals to 3, then add 0 to indu_2                                                                                                |
+|  1 | geocode4_corr                      | string |                                                                                                                                                                     |
+|  2 | receivable_curasset_ci             | double | 应收帐款 (c80) / cuasset                                                                                                                                            |
+|  3 | std_receivable_curasset_ci         | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+|  4 | cash_over_curasset_ci              | double | 1 - (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset                                                                        |
+|  5 | std_cash_over_curasset_ci          | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+|  6 | 1 - cash_over_totasset_ci          | double | (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /toasset                                                                                  |
+|  7 | std_cash_over_totasset_ci          | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+|  8 | working_capital_ci                 | double | cuasset- 流动负债合计 (c95)                                                                                                                                         |
+|  9 | std_working_capital_ci             | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 10 | working_capital_requirement_ci     | double | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       |
+| 11 | std_working_capital_requirement_ci | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 12 | current_ratio_ci                   | double | cuasset/流动负债合计 (c95)                                                                                                                                          |
+| 13 | std_current_ratio_ci               | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 14 | quick_ratio_ci                     | double | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)) / 流动负债合计 (c95)                                                                                |
+| 15 | std_quick_ratio_ci                 | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 16 | cash_ratio_ci                      | double | (cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)                                                             |
+| 17 | std_cash_ratio_ci                  | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 18 | liabilities_assets_ci              | double | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 |
+| 19 | std_liabilities_assets_ci          | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 20 | return_on_asset_ci                 | double | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset |
+| 21 | std_return_on_asset_ci             | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 22 | sales_assets_ci                    | double | 全年营业收入合计 (c64) /(\Delta toasset/2)                                                                                                                          |
+| 23 | std_sales_assets_ci                | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 24 | sales_assets_andersen_ci           | double | Sales over asset                                                                                                                                                    |
+| 25 | std_sales_assets_andersen_ci       | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 26 | account_paybable_to_asset_ci       | double | (\Delta 应付帐款  (c96))/ (\Delta (toasset))                                                                                                                        |
+| 27 | std_account_paybable_to_asset_ci   | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 28 | asset_tangibility_ci               | double | Total fixed assets - Intangible assets                                                                                                                              |
+| 29 | std_asset_tangibility_ci           | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 30 | rd_intensity_ci                    | double | rdfee/全年营业收入合计 (c64)                                                                                                                                        |
+| 31 | std_rd_intensity_ci                | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+| 32 | inventory_to_sales_ci              | double | 存货 (c81) / sales                                                                                                                                                  |
+| 33 | std_inventory_to_sales_ci          | double | standaridzed values (x - x mean) / std)                                                                                                                             |
+
+    
+
 ## Table asif_firms_prepared
 
 - Database: firms_survey
@@ -402,51 +447,6 @@
 | 110 | c157           | string | Scale enterprises name                                                                         |
 | 111 | citycode       | string | City code clean by Zhao Ruili using adress                                                     |
 | 112 | prov           | string |                                                                                                |
-
-    
-
-## Table asif_industry_financial_ratio_city
-
-- Database: firms_survey
-- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/CITY`
-- Partitition: ['geocode4_corr', 'indu_2']
-
-|    | Name                               | Type   | Comment                                                                                                                                                             |
-|---:|:-----------------------------------|:-------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|  0 | indu_2                             | string | Two digits industry. If length cic equals to 3, then add 0 to indu_2                                                                                                |
-|  1 | geocode4_corr                      | string |                                                                                                                                                                     |
-|  2 | receivable_curasset_ci             | double | 应收帐款 (c80) / cuasset                                                                                                                                            |
-|  3 | std_receivable_curasset_ci         | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-|  4 | cash_over_curasset_ci              | double | 1 - (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset                                                                        |
-|  5 | std_cash_over_curasset_ci          | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-|  6 | 1 - cash_over_totasset_ci          | double | (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /toasset                                                                                  |
-|  7 | std_cash_over_totasset_ci          | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-|  8 | working_capital_ci                 | double | cuasset- 流动负债合计 (c95)                                                                                                                                         |
-|  9 | std_working_capital_ci             | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 10 | working_capital_requirement_ci     | double | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       |
-| 11 | std_working_capital_requirement_ci | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 12 | current_ratio_ci                   | double | cuasset/流动负债合计 (c95)                                                                                                                                          |
-| 13 | std_current_ratio_ci               | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 14 | quick_ratio_ci                     | double | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)) / 流动负债合计 (c95)                                                                                |
-| 15 | std_quick_ratio_ci                 | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 16 | cash_ratio_ci                      | double | (cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)                                                             |
-| 17 | std_cash_ratio_ci                  | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 18 | liabilities_assets_ci              | double | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 |
-| 19 | std_liabilities_assets_ci          | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 20 | return_on_asset_ci                 | double | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset |
-| 21 | std_return_on_asset_ci             | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 22 | sales_assets_ci                    | double | 全年营业收入合计 (c64) /(\Delta toasset/2)                                                                                                                          |
-| 23 | std_sales_assets_ci                | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 24 | sales_assets_andersen_ci           | double | Sales over asset                                                                                                                                                    |
-| 25 | std_sales_assets_andersen_ci       | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 26 | account_paybable_to_asset_ci       | double | (\Delta 应付帐款  (c96))/ (\Delta (toasset))                                                                                                                        |
-| 27 | std_account_paybable_to_asset_ci   | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 28 | asset_tangibility_ci               | double | Total fixed assets - Intangible assets                                                                                                                              |
-| 29 | std_asset_tangibility_ci           | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 30 | rd_intensity_ci                    | double | rdfee/全年营业收入合计 (c64)                                                                                                                                        |
-| 31 | std_rd_intensity_ci                | double | standaridzed values (x - x mean) / std)                                                                                                                             |
-| 32 | inventory_to_sales_ci              | double | 存货 (c81) / sales                                                                                                                                                  |
-| 33 | std_inventory_to_sales_ci          | double | standaridzed values (x - x mean) / std)                                                                                                                             |
 
     
 
@@ -797,58 +797,62 @@
 | 15 | employment                  | decimal(16,5)       | employment                                                                                                                                                    |
 | 16 | capital                     | decimal(16,5)       | capital                                                                                                                                                       |
 | 17 | current_asset               | int                 | current asset                                                                                                                                                 |
-| 18 | tofixed                     | int                 | total fixed asset                                                                                                                                             |
+| 18 | net_fixed_asset             | int                 | total net fixed asset                                                                                                                                         |
 | 19 | error                       | int                 | difference between cuasset+tofixed and total liabilities +equity. Error makes the balance sheet equation right                                                |
 | 20 | total_liabilities           | int                 | total adjusted liabilities                                                                                                                                    |
 | 21 | total_asset                 | int                 | total adjusted asset                                                                                                                                          |
-| 22 | intangible                  | int                 | intangible asset measured as the sum of intangibles variables                                                                                                 |
-| 23 | tangible                    | int                 | tangible asset measured as the difference between total fixed asset minus intangible asset                                                                    |
-| 24 | c91                         | int                 | Intangible and Deferred                                                                                                                                       |
-| 25 | c92                         | int                 | Intangible assets                                                                                                                                             |
-| 26 | cashflow                    | int                 | cash flow                                                                                                                                                     |
-| 27 | sales                       | decimal(16,5)       | sales                                                                                                                                                         |
-| 28 | tfp_op                      | double              | TFP. Computed from https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md |
-| 29 | credit_constraint           | float               | Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311                                                          |
-| 30 | supply_all_credit           | double              | total credit over gdp province                                                                                                                                |
-| 31 | supply_long_term_credit     | float               | total long term credit over gdp province                                                                                                                      |
-| 32 | current_ratio               | decimal(21,5)       | current ratio cuasset/流动负债合计 (c95)                                                                                                                      |
-| 33 | quick_ratio                 | decimal(21,5)       | quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                        |
-| 34 | liabilities_tot_asset       | decimal(21,5)       | liabilities to total asset                                                                                                                                    |
-| 35 | sales_tot_asset             | decimal(21,5)       | sales to total asset                                                                                                                                          |
-| 36 | investment_tot_asset        | decimal(21,5)       | investment to total asset                                                                                                                                     |
-| 37 | rd_tot_asset                | decimal(21,5)       | rd to total asset                                                                                                                                             |
-| 38 | asset_tangibility_tot_asset | decimal(21,5)       | asset tangibility to total asset                                                                                                                              |
-| 39 | cashflow_tot_asset          | decimal(21,5)       | cashflow to total asset                                                                                                                                       |
-| 40 | cashflow_to_tangible        | decimal(21,5)       | cashflow to tangible asset                                                                                                                                    |
-| 41 | return_to_sale              | decimal(21,5)       |                                                                                                                                                               |
-| 42 | export_to_sale              | decimal(21,5)       | overseas turnover / sales                                                                                                                                     |
-| 43 | labor_productivity          | decimal(21,5)       | real sales/number of employees.                                                                                                                               |
-| 44 | labor_capital               | decimal(21,5)       | Labor / tangible asset                                                                                                                                        |
-| 45 | age                         | decimal(17,5)       | current year – firms year of establishment                                                                                                                    |
-| 46 | coverage_ratio              | decimal(21,5)       | net income(c131) /total interest payments                                                                                                                     |
-| 47 | liquidity                   | decimal(21,5)       | current assets-current liabilities/total assets                                                                                                               |
-| 48 | avg_size_asset_f            | varchar(5)          | if firm s asset tangibility average is above average of firm s average then firm is large                                                                     |
-| 49 | avg_size_output_f           | varchar(5)          | if firm s ouptut average is above average of firm s average then firm is large                                                                                |
-| 50 | avg_employment_f            | varchar(5)          | if firm s employment average is above average of firm s average then firm is large                                                                            |
-| 51 | avg_size_capital_f          | varchar(5)          | if firm s capital average is above average of firm s average then firm is large                                                                               |
-| 52 | avg_sales_f                 | varchar(5)          | if firm s sale is above average of firm s average then firm is large                                                                                          |
-| 53 | size_asset_fci              | map<double,boolean> | if firm s asset tangibility average is above average of firm city industry s decile then firm is large                                                        |
-| 54 | size_asset_fc               | map<double,boolean> | if firm s asset tangibility average is above average of firm s city decile then firm is large                                                                 |
-| 55 | size_asset_fi               | map<double,boolean> | if firm s asset tangibility average is above average of firm s industry decile then firm is large                                                             |
-| 56 | size_output_fci             | map<double,boolean> | if firm s ouptut average is above average of firm s city industry decile then firm is large                                                                   |
-| 57 | size_output_fc              | map<double,boolean> | if firm s ouptut average is above average of firm s city decile then firm is large                                                                            |
-| 58 | size_output_fi              | map<double,boolean> | if firm s ouptut average is above average of firm s industry decile then firm is large                                                                        |
-| 59 | size_employment_fci         | map<double,boolean> | if firm s employment average is above average of firm s city industry decile then firm is large                                                               |
-| 60 | size_employment_fc          | map<double,boolean> | if firm s employment average is above average of firm s city decile then firm is large                                                                        |
-| 61 | size_employment_fi          | map<double,boolean> | if firm s employment average is above average of firm s industry decile then firm is large                                                                    |
-| 62 | size_capital_fci            | map<double,boolean> | if firm s capital average is above average of firm s city industry decile then firm is large                                                                  |
-| 63 | size_capital_fc             | map<double,boolean> | if firm s capital average is above average of firm s city decile then firm is large                                                                           |
-| 64 | size_capital_fi             | map<double,boolean> | if firm s capital average is above average of firm s industry decile then firm is large                                                                       |
-| 65 | size_sales_fci              | map<double,boolean> | if firm s sale is above average of firm s city industry decile then firm is large                                                                             |
-| 66 | size_sales_fc               | map<double,boolean> | if firm s sale is above average of firm s city decile then firm is large                                                                                      |
-| 67 | size_sales_fi               | map<double,boolean> | if firm s sale is above average of firm s industry decile then firm is large                                                                                  |
-| 68 | fe_c_i                      | bigint              | City industry fixed effect                                                                                                                                    |
-| 69 | fe_t_i                      | bigint              | year industry fixed effect                                                                                                                                    |
-| 70 | fe_c_t                      | bigint              | city industry fixed effect                                                                                                                                    |
+| 22 | current_liabilities         | int                 | current liabilities                                                                                                                                           |
+| 23 | lt_liabilities              | int                 | long term liabilities                                                                                                                                         |
+| 24 | from_asif_tot_liabilities   | int                 | total liabilities from asif not constructed                                                                                                                   |
+| 25 | total_right                 | int                 | Adjusted right part balance sheet                                                                                                                             |
+| 26 | intangible                  | int                 | intangible asset measured as the sum of intangibles variables                                                                                                 |
+| 27 | tangible                    | int                 | tangible asset measured as the difference between total fixed asset minus intangible asset                                                                    |
+| 28 | c91                         | int                 | Intangible and Deferred                                                                                                                                       |
+| 29 | c92                         | int                 | Intangible assets                                                                                                                                             |
+| 30 | cashflow                    | int                 | cash flow                                                                                                                                                     |
+| 31 | sales                       | decimal(16,5)       | sales                                                                                                                                                         |
+| 32 | tfp_op                      | double              | TFP. Computed from https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md |
+| 33 | credit_constraint           | float               | Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311                                                          |
+| 34 | supply_all_credit           | double              | total credit over gdp province                                                                                                                                |
+| 35 | supply_long_term_credit     | float               | total long term credit over gdp province                                                                                                                      |
+| 36 | current_ratio               | decimal(21,5)       | current ratio cuasset/流动负债合计 (c95)                                                                                                                      |
+| 37 | quick_ratio                 | decimal(21,5)       | quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                        |
+| 38 | liabilities_tot_asset       | decimal(21,5)       | liabilities to total asset                                                                                                                                    |
+| 39 | sales_tot_asset             | decimal(21,5)       | sales to total asset                                                                                                                                          |
+| 40 | investment_tot_asset        | decimal(21,5)       | investment to total asset                                                                                                                                     |
+| 41 | rd_tot_asset                | decimal(21,5)       | rd to total asset                                                                                                                                             |
+| 42 | asset_tangibility_tot_asset | decimal(21,5)       | asset tangibility to total asset                                                                                                                              |
+| 43 | cashflow_tot_asset          | decimal(21,5)       | cashflow to total asset                                                                                                                                       |
+| 44 | cashflow_to_tangible        | decimal(21,5)       | cashflow to tangible asset                                                                                                                                    |
+| 45 | return_to_sale              | decimal(21,5)       |                                                                                                                                                               |
+| 46 | export_to_sale              | decimal(21,5)       | overseas turnover / sales                                                                                                                                     |
+| 47 | labor_productivity          | decimal(21,5)       | real sales/number of employees.                                                                                                                               |
+| 48 | labor_capital               | decimal(21,5)       | Labor / tangible asset                                                                                                                                        |
+| 49 | age                         | decimal(17,5)       | current year – firms year of establishment                                                                                                                    |
+| 50 | coverage_ratio              | decimal(21,5)       | net income(c131) /total interest payments                                                                                                                     |
+| 51 | liquidity                   | decimal(21,5)       | current assets-current liabilities/total assets                                                                                                               |
+| 52 | avg_size_asset_f            | varchar(5)          | if firm s asset tangibility average is above average of firm s average then firm is large                                                                     |
+| 53 | avg_size_output_f           | varchar(5)          | if firm s ouptut average is above average of firm s average then firm is large                                                                                |
+| 54 | avg_employment_f            | varchar(5)          | if firm s employment average is above average of firm s average then firm is large                                                                            |
+| 55 | avg_size_capital_f          | varchar(5)          | if firm s capital average is above average of firm s average then firm is large                                                                               |
+| 56 | avg_sales_f                 | varchar(5)          | if firm s sale is above average of firm s average then firm is large                                                                                          |
+| 57 | size_asset_fci              | map<double,boolean> | if firm s asset tangibility average is above average of firm city industry s decile then firm is large                                                        |
+| 58 | size_asset_fc               | map<double,boolean> | if firm s asset tangibility average is above average of firm s city decile then firm is large                                                                 |
+| 59 | size_asset_fi               | map<double,boolean> | if firm s asset tangibility average is above average of firm s industry decile then firm is large                                                             |
+| 60 | size_output_fci             | map<double,boolean> | if firm s ouptut average is above average of firm s city industry decile then firm is large                                                                   |
+| 61 | size_output_fc              | map<double,boolean> | if firm s ouptut average is above average of firm s city decile then firm is large                                                                            |
+| 62 | size_output_fi              | map<double,boolean> | if firm s ouptut average is above average of firm s industry decile then firm is large                                                                        |
+| 63 | size_employment_fci         | map<double,boolean> | if firm s employment average is above average of firm s city industry decile then firm is large                                                               |
+| 64 | size_employment_fc          | map<double,boolean> | if firm s employment average is above average of firm s city decile then firm is large                                                                        |
+| 65 | size_employment_fi          | map<double,boolean> | if firm s employment average is above average of firm s industry decile then firm is large                                                                    |
+| 66 | size_capital_fci            | map<double,boolean> | if firm s capital average is above average of firm s city industry decile then firm is large                                                                  |
+| 67 | size_capital_fc             | map<double,boolean> | if firm s capital average is above average of firm s city decile then firm is large                                                                           |
+| 68 | size_capital_fi             | map<double,boolean> | if firm s capital average is above average of firm s industry decile then firm is large                                                                       |
+| 69 | size_sales_fci              | map<double,boolean> | if firm s sale is above average of firm s city industry decile then firm is large                                                                             |
+| 70 | size_sales_fc               | map<double,boolean> | if firm s sale is above average of firm s city decile then firm is large                                                                                      |
+| 71 | size_sales_fi               | map<double,boolean> | if firm s sale is above average of firm s industry decile then firm is large                                                                                  |
+| 72 | fe_c_i                      | bigint              | City industry fixed effect                                                                                                                                    |
+| 73 | fe_t_i                      | bigint              | year industry fixed effect                                                                                                                                    |
+| 74 | fe_c_t                      | bigint              | city industry fixed effect                                                                                                                                    |
 
     

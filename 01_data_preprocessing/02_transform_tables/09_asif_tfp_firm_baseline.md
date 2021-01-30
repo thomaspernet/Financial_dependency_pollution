@@ -185,15 +185,39 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
             - deferred charges
             - short term investments: c79 (其中：短期投资)
 
-need to compute:
+| Origin                  | Variable                    | construction                                                                                                                                                                 | Roam               |
+|-------------------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|
+| Balance sheet variables | current asset               | c80 + c81 + c82 + c79                                                                                                                                                        | #current-asset     |
+| Balance sheet variables | intangible                  | c91 + c92                                                                                                                                                                    | #intangible-asset  |
+| Balance sheet variables | tangible                    | tofixed - cudepre - (c91 + c92)                                                                                                                                              | #tangible-asset    |
+| Balance sheet variables | net fixed asset             | tofixed - cudepre + (c91 + c92)                                                                                                                                              | #net-fixed-asset   |
+| Balance sheet variables | error                       | (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c98 + c99)                                                                                                     |                    |
+| Balance sheet variables | total_liabilities           | if (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c98 + c99). > 0 then allocate error to liabilities else c98 + c99                                           | #total-liabilities |
+| Balance sheet variables | total_asset                 | if (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c98 + c99). <  0 then allocate error to asset else c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)  |                    |
+| Financial metric        | cashflow                    | (c131 - c134) + cudepre                                                                                                                                                      | #cashflow          |
+| Financial metric        | current_ratio               |  c80 + c81 + c82 + c79 / c95                                                                                                                                                 | #current-ratio     |
+| Financial metric        | quick ratio                 |  c80 + c81 + c82 + c79 - c80 - c81 / c95                                                                                                                                     | #quick-ratio       |
+| Financial metric        | liabilities_tot_asset       | c98 / total_asset                                                                                                                                                            | #leverage          |
+| Financial metric        | sales_tot_asset             | sales / total_asset                                                                                                                                                          | #sales-over-asset  |
+| Financial metric        | investment_tot_asset        | c84 / total_asset                                                                                                                                                            |                    |
+| Financial metric        | rd_tot_asset                | rdfee / total_asset                                                                                                                                                          |                    |
+| Financial metric        | asset_tangibility_tot_asset |  tangible / total_asset                                                                                                                                                      | #collateral        |
+| Financial metric        | cashflow_tot_asset          | cashflow / total_asset                                                                                                                                                       |                    |
+| Financial metric        | cashflow_to_tangible        | cashflow / tangible                                                                                                                                                          |                    |
+| Financial metric        | return_to_sale              | c131 / sales                                                                                                                                                                 | #return-on-sales   |
+| Financial metric        | coverage_ratio              | c131 / c125                                                                                                                                                                  | #coverage-ratio    |
+| Financial metric        | liquidity                   | cuasset - c95 / total_asset                                                                                                                                                  | #liquidity         |
+| Other variables         | labor_productivity          | sales/employ                                                                                                                                                                 |                    |
+| Other variables         | labor_capital               | employ / tangible                                                                                                                                                            |                    |
+| Other variables         | age                         | year - setup                                                                                                                                                                 |                    |
+| Other variables         | export_to_sale              |  export / sale                                                                                                                                                               |                    |
 
-- tangible: tofixed - (c91 + c92)
-- intangible: c91 (无形及递延) + c92 (无形资产)
-- other current asset: cuasset - c80 - c81
-- current asset -> c80 + c81 + c82 + c79
-- Net income -> (c131 - c134)
-
-Source: https://www.sciencedirect.com/science/article/pii/S0147596713000760#s0130
+- [[Internal finance and growth: Microeconometric evidence on Chinese firms]]
+    - https://www.sciencedirect.com/science/article/pii/S0304387810000805
+- [[Internal financial constraints and firm productivity in China: Do liquidity and export behavior make a difference?]]
+    - https://www.sciencedirect.com/science/article/pii/S0147596713000760
+- [[Credit constraints and firm productivity: Microeconomic evidence from China]]
+    - https://www.sciencedirect.com/science/article/pii/S0275531917301745
 
 ```python
 DatabaseName = 'firms_survey'
@@ -209,51 +233,47 @@ WITH test AS (
       '0', 
       substr(cic, 1, 1)
     ) END AS indu_2, 
-    c80 + c81 + c82 + c79 as current_asset,
-    (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99) AS error, 
-    CASE WHEN (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99) > 0 THEN (c98 + c99) + ABS(
-      (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99)
-    ) ELSE (c98 + c99) END AS total_liabilities, 
-    CASE WHEN (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99) < 0 THEN (c80 + c81 + c82 + c79 + tofixed) + ABS(
-      (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99)
-    ) ELSE (c80 + c81 + c82 + c79 + tofixed) END AS total_asset, 
-    CASE 
-  WHEN c91 is NULL THEN c92 
-  WHEN c92 is NULL THEN c91
-  ELSE c91 + c92 END AS intangible,
-  CASE
-  WHEN c91 is NULL THEN tofixed - c92 
-  WHEN c92 is NULL THEN tofixed - c91
-  ELSE tofixed - (c91 + c92) END AS tangible,
-  
-  -- CASE WHEN c79 IS NULL THEN cuasset - c80 - c81 - c82 ELSE cuasset - c79 - c80 - c81 - c82 END AS cash, 
-  (c131 - c134) + cudepre as cashflow,
-  CAST(
-          c80 + c81 + c82 + c79 AS DECIMAL(16, 5)
-        ) / NULLIF(
-          CAST(
-            c95 AS DECIMAL(16, 5)
-          ), 
-          0
-        ) AS current_ratio, 
-  CASE WHEN c79 IS NULL THEN 
-        CAST(
-          c80 + c81 + c82 + c79 - c80 - c81 AS DECIMAL(16, 5)
-        ) / NULLIF(
-          CAST(
-            c95 AS DECIMAL(16, 5)
-          ), 
-          0
-        )
-        ELSE  
-        CAST(
-          c80 + c81 + c82 + c79 - c79 - c80 - c81 AS DECIMAL(16, 5)
-        ) / NULLIF(
-          CAST(
-            c95 AS DECIMAL(16, 5)
-          ), 
-          0
-        ) END AS quick_ratio
+    c80 + c81 + c82 + c79 as current_asset, 
+    c91 + c92 AS intangible, 
+    tofixed - cudepre - (c91 + c92) AS tangible, 
+    tofixed - cudepre + (c91 + c92) AS net_fixed_asset, 
+    (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) - (c95 + c97 + c99) AS error, 
+    c95 + c97 as total_liabilities,
+    CASE WHEN (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) - (c95 + c97 + c99) > 0 THEN (c95 + c97 + c99) + ABS(
+      (
+        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+      ) - (c95 + c97 + c99)
+    ) ELSE (c95 + c97 + c99) END AS total_right, 
+    CASE WHEN (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) - (c95 + c97 + c99) < 0 THEN (c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)) + ABS(
+      (
+        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+      ) - (c95 + c97 + c99)
+    ) ELSE (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) END AS total_asset, 
+    (c131 - c134) + cudepre as cashflow, 
+    CAST(
+      c80 + c81 + c82 + c79 AS DECIMAL(16, 5)
+    ) / NULLIF(
+      CAST(
+        c95 AS DECIMAL(16, 5)
+      ), 
+      0
+    ) AS current_ratio, 
+    CAST(
+      c80 + c81 + c82 + c79 - c80 - c81 AS DECIMAL(16, 5)
+    ) / NULLIF(
+      CAST(
+        c95 AS DECIMAL(16, 5)
+      ), 
+      0
+    ) AS quick_ratio 
     
   FROM 
     firms_survey.asif_firms_prepared 
@@ -277,7 +297,6 @@ WITH test AS (
   AND c80 + c81 + c82 + c79 >0
   AND tofixed >0
   AND output > 0 
-  -- and captal > 0 
   and employ > 0
 ) 
 SELECT 
@@ -311,10 +330,11 @@ FROM
         tofixed, 
         error, 
         total_liabilities, 
-        total_asset, 
+        total_asset,
+        total_right,
         intangible, 
         tangible, 
-        --cash, 
+        net_fixed_asset, 
         cashflow, 
         current_ratio,
         quick_ratio,
@@ -333,16 +353,7 @@ FROM
             total_asset AS DECIMAL(16, 5)
           ), 
           0
-        ) AS sales_tot_asset, 
-        -- CAST(
-        --  cash AS DECIMAL(16, 5)
-        --) / NULLIF(
-        --  CAST(
-        --    total_asset AS DECIMAL(16, 5)
-        --  ), 
-        --  0
-        --) AS cash_tot_asset, 
-        
+        ) AS sales_tot_asset,         
         CAST(
           c84 AS DECIMAL(16, 5)
         ) / NULLIF(
@@ -401,10 +412,10 @@ FROM
           0
         ) AS coverage_ratio,
        CAST(
-          cuasset - c95 AS DECIMAL(16, 5)
+          current_asset - c95 AS DECIMAL(16, 5)
          ) / NULLIF(
            CAST(
-            tangible AS DECIMAL(16, 5)
+            total_asset AS DECIMAL(16, 5)
           ), 
           0
          ) AS liquidity,
@@ -611,50 +622,46 @@ WITH test AS (
       substr(cic, 1, 1)
     ) END AS indu_2, 
     c80 + c81 + c82 + c79 as current_asset,
-    (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99) AS error, 
-    CASE WHEN (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99) > 0 THEN (c98 + c99) + ABS(
-      (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99)
-    ) ELSE (c98 + c99) END AS total_liabilities, 
-    CASE WHEN (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99) < 0 THEN (c80 + c81 + c82 + c79 + tofixed) + ABS(
-      (c80 + c81 + c82 + c79 + tofixed) - (c98 + c99)
-    ) ELSE (c80 + c81 + c82 + c79 + tofixed) END AS total_asset, 
-    CASE 
-  WHEN c91 is NULL THEN c92 
-  WHEN c92 is NULL THEN c91
-  ELSE c91 + c92 END AS intangible,
-  CASE
-  WHEN c91 is NULL THEN tofixed - c92 
-  WHEN c92 is NULL THEN tofixed - c91
-  ELSE tofixed - (c91 + c92) END AS tangible,
-  
-  -- CASE WHEN c79 IS NULL THEN cuasset - c80 - c81 - c82 ELSE cuasset - c79 - c80 - c81 - c82 END AS cash, 
-  (c131 - c134) + cudepre as cashflow,
-  CAST(
-          c80 + c81 + c82 + c79 AS DECIMAL(16, 5)
-        ) / NULLIF(
-          CAST(
-            c95 AS DECIMAL(16, 5)
-          ), 
-          0
-        ) AS current_ratio, 
-  CASE WHEN c79 IS NULL THEN 
-        CAST(
-          c80 + c81 + c82 + c79 - c80 - c81 AS DECIMAL(16, 5)
-        ) / NULLIF(
-          CAST(
-            c95 AS DECIMAL(16, 5)
-          ), 
-          0
-        )
-        ELSE  
-        CAST(
-          c80 + c81 + c82 + c79 - c79 - c80 - c81 AS DECIMAL(16, 5)
-        ) / NULLIF(
-          CAST(
-            c95 AS DECIMAL(16, 5)
-          ), 
-          0
-        ) END AS quick_ratio
+    c91 + c92 AS intangible, 
+    tofixed - cudepre - (c91 + c92) AS tangible, 
+    tofixed - cudepre + (c91 + c92) AS net_fixed_asset, 
+    (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) - (c95 + c97 + c99) AS error, 
+    c95 + c97 as total_liabilities,
+    CASE WHEN (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) - (c95 + c97 + c99) > 0 THEN (c95 + c97 + c99) + ABS(
+      (
+        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+      ) - (c95 + c97 + c99)
+    ) ELSE (c95 + c97 + c99) END AS total_right, 
+    CASE WHEN (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) - (c95 + c97 + c99) < 0 THEN (c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)) + ABS(
+      (
+        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+      ) - (c95 + c97 + c99)
+    ) ELSE (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) END AS total_asset, 
+    (c131 - c134) + cudepre as cashflow, 
+    CAST(
+      c80 + c81 + c82 + c79 AS DECIMAL(16, 5)
+    ) / NULLIF(
+      CAST(
+        c95 AS DECIMAL(16, 5)
+      ), 
+      0
+    ) AS current_ratio, 
+    CAST(
+      c80 + c81 + c82 + c79 - c80 - c81 AS DECIMAL(16, 5)
+    ) / NULLIF(
+      CAST(
+        c95 AS DECIMAL(16, 5)
+      ), 
+      0
+    ) AS quick_ratio 
     
   FROM 
     firms_survey.asif_firms_prepared 
@@ -678,7 +685,6 @@ WITH test AS (
   AND c80 + c81 + c82 + c79 > 0
   AND tofixed > 0
   AND output > 0 
-  -- and captal > 0 
   and employ > 0
 ) 
 SELECT 
@@ -709,15 +715,18 @@ FROM
           captal AS DECIMAL(16, 5)
         ) AS capital, 
         current_asset, 
-        tofixed, 
-        error, 
+        net_fixed_asset, 
         total_liabilities, 
-        total_asset, 
+        total_asset,
+        total_right, 
+        error,
         c91,
         c92,
+        c95,
+        c97,
+        c98,
         intangible, 
         tangible, 
-        -- cash, 
         cashflow, 
         current_ratio,
         quick_ratio,
@@ -736,16 +745,7 @@ FROM
             total_asset AS DECIMAL(16, 5)
           ), 
           0
-        ) AS sales_tot_asset, 
-        -- CAST(
-        --  cash AS DECIMAL(16, 5)
-        --) / NULLIF(
-        --  CAST(
-        --    total_asset AS DECIMAL(16, 5)
-        --  ), 
-        --  0
-        --) AS cash_tot_asset, 
-        
+        ) AS sales_tot_asset,         
         CAST(
           c84 AS DECIMAL(16, 5)
         ) / NULLIF(
@@ -807,7 +807,7 @@ FROM
           current_asset - c95 AS DECIMAL(16, 5)
          ) /
            CAST(
-            tangible AS DECIMAL(16, 5)
+            total_asset AS DECIMAL(16, 5)
           ) AS liquidity,
          CAST(
           sales AS DECIMAL(16, 5)
@@ -867,15 +867,16 @@ FROM
       ratio.employment, 
       ratio.capital, 
       current_asset, 
-      tofixed, 
-      error, 
-      total_liabilities, 
-      total_asset, 
+      net_fixed_asset,
       intangible, 
       tangible,
-      c91,
-      c92,
-      --cash, 
+      total_asset,
+      c95  AS current_liabilities, 
+      c97 AS lt_liabilities,
+      c98 AS from_asif_tot_liabilities,
+      total_liabilities, 
+      total_right, 
+      error,
       cashflow, 
       sales, 
       tfp_op, 
@@ -1378,11 +1379,6 @@ FROM
       AND ratio.year = asif_tfp_firm_level.year
       AND ratio.geocode4_corr = asif_tfp_firm_level.geocode4_corr
       AND ratio.ownership = asif_tfp_firm_level.ownership
-    -- WHERE 
-    -- liabilities_tot_asset > 0
-    -- AND sales_tot_asset > 0
-    -- AND cash_tot_asset > 0
-    -- AND cashflow_tot_asset > 0
     ORDER BY 
       year 
   )
@@ -1473,9 +1469,14 @@ Without filtering data
 ```python
 query_test = """
 SELECT ownership,
+COUNT(*) as nb_obs,
 AVG(tfp_op) AS avg_tfp_op, 
+AVG(tangible) AS avg_tangible, 
+AVG(intangible) AS avg_intangible, 
+AVG(current_asset) AS avg_current_asset, 
 AVG(return_to_sale)AS avg_return_to_sale, 
 AVG(liabilities_tot_asset) AS avg_liabilities_tot_asset, 
+AVG(cashflow_tot_asset) AS avg_cashflow_tot_asset,
 AVG(cashflow_to_tangible) AS avg_cashflow_to_tangible,
 AVG(liquidity) AS avg_liquidity,
 AVG(age) AS avg_age,
@@ -1500,9 +1501,14 @@ After filtering data
 ```python
 query_test = """
 SELECT ownership,
+COUNT(*) as nb_obs,
 AVG(tfp_op) AS avg_tfp_op, 
+AVG(tangible) AS avg_tangible, 
+AVG(intangible) AS avg_intangible, 
+AVG(current_asset) AS avg_current_asset, 
 AVG(return_to_sale)AS avg_return_to_sale, 
 AVG(liabilities_tot_asset) AS avg_liabilities_tot_asset, 
+AVG(cashflow_tot_asset) AS avg_cashflow_tot_asset,
 AVG(cashflow_to_tangible) AS avg_cashflow_to_tangible,
 AVG(liquidity) AS avg_liquidity,
 AVG(age) AS avg_age,
@@ -1588,13 +1594,17 @@ schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'firm ID'},
               'Type': 'decimal(16,5)', 'Comment': 'employment'},
           {'Name': 'capital', 'Type': 'decimal(16,5)', 'Comment': 'capital'},
           {'Name': 'current_asset', 'Type': 'int', 'Comment': 'current asset'},
-          {'Name': 'tofixed', 'Type': 'int', 'Comment': 'total fixed asset'},
+          {'Name': 'net_fixed_asset', 'Type': 'int', 'Comment': 'total net fixed asset'},
           {'Name': 'error', 'Type': 'int',
            'Comment': 'difference between cuasset+tofixed and total liabilities +equity. Error makes the balance sheet equation right'},
           {'Name': 'total_liabilities', 'Type': 'int',
            'Comment': 'total adjusted liabilities'},
           {'Name': 'total_asset', 'Type': 'int',
               'Comment': 'total adjusted asset'},
+          {'Name': 'current_liabilities', 'Type': 'int', 'Comment': 'current liabilities'},
+ {'Name': 'lt_liabilities', 'Type': 'int', 'Comment': 'long term liabilities'},
+ {'Name': 'from_asif_tot_liabilities', 'Type': 'int', 'Comment': 'total liabilities from asif not constructed'},
+          {'Name': 'total_right', 'Type': 'int', 'Comment': 'Adjusted right part balance sheet'},
           {'Name': 'intangible', 'Type': 'int',
            'Comment': 'intangible asset measured as the sum of intangibles variables'},
           {'Name': 'tangible', 'Type': 'int',
