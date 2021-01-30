@@ -163,6 +163,7 @@ WITH aggregate_pol AS (
     year, 
     geocode4_corr, 
     cityen, 
+    indus_code AS cic,
     ind2, 
     SUM(tso2) as tso2, 
     lower_location, 
@@ -174,7 +175,8 @@ WITH aggregate_pol AS (
         year, 
         citycode, 
         geocode4_corr, 
-        china_city_sector_pollution.cityen, 
+        china_city_sector_pollution.cityen,
+        indus_code,
         ind2, 
         tso2, 
         lower_location, 
@@ -197,6 +199,7 @@ WITH aggregate_pol AS (
     year, 
     geocode4_corr, 
     cityen, 
+    indus_code,
     ind2, 
     lower_location, 
     larger_location, 
@@ -208,10 +211,11 @@ FROM
   (
     WITH merge_asif AS (
       SELECT 
-        year, 
+        aggregate_pol.year, 
         aggregate_pol.geocode4_corr, 
         cityen, 
-        ind2, 
+        aggregate_pol.cic,
+        aggregate_pol.ind2, 
         tso2, 
         tso2_mandate_c,
         in_10_000_tonnes
@@ -221,7 +225,8 @@ FROM
       FROM 
         aggregate_pol 
         INNER JOIN firms_survey.asif_industry_financial_ratio_city ON 
-        aggregate_pol.ind2 = asif_industry_financial_ratio_city.indu_2 AND 
+        aggregate_pol.year = asif_industry_financial_ratio_city.year AND 
+        aggregate_pol.cic = asif_industry_financial_ratio_city.cic AND 
         aggregate_pol.geocode4_corr = asif_industry_financial_ratio_city.geocode4_corr 
         INNER JOIN (
         
@@ -243,14 +248,14 @@ FROM
         SELECT 
           geocode4_corr, 
           year, 
-          ind2, 
+          cic, 
           COUNT(*) AS CNT 
         FROM 
           merge_asif 
         GROUP BY 
           geocode4_corr, 
           year, 
-          ind2
+          cic
       ) AS count_dup 
     GROUP BY 
       CNT
@@ -339,7 +344,8 @@ query = """
 SELECT 
   year, 
   geocode4_corr, 
-  indu_2, 
+  indu_2,
+  cic, 
   AVG(tfp_op) as tfp_cit, 
   SUM(output) AS output, 
   SUM(employ) AS employment, 
@@ -353,6 +359,7 @@ FROM
       tfp_op, 
       asif_tfp_firm_level.year, 
       asif_tfp_firm_level.geocode4_corr, 
+      cic,
       asif_tfp_firm_level.indu_2, 
       asif_city.output, 
       asif_city.employ, 
@@ -366,6 +373,7 @@ FROM
           firm, 
           year, 
           geocode4_corr, 
+          cic,
           CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
             '0', 
             substr(cic, 1, 1)
@@ -400,7 +408,8 @@ WHERE
   ) 
 GROUP BY 
   geocode4_corr, 
-  indu_2, 
+  cic, 
+  indu_2,
   year
 """
 output = s3.run_query(
@@ -450,12 +459,14 @@ s3.remove_all_bucket(path_remove = s3_output)
 ```python
 %%time
 query = """
-CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS WITH aggregate_pol AS (
+CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS 
+WITH aggregate_pol AS (
 SELECT 
     year, 
     geocode4_corr, 
-    provinces, 
+    province_en, 
     cityen, 
+    indus_code AS cic,
     ind2, 
     SUM(tso2) as tso2, 
     lower_location, 
@@ -465,11 +476,12 @@ SELECT
     (
       SELECT 
         year, 
-        provinces, 
+        province_en, 
         citycode, 
         geocode4_corr, 
         china_city_sector_pollution.cityen, 
-        ind2, 
+        indus_code,
+        ind2,  
         tso2, 
         lower_location, 
         larger_location, 
@@ -479,19 +491,22 @@ SELECT
         INNER JOIN (
           SELECT 
             extra_code, 
-            geocode4_corr 
+            geocode4_corr,
+          province_en
           FROM 
             chinese_lookup.china_city_code_normalised 
           GROUP BY 
             extra_code, 
-            geocode4_corr
+            geocode4_corr,
+          province_en
         ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code
     ) 
   GROUP BY 
     year, 
-    provinces, 
+    province_en, 
     geocode4_corr, 
     cityen, 
+    indus_code,
     ind2, 
     lower_location, 
     larger_location, 
@@ -502,11 +517,12 @@ SELECT
   CASE WHEN aggregate_pol.year in (
     '2001', '2002', '2003', '2004', '2005'
   ) THEN 'FALSE' WHEN aggregate_pol.year in ('2006', '2007') THEN 'TRUE' END AS period, 
-  provinces, 
+  aggregate_pol.province_en, 
   cityen, 
   aggregate_pol.geocode4_corr, 
   CASE WHEN tcz IS NULL THEN '0' ELSE tcz END AS tcz, 
   CASE WHEN spz IS NULL OR spz = '#N/A' THEN '0' ELSE spz END AS spz, 
+  aggregate_pol.cic, 
   aggregate_pol.ind2, 
   CASE WHEN short IS NULL THEN 'Unknown' ELSE short END AS short, 
   polluted_di, 
@@ -522,57 +538,26 @@ SELECT
   above_threshold_mandate,
   above_average_mandate,
   in_10_000_tonnes, 
-  CAST(
-    output AS DECIMAL(16, 5)
-  ) AS output, 
-  CAST(
-    employment AS DECIMAL(16, 5)
-  ) AS employment, 
-  CAST(
-    sales AS DECIMAL(16, 5)
-  ) AS sales, 
-  CAST(
-    capital AS DECIMAL(16, 5)
-  ) AS capital, 
-  CAST(
-    toasset AS DECIMAL(16, 5)
-  ) AS total_asset,
   tfp_cit,
-  credit_constraint, 
-  receivable_curasset_ci,
-  std_receivable_curasset_ci,
-  cash_over_curasset_ci,
-  std_cash_over_curasset_ci,
-  cash_over_totasset_ci,
-  std_cash_over_totasset_ci,
-  working_capital_ci,
-  std_working_capital_ci,
-  working_capital_requirement_ci,
-  std_working_capital_requirement_ci,
-  current_ratio_ci,
-  std_current_ratio_ci,
-  quick_ratio_ci,
-  std_quick_ratio_ci,
-  cash_ratio_ci,
-  std_cash_ratio_ci,
-  liabilities_assets_ci,
-  std_liabilities_assets_ci,
-  1 - liabilities_assets_ci as reverse_liabilities_assets_ci,
-  1-std_liabilities_assets_ci as reverse_std_liabilities_assets_ci,
-  sales_assets_andersen_ci,
-  std_sales_assets_andersen_ci,
-  return_on_asset_ci,
-  std_return_on_asset_ci,
-  sales_assets_ci,
-  std_sales_assets_ci,
-  account_paybable_to_asset_ci,
-  std_account_paybable_to_asset_ci,
-  asset_tangibility_ci,
-  std_asset_tangibility_ci,
-  rd_intensity_ci,
-  std_rd_intensity_ci,
-  inventory_to_sales_ci,
-  std_inventory_to_sales_ci,
+  credit_constraint,
+  1/supply_all_credit as supply_all_credit,
+  1/supply_long_term_credit as supply_long_term_credit,
+  output,
+  sales,
+  employment,
+  capital,
+  current_asset,
+  tofixed,
+  total_liabilities,
+  total_asset,
+  tangible,
+  cashflow,
+  current_ratio,
+  liabilities_tot_asset,
+  sales_tot_asset,
+  asset_tangibility_tot_asset,
+  cashflow_to_tangible,
+  return_to_sale,  
   lower_location, 
   larger_location, 
   coastal,
@@ -614,7 +599,9 @@ SELECT
 FROM 
   aggregate_pol 
   INNER JOIN firms_survey.asif_industry_financial_ratio_city 
-  ON aggregate_pol.ind2 = asif_industry_financial_ratio_city.indu_2 
+  ON 
+  aggregate_pol.year = asif_industry_financial_ratio_city.year 
+  AND aggregate_pol.cic = asif_industry_financial_ratio_city.cic 
   AND aggregate_pol.geocode4_corr = asif_industry_financial_ratio_city.geocode4_corr 
   INNER JOIN (
     SELECT 
@@ -687,12 +674,12 @@ FROM
     SELECT 
       year, 
       geocode4_corr, 
-      indu_2, 
-      SUM(output) AS output, 
-      SUM(employ) AS employment, 
-      SUM(captal) AS capital,
-      SUM(sales) as sales,
-      SUM(toasset) as toasset,
+      cic, 
+      -- SUM(output) AS output,
+      --SUM(employ) AS employment, 
+      --SUM(captal) AS capital,
+      --SUM(sales) as sales,
+      --SUM(toasset) as toasset,
       AVG(tfp_op) as tfp_cit
     FROM 
       (
@@ -701,12 +688,12 @@ FROM
       tfp_op, 
       asif_city.year, 
       asif_city.geocode4_corr, 
-      asif_city.indu_2, 
-      asif_city.output,
-      asif_city.employ, 
-      asif_city.captal, 
-      asif_city.sales, 
-      asif_city.toasset 
+      asif_city.cic
+      --asif_city.output,
+      --asif_city.employ, 
+      --asif_city.captal, 
+      --asif_city.sales, 
+      --asif_city.toasset 
     FROM 
       firms_survey.asif_tfp_firm_level 
       RIGHT JOIN (
@@ -714,6 +701,7 @@ FROM
           firm, 
           year, 
           geocode4_corr, 
+          cic,
           CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
             '0', 
             substr(cic, 1, 1)
@@ -747,10 +735,10 @@ FROM
       ) 
     GROUP BY 
       geocode4_corr, 
-      indu_2, 
+      cic, 
       year
   ) as agg_output ON aggregate_pol.geocode4_corr = agg_output.geocode4_corr 
-  AND aggregate_pol.ind2 = agg_output.indu_2 
+  AND aggregate_pol.cic = agg_output.cic 
   AND aggregate_pol.year = agg_output.year 
   
   LEFT JOIN firms_survey.asif_industry_characteristics_ownership
@@ -758,6 +746,7 @@ FROM
     AND aggregate_pol.ind2 = asif_industry_characteristics_ownership.indu_2
   LEFT JOIN firms_survey.asif_city_characteristics_ownership
     ON aggregate_pol.geocode4_corr = asif_city_characteristics_ownership.geocode4_corr
+  LEFT JOIN chinese_lookup.province_credit_constraint ON aggregate_pol.province_en = province_credit_constraint.Province
 
 WHERE 
   tso2 > 4863 
@@ -787,6 +776,26 @@ output = s3.run_query(
     filename = 'count_{}'.format(table_name)
                 )
 output
+```
+
+```python
+query_test = """
+SELECT  
+AVG(tangible) AS avg_tangible, 
+AVG(current_asset) AS avg_current_asset, 
+AVG(return_to_sale)AS avg_return_to_sale, 
+AVG(liabilities_tot_asset) AS avg_liabilities_tot_asset, 
+AVG(cashflow_to_tangible) AS avg_cashflow_to_tangible
+FROM fin_dep_pollution_baseline_city  
+
+"""
+output = s3.run_query(
+                    query=query_test,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'count_{}'.format(table_name)
+                )
+output.T
 ```
 
 ## Check industry vs city
@@ -901,7 +910,7 @@ To validate the query, please fillin the json below. Don't forget to change the 
 1. Add a partition key
 
 ```python
-partition_keys = ["geocode4_corr", "year", "ind2"]
+partition_keys = ["province_en", "geocode4_corr", "cic","indu_2", "year" ]
 ```
 
 2. Add the steps number
@@ -922,7 +931,7 @@ glue.get_table_information(
 
 ```python
 schema = [
-    {"Name": "year", "Type": "string", "Comment": "year from 2001 to 2007"},
+     {"Name": "year", "Type": "string", "Comment": "year from 2001 to 2007"},
     {
         "Name": "period",
         "Type": "varchar(5)",
@@ -933,6 +942,7 @@ schema = [
     {"Name": "geocode4_corr", "Type": "string", "Comment": ""},
     {"Name": "tcz", "Type": "string", "Comment": "Two control zone policy city"},
     {"Name": "spz", "Type": "string", "Comment": "Special policy zone policy city"},
+    {'Name': 'cic', 'Type': 'string', 'Comment': '4 digits industry code'},
     {"Name": "ind2", "Type": "string", "Comment": "2 digits industry"},
     {"Name": "short", "Type": "string", "Comment": ""},
     {
@@ -980,186 +990,29 @@ schema = [
         "Type": "float",
         "Comment": "city reduction mandate in 10k tonnes",
     },
-    {"Name": "output", "Type": "decimal(16,5)", "Comment": "Output"},
+     {'Name': 'tfp_cit', 'Type': 'double', 'Comment': 'TFP at the city industry level. From https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md#table-asif_tfp_firm_level'},
+ {'Name': 'credit_constraint', 'Type': 'float', 'Comment': 'Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311"'},
+ {'Name': 'supply_all_credit', 'Type': 'double', 'Comment': 'province external supply of credit'},
+ {'Name': 'supply_long_term_credit', 'Type': 'float', 'Comment': 'province external supply of long term credit'},
+{"Name": "output", "Type": "decimal(16,5)", "Comment": "Output"},
     {"Name": "employment", "Type": "decimal(16,5)", "Comment": "Employemnt"},
     {"Name": "sales", "Type": "decimal(16,5)", "Comment": "Sales"},
     {"Name": "capital", "Type": "decimal(16,5)", "Comment": "Capital"},
-    {"Name": "total_asset", "Type": "decimal(16,5)", "Comment": "Total asset"},
-    {'Name': 'tfp_cit', 'Type': 'double', 'Comment': 'TFP at the city industry level. From https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md#table-asif_tfp_firm_level'},
-    {
-        "Name": "credit_constraint",
-        "Type": "float",
-        "Comment": "Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311",
-    },
-    {
-        "Name": "receivable_curasset_ci",
-        "Type": "double",
-        "Comment": "应收帐款 (c80) / cuasset",
-    },
-    {
-        "Name": "std_receivable_curasset_ci",
-        "Type": "double",
-        "Comment": "standaridzed values (x - x mean) / std)",
-    },
-    {
-        "Name": "cash_over_curasset_ci",
-        "Type": "double",
-        "Comment": "1 - (其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset",
-    },
-    {
-        "Name": "std_cash_over_curasset_ci",
-        "Type": "double",
-        "Comment": "standaridzed values (x - x mean) / std)",
-    },
-    {
-        "Name": "cash_over_totasset_ci",
-        "Type": "double",
-        "Comment": "1 - (cuasset- 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /toasset",
-    },
-    {
-        "Name": "std_cash_over_totasset_ci",
-        "Type": "double",
-        "Comment": "standaridzed values (x - x mean) / std)",
-    },
-    {
-        "Name": "working_capital_ci",
-        "Type": "double",
-        "Comment": "cuasset- 流动负债合计 (c95)",
-    },
-    {
-        "Name": "std_working_capital_ci",
-        "Type": "double",
-        "Comment": "standaridzed values (x - x mean) / std)",
-    },
-    {
-        "Name": "working_capital_requirement_ci",
-        "Type": "double",
-        "Comment": "存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)",
-    },
-    {
-        "Name": "std_working_capital_requirement_ci",
-        "Type": "double",
-        "Comment": "standaridzed values (x - x mean) / std)",
-    },
-    {"Name": "current_ratio_ci", "Type": "double", "Comment": "cuasset/流动负债合计 (c95)"},
-    {
-        "Name": "std_current_ratio_ci",
-        "Type": "double",
-        "Comment": "standaridzed values (x - x mean) / std)",
-    },
-    {
-        "Name": "quick_ratio_ci",
-        "Type": "double",
-        "Comment": "(cuasset-存货 (c81) ) / 流动负债合计 (c95)",
-    },
-    {
-        "Name": "std_quick_ratio_ci",
-        "Type": "double",
-        "Comment": "standaridzed values (x - x mean) / std)",
-    },
-    {
-        "Name": "cash_ratio_ci",
-        "Type": "double",
-        "Comment": "1 - (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)/ 流动负债合计 (c95)",
-    },
-    {
-        "Name": "std_cash_ratio_ci",
-        "Type": "double",
-        "Comment": "standaridzed values (x - x mean) / std)",
-    },
-    {
-        "Name": "liabilities_assets_ci",
-        "Type": "double",
-        "Comment": "1- (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset",
-    },
-    {
-        "Name": "std_liabilities_assets_ci",
-        "Type": "double",
-        "Comment": "standaridzed values (x - x mean) / std)",
-    },
-    {
-        "Name": "reverse_liabilities_assets_ci",
-        "Type": "double",
-        "Comment": "1 - liabilities_assets_ci",
-    },
-    {
-        "Name": "reverse_std_liabilities_assets_ci",
-        "Type": "double",
-        "Comment": "1-standaridzed values (x - x mean) / std)",
-    },
-    {
-        "Name": "sales_assets_andersen_ci",
-        "Type": "double",
-        "Comment": "全年营业收入合计 (c64) /(toasset)",
-    },
-    {
-        "Name": "std_sales_assets_andersen_ci",
-        "Type": "double",
-        "Comment": "standaridzed values (x - x mean) / std)",
-    },
-    {
-        "Name": "return_on_asset_ci",
-        "Type": "double",
-        "Comment": "sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset",
-    },
-    {
-        "Name": "std_return_on_asset_ci",
-        "Type": "double",
-        "Comment": "standaridzed values (x - x mean) / std)",
-    },
-    {
-        "Name": "sales_assets_ci",
-        "Type": "double",
-        "Comment": "全年营业收入合计 (c64) /(\Delta toasset/2)",
-    },
-    {
-        "Name": "std_sales_assets_ci",
-        "Type": "double",
-        "Comment": "standaridzed values (x - x mean) / std)",
-    },
-    {
-        "Name": "account_paybable_to_asset_ci",
-        "Type": "double",
-        "Comment": "(\Delta 应付帐款  (c96))/ (\Delta (toasset))",
-    },
-    {
-        "Name": "std_account_paybable_to_asset_ci",
-        "Type": "double",
-        "Comment": "standaridzed values (x - x mean) / std)",
-    },
-    {
-        "Name": "asset_tangibility_ci",
-        "Type": "double",
-        "Comment": "Total fixed assets - Intangible assets",
-    },
-    {
-        "Name": "std_asset_tangibility_ci",
-        "Type": "double",
-        "Comment": "standaridzed values (x - x mean) / std)",
-    },
-    {"Name": "rd_intensity_ci", "Type": "double", "Comment": "rdfee/全年营业收入合计 (c64)"},
-    {
-        "Name": "std_rd_intensity_ci",
-        "Type": "double",
-        "Comment": "standaridzed values (x - x mean) / std)",
-    },
-    {"Name": "inventory_to_sales_ci", "Type": "double", "Comment": "存货 (c81) / sales"},
-    {
-        "Name": "std_inventory_to_sales_ci",
-        "Type": "double",
-        "Comment": "standaridzed values (x - x mean) / std)",
-    },
-    {
-        "Name": "lower_location",
-        "Type": "string",
-        "Comment": "Location city. one of Coastal, Central, Northwest, Northeast, Southwest",
-    },
-    {
-        "Name": "larger_location",
-        "Type": "string",
-        "Comment": "Location city. one of Eastern, Central, Western",
-    },
-    {"Name": "coastal", "Type": "string", "Comment": "City is bordered by sea or not"},
+ {'Name': 'current_asset', 'Type': 'int', 'Comment': 'current asset'},
+ {'Name': 'tofixed', 'Type': 'bigint', 'Comment': 'total fixed asset'},
+ {'Name': 'total_liabilities', 'Type': 'int', 'Comment': 'total liabilities'},
+ {'Name': 'total_asset', 'Type': 'int', 'Comment': 'total asset'},
+ {'Name': 'tangible', 'Type': 'int', 'Comment': 'tangible asset'},
+ {'Name': 'cashflow', 'Type': 'int', 'Comment': 'cashflow'},
+ {'Name': 'current_ratio', 'Type': 'decimal(21,5)', 'Comment': 'current ratio'},
+ {'Name': 'liabilities_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'liabilities to total asset'},
+ {'Name': 'sales_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'sales to total asset'},
+ {'Name': 'asset_tangibility_tot_asset',
+  'Type': 'decimal(21,5)',
+  'Comment': 'asset tangibility tot total asset'},
+ {'Name': 'cashflow_to_tangible', 'Type': 'decimal(21,5)', 'Comment': 'cashflow to tangible asset'},
+ {'Name': 'return_to_sale', 'Type': 'decimal(21,5)', 'Comment': 'return to sale'},
+ {"Name": "coastal", "Type": "string", "Comment": "City is bordered by sea or not"},
     {'Name': 'dominated_output_soe_c', 'Type': 'boolean',
         'Comment': 'SOE dominated city of output. If true, then SOEs dominated city'},
     {'Name': 'dominated_employment_soe_c', 'Type': 'boolean',
@@ -1230,8 +1083,7 @@ schema = [
     },
     {"Name": "fe_c_i", "Type": "bigint", "Comment": "City industry fixed effect"},
     {"Name": "fe_t_i", "Type": "bigint", "Comment": "year industry fixed effect"},
-    {"Name": "fe_c_t", "Type": "bigint", "Comment": "city industry fixed effect"},
-]
+    {"Name": "fe_c_t", "Type": "bigint", "Comment": "city industry fixed effect"}]
 ```
 
 4. Provide a description
@@ -1339,7 +1191,7 @@ One of the most important step when creating a table is to check if the table co
 You are required to define the group(s) that Athena will use to compute the duplicate. For instance, your table can be grouped by COL1 and COL2 (need to be string or varchar), then pass the list ['COL1', 'COL2'] 
 
 ```python
-partition_keys = ["geocode4_corr", "year", "ind2"]
+partition_keys = ["province_en", "geocode4_corr", "cic","ind2", "year" ]
 
 with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
