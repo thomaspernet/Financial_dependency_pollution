@@ -265,7 +265,7 @@ WITH test AS (
 ) 
 SELECT 
         year, 
-        cic, 
+        -- cic, 
         indu_2, 
         geocode4_corr,
         province_en,
@@ -398,7 +398,11 @@ SELECT
         )
         AND total_asset > 0 
         AND tangible > 0
-     GROUP BY province_en, geocode4_corr, cic,indu_2, year  
+     GROUP BY province_en,
+     geocode4_corr,
+     -- cic,
+     indu_2,
+     year  
      LIMIT 10
 """
 output = s3.run_query(
@@ -508,7 +512,7 @@ WITH test AS (
 ) 
 SELECT 
         year, 
-        cic, 
+        -- cic, 
         indu_2, 
         geocode4_corr,
         province_en,
@@ -641,8 +645,8 @@ SELECT
         )
         AND total_asset > 0 
         AND tangible > 0
-     GROUP BY province_en, geocode4_corr, cic,indu_2, year  
-     ORDER BY province_en, geocode4_corr, cic,indu_2, year
+     GROUP BY province_en, geocode4_corr,indu_2, year--, cic
+     ORDER BY province_en, geocode4_corr,indu_2, year--cic
 """.format(DatabaseName, table_name)
 output = s3.run_query(
                     query=query,
@@ -677,6 +681,7 @@ AVG(liabilities_tot_asset) AS avg_liabilities_tot_asset,
 AVG(cashflow_tot_asset) AS avg_cashflow_tot_asset,
 AVG(cashflow_to_tangible) AS avg_cashflow_to_tangible,
 AVG(liquidity) AS avg_liquidity,
+AVG(sales_tot_asset) AS avg_sales_tot_asset,
 AVG(coverage_ratio) AS avg_coverage_ratio
 FROM asif_industry_financial_ratio_city  
 
@@ -707,7 +712,7 @@ To validate the query, please fillin the json below. Don't forget to change the 
 1. Add a partition key
 
 ```python
-partition_keys = ["province_en", "geocode4_corr", "cic","indu_2", "year" ]
+partition_keys = ["province_en", "geocode4_corr","indu_2", "year" ]
 ```
 
 2. Add the steps number
@@ -879,7 +884,7 @@ One of the most important step when creating a table is to check if the table co
 You are required to define the group(s) that Athena will use to compute the duplicate. For instance, your table can be grouped by COL1 and COL2 (need to be string or varchar), then pass the list ['COL1', 'COL2'] 
 
 ```python
-partition_keys = ["province_en", "geocode4_corr", "cic","indu_2", "year" ]
+partition_keys = ["province_en", "geocode4_corr","indu_2", "year" ]
 
 with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
@@ -1024,6 +1029,92 @@ for key, value in parameters['TABLES'].items():
 README = README.format(top_readme)
 with open(os.path.join(str(Path(path).parent.parent), '00_data_catalogue/README.md'), "w") as outfile:
     outfile.write(README)
+```
+
+# Analytics
+
+In this part, we are providing basic summary statistic. Since we have created the tables, we can parse the schema in Glue and use our json file to automatically generates the analysis.
+
+The cells below execute the job in the key `ANALYSIS`. You need to change the `primary_key` and `secondary_key` 
+
+
+For a full analysis of the table, please use the following Lambda function. Be patient, it can takes between 5 to 30 minutes. Times varies according to the number of columns in your dataset.
+
+Use the function as follow:
+
+- `output_prefix`:  s3://datalake-datascience/ANALYTICS/OUTPUT/TABLE_NAME/
+- `region`: region where the table is stored
+- `bucket`: Name of the bucket
+- `DatabaseName`: Name of the database
+- `table_name`: Name of the table
+- `group`: variables name to group to count the duplicates
+- `primary_key`: Variable name to perform the grouping -> Only one variable for now
+- `secondary_key`: Variable name to perform the secondary grouping -> Only one variable for now
+- `proba`: Chi-square analysis probabilitity
+- `y_var`: Continuous target variables
+
+Check the job processing in Sagemaker: https://eu-west-3.console.aws.amazon.com/sagemaker/home?region=eu-west-3#/processing-jobs
+
+The notebook is available: https://s3.console.aws.amazon.com/s3/buckets/datalake-datascience?region=eu-west-3&prefix=ANALYTICS/OUTPUT/&showversions=false
+
+Please, download the notebook on your local machine, and convert it to HTML:
+
+```
+cd "/Users/thomas/Downloads/Notebook"
+aws s3 cp s3://datalake-datascience/ANALYTICS/OUTPUT/asif_unzip_data_csv/Template_analysis_from_lambda-2020-11-22-08-12-20.ipynb .
+
+## convert HTML no code
+jupyter nbconvert --no-input --to html Template_analysis_from_lambda-2020-11-21-14-30-45.ipynb
+jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ipynb
+```
+
+Then upload the HTML to: https://s3.console.aws.amazon.com/s3/buckets/datalake-datascience?region=eu-west-3&prefix=ANALYTICS/HTML_OUTPUT/
+
+Add a new folder with the table name in upper case
+
+```python
+import boto3
+
+key, secret_ = con.load_credential()
+client_lambda = boto3.client(
+    'lambda',
+    aws_access_key_id=key,
+    aws_secret_access_key=secret_,
+    region_name = region)
+```
+
+```python
+primary_key = 'year'
+secondary_key = 'indu_2'
+y_var = 'tangible'
+```
+
+```python
+payload = {
+    "input_path": "s3://datalake-datascience/ANALYTICS/TEMPLATE_NOTEBOOKS/template_analysis_from_lambda.ipynb",
+    "output_prefix": "s3://datalake-datascience/ANALYTICS/OUTPUT/{}/".format(table_name.upper()),
+    "parameters": {
+        "region": "{}".format(region),
+        "bucket": "{}".format(bucket),
+        "DatabaseName": "{}".format(DatabaseName),
+        "table_name": "{}".format(table_name),
+        "group": "{}".format(','.join(partition_keys)),
+        "keys": "{},{}".format(primary_key,secondary_key),
+        "y_var": "{}".format(y_var),
+        "threshold":0
+    },
+}
+payload
+```
+
+```python
+response = client_lambda.invoke(
+    FunctionName='RunNotebook',
+    InvocationType='RequestResponse',
+    LogType='Tail',
+    Payload=json.dumps(payload),
+)
+response
 ```
 
 # Generation report

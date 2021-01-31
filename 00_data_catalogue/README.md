@@ -409,7 +409,7 @@
 
 - Database: firms_survey
 - S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/CITY`
-- Partitition: ['province_en', 'geocode4_corr', 'cic', 'indu_2', 'year']
+- Partitition: ['province_en', 'geocode4_corr', 'indu_2', 'year']
 
 |    | Name                        | Type          | Comment                                                                                                        |
 |---:|:----------------------------|:--------------|:---------------------------------------------------------------------------------------------------------------|
