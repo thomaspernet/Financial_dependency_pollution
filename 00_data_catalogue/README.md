@@ -417,7 +417,7 @@
 |  1 | employment                  | decimal(16,5) | employment                                                                                                     |
 |  2 | capital                     | decimal(16,5) | capital                                                                                                        |
 |  3 | current_asset               | int           | current asset                                                                                                  |
-|  4 | net_fixed_asset             | int           | total net fixed asset                                                                                          |
+|  4 | net_non_current             | int           | total net non current asset                                                                                    |
 |  5 | error                       | int           | difference between cuasset+tofixed and total liabilities +equity. Error makes the balance sheet equation right |
 |  6 | total_liabilities           | int           | total adjusted liabilities                                                                                     |
 |  7 | total_asset                 | int           | total adjusted asset                                                                                           |

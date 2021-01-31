@@ -143,32 +143,33 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
 
 Detail computation:
 
-| Origin                  | Variable                    | construction                                                                                                                                                                       | Roam               |
-|-------------------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|
-| Balance sheet variables | current asset               | c80 + c81 + c82 + c79                                                                                                                                                              | #current-asset     |
-| Balance sheet variables | intangible                  | c91 + c92                                                                                                                                                                          | #intangible-asset  |
-| Balance sheet variables | tangible                    | tofixed - cudepre - (c91 + c92)                                                                                                                                                    | #tangible-asset    |
-| Balance sheet variables | net fixed asset             | tofixed - cudepre + (c91 + c92)                                                                                                                                                    | #net-fixed-asset   |
-| Balance sheet variables | error                       | (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c95 + c97 + c99)                                                                                                     |                    |
-| Balance sheet variables | total_liabilities           | if (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c95 + c97 + c99). > 0 then allocate error to liabilities else c95 + c97 + c99                                     | #total-liabilities |
-| Balance sheet variables | total_asset                 | if (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c95 + c97 + c99). <  0 then allocate error to asset else c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)  |                    |
-| Financial metric        | cashflow                    | (c131 - c134) + cudepre                                                                                                                                                            | #cashflow          |
-| Financial metric        | current_ratio               |  c80 + c81 + c82 + c79 / c95                                                                                                                                                       | #current-ratio     |
-| Financial metric        | quick ratio                 |  c80 + c81 + c82 + c79 - c80 - c81 / c95                                                                                                                                           | #quick-ratio       |
-| Financial metric        | liabilities_tot_asset       | c98 / total_asset                                                                                                                                                                  | #leverage          |
-| Financial metric        | sales_tot_asset             | sales / total_asset                                                                                                                                                                | #sales-over-asset  |
-| Financial metric        | investment_tot_asset        | c84 / total_asset                                                                                                                                                                  |                    |
-| Financial metric        | rd_tot_asset                | rdfee / total_asset                                                                                                                                                                |                    |
-| Financial metric        | asset_tangibility_tot_asset |  tangible / total_asset                                                                                                                                                            | #collateral        |
-| Financial metric        | cashflow_tot_asset          | cashflow / total_asset                                                                                                                                                             |                    |
-| Financial metric        | cashflow_to_tangible        | cashflow / tangible                                                                                                                                                                |                    |
-| Financial metric        | return_to_sale              | c131 / sales                                                                                                                                                                       | #return-on-sales   |
-| Financial metric        | coverage_ratio              | c131 / c125                                                                                                                                                                        | #coverage-ratio    |
-| Financial metric        | liquidity                   | cuasset - c95 / total_asset                                                                                                                                                        | #liquidity         |
-| Other variables         | labor_productivity          | sales/employ                                                                                                                                                                       |                    |
-| Other variables         | labor_capital               | employ / tangible                                                                                                                                                                  |                    |
-| Other variables         | age                         | year - setup                                                                                                                                                                       |                    |
-| Other variables         | export_to_sale              |  export / sale                                                                                                                                                                     |                    |
+| Origin                  | Variable                    | construction                                                                                                                                                                 | Roam               |
+|-------------------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|
+| Balance sheet variables | current asset               | c80 + c81 + c82 + c79                                                                                                                                                        | #current-asset     |
+| Balance sheet variables | intangible                  | c91 + c92                                                                                                                                                                    | #intangible-asset  |
+| Balance sheet variables | tangible                    | tofixed - cudepre                                                                                                                                               | #tangible-asset    |
+| Balance sheet variables | total net non current             | tofixed - cudepre + (c91 + c92)                                                                                                                                              | #net-fixed-asset   |
+| Balance sheet variables | error                       | (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c95 + c97  + c99)                                                                                                     |                    |
+| Balance sheet variables | total_liabilities           | if (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c95 + c97  + c99). > 0 then allocate error to liabilities else c98 + c99                                           | #total-liabilities |
+| Balance sheet variables | total_asset                 | if (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c95 + c97  + c99). <  0 then allocate error to asset else c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)  |                    |
+| Financial metric        | cashflow                    | (c131 - c134) + cudepre                                                                                                                                                      | #cashflow          |
+| Financial metric        | current_ratio               |  c80 + c81 + c82 + c79 / c95                                                                                                                                                 | #current-ratio     |
+| Financial metric        | quick ratio                 |  c80 + c81 + c82 + c79 - c80 - c81 / c95                                                                                                                                     | #quick-ratio       |
+| Financial metric        | liabilities_tot_asset       | c98 / total_asset                                                                                                                                                            | #leverage          |
+| Financial metric        | sales_tot_asset             | sales / total_asset                                                                                                                                                          | #sales-over-asset  |
+| Financial metric        | investment_tot_asset        | c84 / total_asset                                                                                                                                                            |                    |
+| Financial metric        | rd_tot_asset                | rdfee / total_asset                                                                                                                                                          |                    |
+| Financial metric        | asset_tangibility_tot_asset |  tangible / total_asset                                                                                                                                                      | #collateral        |
+| Financial metric        | cashflow_tot_asset          | cashflow / total_asset                                                                                                                                                       |                    |
+| Financial metric        | cashflow_to_tangible        | cashflow / tangible                                                                                                                                                          |                    |
+| Financial metric        | return_to_sale              | c131 / sales                                                                                                                                                                 | #return-on-sales   |
+| Financial metric        | coverage_ratio              | c131 / c125                                                                                                                                                                  | #coverage-ratio    |
+| Financial metric        | liquidity                   | cuasset - c95 / total_asset                                                                                                                                                  | #liquidity         |
+| Other variables         | labor_productivity          | sales/employ                                                                                                                                                                 |                    |
+| Other variables         | labor_capital               | employ / tangible                                                                                                                                                            |                    |
+| Other variables         | age                         | year - setup                                                                                                                                                                 |                    |
+| Other variables         | export_to_sale              |  export / sale                                                                                                                                                               |                    |
+
 
 
 ## Example step by step
@@ -215,8 +216,8 @@ WITH test AS (
     ) END AS indu_2, 
     c80 + c81 + c82 + c79 as current_asset, 
     c91 + c92 AS intangible, 
-    tofixed - cudepre - (c91 + c92) AS tangible, 
-    tofixed - cudepre + (c91 + c92) AS net_fixed_asset, 
+    tofixed - cudepre  AS tangible, 
+    tofixed - cudepre + (c91 + c92) AS net_non_current, 
     (
       c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
     ) - (c95 + c97 + c99) AS error, 
@@ -295,7 +296,7 @@ FROM
         SUM(total_right) AS total_right, 
         SUM(intangible) AS intangible, 
         SUM(tangible) AS tangible, 
-        SUM(net_fixed_asset) AS net_fixed_asset, 
+        SUM(net_non_current) AS net_non_current, 
         SUM(cashflow) AS cashflow, 
         CAST(
           SUM(c80 + c81 + c82 + c79) AS DECIMAL(16, 5)
@@ -428,7 +429,7 @@ FROM
       total_right, 
       intangible, 
       tangible, 
-      net_fixed_asset, 
+      net_non_current, 
       cashflow, 
       current_ratio,
       LAG(current_ratio, 1) OVER (
@@ -540,8 +541,8 @@ WITH test AS (
     ) END AS indu_2, 
     c80 + c81 + c82 + c79 as current_asset, 
     c91 + c92 AS intangible, 
-    tofixed - cudepre - (c91 + c92) AS tangible, 
-    tofixed - cudepre + (c91 + c92) AS net_fixed_asset, 
+    tofixed - cudepre  AS tangible, 
+    tofixed - cudepre + (c91 + c92) AS net_non_current, 
     (
       c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
     ) - (c95 + c97 + c99) AS error, 
@@ -620,7 +621,7 @@ FROM
         SUM(total_right) AS total_right, 
         SUM(intangible) AS intangible, 
         SUM(tangible) AS tangible, 
-        SUM(net_fixed_asset) AS net_fixed_asset, 
+        SUM(net_non_current) AS net_non_current, 
         SUM(cashflow) AS cashflow, 
         CAST(
           SUM(c80 + c81 + c82 + c79) AS DECIMAL(16, 5)
@@ -753,7 +754,7 @@ FROM
       total_right, 
       intangible, 
       tangible, 
-      net_fixed_asset, 
+      net_non_current, 
       cashflow, 
       current_ratio,
       LAG(current_ratio, 1) OVER (
@@ -895,7 +896,7 @@ schema = [{'Name': 'output', 'Type': 'decimal(16,5)', 'Comment': 'Output'},
               'Type': 'decimal(16,5)', 'Comment': 'employment'},
           {'Name': 'capital', 'Type': 'decimal(16,5)', 'Comment': 'capital'},
           {'Name': 'current_asset', 'Type': 'int', 'Comment': 'current asset'},
-          {'Name': 'net_fixed_asset', 'Type': 'int', 'Comment': 'total net fixed asset'},
+          {'Name': 'net_non_current', 'Type': 'int', 'Comment': 'total net non current asset'},
           {'Name': 'error', 'Type': 'int',
            'Comment': 'difference between cuasset+tofixed and total liabilities +equity. Error makes the balance sheet equation right'},
           {'Name': 'total_liabilities', 'Type': 'int',
