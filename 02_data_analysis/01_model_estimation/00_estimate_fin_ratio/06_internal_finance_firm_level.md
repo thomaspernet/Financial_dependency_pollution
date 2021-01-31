@@ -552,25 +552,25 @@ t_3 <- felm(investment_tot_asset ~
             | firm + year + indu_2|0 | firm,df_final ,
             exactDOF = TRUE)
 
-t_4 <- felm(rd_tot_asset_trick ~
-            supply_all_credit +
-            log(current_ratio) +
-            log(liabilities_tot_asset) +
-            log(cashflow_to_tangible) +
-            log(age) +
-            export_to_sale 
-            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
-            exactDOF = TRUE)
+#t_4 <- felm(rd_tot_asset_trick ~
+#            supply_all_credit +
+#            log(current_ratio) +
+#            log(liabilities_tot_asset) +
+#            log(cashflow_to_tangible) +
+#           log(age) +
+#            export_to_sale 
+#            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
+#            exactDOF = TRUE)
             
 dep <- "Dependent variable Asset"
 fe1 <- list(
-    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("firm", "Yes", "Yes", "Yes", "Yes"),
     
-    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("industry-year", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4
+    t_0,t_1, t_2, t_3#, t_4
 ),
     title="Effect of external credit supply on asset accumulation, all credits",
     dep_var = dep,
