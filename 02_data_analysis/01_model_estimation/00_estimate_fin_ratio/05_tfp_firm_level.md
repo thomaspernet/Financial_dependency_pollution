@@ -361,7 +361,7 @@ dim(df_final)
 <!-- #endregion -->
 
 <!-- #region kernel="R" -->
-## Table 1: baseline Effect of internal finance on firm TFP
+## Table 1: Baseline effect of internal finance on firm TFP
 
 $$ \begin{aligned}
 \begin{equation}
@@ -450,7 +450,7 @@ fe1 <- list(
 table_1 <- go_latex(list(
     t_0, t_1, t_2, t_3, t_4,t_5
 ),
-    title="Baseline Estimate, effect of internal finance on firm TFP",
+    title="Baseline effect of internal finance on firm TFP",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
@@ -486,7 +486,7 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-## Table 2: baseline Effect of external credit demand on firm productivity
+## Table 2: Baseline effect of external credit demand on firm TFP
 
 1. Effect of external credit supply
     - all credits
@@ -579,16 +579,18 @@ t_5 <- felm(log(tfp_op) ~
             log(asset_tangibility_tot_asset)
             | firm + year|0 | firm, df_final,
             exactDOF = TRUE)
+
 dep <- "Dependent variable: Total factor productivity"
 fe1 <- list(
     c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "No", "No"),
+    c("year", "No", "No", "No", "No", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
     t_0, t_1, t_2, t_3, t_4,t_5
 ),
-    title="Baseline Estimate, effect of external credit demand on firm TFP",
+    title="Baseline effect of external credit demand on firm TFP",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
@@ -624,7 +626,7 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-## Table 3: baseline Effect of external credit demand on firm productivity (interaction term)
+## Table 3: Baseline interaction effect of external credit demand on firm TFP
 <!-- #endregion -->
 
 ```sos kernel="SoS"
@@ -693,7 +695,7 @@ t_4 <- felm(log(tfp_op) ~
             export_to_sale +
             log(liabilities_tot_asset) +
             log(asset_tangibility_tot_asset) 
-            | firm + year |0 | firm, df_final,
+            | firm + year + indu_2 |0 | firm, df_final,
             exactDOF = TRUE)
 
 t_5 <- felm(log(tfp_op) ~ 
@@ -704,7 +706,7 @@ t_5 <- felm(log(tfp_op) ~
             export_to_sale +
             log(liabilities_tot_asset) +
             log(asset_tangibility_tot_asset) 
-            | firm + year|0 | firm, df_final,
+            | firm + year + indu_2|0 | firm, df_final,
             exactDOF = TRUE)
 dep <- "Dependent variable: Total factor productivity"
 fe1 <- list(
@@ -742,14 +744,14 @@ reorder = {
     12:6,
     13:7,
     14:8,
-    15:9,
+    #15:9,
     #16:10
 }
 
 #multi_lines_dep = '(city/product/trade regime/year)'
 #new_r = ['& test1', 'test2']
 lb.beautify(table_number = table_nb,
-            reorder_var = reorder,
+            #reorder_var = reorder,
             #multi_lines_dep = multi_lines_dep,
             #new_row= new_r,
             #multicolumn = multicolumn,
@@ -874,7 +876,7 @@ reorder = {
 #multi_lines_dep = '(city/product/trade regime/year)'
 #new_r = ['& test1', 'test2']
 lb.beautify(table_number = table_nb,
-            reorder_var = reorder,
+            #reorder_var = reorder,
             #multi_lines_dep = multi_lines_dep,
             #new_row= new_r,
             multicolumn = multicolumn,
@@ -976,7 +978,9 @@ t_5 <- felm(log(tfp_op) ~
 dep <- "Dependent variable: Total factor productivity"
 fe1 <- list(
     c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "No", "No"),
+    c("year", "No", "No", "No", "No", "Yes", "Yes")
+    
              )
 
 table_1 <- go_latex(list(
@@ -1101,8 +1105,8 @@ t_5 <- felm(log(tfp_op) ~
             exactDOF = TRUE)
 dep <- "Dependent variable: Total factor productivity"
 fe1 <- list(
-    c("firm", "Yes", "Yes", "Yes", "Yes"),
-    c("industry-year", "Yes", "Yes", "Yes", "Yes")
+    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
@@ -1237,7 +1241,8 @@ t_5 <- felm(log(tfp_op) ~
 dep <- "Dependent variable: Total factor productivity"
 fe1 <- list(
     c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "No", "No"),
+    c("year", "No", "No", "No", "No", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
@@ -1362,8 +1367,8 @@ t_5 <- felm(log(tfp_op) ~
             exactDOF = TRUE)
 dep <- "Dependent variable: Total factor productivity"
 fe1 <- list(
-    c("firm", "Yes", "Yes", "Yes", "Yes"),
-    c("industry-year", "Yes", "Yes", "Yes", "Yes")
+    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
@@ -1498,7 +1503,8 @@ t_5 <- felm(log(tfp_op) ~
 dep <- "Dependent variable: Total factor productivity"
 fe1 <- list(
     c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "No", "No"),
+    c("year", "No", "No", "No", "No", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
@@ -2071,9 +2077,9 @@ t <- 1
 for (var in list(
     #'size_asset_',
     'size_output_',
-    'size_employment_',
-    'size_capital_',
-    'size_sales_'
+    #'size_employment_',
+    #'size_capital_',
+    #'size_sales_'
     )){
     
     for (option in list('fci','fc','fi')){
@@ -2149,7 +2155,7 @@ tbe1  = "This table estimates eq(3). " \
 
 #multi_lines_dep = '(city/product/trade regime/year)'
 new_r = ['& .5', '.75', '.90', '.95']
-for i in range(1, 16):
+for i in range(1, 5):
     print('\n\nTable {}\n\n'.format(i))
     lb.beautify(table_number = i,
                 #reorder_var = reorder,
