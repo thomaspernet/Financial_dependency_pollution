@@ -14615,7 +14615,7 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span><span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -14633,7 +14633,7 @@ a.anchor-link {
 <span class="s2">    (</span>
 <span class="s2">      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)</span>
 <span class="s2">    ) - (c95 + c97 + c99) AS error, </span>
-<span class="s2">    c95 + c97 as total_liabilities,</span>
+<span class="s2">    c95 + c97 as total_liabilities, </span>
 <span class="s2">    CASE WHEN (</span>
 <span class="s2">      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)</span>
 <span class="s2">    ) - (c95 + c97 + c99) &gt; 0 THEN (c95 + c97 + c99) + ABS(</span>
@@ -14643,7 +14643,9 @@ a.anchor-link {
 <span class="s2">    ) ELSE (c95 + c97 + c99) END AS total_right, </span>
 <span class="s2">    CASE WHEN (</span>
 <span class="s2">      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)</span>
-<span class="s2">    ) - (c95 + c97 + c99) &lt; 0 THEN (c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)) + ABS(</span>
+<span class="s2">    ) - (c95 + c97 + c99) &lt; 0 THEN (</span>
+<span class="s2">      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)</span>
+<span class="s2">    ) + ABS(</span>
 <span class="s2">      (</span>
 <span class="s2">        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)</span>
 <span class="s2">      ) - (c95 + c97 + c99)</span>
@@ -14651,37 +14653,41 @@ a.anchor-link {
 <span class="s2">      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)</span>
 <span class="s2">    ) END AS total_asset, </span>
 <span class="s2">    (c131 - c134) + cudepre as cashflow </span>
-<span class="s2">    </span>
 <span class="s2">  FROM </span>
 <span class="s2">    firms_survey.asif_firms_prepared </span>
 <span class="s2">    INNER JOIN (</span>
 <span class="s2">      SELECT </span>
 <span class="s2">        extra_code, </span>
-<span class="s2">        geocode4_corr,</span>
-<span class="s2">      province_en</span>
+<span class="s2">        geocode4_corr, </span>
+<span class="s2">        province_en </span>
 <span class="s2">      FROM </span>
 <span class="s2">        chinese_lookup.china_city_code_normalised </span>
 <span class="s2">      GROUP BY </span>
 <span class="s2">        extra_code, </span>
-<span class="s2">      province_en,</span>
+<span class="s2">        province_en, </span>
 <span class="s2">        geocode4_corr</span>
-<span class="s2">    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code</span>
-<span class="s2">  WHERE</span>
+<span class="s2">    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code </span>
+<span class="s2">  WHERE </span>
 <span class="s2">    c95 &gt; 0 -- current liabilities</span>
-<span class="s2">  AND c97 &gt;0 -- long term liabilities</span>
-<span class="s2">  AND c98 &gt; 0 -- total liabilities</span>
-<span class="s2">  AND c99 &gt; 0 -- equity</span>
-<span class="s2">  AND c80 + c81 + c82 + c79 &gt;0</span>
-<span class="s2">  AND tofixed &gt;0</span>
-<span class="s2">  AND output &gt; 0 </span>
-<span class="s2">  and employ &gt; 0</span>
+<span class="s2">    AND c97 &gt; 0 -- long term liabilities</span>
+<span class="s2">    AND c98 &gt; 0 -- total liabilities</span>
+<span class="s2">    AND c99 &gt; 0 -- equity</span>
+<span class="s2">    AND c80 + c81 + c82 + c79 &gt; 0 </span>
+<span class="s2">    AND tofixed &gt; 0 </span>
+<span class="s2">    AND output &gt; 0 </span>
+<span class="s2">    and employ &gt; 0</span>
 <span class="s2">) </span>
 <span class="s2">SELECT </span>
+<span class="s2">  * </span>
+<span class="s2">FROM </span>
+<span class="s2">  (</span>
+<span class="s2">    WITH ratio AS (</span>
+<span class="s2">      SELECT </span>
 <span class="s2">        year, </span>
 <span class="s2">        -- cic, </span>
 <span class="s2">        indu_2, </span>
-<span class="s2">        geocode4_corr,</span>
-<span class="s2">        province_en,</span>
+<span class="s2">        geocode4_corr, </span>
+<span class="s2">        province_en, </span>
 <span class="s2">        CAST(</span>
 <span class="s2">          SUM(output) AS DECIMAL(16, 5)</span>
 <span class="s2">        ) AS output, </span>
@@ -14698,28 +14704,28 @@ a.anchor-link {
 <span class="s2">        SUM(tofixed) AS tofixed, </span>
 <span class="s2">        SUM(error) AS error, </span>
 <span class="s2">        SUM(total_liabilities) AS total_liabilities, </span>
-<span class="s2">        SUM(total_asset) AS total_asset,</span>
-<span class="s2">        SUM(total_right) AS total_right,</span>
+<span class="s2">        SUM(total_asset) AS total_asset, </span>
+<span class="s2">        SUM(total_right) AS total_right, </span>
 <span class="s2">        SUM(intangible) AS intangible, </span>
 <span class="s2">        SUM(tangible) AS tangible, </span>
 <span class="s2">        SUM(net_fixed_asset) AS net_fixed_asset, </span>
 <span class="s2">        SUM(cashflow) AS cashflow, </span>
 <span class="s2">        CAST(</span>
-<span class="s2">      SUM(c80 + c81 + c82 + c79) AS DECIMAL(16, 5)</span>
-<span class="s2">    ) / NULLIF(</span>
-<span class="s2">      CAST(</span>
-<span class="s2">        SUM(c95) AS DECIMAL(16, 5)</span>
-<span class="s2">      ), </span>
-<span class="s2">      0</span>
-<span class="s2">    ) AS current_ratio, </span>
-<span class="s2">    CAST(</span>
-<span class="s2">      SUM(c80 + c81 + c82 + c79 - c80 - c81) AS DECIMAL(16, 5)</span>
-<span class="s2">    ) / NULLIF(</span>
-<span class="s2">      CAST(</span>
-<span class="s2">        SUM(c95) AS DECIMAL(16, 5)</span>
-<span class="s2">      ), </span>
-<span class="s2">      0</span>
-<span class="s2">    ) AS quick_ratio,</span>
+<span class="s2">          SUM(c80 + c81 + c82 + c79) AS DECIMAL(16, 5)</span>
+<span class="s2">        ) / NULLIF(</span>
+<span class="s2">          CAST(</span>
+<span class="s2">            SUM(c95) AS DECIMAL(16, 5)</span>
+<span class="s2">          ), </span>
+<span class="s2">          0</span>
+<span class="s2">        ) AS current_ratio, </span>
+<span class="s2">        CAST(</span>
+<span class="s2">          SUM(c80 + c81 + c82 + c79 - c80 - c81) AS DECIMAL(16, 5)</span>
+<span class="s2">        ) / NULLIF(</span>
+<span class="s2">          CAST(</span>
+<span class="s2">            SUM(c95) AS DECIMAL(16, 5)</span>
+<span class="s2">          ), </span>
+<span class="s2">          0</span>
+<span class="s2">        ) AS quick_ratio, </span>
 <span class="s2">        CAST(</span>
 <span class="s2">          SUM(c98) AS DECIMAL(16, 5)</span>
 <span class="s2">        ) / NULLIF(</span>
@@ -14735,7 +14741,7 @@ a.anchor-link {
 <span class="s2">            SUM(total_asset) AS DECIMAL(16, 5)</span>
 <span class="s2">          ), </span>
 <span class="s2">          0</span>
-<span class="s2">        ) AS sales_tot_asset,         </span>
+<span class="s2">        ) AS sales_tot_asset, </span>
 <span class="s2">        CAST(</span>
 <span class="s2">          SUM(c84) AS DECIMAL(16, 5)</span>
 <span class="s2">        ) / NULLIF(</span>
@@ -14775,48 +14781,120 @@ a.anchor-link {
 <span class="s2">            SUM(tangible) AS DECIMAL(16, 5)</span>
 <span class="s2">          ), </span>
 <span class="s2">          0</span>
-<span class="s2">        ) AS cashflow_to_tangible,</span>
-<span class="s2">       -- update</span>
-<span class="s2">       CAST(</span>
+<span class="s2">        ) AS cashflow_to_tangible, </span>
+<span class="s2">        -- update</span>
+<span class="s2">        CAST(</span>
 <span class="s2">          SUM(c131) AS DECIMAL(16, 5)</span>
 <span class="s2">        ) / NULLIF(</span>
 <span class="s2">          CAST(</span>
 <span class="s2">            SUM(sales) AS DECIMAL(16, 5)</span>
 <span class="s2">          ), </span>
 <span class="s2">          0</span>
-<span class="s2">        ) AS return_to_sale,</span>
-<span class="s2">       CAST(</span>
+<span class="s2">        ) AS return_to_sale, </span>
+<span class="s2">        CAST(</span>
 <span class="s2">          SUM(c131) AS DECIMAL(16, 5)</span>
 <span class="s2">        ) / NULLIF(</span>
 <span class="s2">          CAST(</span>
 <span class="s2">            SUM(c125) AS DECIMAL(16, 5)</span>
 <span class="s2">          ), </span>
 <span class="s2">          0</span>
-<span class="s2">        ) AS coverage_ratio,</span>
-<span class="s2">       CAST(</span>
+<span class="s2">        ) AS coverage_ratio, </span>
+<span class="s2">        CAST(</span>
 <span class="s2">          SUM(current_asset - c95) AS DECIMAL(16, 5)</span>
-<span class="s2">         ) / NULLIF(</span>
-<span class="s2">           CAST(</span>
+<span class="s2">        ) / NULLIF(</span>
+<span class="s2">          CAST(</span>
 <span class="s2">            SUM(tangible) AS DECIMAL(16, 5)</span>
 <span class="s2">          ), </span>
 <span class="s2">          0</span>
-<span class="s2">         ) AS liquidity</span>
-<span class="s2">        </span>
+<span class="s2">        ) AS liquidity </span>
 <span class="s2">      FROM </span>
 <span class="s2">        test </span>
 <span class="s2">      WHERE </span>
 <span class="s2">        year in (</span>
 <span class="s2">          &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;, </span>
 <span class="s2">          &#39;2006&#39;, &#39;2007&#39;</span>
-<span class="s2">        )</span>
+<span class="s2">        ) </span>
 <span class="s2">        AND total_asset &gt; 0 </span>
-<span class="s2">        AND tangible &gt; 0</span>
-<span class="s2">     GROUP BY province_en,</span>
-<span class="s2">     geocode4_corr,</span>
-<span class="s2">     -- cic,</span>
-<span class="s2">     indu_2,</span>
-<span class="s2">     year  </span>
-<span class="s2">     LIMIT 10</span>
+<span class="s2">        AND tangible &gt; 0 </span>
+<span class="s2">      GROUP BY </span>
+<span class="s2">        province_en, </span>
+<span class="s2">        geocode4_corr, </span>
+<span class="s2">        -- cic,</span>
+<span class="s2">        indu_2, </span>
+<span class="s2">        year </span>
+<span class="s2">      </span>
+<span class="s2">    ) </span>
+<span class="s2">    SELECT </span>
+<span class="s2">      year, </span>
+<span class="s2">      indu_2, </span>
+<span class="s2">      geocode4_corr, </span>
+<span class="s2">      province_en, </span>
+<span class="s2">      output, </span>
+<span class="s2">      sales, </span>
+<span class="s2">      employment, </span>
+<span class="s2">      capital, </span>
+<span class="s2">      current_asset, </span>
+<span class="s2">      tofixed, </span>
+<span class="s2">      error, </span>
+<span class="s2">      total_liabilities, </span>
+<span class="s2">      total_asset, </span>
+<span class="s2">      total_right, </span>
+<span class="s2">      intangible, </span>
+<span class="s2">      tangible, </span>
+<span class="s2">      net_fixed_asset, </span>
+<span class="s2">      cashflow, </span>
+<span class="s2">      current_ratio,</span>
+<span class="s2">      LAG(current_ratio, 1) OVER (</span>
+<span class="s2">        PARTITION BY geocode4_corr, indu_2 </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          year</span>
+<span class="s2">      ) as lag_current_ratio,</span>
+<span class="s2">      quick_ratio, </span>
+<span class="s2">      LAG(quick_ratio, 1) OVER (</span>
+<span class="s2">        PARTITION BY geocode4_corr, indu_2 </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          year</span>
+<span class="s2">      ) as lag_quick_ratio,</span>
+<span class="s2">      liabilities_tot_asset, </span>
+<span class="s2">      LAG(liabilities_tot_asset, 1) OVER (</span>
+<span class="s2">        PARTITION BY geocode4_corr, indu_2 </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          year</span>
+<span class="s2">      ) as lag_liabilities_tot_asset,</span>
+<span class="s2">      sales_tot_asset,</span>
+<span class="s2">      LAG(sales_tot_asset, 1) OVER (</span>
+<span class="s2">        PARTITION BY geocode4_corr, indu_2 </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          year</span>
+<span class="s2">      ) as lag_sales_tot_asset,</span>
+<span class="s2">      investment_tot_asset, </span>
+<span class="s2">      rd_tot_asset, </span>
+<span class="s2">      asset_tangibility_tot_asset, </span>
+<span class="s2">      cashflow_tot_asset,</span>
+<span class="s2">      LAG(cashflow_tot_asset, 1) OVER (</span>
+<span class="s2">        PARTITION BY geocode4_corr, indu_2 </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          year</span>
+<span class="s2">      ) as lag_cashflow_tot_asset,</span>
+<span class="s2">      cashflow_to_tangible, </span>
+<span class="s2">      LAG(cashflow_to_tangible, 1) OVER (</span>
+<span class="s2">        PARTITION BY geocode4_corr, indu_2 </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          year</span>
+<span class="s2">      ) as lag_cashflow_to_tangible,</span>
+<span class="s2">      return_to_sale, </span>
+<span class="s2">      LAG(return_to_sale, 1) OVER (</span>
+<span class="s2">        PARTITION BY geocode4_corr, indu_2 </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          year</span>
+<span class="s2">      ) as lag_return_to_sale,</span>
+<span class="s2">      coverage_ratio, </span>
+<span class="s2">      liquidity </span>
+<span class="s2">    FROM </span>
+<span class="s2">      ratio</span>
+<span class="s2">    LIMIT </span>
+<span class="s2">        10</span>
+<span class="s2">  )</span>
 <span class="s2">&quot;&quot;&quot;</span>
 <span class="n">output</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span>
                     <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
@@ -14840,7 +14918,7 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[6]:</div>
 
 
 
@@ -14882,15 +14960,22 @@ a.anchor-link {
       <th>net_fixed_asset</th>
       <th>cashflow</th>
       <th>current_ratio</th>
+      <th>lag_current_ratio</th>
       <th>quick_ratio</th>
+      <th>lag_quick_ratio</th>
       <th>liabilities_tot_asset</th>
+      <th>lag_liabilities_tot_asset</th>
       <th>sales_tot_asset</th>
+      <th>lag_sales_tot_asset</th>
       <th>investment_tot_asset</th>
       <th>rd_tot_asset</th>
       <th>asset_tangibility_tot_asset</th>
       <th>cashflow_tot_asset</th>
+      <th>lag_cashflow_tot_asset</th>
       <th>cashflow_to_tangible</th>
+      <th>lag_cashflow_to_tangible</th>
       <th>return_to_sale</th>
+      <th>lag_return_to_sale</th>
       <th>coverage_ratio</th>
       <th>liquidity</th>
     </tr>
@@ -14899,332 +14984,402 @@ a.anchor-link {
     <tr>
       <th>0</th>
       <td>2001</td>
-      <td>19</td>
-      <td>4303</td>
-      <td>Hunan</td>
-      <td>274270.0</td>
-      <td>263960.0</td>
-      <td>528.0</td>
-      <td>35020.0</td>
-      <td>73520</td>
-      <td>70303</td>
-      <td>11173</td>
-      <td>64084</td>
-      <td>149097</td>
-      <td>149097</td>
-      <td>1040</td>
-      <td>66476</td>
-      <td>68556</td>
-      <td>9224</td>
-      <td>1.44335</td>
-      <td>0.33123</td>
-      <td>0.42981</td>
-      <td>1.77039</td>
-      <td>0.00067</td>
+      <td>6</td>
+      <td>1301</td>
+      <td>Hebei</td>
+      <td>306699.0</td>
+      <td>261014.0</td>
+      <td>5986.0</td>
+      <td>173534.0</td>
+      <td>547854</td>
+      <td>543261</td>
+      <td>58055</td>
+      <td>820751</td>
+      <td>1091819</td>
+      <td>1091819</td>
+      <td>8727</td>
+      <td>521037</td>
+      <td>538491</td>
+      <td>15252</td>
+      <td>0.95750</td>
       <td>NaN</td>
-      <td>0.44586</td>
-      <td>0.06187</td>
-      <td>0.13876</td>
-      <td>0.03067</td>
-      <td>2.45185</td>
-      <td>0.33972</td>
+      <td>0.25550</td>
+      <td>NaN</td>
+      <td>0.75214</td>
+      <td>NaN</td>
+      <td>0.23906</td>
+      <td>NaN</td>
+      <td>0.00088</td>
+      <td>NaN</td>
+      <td>0.47722</td>
+      <td>0.01397</td>
+      <td>NaN</td>
+      <td>0.02927</td>
+      <td>NaN</td>
+      <td>0.00678</td>
+      <td>NaN</td>
+      <td>0.16643</td>
+      <td>-0.04667</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>2005</td>
-      <td>31</td>
-      <td>4209</td>
-      <td>Hubei</td>
-      <td>294480.0</td>
-      <td>277410.0</td>
-      <td>2214.0</td>
-      <td>50914.0</td>
-      <td>59145</td>
-      <td>96456</td>
-      <td>-1402</td>
-      <td>88850</td>
-      <td>169761</td>
-      <td>169761</td>
-      <td>1475</td>
-      <td>92351</td>
-      <td>95301</td>
-      <td>15581</td>
-      <td>1.24043</td>
-      <td>0.34571</td>
-      <td>0.52615</td>
-      <td>1.63412</td>
-      <td>0.01199</td>
-      <td>0.00118</td>
-      <td>0.54401</td>
-      <td>0.09178</td>
-      <td>0.16872</td>
-      <td>0.05316</td>
-      <td>5.42931</td>
-      <td>0.12414</td>
+      <td>2003</td>
+      <td>6</td>
+      <td>1301</td>
+      <td>Hebei</td>
+      <td>881795.0</td>
+      <td>752217.0</td>
+      <td>5474.0</td>
+      <td>196067.0</td>
+      <td>635931</td>
+      <td>707714</td>
+      <td>107856</td>
+      <td>969665</td>
+      <td>1346012</td>
+      <td>1346012</td>
+      <td>0</td>
+      <td>689166</td>
+      <td>689166</td>
+      <td>35592</td>
+      <td>0.88048</td>
+      <td>0.95750</td>
+      <td>0.20312</td>
+      <td>0.25550</td>
+      <td>0.74059</td>
+      <td>0.75214</td>
+      <td>0.55885</td>
+      <td>0.23906</td>
+      <td>0.00529</td>
+      <td>NaN</td>
+      <td>0.51201</td>
+      <td>0.02644</td>
+      <td>0.01397</td>
+      <td>0.05165</td>
+      <td>0.02927</td>
+      <td>0.02592</td>
+      <td>0.00678</td>
+      <td>8.47977</td>
+      <td>-0.12526</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>2005</td>
-      <td>27</td>
-      <td>5101</td>
-      <td>Sichuan</td>
-      <td>7299662.0</td>
-      <td>5984739.0</td>
-      <td>17629.0</td>
-      <td>2956603.0</td>
-      <td>3486190</td>
-      <td>4410675</td>
-      <td>-3532722</td>
-      <td>6200609</td>
-      <td>11975693</td>
-      <td>11975693</td>
-      <td>458437</td>
-      <td>3777743</td>
-      <td>4694617</td>
-      <td>592072</td>
-      <td>0.72014</td>
-      <td>0.11608</td>
-      <td>0.57528</td>
-      <td>0.49974</td>
-      <td>0.08168</td>
-      <td>0.00392</td>
-      <td>0.31545</td>
-      <td>0.04944</td>
-      <td>0.15673</td>
-      <td>0.07850</td>
-      <td>3.53046</td>
-      <td>-0.35863</td>
+      <td>2004</td>
+      <td>6</td>
+      <td>1301</td>
+      <td>Hebei</td>
+      <td>1216275.0</td>
+      <td>998063.0</td>
+      <td>5689.0</td>
+      <td>229367.0</td>
+      <td>651170</td>
+      <td>693978</td>
+      <td>-8599</td>
+      <td>1060956</td>
+      <td>1368300</td>
+      <td>1368300</td>
+      <td>3779</td>
+      <td>671068</td>
+      <td>678626</td>
+      <td>30830</td>
+      <td>0.79284</td>
+      <td>0.88048</td>
+      <td>0.21629</td>
+      <td>0.20312</td>
+      <td>0.77538</td>
+      <td>0.74059</td>
+      <td>0.72942</td>
+      <td>0.55885</td>
+      <td>0.00270</td>
+      <td>NaN</td>
+      <td>0.49044</td>
+      <td>0.02253</td>
+      <td>0.02644</td>
+      <td>0.04594</td>
+      <td>0.05165</td>
+      <td>0.01214</td>
+      <td>0.02592</td>
+      <td>1.18075</td>
+      <td>-0.25355</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>2003</td>
-      <td>18</td>
-      <td>4401</td>
-      <td>Guangdong</td>
-      <td>15023009.0</td>
-      <td>14065722.0</td>
-      <td>142578.0</td>
-      <td>3112218.0</td>
-      <td>3835262</td>
-      <td>3620450</td>
-      <td>-906256</td>
-      <td>4450533</td>
-      <td>8632984</td>
-      <td>8632984</td>
-      <td>0</td>
-      <td>3399852</td>
-      <td>3399852</td>
-      <td>456755</td>
-      <td>0.88749</td>
-      <td>0.13123</td>
-      <td>0.54695</td>
-      <td>1.62930</td>
-      <td>0.00923</td>
-      <td>NaN</td>
-      <td>0.39382</td>
-      <td>0.05291</td>
-      <td>0.13435</td>
-      <td>0.01983</td>
-      <td>6.39228</td>
-      <td>-0.14302</td>
+      <td>2005</td>
+      <td>6</td>
+      <td>1301</td>
+      <td>Hebei</td>
+      <td>1515470.0</td>
+      <td>1463286.0</td>
+      <td>5507.0</td>
+      <td>306957.0</td>
+      <td>425737</td>
+      <td>639943</td>
+      <td>-593974</td>
+      <td>1250577</td>
+      <td>1590706</td>
+      <td>1590706</td>
+      <td>6086</td>
+      <td>558413</td>
+      <td>570585</td>
+      <td>116687</td>
+      <td>0.53786</td>
+      <td>0.79284</td>
+      <td>0.07525</td>
+      <td>0.21629</td>
+      <td>0.78680</td>
+      <td>0.77538</td>
+      <td>0.91990</td>
+      <td>0.72942</td>
+      <td>0.00450</td>
+      <td>0.00220</td>
+      <td>0.35105</td>
+      <td>0.07336</td>
+      <td>0.02253</td>
+      <td>0.20896</td>
+      <td>0.04594</td>
+      <td>0.02902</td>
+      <td>0.01214</td>
+      <td>6.47241</td>
+      <td>-0.65507</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>2007</td>
-      <td>17</td>
-      <td>3302</td>
-      <td>Zhejiang</td>
-      <td>13587492.0</td>
-      <td>13432889.0</td>
-      <td>45329.0</td>
-      <td>3157799.0</td>
-      <td>5975415</td>
-      <td>6388951</td>
-      <td>-3148892</td>
-      <td>9953165</td>
-      <td>15784380</td>
-      <td>15784380</td>
-      <td>0</td>
-      <td>5978784</td>
-      <td>5978784</td>
-      <td>989442</td>
-      <td>0.75771</td>
-      <td>0.14342</td>
-      <td>0.63057</td>
-      <td>0.85102</td>
-      <td>0.00000</td>
-      <td>0.00154</td>
-      <td>0.37878</td>
-      <td>0.06268</td>
-      <td>0.16549</td>
-      <td>0.05132</td>
-      <td>3.32587</td>
-      <td>-0.31959</td>
+      <td>2006</td>
+      <td>6</td>
+      <td>1301</td>
+      <td>Hebei</td>
+      <td>1602333.0</td>
+      <td>1478698.0</td>
+      <td>6630.0</td>
+      <td>363783.0</td>
+      <td>571385</td>
+      <td>677237</td>
+      <td>-639450</td>
+      <td>1485855</td>
+      <td>1853222</td>
+      <td>1853222</td>
+      <td>5996</td>
+      <td>622993</td>
+      <td>634985</td>
+      <td>72368</td>
+      <td>0.55518</td>
+      <td>0.53786</td>
+      <td>0.11248</td>
+      <td>0.07525</td>
+      <td>0.80595</td>
+      <td>0.78680</td>
+      <td>0.79791</td>
+      <td>0.91990</td>
+      <td>0.00227</td>
+      <td>0.00002</td>
+      <td>0.33617</td>
+      <td>0.03905</td>
+      <td>0.07336</td>
+      <td>0.11616</td>
+      <td>0.20896</td>
+      <td>0.01780</td>
+      <td>0.02902</td>
+      <td>2.72142</td>
+      <td>-0.73483</td>
     </tr>
     <tr>
       <th>5</th>
-      <td>2003</td>
-      <td>44</td>
-      <td>4209</td>
-      <td>Hubei</td>
-      <td>5345.0</td>
-      <td>5500.0</td>
-      <td>121.0</td>
-      <td>26212.0</td>
-      <td>7953</td>
-      <td>30717</td>
-      <td>3256</td>
-      <td>8360</td>
-      <td>38244</td>
-      <td>38244</td>
+      <td>2007</td>
+      <td>6</td>
+      <td>1301</td>
+      <td>Hebei</td>
+      <td>1767767.0</td>
+      <td>1492913.0</td>
+      <td>6787.0</td>
+      <td>182015.0</td>
+      <td>466264</td>
+      <td>511230</td>
+      <td>-258535</td>
+      <td>906669</td>
+      <td>1214353</td>
+      <td>1214353</td>
       <td>0</td>
-      <td>30291</td>
-      <td>30291</td>
-      <td>2149</td>
-      <td>1.47360</td>
+      <td>479747</td>
+      <td>479747</td>
+      <td>68435</td>
+      <td>0.57856</td>
+      <td>0.55518</td>
+      <td>0.18587</td>
+      <td>0.11248</td>
+      <td>0.78042</td>
+      <td>0.80595</td>
+      <td>1.22939</td>
+      <td>0.79791</td>
       <td>0.00000</td>
-      <td>0.21805</td>
-      <td>0.14381</td>
-      <td>0.00000</td>
-      <td>NaN</td>
-      <td>0.79205</td>
-      <td>0.05619</td>
-      <td>0.07095</td>
-      <td>0.31327</td>
-      <td>9.78977</td>
-      <td>0.08438</td>
+      <td>0.00019</td>
+      <td>0.39506</td>
+      <td>0.05636</td>
+      <td>0.03905</td>
+      <td>0.14265</td>
+      <td>0.11616</td>
+      <td>0.02675</td>
+      <td>0.01780</td>
+      <td>3.74348</td>
+      <td>-0.70796</td>
     </tr>
     <tr>
       <th>6</th>
       <td>2001</td>
-      <td>26</td>
-      <td>4213</td>
-      <td>Hubei</td>
-      <td>30460.0</td>
-      <td>28810.0</td>
-      <td>224.0</td>
-      <td>5960.0</td>
-      <td>2110</td>
-      <td>9400</td>
-      <td>-2400</td>
-      <td>5600</td>
-      <td>13810</td>
-      <td>13810</td>
-      <td>0</td>
-      <td>9300</td>
-      <td>9300</td>
-      <td>930</td>
-      <td>0.52750</td>
-      <td>0.03000</td>
-      <td>0.40550</td>
-      <td>2.08617</td>
-      <td>0.00000</td>
+      <td>23</td>
+      <td>1301</td>
+      <td>Hebei</td>
+      <td>827388.0</td>
+      <td>838433.0</td>
+      <td>5208.0</td>
+      <td>388601.0</td>
+      <td>191541</td>
+      <td>773663</td>
+      <td>-21193</td>
+      <td>427891</td>
+      <td>936261</td>
+      <td>936261</td>
+      <td>4822</td>
+      <td>711809</td>
+      <td>721453</td>
+      <td>149922</td>
+      <td>0.79747</td>
       <td>NaN</td>
-      <td>0.67343</td>
-      <td>0.06734</td>
-      <td>0.10000</td>
-      <td>0.02985</td>
-      <td>6.14286</td>
-      <td>-0.20323</td>
+      <td>0.12773</td>
+      <td>NaN</td>
+      <td>0.45702</td>
+      <td>NaN</td>
+      <td>0.89551</td>
+      <td>NaN</td>
+      <td>0.02378</td>
+      <td>NaN</td>
+      <td>0.76027</td>
+      <td>0.16013</td>
+      <td>NaN</td>
+      <td>0.21062</td>
+      <td>NaN</td>
+      <td>0.17411</td>
+      <td>NaN</td>
+      <td>30.14268</td>
+      <td>-0.06834</td>
     </tr>
     <tr>
       <th>7</th>
-      <td>2003</td>
-      <td>44</td>
-      <td>5105</td>
-      <td>Sichuan</td>
-      <td>169941.0</td>
-      <td>195343.0</td>
-      <td>2036.0</td>
-      <td>84144.0</td>
-      <td>83610</td>
-      <td>355384</td>
-      <td>-402291</td>
-      <td>568877</td>
-      <td>828499</td>
-      <td>828499</td>
-      <td>0</td>
-      <td>341103</td>
-      <td>341103</td>
-      <td>12818</td>
-      <td>0.22790</td>
-      <td>0.00215</td>
-      <td>0.69199</td>
-      <td>0.23578</td>
-      <td>0.03830</td>
+      <td>2002</td>
+      <td>23</td>
+      <td>1301</td>
+      <td>Hebei</td>
+      <td>651431.0</td>
+      <td>649237.0</td>
+      <td>2213.0</td>
+      <td>340352.0</td>
+      <td>106179</td>
+      <td>644222</td>
+      <td>-9963</td>
+      <td>310181</td>
+      <td>725879</td>
+      <td>725879</td>
+      <td>1980</td>
+      <td>589933</td>
+      <td>593893</td>
+      <td>160206</td>
+      <td>0.57385</td>
+      <td>0.79747</td>
+      <td>0.09085</td>
+      <td>0.12773</td>
+      <td>0.42732</td>
+      <td>0.45702</td>
+      <td>0.89441</td>
+      <td>0.89551</td>
+      <td>0.01879</td>
       <td>NaN</td>
-      <td>0.41171</td>
-      <td>0.01547</td>
-      <td>0.03758</td>
-      <td>-0.00102</td>
-      <td>-0.03965</td>
-      <td>-0.83044</td>
+      <td>0.81272</td>
+      <td>0.22071</td>
+      <td>0.16013</td>
+      <td>0.27157</td>
+      <td>0.21062</td>
+      <td>0.21971</td>
+      <td>0.17411</td>
+      <td>-8915.37500</td>
+      <td>-0.13366</td>
     </tr>
     <tr>
       <th>8</th>
-      <td>2002</td>
-      <td>37</td>
-      <td>4115</td>
-      <td>Henan</td>
-      <td>172249.0</td>
-      <td>160167.0</td>
-      <td>1764.0</td>
-      <td>11291.0</td>
-      <td>24254</td>
-      <td>51229</td>
-      <td>4711</td>
-      <td>40763</td>
-      <td>78804</td>
-      <td>78804</td>
-      <td>1775</td>
-      <td>48644</td>
-      <td>52194</td>
-      <td>1872</td>
-      <td>0.76746</td>
-      <td>0.07445</td>
-      <td>0.51782</td>
-      <td>2.03247</td>
-      <td>0.00001</td>
+      <td>2003</td>
+      <td>23</td>
+      <td>1301</td>
+      <td>Hebei</td>
+      <td>496479.0</td>
+      <td>489966.0</td>
+      <td>4028.0</td>
+      <td>178268.0</td>
+      <td>185801</td>
+      <td>276062</td>
+      <td>38209</td>
+      <td>171567</td>
+      <td>460991</td>
+      <td>460991</td>
+      <td>0</td>
+      <td>251841</td>
+      <td>251841</td>
+      <td>34158</td>
+      <td>1.16199</td>
+      <td>0.57385</td>
+      <td>0.17475</td>
+      <td>0.09085</td>
+      <td>0.42298</td>
+      <td>0.42732</td>
+      <td>1.06285</td>
+      <td>0.89441</td>
+      <td>0.05008</td>
       <td>NaN</td>
-      <td>0.61728</td>
-      <td>0.02376</td>
-      <td>0.03848</td>
-      <td>0.00663</td>
-      <td>0.61034</td>
-      <td>-0.15108</td>
+      <td>0.54630</td>
+      <td>0.07410</td>
+      <td>0.22071</td>
+      <td>0.13563</td>
+      <td>0.27157</td>
+      <td>0.02455</td>
+      <td>0.21971</td>
+      <td>1.31493</td>
+      <td>0.10285</td>
     </tr>
     <tr>
       <th>9</th>
-      <td>2005</td>
-      <td>31</td>
-      <td>5105</td>
-      <td>Sichuan</td>
-      <td>208623.0</td>
-      <td>215542.0</td>
-      <td>2571.0</td>
-      <td>47181.0</td>
-      <td>119481</td>
-      <td>206552</td>
-      <td>41372</td>
-      <td>190789</td>
-      <td>351298</td>
-      <td>351298</td>
-      <td>36378</td>
-      <td>158685</td>
-      <td>231441</td>
-      <td>12608</td>
-      <td>0.81839</td>
-      <td>0.21853</td>
-      <td>0.54310</td>
-      <td>0.61356</td>
-      <td>0.00620</td>
+      <td>2004</td>
+      <td>23</td>
+      <td>1301</td>
+      <td>Hebei</td>
+      <td>187860.0</td>
+      <td>196393.0</td>
+      <td>812.0</td>
+      <td>29038.0</td>
+      <td>20580</td>
+      <td>51162</td>
+      <td>-13887</td>
+      <td>52012</td>
+      <td>84404</td>
+      <td>84404</td>
+      <td>323</td>
+      <td>48317</td>
+      <td>48963</td>
+      <td>6592</td>
+      <td>1.12049</td>
+      <td>1.16199</td>
+      <td>0.04034</td>
+      <td>0.17475</td>
+      <td>0.61624</td>
+      <td>0.42298</td>
+      <td>2.32682</td>
+      <td>1.06285</td>
       <td>0.00000</td>
-      <td>0.45171</td>
-      <td>0.03589</td>
-      <td>0.07945</td>
-      <td>0.01042</td>
-      <td>0.50033</td>
-      <td>-0.16709</td>
+      <td>NaN</td>
+      <td>0.57245</td>
+      <td>0.07810</td>
+      <td>0.07410</td>
+      <td>0.13643</td>
+      <td>0.13563</td>
+      <td>0.02111</td>
+      <td>0.02455</td>
+      <td>26.40764</td>
+      <td>0.04580</td>
     </tr>
   </tbody>
 </table>
@@ -15254,7 +15409,7 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s3_output</span> <span class="o">=</span> <span class="s1">&#39;DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/CITY&#39;</span>
@@ -15275,7 +15430,7 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">try</span><span class="p">:</span>
@@ -15305,7 +15460,7 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;67e54715-d645-4847-b09f-cb4fdfa9fa4d&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 31 Jan 2021 05:34:14 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;67e54715-d645-4847-b09f-cb4fdfa9fa4d&#39;}, &#39;RetryAttempts&#39;: 0}}
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;f0ddd256-f729-400f-823e-566639b0adc0&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 31 Jan 2021 06:55:00 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;f0ddd256-f729-400f-823e-566639b0adc0&#39;}, &#39;RetryAttempts&#39;: 0}}
 </pre>
 </div>
 </div>
@@ -15323,7 +15478,7 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s3</span><span class="o">.</span><span class="n">remove_all_bucket</span><span class="p">(</span><span class="n">path_remove</span> <span class="o">=</span> <span class="n">s3_output</span><span class="p">)</span>
@@ -15342,7 +15497,7 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
 
 
 
@@ -15360,7 +15515,7 @@ a.anchor-link {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%time</span>
@@ -15380,7 +15535,7 @@ a.anchor-link {
 <span class="s2">    (</span>
 <span class="s2">      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)</span>
 <span class="s2">    ) - (c95 + c97 + c99) AS error, </span>
-<span class="s2">    c95 + c97 as total_liabilities,</span>
+<span class="s2">    c95 + c97 as total_liabilities, </span>
 <span class="s2">    CASE WHEN (</span>
 <span class="s2">      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)</span>
 <span class="s2">    ) - (c95 + c97 + c99) &gt; 0 THEN (c95 + c97 + c99) + ABS(</span>
@@ -15390,7 +15545,9 @@ a.anchor-link {
 <span class="s2">    ) ELSE (c95 + c97 + c99) END AS total_right, </span>
 <span class="s2">    CASE WHEN (</span>
 <span class="s2">      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)</span>
-<span class="s2">    ) - (c95 + c97 + c99) &lt; 0 THEN (c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)) + ABS(</span>
+<span class="s2">    ) - (c95 + c97 + c99) &lt; 0 THEN (</span>
+<span class="s2">      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)</span>
+<span class="s2">    ) + ABS(</span>
 <span class="s2">      (</span>
 <span class="s2">        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)</span>
 <span class="s2">      ) - (c95 + c97 + c99)</span>
@@ -15398,37 +15555,41 @@ a.anchor-link {
 <span class="s2">      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)</span>
 <span class="s2">    ) END AS total_asset, </span>
 <span class="s2">    (c131 - c134) + cudepre as cashflow </span>
-<span class="s2">    </span>
 <span class="s2">  FROM </span>
 <span class="s2">    firms_survey.asif_firms_prepared </span>
 <span class="s2">    INNER JOIN (</span>
 <span class="s2">      SELECT </span>
 <span class="s2">        extra_code, </span>
-<span class="s2">        geocode4_corr,</span>
-<span class="s2">      province_en</span>
+<span class="s2">        geocode4_corr, </span>
+<span class="s2">        province_en </span>
 <span class="s2">      FROM </span>
 <span class="s2">        chinese_lookup.china_city_code_normalised </span>
 <span class="s2">      GROUP BY </span>
 <span class="s2">        extra_code, </span>
-<span class="s2">      province_en,</span>
+<span class="s2">        province_en, </span>
 <span class="s2">        geocode4_corr</span>
-<span class="s2">    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code</span>
-<span class="s2">  WHERE</span>
+<span class="s2">    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code </span>
+<span class="s2">  WHERE </span>
 <span class="s2">    c95 &gt; 0 -- current liabilities</span>
-<span class="s2">  AND c97 &gt;0 -- long term liabilities</span>
-<span class="s2">  AND c98 &gt; 0 -- total liabilities</span>
-<span class="s2">  AND c99 &gt; 0 -- equity</span>
-<span class="s2">  AND c80 + c81 + c82 + c79 &gt;0</span>
-<span class="s2">  AND tofixed &gt;0</span>
-<span class="s2">  AND output &gt; 0 </span>
-<span class="s2">  and employ &gt; 0</span>
+<span class="s2">    AND c97 &gt; 0 -- long term liabilities</span>
+<span class="s2">    AND c98 &gt; 0 -- total liabilities</span>
+<span class="s2">    AND c99 &gt; 0 -- equity</span>
+<span class="s2">    AND c80 + c81 + c82 + c79 &gt; 0 </span>
+<span class="s2">    AND tofixed &gt; 0 </span>
+<span class="s2">    AND output &gt; 0 </span>
+<span class="s2">    and employ &gt; 0</span>
 <span class="s2">) </span>
 <span class="s2">SELECT </span>
+<span class="s2">  * </span>
+<span class="s2">FROM </span>
+<span class="s2">  (</span>
+<span class="s2">    WITH ratio AS (</span>
+<span class="s2">      SELECT </span>
 <span class="s2">        year, </span>
 <span class="s2">        -- cic, </span>
 <span class="s2">        indu_2, </span>
-<span class="s2">        geocode4_corr,</span>
-<span class="s2">        province_en,</span>
+<span class="s2">        geocode4_corr, </span>
+<span class="s2">        province_en, </span>
 <span class="s2">        CAST(</span>
 <span class="s2">          SUM(output) AS DECIMAL(16, 5)</span>
 <span class="s2">        ) AS output, </span>
@@ -15445,28 +15606,28 @@ a.anchor-link {
 <span class="s2">        SUM(tofixed) AS tofixed, </span>
 <span class="s2">        SUM(error) AS error, </span>
 <span class="s2">        SUM(total_liabilities) AS total_liabilities, </span>
-<span class="s2">        SUM(total_asset) AS total_asset,</span>
-<span class="s2">        SUM(total_right) AS total_right,</span>
+<span class="s2">        SUM(total_asset) AS total_asset, </span>
+<span class="s2">        SUM(total_right) AS total_right, </span>
 <span class="s2">        SUM(intangible) AS intangible, </span>
 <span class="s2">        SUM(tangible) AS tangible, </span>
 <span class="s2">        SUM(net_fixed_asset) AS net_fixed_asset, </span>
 <span class="s2">        SUM(cashflow) AS cashflow, </span>
 <span class="s2">        CAST(</span>
-<span class="s2">      SUM(c80 + c81 + c82 + c79) AS DECIMAL(16, 5)</span>
-<span class="s2">    ) / NULLIF(</span>
-<span class="s2">      CAST(</span>
-<span class="s2">        SUM(c95) AS DECIMAL(16, 5)</span>
-<span class="s2">      ), </span>
-<span class="s2">      0</span>
-<span class="s2">    ) AS current_ratio, </span>
-<span class="s2">    CAST(</span>
-<span class="s2">      SUM(c80 + c81 + c82 + c79 - c80 - c81) AS DECIMAL(16, 5)</span>
-<span class="s2">    ) / NULLIF(</span>
-<span class="s2">      CAST(</span>
-<span class="s2">        SUM(c95) AS DECIMAL(16, 5)</span>
-<span class="s2">      ), </span>
-<span class="s2">      0</span>
-<span class="s2">    ) AS quick_ratio,</span>
+<span class="s2">          SUM(c80 + c81 + c82 + c79) AS DECIMAL(16, 5)</span>
+<span class="s2">        ) / NULLIF(</span>
+<span class="s2">          CAST(</span>
+<span class="s2">            SUM(c95) AS DECIMAL(16, 5)</span>
+<span class="s2">          ), </span>
+<span class="s2">          0</span>
+<span class="s2">        ) AS current_ratio, </span>
+<span class="s2">        CAST(</span>
+<span class="s2">          SUM(c80 + c81 + c82 + c79 - c80 - c81) AS DECIMAL(16, 5)</span>
+<span class="s2">        ) / NULLIF(</span>
+<span class="s2">          CAST(</span>
+<span class="s2">            SUM(c95) AS DECIMAL(16, 5)</span>
+<span class="s2">          ), </span>
+<span class="s2">          0</span>
+<span class="s2">        ) AS quick_ratio, </span>
 <span class="s2">        CAST(</span>
 <span class="s2">          SUM(c98) AS DECIMAL(16, 5)</span>
 <span class="s2">        ) / NULLIF(</span>
@@ -15482,7 +15643,7 @@ a.anchor-link {
 <span class="s2">            SUM(total_asset) AS DECIMAL(16, 5)</span>
 <span class="s2">          ), </span>
 <span class="s2">          0</span>
-<span class="s2">        ) AS sales_tot_asset,         </span>
+<span class="s2">        ) AS sales_tot_asset, </span>
 <span class="s2">        CAST(</span>
 <span class="s2">          SUM(c84) AS DECIMAL(16, 5)</span>
 <span class="s2">        ) / NULLIF(</span>
@@ -15522,44 +15683,118 @@ a.anchor-link {
 <span class="s2">            SUM(tangible) AS DECIMAL(16, 5)</span>
 <span class="s2">          ), </span>
 <span class="s2">          0</span>
-<span class="s2">        ) AS cashflow_to_tangible,</span>
-<span class="s2">       -- update</span>
-<span class="s2">       CAST(</span>
+<span class="s2">        ) AS cashflow_to_tangible, </span>
+<span class="s2">        -- update</span>
+<span class="s2">        CAST(</span>
 <span class="s2">          SUM(c131) AS DECIMAL(16, 5)</span>
 <span class="s2">        ) / NULLIF(</span>
 <span class="s2">          CAST(</span>
 <span class="s2">            SUM(sales) AS DECIMAL(16, 5)</span>
 <span class="s2">          ), </span>
 <span class="s2">          0</span>
-<span class="s2">        ) AS return_to_sale,</span>
-<span class="s2">       CAST(</span>
+<span class="s2">        ) AS return_to_sale, </span>
+<span class="s2">        CAST(</span>
 <span class="s2">          SUM(c131) AS DECIMAL(16, 5)</span>
 <span class="s2">        ) / NULLIF(</span>
 <span class="s2">          CAST(</span>
 <span class="s2">            SUM(c125) AS DECIMAL(16, 5)</span>
 <span class="s2">          ), </span>
 <span class="s2">          0</span>
-<span class="s2">        ) AS coverage_ratio,</span>
-<span class="s2">       CAST(</span>
+<span class="s2">        ) AS coverage_ratio, </span>
+<span class="s2">        CAST(</span>
 <span class="s2">          SUM(current_asset - c95) AS DECIMAL(16, 5)</span>
-<span class="s2">         ) / NULLIF(</span>
-<span class="s2">           CAST(</span>
+<span class="s2">        ) / NULLIF(</span>
+<span class="s2">          CAST(</span>
 <span class="s2">            SUM(tangible) AS DECIMAL(16, 5)</span>
 <span class="s2">          ), </span>
 <span class="s2">          0</span>
-<span class="s2">         ) AS liquidity</span>
-<span class="s2">        </span>
+<span class="s2">        ) AS liquidity </span>
 <span class="s2">      FROM </span>
 <span class="s2">        test </span>
 <span class="s2">      WHERE </span>
 <span class="s2">        year in (</span>
 <span class="s2">          &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;, </span>
 <span class="s2">          &#39;2006&#39;, &#39;2007&#39;</span>
-<span class="s2">        )</span>
+<span class="s2">        ) </span>
 <span class="s2">        AND total_asset &gt; 0 </span>
-<span class="s2">        AND tangible &gt; 0</span>
-<span class="s2">     GROUP BY province_en, geocode4_corr,indu_2, year--, cic</span>
-<span class="s2">     ORDER BY province_en, geocode4_corr,indu_2, year--cic</span>
+<span class="s2">        AND tangible &gt; 0 </span>
+<span class="s2">      GROUP BY </span>
+<span class="s2">        province_en, </span>
+<span class="s2">        geocode4_corr, </span>
+<span class="s2">        -- cic,</span>
+<span class="s2">        indu_2, </span>
+<span class="s2">        year </span>
+<span class="s2">      </span>
+<span class="s2">    ) </span>
+<span class="s2">    SELECT </span>
+<span class="s2">      year, </span>
+<span class="s2">      indu_2, </span>
+<span class="s2">      geocode4_corr, </span>
+<span class="s2">      province_en, </span>
+<span class="s2">      output, </span>
+<span class="s2">      sales, </span>
+<span class="s2">      employment, </span>
+<span class="s2">      capital, </span>
+<span class="s2">      current_asset, </span>
+<span class="s2">      tofixed, </span>
+<span class="s2">      error, </span>
+<span class="s2">      total_liabilities, </span>
+<span class="s2">      total_asset, </span>
+<span class="s2">      total_right, </span>
+<span class="s2">      intangible, </span>
+<span class="s2">      tangible, </span>
+<span class="s2">      net_fixed_asset, </span>
+<span class="s2">      cashflow, </span>
+<span class="s2">      current_ratio,</span>
+<span class="s2">      LAG(current_ratio, 1) OVER (</span>
+<span class="s2">        PARTITION BY geocode4_corr, indu_2 </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          year</span>
+<span class="s2">      ) as lag_current_ratio,</span>
+<span class="s2">      quick_ratio, </span>
+<span class="s2">      LAG(quick_ratio, 1) OVER (</span>
+<span class="s2">        PARTITION BY geocode4_corr, indu_2 </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          year</span>
+<span class="s2">      ) as lag_quick_ratio,</span>
+<span class="s2">      liabilities_tot_asset, </span>
+<span class="s2">      LAG(liabilities_tot_asset, 1) OVER (</span>
+<span class="s2">        PARTITION BY geocode4_corr, indu_2 </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          year</span>
+<span class="s2">      ) as lag_liabilities_tot_asset,</span>
+<span class="s2">      sales_tot_asset,</span>
+<span class="s2">      LAG(sales_tot_asset, 1) OVER (</span>
+<span class="s2">        PARTITION BY geocode4_corr, indu_2 </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          year</span>
+<span class="s2">      ) as lag_sales_tot_asset,</span>
+<span class="s2">      investment_tot_asset, </span>
+<span class="s2">      rd_tot_asset, </span>
+<span class="s2">      asset_tangibility_tot_asset, </span>
+<span class="s2">      cashflow_tot_asset,</span>
+<span class="s2">      LAG(cashflow_tot_asset, 1) OVER (</span>
+<span class="s2">        PARTITION BY geocode4_corr, indu_2 </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          year</span>
+<span class="s2">      ) as lag_cashflow_tot_asset,</span>
+<span class="s2">      cashflow_to_tangible, </span>
+<span class="s2">      LAG(cashflow_to_tangible, 1) OVER (</span>
+<span class="s2">        PARTITION BY geocode4_corr, indu_2 </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          year</span>
+<span class="s2">      ) as lag_cashflow_to_tangible,</span>
+<span class="s2">      return_to_sale, </span>
+<span class="s2">      LAG(return_to_sale, 1) OVER (</span>
+<span class="s2">        PARTITION BY geocode4_corr, indu_2 </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          year</span>
+<span class="s2">      ) as lag_return_to_sale,</span>
+<span class="s2">      coverage_ratio, </span>
+<span class="s2">      liquidity </span>
+<span class="s2">    FROM </span>
+<span class="s2">      ratio </span>
+<span class="s2">    )</span>
 <span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">DatabaseName</span><span class="p">,</span> <span class="n">table_name</span><span class="p">)</span>
 <span class="n">output</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">run_query</span><span class="p">(</span>
                     <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
@@ -15586,8 +15821,8 @@ a.anchor-link {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>CPU times: user 332 ms, sys: 9.38 ms, total: 341 ms
-Wall time: 8.08 s
+<pre>CPU times: user 416 ms, sys: 18.9 ms, total: 435 ms
+Wall time: 12.6 s
 </pre>
 </div>
 </div>
@@ -15595,16 +15830,16 @@ Wall time: 8.08 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[15]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
 <pre>{&#39;Results&#39;: {&#39;State&#39;: &#39;SUCCEEDED&#39;,
-  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 31, 5, 34, 14, 732000, tzinfo=tzlocal()),
-  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 31, 5, 34, 21, 821000, tzinfo=tzlocal())},
- &#39;QueryID&#39;: &#39;e591cd3a-8c1a-4053-8b30-4f8429ce91e5&#39;}</pre>
+  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 31, 6, 55, 2, 886000, tzinfo=tzlocal()),
+  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 31, 6, 55, 9, 380000, tzinfo=tzlocal())},
+ &#39;QueryID&#39;: &#39;f3dae729-0189-4d61-af60-7bcfaddfd993&#39;}</pre>
 </div>
 
 </div>
@@ -15616,7 +15851,7 @@ Wall time: 8.08 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_count</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -15645,7 +15880,7 @@ Wall time: 8.08 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[16]:</div>
 
 
 
@@ -15690,7 +15925,7 @@ Wall time: 8.08 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_test</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -15730,7 +15965,7 @@ Wall time: 8.08 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[17]:</div>
 
 
 
@@ -15840,7 +16075,7 @@ Wall time: 8.08 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;province_en&quot;</span><span class="p">,</span> <span class="s2">&quot;geocode4_corr&quot;</span><span class="p">,</span><span class="s2">&quot;indu_2&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span> <span class="p">]</span>
@@ -15862,7 +16097,7 @@ Wall time: 8.08 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">step</span> <span class="o">=</span> <span class="mi">1</span>
@@ -15885,7 +16120,7 @@ Wall time: 8.08 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">get_table_information</span><span class="p">(</span>
@@ -15906,7 +16141,7 @@ Wall time: 8.08 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[20]:</div>
 
 
 
@@ -15931,17 +16166,24 @@ Wall time: 8.08 s
  {&#39;Name&#39;: &#39;net_fixed_asset&#39;, &#39;Type&#39;: &#39;bigint&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;cashflow&#39;, &#39;Type&#39;: &#39;bigint&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;current_ratio&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;lag_current_ratio&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;quick_ratio&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;lag_quick_ratio&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;liabilities_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;lag_liabilities_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;sales_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;lag_sales_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;investment_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;rd_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;asset_tangibility_tot_asset&#39;,
   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
   &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;cashflow_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;lag_cashflow_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;cashflow_to_tangible&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;lag_cashflow_to_tangible&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;return_to_sale&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;lag_return_to_sale&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;coverage_ratio&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;liquidity&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;}]</pre>
 </div>
@@ -15955,7 +16197,7 @@ Wall time: 8.08 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(16,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Output&#39;</span><span class="p">},</span>
@@ -15982,12 +16224,16 @@ Wall time: 8.08 s
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;sales&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(16,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;sales&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;current_ratio&#39;</span><span class="p">,</span>
            <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;current ratio cuasset/流动负债合计 (c95)&#39;</span><span class="p">},</span>
+          <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;lag_current_ratio&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;lag value of current ratio&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;quick_ratio&#39;</span><span class="p">,</span>
            <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)&#39;</span><span class="p">},</span>
+          <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;lag_quick_ratio&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;lag value of quick ratio&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;liabilities_tot_asset&#39;</span><span class="p">,</span>
            <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;liabilities to total asset&#39;</span><span class="p">},</span>
+          <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;lag_liabilities_tot_asset&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;lag value of liabilities to asset&#39;</span><span class="p">}</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;sales_tot_asset&#39;</span><span class="p">,</span>
            <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;sales to total asset&#39;</span><span class="p">},</span>
+          <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;lag_sales_tot_asset&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;lag value of sales to asset&#39;</span><span class="p">},</span>
           <span class="c1">#{&#39;Name&#39;: &#39;cash_tot_asset&#39;,</span>
           <span class="c1"># &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;cash to total asset&#39;},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;investment_tot_asset&#39;</span><span class="p">,</span>
@@ -16022,7 +16268,7 @@ Wall time: 8.08 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -16048,10 +16294,10 @@ Wall time: 8.08 s
 </ul>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">json_etl</span> <span class="o">=</span> <span class="p">{</span>
@@ -16075,108 +16321,10 @@ Wall time: 8.08 s
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[17]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;step&#39;: 1,
- &#39;description&#39;: &#39;\nCompute the financial ratio by city-industry\n&#39;,
- &#39;query&#39;: &#34;\nCREATE TABLE firms_survey.asif_industry_financial_ratio_city WITH (format = &#39;PARQUET&#39;) AS\nWITH test AS (\n  SELECT \n    *, \n    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(\n      &#39;0&#39;, \n      substr(cic, 1, 1)\n    ) END AS indu_2, \n    c80 + c81 + c82 + c79 as current_asset, \n    c91 + c92 AS intangible, \n    tofixed - cudepre - (c91 + c92) AS tangible, \n    tofixed - cudepre + (c91 + c92) AS net_fixed_asset, \n    (\n      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n    ) - (c95 + c97 + c99) AS error, \n    c95 + c97 as total_liabilities,\n    CASE WHEN (\n      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n    ) - (c95 + c97 + c99) &gt; 0 THEN (c95 + c97 + c99) + ABS(\n      (\n        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n      ) - (c95 + c97 + c99)\n    ) ELSE (c95 + c97 + c99) END AS total_right, \n    CASE WHEN (\n      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n    ) - (c95 + c97 + c99) &lt; 0 THEN (c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)) + ABS(\n      (\n        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n      ) - (c95 + c97 + c99)\n    ) ELSE (\n      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n    ) END AS total_asset, \n    (c131 - c134) + cudepre as cashflow \n    \n  FROM \n    firms_survey.asif_firms_prepared \n    INNER JOIN (\n      SELECT \n        extra_code, \n        geocode4_corr,\n      province_en\n      FROM \n        chinese_lookup.china_city_code_normalised \n      GROUP BY \n        extra_code, \n      province_en,\n        geocode4_corr\n    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code\n  WHERE\n    c95 &gt; 0 -- current liabilities\n  AND c97 &gt;0 -- long term liabilities\n  AND c98 &gt; 0 -- total liabilities\n  AND c99 &gt; 0 -- equity\n  AND c80 + c81 + c82 + c79 &gt;0\n  AND tofixed &gt;0\n  AND output &gt; 0 \n  and employ &gt; 0\n) \nSELECT \n        year, \n        -- cic, \n        indu_2, \n        geocode4_corr,\n        province_en,\n        CAST(\n          SUM(output) AS DECIMAL(16, 5)\n        ) AS output, \n        CAST(\n          SUM(sales) AS DECIMAL(16, 5)\n        ) AS sales, \n        CAST(\n          SUM(employ) AS DECIMAL(16, 5)\n        ) AS employment, \n        CAST(\n          SUM(captal) AS DECIMAL(16, 5)\n        ) AS capital, \n        SUM(current_asset) AS current_asset, \n        SUM(tofixed) AS tofixed, \n        SUM(error) AS error, \n        SUM(total_liabilities) AS total_liabilities, \n        SUM(total_asset) AS total_asset,\n        SUM(total_right) AS total_right,\n        SUM(intangible) AS intangible, \n        SUM(tangible) AS tangible, \n        SUM(net_fixed_asset) AS net_fixed_asset, \n        SUM(cashflow) AS cashflow, \n        CAST(\n      SUM(c80 + c81 + c82 + c79) AS DECIMAL(16, 5)\n    ) / NULLIF(\n      CAST(\n        SUM(c95) AS DECIMAL(16, 5)\n      ), \n      0\n    ) AS current_ratio, \n    CAST(\n      SUM(c80 + c81 + c82 + c79 - c80 - c81) AS DECIMAL(16, 5)\n    ) / NULLIF(\n      CAST(\n        SUM(c95) AS DECIMAL(16, 5)\n      ), \n      0\n    ) AS quick_ratio,\n        CAST(\n          SUM(c98) AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            SUM(total_asset) AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS liabilities_tot_asset, \n        CAST(\n          SUM(sales) AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            SUM(total_asset) AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS sales_tot_asset,         \n        CAST(\n          SUM(c84) AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            SUM(total_asset) AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS investment_tot_asset, \n        CAST(\n          SUM(rdfee) AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            SUM(total_asset) AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS rd_tot_asset, \n        CAST(\n          SUM(tangible) AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            SUM(total_asset) AS DECIMAL(16, 5)\n          ), \n          0\n        ) asset_tangibility_tot_asset, \n        CAST(\n          SUM(cashflow) AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            SUM(total_asset) AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS cashflow_tot_asset, \n        CAST(\n          SUM(cashflow) AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            SUM(tangible) AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS cashflow_to_tangible,\n       -- update\n       CAST(\n          SUM(c131) AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            SUM(sales) AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS return_to_sale,\n       CAST(\n          SUM(c131) AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            SUM(c125) AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS coverage_ratio,\n       CAST(\n          SUM(current_asset - c95) AS DECIMAL(16, 5)\n         ) / NULLIF(\n           CAST(\n            SUM(tangible) AS DECIMAL(16, 5)\n          ), \n          0\n         ) AS liquidity\n        \n      FROM \n        test \n      WHERE \n        year in (\n          &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;, \n          &#39;2006&#39;, &#39;2007&#39;\n        )\n        AND total_asset &gt; 0 \n        AND tangible &gt; 0\n     GROUP BY province_en, geocode4_corr,indu_2, year--, cic\n     ORDER BY province_en, geocode4_corr,indu_2, year--cic\n&#34;,
- &#39;schema&#39;: [{&#39;Name&#39;: &#39;output&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;Output&#39;},
-  {&#39;Name&#39;: &#39;employment&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;employment&#39;},
-  {&#39;Name&#39;: &#39;capital&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;capital&#39;},
-  {&#39;Name&#39;: &#39;current_asset&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;current asset&#39;},
-  {&#39;Name&#39;: &#39;net_fixed_asset&#39;,
-   &#39;Type&#39;: &#39;int&#39;,
-   &#39;Comment&#39;: &#39;total net fixed asset&#39;},
-  {&#39;Name&#39;: &#39;error&#39;,
-   &#39;Type&#39;: &#39;int&#39;,
-   &#39;Comment&#39;: &#39;difference between cuasset+tofixed and total liabilities +equity. Error makes the balance sheet equation right&#39;},
-  {&#39;Name&#39;: &#39;total_liabilities&#39;,
-   &#39;Type&#39;: &#39;int&#39;,
-   &#39;Comment&#39;: &#39;total adjusted liabilities&#39;},
-  {&#39;Name&#39;: &#39;total_asset&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;total adjusted asset&#39;},
-  {&#39;Name&#39;: &#39;current_liabilities&#39;,
-   &#39;Type&#39;: &#39;int&#39;,
-   &#39;Comment&#39;: &#39;current liabilities&#39;},
-  {&#39;Name&#39;: &#39;lt_liabilities&#39;,
-   &#39;Type&#39;: &#39;int&#39;,
-   &#39;Comment&#39;: &#39;long term liabilities&#39;},
-  {&#39;Name&#39;: &#39;from_asif_tot_liabilities&#39;,
-   &#39;Type&#39;: &#39;int&#39;,
-   &#39;Comment&#39;: &#39;total liabilities from asif not constructed&#39;},
-  {&#39;Name&#39;: &#39;total_right&#39;,
-   &#39;Type&#39;: &#39;int&#39;,
-   &#39;Comment&#39;: &#39;Adjusted right part balance sheet&#39;},
-  {&#39;Name&#39;: &#39;intangible&#39;,
-   &#39;Type&#39;: &#39;int&#39;,
-   &#39;Comment&#39;: &#39;intangible asset measured as the sum of intangibles variables&#39;},
-  {&#39;Name&#39;: &#39;tangible&#39;,
-   &#39;Type&#39;: &#39;int&#39;,
-   &#39;Comment&#39;: &#39;tangible asset measured as the difference between total fixed asset minus intangible asset&#39;},
-  {&#39;Name&#39;: &#39;cashflow&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;cash flow&#39;},
-  {&#39;Name&#39;: &#39;sales&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;sales&#39;},
-  {&#39;Name&#39;: &#39;current_ratio&#39;,
-   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-   &#39;Comment&#39;: &#39;current ratio cuasset/流动负债合计 (c95)&#39;},
-  {&#39;Name&#39;: &#39;quick_ratio&#39;,
-   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-   &#39;Comment&#39;: &#39;quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)&#39;},
-  {&#39;Name&#39;: &#39;liabilities_tot_asset&#39;,
-   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-   &#39;Comment&#39;: &#39;liabilities to total asset&#39;},
-  {&#39;Name&#39;: &#39;sales_tot_asset&#39;,
-   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-   &#39;Comment&#39;: &#39;sales to total asset&#39;},
-  {&#39;Name&#39;: &#39;investment_tot_asset&#39;,
-   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-   &#39;Comment&#39;: &#39;investment to total asset&#39;},
-  {&#39;Name&#39;: &#39;rd_tot_asset&#39;,
-   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-   &#39;Comment&#39;: &#39;rd to total asset&#39;},
-  {&#39;Name&#39;: &#39;asset_tangibility_tot_asset&#39;,
-   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-   &#39;Comment&#39;: &#39;asset tangibility to total asset&#39;},
-  {&#39;Name&#39;: &#39;cashflow_tot_asset&#39;,
-   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-   &#39;Comment&#39;: &#39;cashflow to total asset&#39;},
-  {&#39;Name&#39;: &#39;cashflow_to_tangible&#39;,
-   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-   &#39;Comment&#39;: &#39;cashflow to tangible asset&#39;},
-  {&#39;Name&#39;: &#39;return_to_sale&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
-  {&#39;Name&#39;: &#39;coverage_ratio&#39;,
-   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-   &#39;Comment&#39;: &#39;net income(c131) /total interest payments&#39;},
-  {&#39;Name&#39;: &#39;liquidity&#39;,
-   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-   &#39;Comment&#39;: &#39;current assets-current liabilities/total assets&#39;}],
- &#39;partition_keys&#39;: [&#39;province_en&#39;, &#39;geocode4_corr&#39;, &#39;indu_2&#39;, &#39;year&#39;],
- &#39;metadata&#39;: {&#39;DatabaseName&#39;: &#39;firms_survey&#39;,
-  &#39;TableName&#39;: &#39;asif_industry_financial_ratio_city&#39;,
-  &#39;target_S3URI&#39;: &#39;s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/CITY&#39;,
-  &#39;from_athena&#39;: &#39;True&#39;}}</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
@@ -16197,7 +16345,7 @@ Wall time: 8.08 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">index_to_remove</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
@@ -16220,7 +16368,7 @@ Wall time: 8.08 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;TABLES&#39;</span><span class="p">][</span><span class="s1">&#39;PREPARATION&#39;</span><span class="p">][</span><span class="s1">&#39;STEPS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">json_etl</span><span class="p">)</span>
@@ -16240,7 +16388,7 @@ Wall time: 8.08 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[21]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span><span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
@@ -16279,10 +16427,10 @@ Wall time: 8.08 s
 ]</code></pre>
 
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[22]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">update_schema_table</span><span class="p">(</span>
@@ -16296,36 +16444,6 @@ Wall time: 8.08 s
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[22]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;42ffaa3c-8814-4874-9955-7a1843201ee3&#39;,
-  &#39;HTTPStatusCode&#39;: 200,
-  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 31 Jan 2021 05:34:28 GMT&#39;,
-   &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;,
-   &#39;content-length&#39;: &#39;2&#39;,
-   &#39;connection&#39;: &#39;keep-alive&#39;,
-   &#39;x-amzn-requestid&#39;: &#39;42ffaa3c-8814-4874-9955-7a1843201ee3&#39;},
-  &#39;RetryAttempts&#39;: 0}}</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
@@ -16336,7 +16454,7 @@ Wall time: 8.08 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[23]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;province_en&quot;</span><span class="p">,</span> <span class="s2">&quot;geocode4_corr&quot;</span><span class="p">,</span><span class="s2">&quot;indu_2&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span> <span class="p">]</span>
@@ -16350,10 +16468,10 @@ Wall time: 8.08 s
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### COUNT DUPLICATES</span>
@@ -16376,67 +16494,15 @@ Wall time: 8.08 s
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output " data-mime-type="text/html">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>CNT</th>
-      <th>CNT_DUPLICATE</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>46558</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Count-missing-values">Count missing values<a class="anchor-link" href="#Count-missing-values">&#182;</a></h2>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[25]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#table = &#39;XX&#39;</span>
@@ -16452,125 +16518,10 @@ Wall time: 8.08 s
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[25]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;Name&#39;: &#39;asif_industry_financial_ratio_city&#39;,
- &#39;DatabaseName&#39;: &#39;firms_survey&#39;,
- &#39;Owner&#39;: &#39;468786073381&#39;,
- &#39;CreateTime&#39;: datetime.datetime(2021, 1, 31, 5, 34, 21, tzinfo=tzlocal()),
- &#39;UpdateTime&#39;: datetime.datetime(2021, 1, 31, 5, 34, 28, tzinfo=tzlocal()),
- &#39;LastAccessTime&#39;: datetime.datetime(1970, 1, 1, 0, 0, tzinfo=tzlocal()),
- &#39;Retention&#39;: 0,
- &#39;StorageDescriptor&#39;: {&#39;Columns&#39;: [{&#39;Name&#39;: &#39;year&#39;,
-    &#39;Type&#39;: &#39;string&#39;,
-    &#39;Comment&#39;: &#39;&#39;},
-   {&#39;Name&#39;: &#39;indu_2&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
-   {&#39;Name&#39;: &#39;geocode4_corr&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
-   {&#39;Name&#39;: &#39;province_en&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;&#39;},
-   {&#39;Name&#39;: &#39;output&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;Output&#39;},
-   {&#39;Name&#39;: &#39;sales&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;sales&#39;},
-   {&#39;Name&#39;: &#39;employment&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;employment&#39;},
-   {&#39;Name&#39;: &#39;capital&#39;, &#39;Type&#39;: &#39;decimal(16,5)&#39;, &#39;Comment&#39;: &#39;capital&#39;},
-   {&#39;Name&#39;: &#39;current_asset&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;current asset&#39;},
-   {&#39;Name&#39;: &#39;tofixed&#39;, &#39;Type&#39;: &#39;bigint&#39;, &#39;Comment&#39;: &#39;&#39;},
-   {&#39;Name&#39;: &#39;error&#39;,
-    &#39;Type&#39;: &#39;int&#39;,
-    &#39;Comment&#39;: &#39;difference between cuasset+tofixed and total liabilities +equity. Error makes the balance sheet equation right&#39;},
-   {&#39;Name&#39;: &#39;total_liabilities&#39;,
-    &#39;Type&#39;: &#39;int&#39;,
-    &#39;Comment&#39;: &#39;total adjusted liabilities&#39;},
-   {&#39;Name&#39;: &#39;total_asset&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;total adjusted asset&#39;},
-   {&#39;Name&#39;: &#39;total_right&#39;,
-    &#39;Type&#39;: &#39;int&#39;,
-    &#39;Comment&#39;: &#39;Adjusted right part balance sheet&#39;},
-   {&#39;Name&#39;: &#39;intangible&#39;,
-    &#39;Type&#39;: &#39;int&#39;,
-    &#39;Comment&#39;: &#39;intangible asset measured as the sum of intangibles variables&#39;},
-   {&#39;Name&#39;: &#39;tangible&#39;,
-    &#39;Type&#39;: &#39;int&#39;,
-    &#39;Comment&#39;: &#39;tangible asset measured as the difference between total fixed asset minus intangible asset&#39;},
-   {&#39;Name&#39;: &#39;net_fixed_asset&#39;,
-    &#39;Type&#39;: &#39;int&#39;,
-    &#39;Comment&#39;: &#39;total net fixed asset&#39;},
-   {&#39;Name&#39;: &#39;cashflow&#39;, &#39;Type&#39;: &#39;int&#39;, &#39;Comment&#39;: &#39;cash flow&#39;},
-   {&#39;Name&#39;: &#39;current_ratio&#39;,
-    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-    &#39;Comment&#39;: &#39;current ratio cuasset/流动负债合计 (c95)&#39;},
-   {&#39;Name&#39;: &#39;quick_ratio&#39;,
-    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-    &#39;Comment&#39;: &#39;quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)&#39;},
-   {&#39;Name&#39;: &#39;liabilities_tot_asset&#39;,
-    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-    &#39;Comment&#39;: &#39;liabilities to total asset&#39;},
-   {&#39;Name&#39;: &#39;sales_tot_asset&#39;,
-    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-    &#39;Comment&#39;: &#39;sales to total asset&#39;},
-   {&#39;Name&#39;: &#39;investment_tot_asset&#39;,
-    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-    &#39;Comment&#39;: &#39;investment to total asset&#39;},
-   {&#39;Name&#39;: &#39;rd_tot_asset&#39;,
-    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-    &#39;Comment&#39;: &#39;rd to total asset&#39;},
-   {&#39;Name&#39;: &#39;asset_tangibility_tot_asset&#39;,
-    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-    &#39;Comment&#39;: &#39;asset tangibility to total asset&#39;},
-   {&#39;Name&#39;: &#39;cashflow_tot_asset&#39;,
-    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-    &#39;Comment&#39;: &#39;cashflow to total asset&#39;},
-   {&#39;Name&#39;: &#39;cashflow_to_tangible&#39;,
-    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-    &#39;Comment&#39;: &#39;cashflow to tangible asset&#39;},
-   {&#39;Name&#39;: &#39;return_to_sale&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
-   {&#39;Name&#39;: &#39;coverage_ratio&#39;,
-    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-    &#39;Comment&#39;: &#39;net income(c131) /total interest payments&#39;},
-   {&#39;Name&#39;: &#39;liquidity&#39;,
-    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
-    &#39;Comment&#39;: &#39;current assets-current liabilities/total assets&#39;}],
-  &#39;Location&#39;: &#39;s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/CITY/tables/e591cd3a-8c1a-4053-8b30-4f8429ce91e5&#39;,
-  &#39;InputFormat&#39;: &#39;org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat&#39;,
-  &#39;OutputFormat&#39;: &#39;org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat&#39;,
-  &#39;Compressed&#39;: False,
-  &#39;NumberOfBuckets&#39;: 0,
-  &#39;SerdeInfo&#39;: {&#39;Name&#39;: &#39;asif_industry_financial_ratio_city&#39;,
-   &#39;SerializationLibrary&#39;: &#39;org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe&#39;,
-   &#39;Parameters&#39;: {}},
-  &#39;BucketColumns&#39;: [],
-  &#39;SortColumns&#39;: [],
-  &#39;Parameters&#39;: {},
-  &#39;StoredAsSubDirectories&#39;: False},
- &#39;PartitionKeys&#39;: [],
- &#39;ViewOriginalText&#39;: &#39;&#39;,
- &#39;ViewExpandedText&#39;: &#39;&#39;,
- &#39;TableType&#39;: &#39;EXTERNAL_TABLE&#39;,
- &#39;Parameters&#39;: {&#39;EXTERNAL&#39;: &#39;TRUE&#39;, &#39;has_encrypted_data&#39;: &#39;false&#39;},
- &#39;CreatedBy&#39;: &#39;arn:aws:iam::468786073381:user/financial_dep_SO2&#39;,
- &#39;IsRegisteredWithLakeFormation&#39;: False,
- &#39;CatalogId&#39;: &#39;468786073381&#39;}</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
@@ -16582,10 +16533,10 @@ Wall time: 8.08 s
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">table_top</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;ANALYSIS&quot;</span><span class="p">][</span><span class="s2">&quot;COUNT_MISSING&quot;</span><span class="p">][</span><span class="s2">&quot;top&quot;</span><span class="p">]</span>
@@ -16626,200 +16577,6 @@ Wall time: 8.08 s
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output " data-mime-type="text/html">
-<style  type="text/css" >
-#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow0_col1{
-            width:  10em;
-             height:  80%;
-            background:  linear-gradient(90deg,#d65f5f 100.0%, transparent 100.0%);
-        }#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow1_col1{
-            width:  10em;
-             height:  80%;
-            background:  linear-gradient(90deg,#d65f5f 56.2%, transparent 56.2%);
-        }#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow2_col1{
-            width:  10em;
-             height:  80%;
-            background:  linear-gradient(90deg,#d65f5f 5.3%, transparent 5.3%);
-        }#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow3_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow4_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow5_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow6_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow7_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow8_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow9_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow10_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow11_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow12_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow13_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow14_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow15_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow16_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow17_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow18_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow19_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow20_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow21_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow22_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow23_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow24_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow25_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow26_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow27_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow28_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow29_col1,#T_fe614b92_6385_11eb_90e3_cd0af5397e3frow30_col1{
-            width:  10em;
-             height:  80%;
-        }</style><table id="T_fe614b92_6385_11eb_90e3_cd0af5397e3f" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >total_missing</th>        <th class="col_heading level0 col1" >total_missing_pct</th>    </tr></thead><tbody>
-                <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row0" class="row_heading level0 row0" >nb_obs</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow0_col0" class="data row0 col0" >46558</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow0_col1" class="data row0 col1" >100.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row1" class="row_heading level0 row1" >rd_tot_asset</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow1_col0" class="data row1 col0" >26173</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow1_col1" class="data row1 col1" >56.22%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row2" class="row_heading level0 row2" >coverage_ratio</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow2_col0" class="data row2 col0" >2455</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow2_col1" class="data row2 col1" >5.27%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row3" class="row_heading level0 row3" >tangible</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow3_col0" class="data row3 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow3_col1" class="data row3 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row4" class="row_heading level0 row4" >return_to_sale</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow4_col0" class="data row4 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow4_col1" class="data row4 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row5" class="row_heading level0 row5" >cashflow_to_tangible</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow5_col0" class="data row5 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow5_col1" class="data row5 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row6" class="row_heading level0 row6" >cashflow_tot_asset</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow6_col0" class="data row6 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow6_col1" class="data row6 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row7" class="row_heading level0 row7" >asset_tangibility_tot_asset</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow7_col0" class="data row7 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow7_col1" class="data row7 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row8" class="row_heading level0 row8" >investment_tot_asset</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow8_col0" class="data row8 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow8_col1" class="data row8 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row9" class="row_heading level0 row9" >sales_tot_asset</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow9_col0" class="data row9 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow9_col1" class="data row9 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row10" class="row_heading level0 row10" >liabilities_tot_asset</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow10_col0" class="data row10 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow10_col1" class="data row10 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row11" class="row_heading level0 row11" >quick_ratio</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow11_col0" class="data row11 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow11_col1" class="data row11 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row12" class="row_heading level0 row12" >current_ratio</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow12_col0" class="data row12 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow12_col1" class="data row12 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row13" class="row_heading level0 row13" >cashflow</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow13_col0" class="data row13 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow13_col1" class="data row13 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row14" class="row_heading level0 row14" >net_fixed_asset</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow14_col0" class="data row14 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow14_col1" class="data row14 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row15" class="row_heading level0 row15" >intangible</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow15_col0" class="data row15 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow15_col1" class="data row15 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row16" class="row_heading level0 row16" >year</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow16_col0" class="data row16 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow16_col1" class="data row16 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row17" class="row_heading level0 row17" >total_right</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow17_col0" class="data row17 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow17_col1" class="data row17 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row18" class="row_heading level0 row18" >total_asset</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow18_col0" class="data row18 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow18_col1" class="data row18 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row19" class="row_heading level0 row19" >total_liabilities</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow19_col0" class="data row19 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow19_col1" class="data row19 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row20" class="row_heading level0 row20" >error</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow20_col0" class="data row20 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow20_col1" class="data row20 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row21" class="row_heading level0 row21" >tofixed</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow21_col0" class="data row21 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow21_col1" class="data row21 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row22" class="row_heading level0 row22" >current_asset</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow22_col0" class="data row22 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow22_col1" class="data row22 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row23" class="row_heading level0 row23" >capital</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow23_col0" class="data row23 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow23_col1" class="data row23 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row24" class="row_heading level0 row24" >employment</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow24_col0" class="data row24 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow24_col1" class="data row24 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row25" class="row_heading level0 row25" >sales</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow25_col0" class="data row25 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow25_col1" class="data row25 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row26" class="row_heading level0 row26" >output</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow26_col0" class="data row26 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow26_col1" class="data row26 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row27" class="row_heading level0 row27" >province_en</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow27_col0" class="data row27 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow27_col1" class="data row27 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row28" class="row_heading level0 row28" >geocode4_corr</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow28_col0" class="data row28 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow28_col1" class="data row28 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row29" class="row_heading level0 row29" >indu_2</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow29_col0" class="data row29 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow29_col1" class="data row29 col1" >0.00%</td>
-            </tr>
-            <tr>
-                        <th id="T_fe614b92_6385_11eb_90e3_cd0af5397e3flevel0_row30" class="row_heading level0 row30" >liquidity</th>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow30_col0" class="data row30 col0" >0</td>
-                        <td id="T_fe614b92_6385_11eb_90e3_cd0af5397e3frow30_col1" class="data row30 col1" >0.00%</td>
-            </tr>
-    </tbody></table>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
@@ -16830,7 +16587,7 @@ Wall time: 8.08 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[28]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">README</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -16946,7 +16703,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">boto3</span>
@@ -16967,7 +16724,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[36]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">primary_key</span> <span class="o">=</span> <span class="s1">&#39;year&#39;</span>
@@ -16980,10 +16737,10 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[37]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
@@ -17008,42 +16765,10 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[37]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;input_path&#39;: &#39;s3://datalake-datascience/ANALYTICS/TEMPLATE_NOTEBOOKS/template_analysis_from_lambda.ipynb&#39;,
- &#39;output_prefix&#39;: &#39;s3://datalake-datascience/ANALYTICS/OUTPUT/ASIF_INDUSTRY_FINANCIAL_RATIO_CITY/&#39;,
- &#39;parameters&#39;: {&#39;region&#39;: &#39;eu-west-3&#39;,
-  &#39;bucket&#39;: &#39;datalake-datascience&#39;,
-  &#39;DatabaseName&#39;: &#39;firms_survey&#39;,
-  &#39;table_name&#39;: &#39;asif_industry_financial_ratio_city&#39;,
-  &#39;group&#39;: &#39;province_en,geocode4_corr,indu_2,year&#39;,
-  &#39;keys&#39;: &#39;year,indu_2&#39;,
-  &#39;y_var&#39;: &#39;tangible&#39;,
-  &#39;threshold&#39;: 0}}</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[38]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">client_lambda</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
@@ -17060,44 +16785,6 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[38]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;862cdb94-028a-4588-bff6-5930b2420887&#39;,
-  &#39;HTTPStatusCode&#39;: 200,
-  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 31 Jan 2021 05:36:09 GMT&#39;,
-   &#39;content-type&#39;: &#39;application/json&#39;,
-   &#39;content-length&#39;: &#39;75&#39;,
-   &#39;connection&#39;: &#39;keep-alive&#39;,
-   &#39;x-amzn-requestid&#39;: &#39;862cdb94-028a-4588-bff6-5930b2420887&#39;,
-   &#39;x-amzn-remapped-content-length&#39;: &#39;0&#39;,
-   &#39;x-amz-executed-version&#39;: &#39;$LATEST&#39;,
-   &#39;x-amz-log-result&#39;: &#39;U1RBUlQgUmVxdWVzdElkOiA4NjJjZGI5NC0wMjhhLTQ1ODgtYmZmNi01OTMwYjI0MjA4ODcgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiA4NjJjZGI5NC0wMjhhLTQ1ODgtYmZmNi01OTMwYjI0MjA4ODcKUkVQT1JUIFJlcXVlc3RJZDogODYyY2RiOTQtMDI4YS00NTg4LWJmZjYtNTkzMGIyNDIwODg3CUR1cmF0aW9uOiAxNTM2LjE5IG1zCUJpbGxlZCBEdXJhdGlvbjogMTUzNyBtcwlNZW1vcnkgU2l6ZTogMTI4IE1CCU1heCBNZW1vcnkgVXNlZDogODcgTUIJCg==&#39;,
-   &#39;x-amzn-trace-id&#39;: &#39;root=1-601641c7-680544c84bed148e68d300ed;sampled=0&#39;},
-  &#39;RetryAttempts&#39;: 0},
- &#39;StatusCode&#39;: 200,
- &#39;LogResult&#39;: &#39;U1RBUlQgUmVxdWVzdElkOiA4NjJjZGI5NC0wMjhhLTQ1ODgtYmZmNi01OTMwYjI0MjA4ODcgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiA4NjJjZGI5NC0wMjhhLTQ1ODgtYmZmNi01OTMwYjI0MjA4ODcKUkVQT1JUIFJlcXVlc3RJZDogODYyY2RiOTQtMDI4YS00NTg4LWJmZjYtNTkzMGIyNDIwODg3CUR1cmF0aW9uOiAxNTM2LjE5IG1zCUJpbGxlZCBEdXJhdGlvbjogMTUzNyBtcwlNZW1vcnkgU2l6ZTogMTI4IE1CCU1heCBNZW1vcnkgVXNlZDogODcgTUIJCg==&#39;,
- &#39;ExecutedVersion&#39;: &#39;$LATEST&#39;,
- &#39;Payload&#39;: &lt;botocore.response.StreamingBody at 0x7f9f980c95e0&gt;}</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
@@ -17106,7 +16793,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[39]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">urllib</span><span class="o">,</span> <span class="nn">ipykernel</span><span class="o">,</span> <span class="nn">json</span>
@@ -17122,7 +16809,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[40]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">create_report</span><span class="p">(</span><span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">keep_code</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">notebookname</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>

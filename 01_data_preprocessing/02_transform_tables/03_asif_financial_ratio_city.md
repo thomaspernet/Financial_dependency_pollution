@@ -220,7 +220,7 @@ WITH test AS (
     (
       c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
     ) - (c95 + c97 + c99) AS error, 
-    c95 + c97 as total_liabilities,
+    c95 + c97 as total_liabilities, 
     CASE WHEN (
       c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
     ) - (c95 + c97 + c99) > 0 THEN (c95 + c97 + c99) + ABS(
@@ -230,7 +230,9 @@ WITH test AS (
     ) ELSE (c95 + c97 + c99) END AS total_right, 
     CASE WHEN (
       c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
-    ) - (c95 + c97 + c99) < 0 THEN (c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)) + ABS(
+    ) - (c95 + c97 + c99) < 0 THEN (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) + ABS(
       (
         c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
       ) - (c95 + c97 + c99)
@@ -238,37 +240,41 @@ WITH test AS (
       c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
     ) END AS total_asset, 
     (c131 - c134) + cudepre as cashflow 
-    
   FROM 
     firms_survey.asif_firms_prepared 
     INNER JOIN (
       SELECT 
         extra_code, 
-        geocode4_corr,
-      province_en
+        geocode4_corr, 
+        province_en 
       FROM 
         chinese_lookup.china_city_code_normalised 
       GROUP BY 
         extra_code, 
-      province_en,
+        province_en, 
         geocode4_corr
-    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
-  WHERE
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code 
+  WHERE 
     c95 > 0 -- current liabilities
-  AND c97 >0 -- long term liabilities
-  AND c98 > 0 -- total liabilities
-  AND c99 > 0 -- equity
-  AND c80 + c81 + c82 + c79 >0
-  AND tofixed >0
-  AND output > 0 
-  and employ > 0
+    AND c97 > 0 -- long term liabilities
+    AND c98 > 0 -- total liabilities
+    AND c99 > 0 -- equity
+    AND c80 + c81 + c82 + c79 > 0 
+    AND tofixed > 0 
+    AND output > 0 
+    and employ > 0
 ) 
 SELECT 
+  * 
+FROM 
+  (
+    WITH ratio AS (
+      SELECT 
         year, 
         -- cic, 
         indu_2, 
-        geocode4_corr,
-        province_en,
+        geocode4_corr, 
+        province_en, 
         CAST(
           SUM(output) AS DECIMAL(16, 5)
         ) AS output, 
@@ -285,28 +291,28 @@ SELECT
         SUM(tofixed) AS tofixed, 
         SUM(error) AS error, 
         SUM(total_liabilities) AS total_liabilities, 
-        SUM(total_asset) AS total_asset,
-        SUM(total_right) AS total_right,
+        SUM(total_asset) AS total_asset, 
+        SUM(total_right) AS total_right, 
         SUM(intangible) AS intangible, 
         SUM(tangible) AS tangible, 
         SUM(net_fixed_asset) AS net_fixed_asset, 
         SUM(cashflow) AS cashflow, 
         CAST(
-      SUM(c80 + c81 + c82 + c79) AS DECIMAL(16, 5)
-    ) / NULLIF(
-      CAST(
-        SUM(c95) AS DECIMAL(16, 5)
-      ), 
-      0
-    ) AS current_ratio, 
-    CAST(
-      SUM(c80 + c81 + c82 + c79 - c80 - c81) AS DECIMAL(16, 5)
-    ) / NULLIF(
-      CAST(
-        SUM(c95) AS DECIMAL(16, 5)
-      ), 
-      0
-    ) AS quick_ratio,
+          SUM(c80 + c81 + c82 + c79) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(c95) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS current_ratio, 
+        CAST(
+          SUM(c80 + c81 + c82 + c79 - c80 - c81) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(c95) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS quick_ratio, 
         CAST(
           SUM(c98) AS DECIMAL(16, 5)
         ) / NULLIF(
@@ -322,7 +328,7 @@ SELECT
             SUM(total_asset) AS DECIMAL(16, 5)
           ), 
           0
-        ) AS sales_tot_asset,         
+        ) AS sales_tot_asset, 
         CAST(
           SUM(c84) AS DECIMAL(16, 5)
         ) / NULLIF(
@@ -362,48 +368,120 @@ SELECT
             SUM(tangible) AS DECIMAL(16, 5)
           ), 
           0
-        ) AS cashflow_to_tangible,
-       -- update
-       CAST(
+        ) AS cashflow_to_tangible, 
+        -- update
+        CAST(
           SUM(c131) AS DECIMAL(16, 5)
         ) / NULLIF(
           CAST(
             SUM(sales) AS DECIMAL(16, 5)
           ), 
           0
-        ) AS return_to_sale,
-       CAST(
+        ) AS return_to_sale, 
+        CAST(
           SUM(c131) AS DECIMAL(16, 5)
         ) / NULLIF(
           CAST(
             SUM(c125) AS DECIMAL(16, 5)
           ), 
           0
-        ) AS coverage_ratio,
-       CAST(
+        ) AS coverage_ratio, 
+        CAST(
           SUM(current_asset - c95) AS DECIMAL(16, 5)
-         ) / NULLIF(
-           CAST(
+        ) / NULLIF(
+          CAST(
             SUM(tangible) AS DECIMAL(16, 5)
           ), 
           0
-         ) AS liquidity
-        
+        ) AS liquidity 
       FROM 
         test 
       WHERE 
         year in (
           '2001', '2002', '2003', '2004', '2005', 
           '2006', '2007'
-        )
+        ) 
         AND total_asset > 0 
-        AND tangible > 0
-     GROUP BY province_en,
-     geocode4_corr,
-     -- cic,
-     indu_2,
-     year  
-     LIMIT 10
+        AND tangible > 0 
+      GROUP BY 
+        province_en, 
+        geocode4_corr, 
+        -- cic,
+        indu_2, 
+        year 
+      
+    ) 
+    SELECT 
+      year, 
+      indu_2, 
+      geocode4_corr, 
+      province_en, 
+      output, 
+      sales, 
+      employment, 
+      capital, 
+      current_asset, 
+      tofixed, 
+      error, 
+      total_liabilities, 
+      total_asset, 
+      total_right, 
+      intangible, 
+      tangible, 
+      net_fixed_asset, 
+      cashflow, 
+      current_ratio,
+      LAG(current_ratio, 1) OVER (
+        PARTITION BY geocode4_corr, indu_2 
+        ORDER BY 
+          year
+      ) as lag_current_ratio,
+      quick_ratio, 
+      LAG(quick_ratio, 1) OVER (
+        PARTITION BY geocode4_corr, indu_2 
+        ORDER BY 
+          year
+      ) as lag_quick_ratio,
+      liabilities_tot_asset, 
+      LAG(liabilities_tot_asset, 1) OVER (
+        PARTITION BY geocode4_corr, indu_2 
+        ORDER BY 
+          year
+      ) as lag_liabilities_tot_asset,
+      sales_tot_asset,
+      LAG(sales_tot_asset, 1) OVER (
+        PARTITION BY geocode4_corr, indu_2 
+        ORDER BY 
+          year
+      ) as lag_sales_tot_asset,
+      investment_tot_asset, 
+      rd_tot_asset, 
+      asset_tangibility_tot_asset, 
+      cashflow_tot_asset,
+      LAG(cashflow_tot_asset, 1) OVER (
+        PARTITION BY geocode4_corr, indu_2 
+        ORDER BY 
+          year
+      ) as lag_cashflow_tot_asset,
+      cashflow_to_tangible, 
+      LAG(cashflow_to_tangible, 1) OVER (
+        PARTITION BY geocode4_corr, indu_2 
+        ORDER BY 
+          year
+      ) as lag_cashflow_to_tangible,
+      return_to_sale, 
+      LAG(return_to_sale, 1) OVER (
+        PARTITION BY geocode4_corr, indu_2 
+        ORDER BY 
+          year
+      ) as lag_return_to_sale,
+      coverage_ratio, 
+      liquidity 
+    FROM 
+      ratio
+    LIMIT 
+        10
+  )
 """
 output = s3.run_query(
                     query=query,
@@ -467,7 +545,7 @@ WITH test AS (
     (
       c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
     ) - (c95 + c97 + c99) AS error, 
-    c95 + c97 as total_liabilities,
+    c95 + c97 as total_liabilities, 
     CASE WHEN (
       c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
     ) - (c95 + c97 + c99) > 0 THEN (c95 + c97 + c99) + ABS(
@@ -477,7 +555,9 @@ WITH test AS (
     ) ELSE (c95 + c97 + c99) END AS total_right, 
     CASE WHEN (
       c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
-    ) - (c95 + c97 + c99) < 0 THEN (c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)) + ABS(
+    ) - (c95 + c97 + c99) < 0 THEN (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) + ABS(
       (
         c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
       ) - (c95 + c97 + c99)
@@ -485,37 +565,41 @@ WITH test AS (
       c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
     ) END AS total_asset, 
     (c131 - c134) + cudepre as cashflow 
-    
   FROM 
     firms_survey.asif_firms_prepared 
     INNER JOIN (
       SELECT 
         extra_code, 
-        geocode4_corr,
-      province_en
+        geocode4_corr, 
+        province_en 
       FROM 
         chinese_lookup.china_city_code_normalised 
       GROUP BY 
         extra_code, 
-      province_en,
+        province_en, 
         geocode4_corr
-    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
-  WHERE
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code 
+  WHERE 
     c95 > 0 -- current liabilities
-  AND c97 >0 -- long term liabilities
-  AND c98 > 0 -- total liabilities
-  AND c99 > 0 -- equity
-  AND c80 + c81 + c82 + c79 >0
-  AND tofixed >0
-  AND output > 0 
-  and employ > 0
+    AND c97 > 0 -- long term liabilities
+    AND c98 > 0 -- total liabilities
+    AND c99 > 0 -- equity
+    AND c80 + c81 + c82 + c79 > 0 
+    AND tofixed > 0 
+    AND output > 0 
+    and employ > 0
 ) 
 SELECT 
+  * 
+FROM 
+  (
+    WITH ratio AS (
+      SELECT 
         year, 
         -- cic, 
         indu_2, 
-        geocode4_corr,
-        province_en,
+        geocode4_corr, 
+        province_en, 
         CAST(
           SUM(output) AS DECIMAL(16, 5)
         ) AS output, 
@@ -532,28 +616,28 @@ SELECT
         SUM(tofixed) AS tofixed, 
         SUM(error) AS error, 
         SUM(total_liabilities) AS total_liabilities, 
-        SUM(total_asset) AS total_asset,
-        SUM(total_right) AS total_right,
+        SUM(total_asset) AS total_asset, 
+        SUM(total_right) AS total_right, 
         SUM(intangible) AS intangible, 
         SUM(tangible) AS tangible, 
         SUM(net_fixed_asset) AS net_fixed_asset, 
         SUM(cashflow) AS cashflow, 
         CAST(
-      SUM(c80 + c81 + c82 + c79) AS DECIMAL(16, 5)
-    ) / NULLIF(
-      CAST(
-        SUM(c95) AS DECIMAL(16, 5)
-      ), 
-      0
-    ) AS current_ratio, 
-    CAST(
-      SUM(c80 + c81 + c82 + c79 - c80 - c81) AS DECIMAL(16, 5)
-    ) / NULLIF(
-      CAST(
-        SUM(c95) AS DECIMAL(16, 5)
-      ), 
-      0
-    ) AS quick_ratio,
+          SUM(c80 + c81 + c82 + c79) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(c95) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS current_ratio, 
+        CAST(
+          SUM(c80 + c81 + c82 + c79 - c80 - c81) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(c95) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS quick_ratio, 
         CAST(
           SUM(c98) AS DECIMAL(16, 5)
         ) / NULLIF(
@@ -569,7 +653,7 @@ SELECT
             SUM(total_asset) AS DECIMAL(16, 5)
           ), 
           0
-        ) AS sales_tot_asset,         
+        ) AS sales_tot_asset, 
         CAST(
           SUM(c84) AS DECIMAL(16, 5)
         ) / NULLIF(
@@ -609,44 +693,118 @@ SELECT
             SUM(tangible) AS DECIMAL(16, 5)
           ), 
           0
-        ) AS cashflow_to_tangible,
-       -- update
-       CAST(
+        ) AS cashflow_to_tangible, 
+        -- update
+        CAST(
           SUM(c131) AS DECIMAL(16, 5)
         ) / NULLIF(
           CAST(
             SUM(sales) AS DECIMAL(16, 5)
           ), 
           0
-        ) AS return_to_sale,
-       CAST(
+        ) AS return_to_sale, 
+        CAST(
           SUM(c131) AS DECIMAL(16, 5)
         ) / NULLIF(
           CAST(
             SUM(c125) AS DECIMAL(16, 5)
           ), 
           0
-        ) AS coverage_ratio,
-       CAST(
+        ) AS coverage_ratio, 
+        CAST(
           SUM(current_asset - c95) AS DECIMAL(16, 5)
-         ) / NULLIF(
-           CAST(
+        ) / NULLIF(
+          CAST(
             SUM(tangible) AS DECIMAL(16, 5)
           ), 
           0
-         ) AS liquidity
-        
+        ) AS liquidity 
       FROM 
         test 
       WHERE 
         year in (
           '2001', '2002', '2003', '2004', '2005', 
           '2006', '2007'
-        )
+        ) 
         AND total_asset > 0 
-        AND tangible > 0
-     GROUP BY province_en, geocode4_corr,indu_2, year--, cic
-     ORDER BY province_en, geocode4_corr,indu_2, year--cic
+        AND tangible > 0 
+      GROUP BY 
+        province_en, 
+        geocode4_corr, 
+        -- cic,
+        indu_2, 
+        year 
+      
+    ) 
+    SELECT 
+      year, 
+      indu_2, 
+      geocode4_corr, 
+      province_en, 
+      output, 
+      sales, 
+      employment, 
+      capital, 
+      current_asset, 
+      tofixed, 
+      error, 
+      total_liabilities, 
+      total_asset, 
+      total_right, 
+      intangible, 
+      tangible, 
+      net_fixed_asset, 
+      cashflow, 
+      current_ratio,
+      LAG(current_ratio, 1) OVER (
+        PARTITION BY geocode4_corr, indu_2 
+        ORDER BY 
+          year
+      ) as lag_current_ratio,
+      quick_ratio, 
+      LAG(quick_ratio, 1) OVER (
+        PARTITION BY geocode4_corr, indu_2 
+        ORDER BY 
+          year
+      ) as lag_quick_ratio,
+      liabilities_tot_asset, 
+      LAG(liabilities_tot_asset, 1) OVER (
+        PARTITION BY geocode4_corr, indu_2 
+        ORDER BY 
+          year
+      ) as lag_liabilities_tot_asset,
+      sales_tot_asset,
+      LAG(sales_tot_asset, 1) OVER (
+        PARTITION BY geocode4_corr, indu_2 
+        ORDER BY 
+          year
+      ) as lag_sales_tot_asset,
+      investment_tot_asset, 
+      rd_tot_asset, 
+      asset_tangibility_tot_asset, 
+      cashflow_tot_asset,
+      LAG(cashflow_tot_asset, 1) OVER (
+        PARTITION BY geocode4_corr, indu_2 
+        ORDER BY 
+          year
+      ) as lag_cashflow_tot_asset,
+      cashflow_to_tangible, 
+      LAG(cashflow_to_tangible, 1) OVER (
+        PARTITION BY geocode4_corr, indu_2 
+        ORDER BY 
+          year
+      ) as lag_cashflow_to_tangible,
+      return_to_sale, 
+      LAG(return_to_sale, 1) OVER (
+        PARTITION BY geocode4_corr, indu_2 
+        ORDER BY 
+          year
+      ) as lag_return_to_sale,
+      coverage_ratio, 
+      liquidity 
+    FROM 
+      ratio 
+    )
 """.format(DatabaseName, table_name)
 output = s3.run_query(
                     query=query,
@@ -756,12 +914,16 @@ schema = [{'Name': 'output', 'Type': 'decimal(16,5)', 'Comment': 'Output'},
           {'Name': 'sales', 'Type': 'decimal(16,5)', 'Comment': 'sales'},
           {'Name': 'current_ratio',
            'Type': 'decimal(21,5)', 'Comment': 'current ratio cuasset/流动负债合计 (c95)'},
+          {'Name': 'lag_current_ratio', 'Type': 'decimal(21,5)', 'Comment': 'lag value of current ratio'},
           {'Name': 'quick_ratio',
            'Type': 'decimal(21,5)', 'Comment': 'quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)'},
+          {'Name': 'lag_quick_ratio', 'Type': 'decimal(21,5)', 'Comment': 'lag value of quick ratio'},
           {'Name': 'liabilities_tot_asset',
            'Type': 'decimal(21,5)', 'Comment': 'liabilities to total asset'},
+          {'Name': 'lag_liabilities_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'lag value of liabilities to asset'},
           {'Name': 'sales_tot_asset',
            'Type': 'decimal(21,5)', 'Comment': 'sales to total asset'},
+          {'Name': 'lag_sales_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'lag value of sales to asset'},
           #{'Name': 'cash_tot_asset',
           # 'Type': 'decimal(21,5)', 'Comment': 'cash to total asset'},
           {'Name': 'investment_tot_asset',
@@ -773,9 +935,12 @@ schema = [{'Name': 'output', 'Type': 'decimal(16,5)', 'Comment': 'Output'},
            'Comment': 'asset tangibility to total asset'},
           {'Name': 'cashflow_tot_asset',
            'Type': 'decimal(21,5)', 'Comment': 'cashflow to total asset'},
+          {'Name': 'lag_cashflow_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'lag value of cashflow to total asset'},
           {'Name': 'cashflow_to_tangible',
            'Type': 'decimal(21,5)', 'Comment': 'cashflow to tangible asset'},
+          {'Name': 'lag_cashflow_to_tangible', 'Type': 'decimal(21,5)', 'Comment': 'lag value of cashflow to tangible asset'},
           {'Name': 'return_to_sale', 'Type': 'decimal(21,5)', 'Comment': ''},
+          {'Name': 'lag_return_to_sale', 'Type': 'decimal(21,5)', 'Comment': 'lag value of return to sale'},
           {'Name': 'coverage_ratio', 'Type': 'decimal(21,5)', 'Comment': 'net income(c131) /total interest payments'},
           {'Name': 'liquidity', 'Type': 'decimal(21,5)', 'Comment': 'current assets-current liabilities/total assets'}]
 ```

@@ -430,17 +430,24 @@
 | 14 | cashflow                    | int           | cash flow                                                                                                      |
 | 15 | sales                       | decimal(16,5) | sales                                                                                                          |
 | 16 | current_ratio               | decimal(21,5) | current ratio cuasset/流动负债合计 (c95)                                                                       |
-| 17 | quick_ratio                 | decimal(21,5) | quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                         |
-| 18 | liabilities_tot_asset       | decimal(21,5) | liabilities to total asset                                                                                     |
-| 19 | sales_tot_asset             | decimal(21,5) | sales to total asset                                                                                           |
-| 20 | investment_tot_asset        | decimal(21,5) | investment to total asset                                                                                      |
-| 21 | rd_tot_asset                | decimal(21,5) | rd to total asset                                                                                              |
-| 22 | asset_tangibility_tot_asset | decimal(21,5) | asset tangibility to total asset                                                                               |
-| 23 | cashflow_tot_asset          | decimal(21,5) | cashflow to total asset                                                                                        |
-| 24 | cashflow_to_tangible        | decimal(21,5) | cashflow to tangible asset                                                                                     |
-| 25 | return_to_sale              | decimal(21,5) |                                                                                                                |
-| 26 | coverage_ratio              | decimal(21,5) | net income(c131) /total interest payments                                                                      |
-| 27 | liquidity                   | decimal(21,5) | current assets-current liabilities/total assets                                                                |
+| 17 | lag_current_ratio           | decimal(21,5) | lag value of current ratio                                                                                     |
+| 18 | quick_ratio                 | decimal(21,5) | quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                         |
+| 19 | lag_quick_ratio             | decimal(21,5) | lag value of quick ratio                                                                                       |
+| 20 | liabilities_tot_asset       | decimal(21,5) | liabilities to total asset                                                                                     |
+| 21 | lag_liabilities_tot_asset   | decimal(21,5) | lag value of liabilities to asset                                                                              |
+| 22 | sales_tot_asset             | decimal(21,5) | sales to total asset                                                                                           |
+| 23 | lag_sales_tot_asset         | decimal(21,5) | lag value of sales to asset                                                                                    |
+| 24 | investment_tot_asset        | decimal(21,5) | investment to total asset                                                                                      |
+| 25 | rd_tot_asset                | decimal(21,5) | rd to total asset                                                                                              |
+| 26 | asset_tangibility_tot_asset | decimal(21,5) | asset tangibility to total asset                                                                               |
+| 27 | cashflow_tot_asset          | decimal(21,5) | cashflow to total asset                                                                                        |
+| 28 | lag_cashflow_tot_asset      | decimal(21,5) | lag value of cashflow to total asset                                                                           |
+| 29 | cashflow_to_tangible        | decimal(21,5) | cashflow to tangible asset                                                                                     |
+| 30 | lag_cashflow_to_tangible    | decimal(21,5) | lag value of cashflow to tangible asset                                                                        |
+| 31 | return_to_sale              | decimal(21,5) |                                                                                                                |
+| 32 | lag_return_to_sale          | decimal(21,5) | lag value of return to sale                                                                                    |
+| 33 | coverage_ratio              | decimal(21,5) | net income(c131) /total interest payments                                                                      |
+| 34 | liquidity                   | decimal(21,5) | current assets-current liabilities/total assets                                                                |
 
     
 
