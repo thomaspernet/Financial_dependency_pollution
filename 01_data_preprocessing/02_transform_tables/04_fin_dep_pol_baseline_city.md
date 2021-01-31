@@ -163,7 +163,7 @@ WITH aggregate_pol AS (
     year, 
     geocode4_corr, 
     cityen, 
-    indus_code AS cic,
+    -- indus_code AS cic,
     ind2, 
     SUM(tso2) as tso2, 
     lower_location, 
@@ -176,7 +176,7 @@ WITH aggregate_pol AS (
         citycode, 
         geocode4_corr, 
         china_city_sector_pollution.cityen,
-        indus_code,
+        -- indus_code,
         ind2, 
         tso2, 
         lower_location, 
@@ -199,7 +199,7 @@ WITH aggregate_pol AS (
     year, 
     geocode4_corr, 
     cityen, 
-    indus_code,
+    --indus_code,
     ind2, 
     lower_location, 
     larger_location, 
@@ -214,7 +214,7 @@ FROM
         aggregate_pol.year, 
         aggregate_pol.geocode4_corr, 
         cityen, 
-        aggregate_pol.cic,
+        --aggregate_pol.cic,
         aggregate_pol.ind2, 
         tso2, 
         tso2_mandate_c,
@@ -226,7 +226,7 @@ FROM
         aggregate_pol 
         INNER JOIN firms_survey.asif_industry_financial_ratio_city ON 
         aggregate_pol.year = asif_industry_financial_ratio_city.year AND 
-        aggregate_pol.cic = asif_industry_financial_ratio_city.cic AND 
+        aggregate_pol.ind2 = asif_industry_financial_ratio_city.indu_2 AND 
         aggregate_pol.geocode4_corr = asif_industry_financial_ratio_city.geocode4_corr 
         INNER JOIN (
         
@@ -248,14 +248,14 @@ FROM
         SELECT 
           geocode4_corr, 
           year, 
-          cic, 
+          ind2, 
           COUNT(*) AS CNT 
         FROM 
           merge_asif 
         GROUP BY 
           geocode4_corr, 
           year, 
-          cic
+          ind2
       ) AS count_dup 
     GROUP BY 
       CNT
@@ -345,7 +345,7 @@ SELECT
   year, 
   geocode4_corr, 
   indu_2,
-  cic, 
+  -- cic, 
   AVG(tfp_op) as tfp_cit, 
   SUM(output) AS output, 
   SUM(employ) AS employment, 
@@ -359,7 +359,7 @@ FROM
       tfp_op, 
       asif_tfp_firm_level.year, 
       asif_tfp_firm_level.geocode4_corr, 
-      cic,
+      -- cic,
       asif_tfp_firm_level.indu_2, 
       asif_city.output, 
       asif_city.employ, 
@@ -373,7 +373,7 @@ FROM
           firm, 
           year, 
           geocode4_corr, 
-          cic,
+          -- cic,
           CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
             '0', 
             substr(cic, 1, 1)
@@ -408,7 +408,7 @@ WHERE
   ) 
 GROUP BY 
   geocode4_corr, 
-  cic, 
+  -- cic, 
   indu_2,
   year
 """
@@ -466,7 +466,7 @@ SELECT
     geocode4_corr, 
     province_en, 
     cityen, 
-    indus_code AS cic,
+    -- indus_code AS cic,
     ind2, 
     SUM(tso2) as tso2, 
     lower_location, 
@@ -480,7 +480,7 @@ SELECT
         citycode, 
         geocode4_corr, 
         china_city_sector_pollution.cityen, 
-        indus_code,
+        --indus_code,
         ind2,  
         tso2, 
         lower_location, 
@@ -506,7 +506,7 @@ SELECT
     province_en, 
     geocode4_corr, 
     cityen, 
-    indus_code,
+    --indus_code,
     ind2, 
     lower_location, 
     larger_location, 
@@ -522,7 +522,7 @@ SELECT
   aggregate_pol.geocode4_corr, 
   CASE WHEN tcz IS NULL THEN '0' ELSE tcz END AS tcz, 
   CASE WHEN spz IS NULL OR spz = '#N/A' THEN '0' ELSE spz END AS spz, 
-  aggregate_pol.cic, 
+  --aggregate_pol.cic, 
   aggregate_pol.ind2, 
   CASE WHEN short IS NULL THEN 'Unknown' ELSE short END AS short, 
   polluted_di, 
@@ -553,11 +553,16 @@ SELECT
   tangible,
   cashflow,
   current_ratio,
+  lag_current_ratio,
   liabilities_tot_asset,
   sales_tot_asset,
+  lag_sales_tot_asset,
   asset_tangibility_tot_asset,
+  lag_liabilities_tot_asset,
   cashflow_to_tangible,
-  return_to_sale,  
+  lag_cashflow_to_tangible,
+  return_to_sale,
+  lag_return_to_sale,
   lower_location, 
   larger_location, 
   coastal,
@@ -601,7 +606,7 @@ FROM
   INNER JOIN firms_survey.asif_industry_financial_ratio_city 
   ON 
   aggregate_pol.year = asif_industry_financial_ratio_city.year 
-  AND aggregate_pol.cic = asif_industry_financial_ratio_city.cic 
+  AND aggregate_pol.ind2 = asif_industry_financial_ratio_city.indu_2 
   AND aggregate_pol.geocode4_corr = asif_industry_financial_ratio_city.geocode4_corr 
   INNER JOIN (
     SELECT 
@@ -674,7 +679,8 @@ FROM
     SELECT 
       year, 
       geocode4_corr, 
-      cic, 
+      indu_2,
+      -- cic, 
       -- SUM(output) AS output,
       --SUM(employ) AS employment, 
       --SUM(captal) AS capital,
@@ -688,7 +694,8 @@ FROM
       tfp_op, 
       asif_city.year, 
       asif_city.geocode4_corr, 
-      asif_city.cic
+      asif_tfp_firm_level.indu_2
+      -- asif_city.cic
       --asif_city.output,
       --asif_city.employ, 
       --asif_city.captal, 
@@ -701,7 +708,7 @@ FROM
           firm, 
           year, 
           geocode4_corr, 
-          cic,
+          -- cic,
           CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
             '0', 
             substr(cic, 1, 1)
@@ -735,10 +742,12 @@ FROM
       ) 
     GROUP BY 
       geocode4_corr, 
-      cic, 
+      indu_2,
+      -- cic, 
       year
   ) as agg_output ON aggregate_pol.geocode4_corr = agg_output.geocode4_corr 
-  AND aggregate_pol.cic = agg_output.cic 
+  -- AND aggregate_pol.cic = agg_output.cic 
+  AND aggregate_pol.ind2 = agg_output.indu_2 
   AND aggregate_pol.year = agg_output.year 
   
   LEFT JOIN firms_survey.asif_industry_characteristics_ownership
@@ -749,11 +758,14 @@ FROM
   LEFT JOIN chinese_lookup.province_credit_constraint ON aggregate_pol.province_en = province_credit_constraint.Province
 
 WHERE 
-  tso2 > 4863 
+  tso2 > 0 
   AND output > 0 
   and capital > 0 
   and employment > 0
+  and current_ratio > 0
+  and cashflow_to_tangible > 0
   AND aggregate_pol.ind2 != '43'
+  -- AND tfp_cit > 0
 
 """.format(DatabaseName, table_name)
 output = s3.run_query(
@@ -785,7 +797,8 @@ AVG(tangible) AS avg_tangible,
 AVG(current_asset) AS avg_current_asset, 
 AVG(return_to_sale)AS avg_return_to_sale, 
 AVG(liabilities_tot_asset) AS avg_liabilities_tot_asset, 
-AVG(cashflow_to_tangible) AS avg_cashflow_to_tangible
+AVG(cashflow_to_tangible) AS avg_cashflow_to_tangible,
+AVG(sales_tot_asset) AS avg_sales_tot_asset
 FROM fin_dep_pollution_baseline_city  
 
 """
@@ -910,7 +923,7 @@ To validate the query, please fillin the json below. Don't forget to change the 
 1. Add a partition key
 
 ```python
-partition_keys = ["province_en", "geocode4_corr", "cic","indu_2", "year" ]
+partition_keys = ["province_en", "geocode4_corr","indu_2", "year" ]
 ```
 
 2. Add the steps number
@@ -942,7 +955,7 @@ schema = [
     {"Name": "geocode4_corr", "Type": "string", "Comment": ""},
     {"Name": "tcz", "Type": "string", "Comment": "Two control zone policy city"},
     {"Name": "spz", "Type": "string", "Comment": "Special policy zone policy city"},
-    {'Name': 'cic', 'Type': 'string', 'Comment': '4 digits industry code'},
+    #{'Name': 'cic', 'Type': 'string', 'Comment': '4 digits industry code'},
     {"Name": "ind2", "Type": "string", "Comment": "2 digits industry"},
     {"Name": "short", "Type": "string", "Comment": ""},
     {
@@ -1005,13 +1018,18 @@ schema = [
  {'Name': 'tangible', 'Type': 'int', 'Comment': 'tangible asset'},
  {'Name': 'cashflow', 'Type': 'int', 'Comment': 'cashflow'},
  {'Name': 'current_ratio', 'Type': 'decimal(21,5)', 'Comment': 'current ratio'},
+ {'Name': 'lag_current_ratio', 'Type': 'decimal(21,5)', 'Comment': 'lag value of current ratio'},
  {'Name': 'liabilities_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'liabilities to total asset'},
+    {'Name': 'lag_liabilities_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'lag value of liabilities to asset'},
  {'Name': 'sales_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'sales to total asset'},
+    {'Name': 'lag_sales_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'lag value of sales to asset'},
  {'Name': 'asset_tangibility_tot_asset',
   'Type': 'decimal(21,5)',
   'Comment': 'asset tangibility tot total asset'},
  {'Name': 'cashflow_to_tangible', 'Type': 'decimal(21,5)', 'Comment': 'cashflow to tangible asset'},
+    {'Name': 'lag_cashflow_to_tangible', 'Type': 'decimal(21,5)', 'Comment': 'lag value of cashflow to tangible asset'},
  {'Name': 'return_to_sale', 'Type': 'decimal(21,5)', 'Comment': 'return to sale'},
+    {'Name': 'lag_return_to_sale', 'Type': 'decimal(21,5)', 'Comment': 'lag value of return to sale'},
  {"Name": "coastal", "Type": "string", "Comment": "City is bordered by sea or not"},
     {'Name': 'dominated_output_soe_c', 'Type': 'boolean',
         'Comment': 'SOE dominated city of output. If true, then SOEs dominated city'},
@@ -1191,7 +1209,7 @@ One of the most important step when creating a table is to check if the table co
 You are required to define the group(s) that Athena will use to compute the duplicate. For instance, your table can be grouped by COL1 and COL2 (need to be string or varchar), then pass the list ['COL1', 'COL2'] 
 
 ```python
-partition_keys = ["province_en", "geocode4_corr", "cic","ind2", "year" ]
+partition_keys = ["province_en", "geocode4_corr","ind2", "year" ]
 
 with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
