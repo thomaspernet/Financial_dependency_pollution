@@ -155,7 +155,7 @@ if download_data:
     CASE WHEN rd_tot_asset IS NULL THEN -1000 ELSE rd_tot_asset END AS rd_tot_asset_trick,
     CASE WHEN rd_tot_asset IS NULL and year in ('2005', 
         '2006', '2007'
-      ) THEN -1000
+      ) THEN 0
     WHEN rd_tot_asset < 0 THEN 0
     ELSE rd_tot_asset END AS rd_tot_asset_trick_1
     FROM {}.{}
@@ -339,7 +339,7 @@ source(path)
 
 ```sos kernel="R"
 %get df_path
-df_final <- read_csv(df_path, na = "NA") %>%
+df_final <- read_csv(df_path) %>%
 mutate_if(is.character, as.factor) %>%
     mutate_at(vars(starts_with("fe")), as.factor) %>%
 mutate(
@@ -347,12 +347,16 @@ mutate(
     soe_vs_pri = relevel(as.factor(soe_vs_pri), ref='SOE'))
 ```
 
+```sos kernel="R"
+glimpse(df_final)
+```
+
 <!-- #region kernel="SoS" -->
-## Table 1: Baseline Estimate - cashflow
+## Table 1: Effect of internal credit on asset accumulation
 
 $$
 \begin{aligned}
-\text { (Asset) }_{i t}= a_{1}\left(\right.\text { Cash flow/total assets) }_{i t} + \text { error term, }
+\text { (Asset) }_{i t}= a_{1}\left(\right.\text { Cash flow) }_{i t} + \text { error term, }
 \end{aligned}
 $$
 
@@ -437,27 +441,18 @@ t_4 <- felm(rd_tot_asset_trick ~
             log(cashflow_to_tangible) +
             log(age) +
             export_to_sale 
-            | firm + year + indu_2|0 | firm,df_final %>% filter(rd_tot_asset_trick > -1000),
-            exactDOF = TRUE)
-
-t_5 <- felm(rd_tot_asset_trick_1 ~
-            log(current_ratio) +
-            log(liabilities_tot_asset) +
-            log(cashflow_to_tangible) +
-            log(age) +
-            export_to_sale 
-            | firm + year + indu_2|0 | firm,df_final %>% filter(rd_tot_asset_trick_1 > -1000),
+            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
             exactDOF = TRUE)
             
 dep <- "Dependent variable Asset"
 fe1 <- list(
-    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5
+    t_0,t_1, t_2, t_3, t_4
 ),
     title="Effect of internal credit on asset accumulation",
     dep_var = dep,
@@ -482,7 +477,7 @@ tbe1  = "This table estimates eq(3). " \
 #}
 
 #multi_lines_dep = '(city/product/trade regime/year)'
-new_r = ['& Asset', 'Tangible', 'Tangible to asset', 'Investment to asset', 'RD', 'RD full']
+new_r = ['& Asset', 'Tangible', 'Tangible to asset', 'Investment to asset', 'RD']
 lb.beautify(table_number = table_nb,
             #reorder_var = reorder,
             #multi_lines_dep = multi_lines_dep,
@@ -495,7 +490,7 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-## Table 2: Effect of external credit demand on asset accumulation
+## Table 2: Effect of external credit supply on asset accumulation, all credits
 
 1. Effect of external credit supply
     - all credits
@@ -557,14 +552,14 @@ t_3 <- felm(investment_tot_asset ~
             | firm + year + indu_2|0 | firm,df_final ,
             exactDOF = TRUE)
 
-t_4 <- felm(rd_tot_asset_trick_1 ~
+t_4 <- felm(rd_tot_asset_trick ~
             supply_all_credit +
             log(current_ratio) +
             log(liabilities_tot_asset) +
             log(cashflow_to_tangible) +
             log(age) +
             export_to_sale 
-            | firm + year + indu_2|0 | firm,df_final %>% filter(rd_tot_asset_trick_1 > -1000),
+            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
             exactDOF = TRUE)
             
 dep <- "Dependent variable Asset"
@@ -675,14 +670,14 @@ t_3 <- felm(investment_tot_asset ~
             | firm + year + indu_2|0 | firm,df_final ,
             exactDOF = TRUE)
 
-t_4 <- felm(rd_tot_asset_trick_1 ~
+t_4 <- felm(rd_tot_asset_trick ~
             supply_long_term_credit +
             log(current_ratio) +
             log(liabilities_tot_asset) +
             log(cashflow_to_tangible) +
             log(age) +
             export_to_sale 
-            | firm + year + indu_2|0 | firm,df_final %>% filter(rd_tot_asset_trick_1 > -1000),
+            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
             exactDOF = TRUE)
             
 dep <- "Dependent variable Asset"
@@ -695,7 +690,7 @@ fe1 <- list(
 table_1 <- go_latex(list(
     t_0,t_1, t_2, t_3, t_4
 ),
-    title="Effect of external credit supply on asset accumulation,  long term credits",
+    title="Effect of external credit supply on asset accumulation, long term credits",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
@@ -793,14 +788,14 @@ t_3 <- felm(investment_tot_asset ~
             | firm + year |0 | firm,df_final ,
             exactDOF = TRUE)
 
-t_4 <- felm(rd_tot_asset_trick_1 ~
+t_4 <- felm(rd_tot_asset_trick ~
             credit_constraint +
             log(current_ratio) +
             log(liabilities_tot_asset) +
             log(cashflow_to_tangible) +
             log(age) +
             export_to_sale 
-            | firm + year |0 | firm,df_final %>% filter(rd_tot_asset_trick_1 > -1000),
+            | firm + year |0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
             exactDOF = TRUE)
             
 dep <- "Dependent variable Asset"
@@ -902,13 +897,13 @@ t_3 <- felm(investment_tot_asset ~
             | firm + year + indu_2|0 | firm,df_final ,
             exactDOF = TRUE)
 
-t_4 <- felm(rd_tot_asset_trick_1 ~
+t_4 <- felm(rd_tot_asset_trick ~
             log(current_ratio) +
             log(liabilities_tot_asset) +
             log(cashflow_to_tangible) * supply_all_credit+
             log(age) +
             export_to_sale 
-            | firm + year + indu_2|0 | firm,df_final %>% filter(rd_tot_asset_trick_1 > -1000),
+            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
             exactDOF = TRUE)
             
 dep <- "Dependent variable Asset"
@@ -1010,13 +1005,13 @@ t_3 <- felm(investment_tot_asset ~
             | firm + year + indu_2|0 | firm,df_final ,
             exactDOF = TRUE)
 
-t_4 <- felm(rd_tot_asset_trick_1 ~
+t_4 <- felm(rd_tot_asset_trick ~
             log(current_ratio) +
             log(liabilities_tot_asset) +
             log(cashflow_to_tangible) * supply_long_term_credit+
             log(age) +
             export_to_sale 
-            | firm + year + indu_2|0 | firm,df_final %>% filter(rd_tot_asset_trick_1 > -1000),
+            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
             exactDOF = TRUE)
             
 dep <- "Dependent variable Asset"
@@ -1029,7 +1024,7 @@ fe1 <- list(
 table_1 <- go_latex(list(
     t_0,t_1, t_2, t_3, t_4
 ),
-    title="interaction effect of external credit supply on asset accumulation,  long term credits",
+    title="interaction effect of external credit supply on asset accumulation, long term credits",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
@@ -1088,7 +1083,7 @@ t_0 <- felm(log(total_asset) ~
             log(cashflow_to_tangible) * credit_constraint+
             log(age) +
             export_to_sale 
-            | firm + year |0 | firm,df_final,
+            | firm + year + indu_2 |0 | firm,df_final,
             exactDOF = TRUE)
 
 t_1 <- felm(log(tangible) ~
@@ -1097,7 +1092,7 @@ t_1 <- felm(log(tangible) ~
             log(cashflow_to_tangible) * credit_constraint+
             log(age) +
             export_to_sale 
-            | firm + year |0 | firm,df_final,
+            | firm + year + indu_2|0 | firm,df_final,
             exactDOF = TRUE)
 
 t_2 <- felm(log(asset_tangibility_tot_asset) ~
@@ -1106,7 +1101,7 @@ t_2 <- felm(log(asset_tangibility_tot_asset) ~
             log(cashflow_to_tangible) * credit_constraint+
             log(age) +
             export_to_sale 
-            | firm + year |0 | firm,df_final,
+            | firm + year + indu_2|0 | firm,df_final,
             exactDOF = TRUE)
 
 t_3 <- felm(investment_tot_asset ~
@@ -1115,23 +1110,23 @@ t_3 <- felm(investment_tot_asset ~
             log(cashflow_to_tangible) * credit_constraint+
             log(age) +
             export_to_sale 
-            | firm + year |0 | firm,df_final ,
+            | firm + year + indu_2 |0 | firm,df_final ,
             exactDOF = TRUE)
             
-t_4 <- felm(rd_tot_asset_trick_1 ~
+t_4 <- felm(rd_tot_asset_trick ~
             log(current_ratio) +
             log(liabilities_tot_asset) +
             log(cashflow_to_tangible) * credit_constraint+
             log(age) +
             export_to_sale 
-            | firm + year |0 | firm,df_final %>% filter(rd_tot_asset_trick_1 > -1000),
+            | firm + year + indu_2 |0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
             exactDOF = TRUE)
 
 dep <- "Dependent variable Asset"
 fe1 <- list(
     c("firm", "Yes", "Yes", "Yes", "Yes", "Yes"),
     
-    c("year", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("indsutry-year", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
@@ -1176,13 +1171,13 @@ lb.beautify(table_number = table_nb,
 # Generate reports
 <!-- #endregion -->
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
+```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
 import os, time, shutil, urllib, ipykernel, json
 from pathlib import Path
 from notebook import notebookapp
 ```
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
+```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
 def create_report(extension = "html", keep_code = False, notebookname = None):
     """
     Create a report from the current notebook and save it in the 
@@ -1242,6 +1237,6 @@ def create_report(extension = "html", keep_code = False, notebookname = None):
     print("Report Available at this adress:\n {}".format(dest))
 ```
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
-create_report(extension = "html", keep_code = False, notebookname = None)
+```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
+create_report(extension = "html", keep_code = False, notebookname = "06_internal_finance_firm_level.ipynb")
 ```
