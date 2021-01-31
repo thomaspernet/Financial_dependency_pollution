@@ -21,8 +21,8 @@
 - [fin_dep_pollution_baseline_industry](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_industry)
 - [asif_financial_ratio_baseline_firm](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_financial_ratio_baseline_firm)
 - [asif_industry_characteristics_ownership](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_industry_characteristics_ownership)
-- [asif_tfp_credit_constraint](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_tfp_credit_constraint)
 - [fin_dep_pollution_baseline_city](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-fin_dep_pollution_baseline_city)
+- [asif_tfp_credit_constraint](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue#table-asif_tfp_credit_constraint)
 
     
 
@@ -676,92 +676,6 @@
 
     
 
-## Table asif_tfp_credit_constraint
-
-- Database: firms_survey
-- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/TFP/CREDIT_CONSTRAINT`
-- Partitition: ['firm', 'year', 'cic', 'geocode4_corr']
-
-|    | Name                        | Type                | Comment                                                                                                                                                       |
-|---:|:----------------------------|:--------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|  0 | firm                        | string              | firm ID                                                                                                                                                       |
-|  1 | year                        | string              | year                                                                                                                                                          |
-|  2 | period                      | varchar(5)          | if year prior to 2006 then False else true. Indicate break from 10 and 11 FYP                                                                                 |
-|  3 | cic                         | string              | 4 digits industry code                                                                                                                                        |
-|  4 | indu_2                      | string              | Two digits industry. If length cic equals to 3, then add 0 to indu_2                                                                                          |
-|  5 | short                       | string              | Industry short description                                                                                                                                    |
-|  6 | geocode4_corr               | string              | city code                                                                                                                                                     |
-|  7 | tcz                         | string              | Two control zone policy                                                                                                                                       |
-|  8 | spz                         | string              | Special policy zone                                                                                                                                           |
-|  9 | ownership                   | string              | Firms ownership                                                                                                                                               |
-| 10 | soe_vs_pri                  | varchar(7)          | SOE vs PRIVATE                                                                                                                                                |
-| 11 | for_vs_dom                  | varchar(8)          | FOREIGN vs DOMESTICT if ownership is HTM then FOREIGN                                                                                                         |
-| 12 | tso2_mandate_c              | float               | city reduction mandate in tonnes                                                                                                                              |
-| 13 | in_10_000_tonnes            | float               | city reduction mandate in 10k tonnes                                                                                                                          |
-| 14 | output                      | decimal(16,5)       | Output                                                                                                                                                        |
-| 15 | employment                  | decimal(16,5)       | employment                                                                                                                                                    |
-| 16 | capital                     | decimal(16,5)       | capital                                                                                                                                                       |
-| 17 | current_asset               | int                 | current asset                                                                                                                                                 |
-| 18 | net_fixed_asset             | int                 | total net fixed asset                                                                                                                                         |
-| 19 | error                       | int                 | difference between cuasset+tofixed and total liabilities +equity. Error makes the balance sheet equation right                                                |
-| 20 | total_liabilities           | int                 | total adjusted liabilities                                                                                                                                    |
-| 21 | total_asset                 | int                 | total adjusted asset                                                                                                                                          |
-| 22 | current_liabilities         | int                 | current liabilities                                                                                                                                           |
-| 23 | lt_liabilities              | int                 | long term liabilities                                                                                                                                         |
-| 24 | from_asif_tot_liabilities   | int                 | total liabilities from asif not constructed                                                                                                                   |
-| 25 | total_right                 | int                 | Adjusted right part balance sheet                                                                                                                             |
-| 26 | intangible                  | int                 | intangible asset measured as the sum of intangibles variables                                                                                                 |
-| 27 | tangible                    | int                 | tangible asset measured as the difference between total fixed asset minus intangible asset                                                                    |
-| 28 | c91                         | int                 | Intangible and Deferred                                                                                                                                       |
-| 29 | c92                         | int                 | Intangible assets                                                                                                                                             |
-| 30 | cashflow                    | int                 | cash flow                                                                                                                                                     |
-| 31 | sales                       | decimal(16,5)       | sales                                                                                                                                                         |
-| 32 | tfp_op                      | double              | TFP. Computed from https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md |
-| 33 | credit_constraint           | float               | Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311                                                          |
-| 34 | supply_all_credit           | double              | total credit over gdp province                                                                                                                                |
-| 35 | supply_long_term_credit     | float               | total long term credit over gdp province                                                                                                                      |
-| 36 | current_ratio               | decimal(21,5)       | current ratio cuasset/流动负债合计 (c95)                                                                                                                      |
-| 37 | quick_ratio                 | decimal(21,5)       | quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                        |
-| 38 | liabilities_tot_asset       | decimal(21,5)       | liabilities to total asset                                                                                                                                    |
-| 39 | sales_tot_asset             | decimal(21,5)       | sales to total asset                                                                                                                                          |
-| 40 | investment_tot_asset        | decimal(21,5)       | investment to total asset                                                                                                                                     |
-| 41 | rd_tot_asset                | decimal(21,5)       | rd to total asset                                                                                                                                             |
-| 42 | asset_tangibility_tot_asset | decimal(21,5)       | asset tangibility to total asset                                                                                                                              |
-| 43 | cashflow_tot_asset          | decimal(21,5)       | cashflow to total asset                                                                                                                                       |
-| 44 | cashflow_to_tangible        | decimal(21,5)       | cashflow to tangible asset                                                                                                                                    |
-| 45 | return_to_sale              | decimal(21,5)       |                                                                                                                                                               |
-| 46 | export_to_sale              | decimal(21,5)       | overseas turnover / sales                                                                                                                                     |
-| 47 | labor_productivity          | decimal(21,5)       | real sales/number of employees.                                                                                                                               |
-| 48 | labor_capital               | decimal(21,5)       | Labor / tangible asset                                                                                                                                        |
-| 49 | age                         | decimal(17,5)       | current year – firms year of establishment                                                                                                                    |
-| 50 | coverage_ratio              | decimal(21,5)       | net income(c131) /total interest payments                                                                                                                     |
-| 51 | liquidity                   | decimal(21,5)       | current assets-current liabilities/total assets                                                                                                               |
-| 52 | avg_size_asset_f            | varchar(5)          | if firm s asset tangibility average is above average of firm s average then firm is large                                                                     |
-| 53 | avg_size_output_f           | varchar(5)          | if firm s ouptut average is above average of firm s average then firm is large                                                                                |
-| 54 | avg_employment_f            | varchar(5)          | if firm s employment average is above average of firm s average then firm is large                                                                            |
-| 55 | avg_size_capital_f          | varchar(5)          | if firm s capital average is above average of firm s average then firm is large                                                                               |
-| 56 | avg_sales_f                 | varchar(5)          | if firm s sale is above average of firm s average then firm is large                                                                                          |
-| 57 | size_asset_fci              | map<double,boolean> | if firm s asset tangibility average is above average of firm city industry s decile then firm is large                                                        |
-| 58 | size_asset_fc               | map<double,boolean> | if firm s asset tangibility average is above average of firm s city decile then firm is large                                                                 |
-| 59 | size_asset_fi               | map<double,boolean> | if firm s asset tangibility average is above average of firm s industry decile then firm is large                                                             |
-| 60 | size_output_fci             | map<double,boolean> | if firm s ouptut average is above average of firm s city industry decile then firm is large                                                                   |
-| 61 | size_output_fc              | map<double,boolean> | if firm s ouptut average is above average of firm s city decile then firm is large                                                                            |
-| 62 | size_output_fi              | map<double,boolean> | if firm s ouptut average is above average of firm s industry decile then firm is large                                                                        |
-| 63 | size_employment_fci         | map<double,boolean> | if firm s employment average is above average of firm s city industry decile then firm is large                                                               |
-| 64 | size_employment_fc          | map<double,boolean> | if firm s employment average is above average of firm s city decile then firm is large                                                                        |
-| 65 | size_employment_fi          | map<double,boolean> | if firm s employment average is above average of firm s industry decile then firm is large                                                                    |
-| 66 | size_capital_fci            | map<double,boolean> | if firm s capital average is above average of firm s city industry decile then firm is large                                                                  |
-| 67 | size_capital_fc             | map<double,boolean> | if firm s capital average is above average of firm s city decile then firm is large                                                                           |
-| 68 | size_capital_fi             | map<double,boolean> | if firm s capital average is above average of firm s industry decile then firm is large                                                                       |
-| 69 | size_sales_fci              | map<double,boolean> | if firm s sale is above average of firm s city industry decile then firm is large                                                                             |
-| 70 | size_sales_fc               | map<double,boolean> | if firm s sale is above average of firm s city decile then firm is large                                                                                      |
-| 71 | size_sales_fi               | map<double,boolean> | if firm s sale is above average of firm s industry decile then firm is large                                                                                  |
-| 72 | fe_c_i                      | bigint              | City industry fixed effect                                                                                                                                    |
-| 73 | fe_t_i                      | bigint              | year industry fixed effect                                                                                                                                    |
-| 74 | fe_c_t                      | bigint              | city industry fixed effect                                                                                                                                    |
-
-    
-
 ## Table fin_dep_pollution_baseline_city
 
 - Database: environment
@@ -837,5 +751,91 @@
 | 64 | fe_c_i                      | bigint              | City industry fixed effect                                                                                                                                                                                |
 | 65 | fe_t_i                      | bigint              | year industry fixed effect                                                                                                                                                                                |
 | 66 | fe_c_t                      | bigint              | city industry fixed effect                                                                                                                                                                                |
+
+    
+
+## Table asif_tfp_credit_constraint
+
+- Database: firms_survey
+- S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/TFP/CREDIT_CONSTRAINT`
+- Partitition: ['firm', 'year', 'cic', 'geocode4_corr']
+
+|    | Name                        | Type                | Comment                                                                                                                                                       |
+|---:|:----------------------------|:--------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|  0 | firm                        | string              | firm ID                                                                                                                                                       |
+|  1 | year                        | string              | year                                                                                                                                                          |
+|  2 | period                      | varchar(5)          | if year prior to 2006 then False else true. Indicate break from 10 and 11 FYP                                                                                 |
+|  3 | cic                         | string              | 4 digits industry code                                                                                                                                        |
+|  4 | indu_2                      | string              | Two digits industry. If length cic equals to 3, then add 0 to indu_2                                                                                          |
+|  5 | short                       | string              | Industry short description                                                                                                                                    |
+|  6 | geocode4_corr               | string              | city code                                                                                                                                                     |
+|  7 | tcz                         | string              | Two control zone policy                                                                                                                                       |
+|  8 | spz                         | string              | Special policy zone                                                                                                                                           |
+|  9 | ownership                   | string              | Firms ownership                                                                                                                                               |
+| 10 | soe_vs_pri                  | varchar(7)          | SOE vs PRIVATE                                                                                                                                                |
+| 11 | for_vs_dom                  | varchar(8)          | FOREIGN vs DOMESTICT if ownership is HTM then FOREIGN                                                                                                         |
+| 12 | tso2_mandate_c              | float               | city reduction mandate in tonnes                                                                                                                              |
+| 13 | in_10_000_tonnes            | float               | city reduction mandate in 10k tonnes                                                                                                                          |
+| 14 | output                      | decimal(16,5)       | Output                                                                                                                                                        |
+| 15 | employment                  | decimal(16,5)       | employment                                                                                                                                                    |
+| 16 | capital                     | decimal(16,5)       | capital                                                                                                                                                       |
+| 17 | current_asset               | int                 | current asset                                                                                                                                                 |
+| 18 | net_non_current             | int                 | total net current asset                                                                                                                                       |
+| 19 | error                       | int                 | difference between cuasset+tofixed and total liabilities +equity. Error makes the balance sheet equation right                                                |
+| 20 | total_liabilities           | int                 | total adjusted liabilities                                                                                                                                    |
+| 21 | total_asset                 | int                 | total adjusted asset                                                                                                                                          |
+| 22 | current_liabilities         | int                 | current liabilities                                                                                                                                           |
+| 23 | lt_liabilities              | int                 | long term liabilities                                                                                                                                         |
+| 24 | from_asif_tot_liabilities   | int                 | total liabilities from asif not constructed                                                                                                                   |
+| 25 | total_right                 | int                 | Adjusted right part balance sheet                                                                                                                             |
+| 26 | intangible                  | int                 | intangible asset measured as the sum of intangibles variables                                                                                                 |
+| 27 | tangible                    | int                 | tangible asset measured as the difference between total fixed asset minus intangible asset                                                                    |
+| 28 | c91                         | int                 | Intangible and Deferred                                                                                                                                       |
+| 29 | c92                         | int                 | Intangible assets                                                                                                                                             |
+| 30 | cashflow                    | int                 | cash flow                                                                                                                                                     |
+| 31 | sales                       | decimal(16,5)       | sales                                                                                                                                                         |
+| 32 | tfp_op                      | double              | TFP. Computed from https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md |
+| 33 | credit_constraint           | float               | Financial dependency. From paper https://www.sciencedirect.com/science/article/pii/S0147596715000311                                                          |
+| 34 | supply_all_credit           | double              | total credit over gdp province                                                                                                                                |
+| 35 | supply_long_term_credit     | float               | total long term credit over gdp province                                                                                                                      |
+| 36 | current_ratio               | decimal(21,5)       | current ratio cuasset/流动负债合计 (c95)                                                                                                                      |
+| 37 | quick_ratio                 | decimal(21,5)       | quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)                                                                                                        |
+| 38 | liabilities_tot_asset       | decimal(21,5)       | liabilities to total asset                                                                                                                                    |
+| 39 | sales_tot_asset             | decimal(21,5)       | sales to total asset                                                                                                                                          |
+| 40 | investment_tot_asset        | decimal(21,5)       | investment to total asset                                                                                                                                     |
+| 41 | rd_tot_asset                | decimal(21,5)       | rd to total asset                                                                                                                                             |
+| 42 | asset_tangibility_tot_asset | decimal(21,5)       | asset tangibility to total asset                                                                                                                              |
+| 43 | cashflow_tot_asset          | decimal(21,5)       | cashflow to total asset                                                                                                                                       |
+| 44 | cashflow_to_tangible        | decimal(21,5)       | cashflow to tangible asset                                                                                                                                    |
+| 45 | return_to_sale              | decimal(21,5)       |                                                                                                                                                               |
+| 46 | export_to_sale              | decimal(21,5)       | overseas turnover / sales                                                                                                                                     |
+| 47 | labor_productivity          | decimal(21,5)       | real sales/number of employees.                                                                                                                               |
+| 48 | labor_capital               | decimal(21,5)       | Labor / tangible asset                                                                                                                                        |
+| 49 | age                         | decimal(17,5)       | current year – firms year of establishment                                                                                                                    |
+| 50 | coverage_ratio              | decimal(21,5)       | net income(c131) /total interest payments                                                                                                                     |
+| 51 | liquidity                   | decimal(21,5)       | current assets-current liabilities/total assets                                                                                                               |
+| 52 | avg_size_asset_f            | varchar(5)          | if firm s asset tangibility average is above average of firm s average then firm is large                                                                     |
+| 53 | avg_size_output_f           | varchar(5)          | if firm s ouptut average is above average of firm s average then firm is large                                                                                |
+| 54 | avg_employment_f            | varchar(5)          | if firm s employment average is above average of firm s average then firm is large                                                                            |
+| 55 | avg_size_capital_f          | varchar(5)          | if firm s capital average is above average of firm s average then firm is large                                                                               |
+| 56 | avg_sales_f                 | varchar(5)          | if firm s sale is above average of firm s average then firm is large                                                                                          |
+| 57 | size_asset_fci              | map<double,boolean> | if firm s asset tangibility average is above average of firm city industry s decile then firm is large                                                        |
+| 58 | size_asset_fc               | map<double,boolean> | if firm s asset tangibility average is above average of firm s city decile then firm is large                                                                 |
+| 59 | size_asset_fi               | map<double,boolean> | if firm s asset tangibility average is above average of firm s industry decile then firm is large                                                             |
+| 60 | size_output_fci             | map<double,boolean> | if firm s ouptut average is above average of firm s city industry decile then firm is large                                                                   |
+| 61 | size_output_fc              | map<double,boolean> | if firm s ouptut average is above average of firm s city decile then firm is large                                                                            |
+| 62 | size_output_fi              | map<double,boolean> | if firm s ouptut average is above average of firm s industry decile then firm is large                                                                        |
+| 63 | size_employment_fci         | map<double,boolean> | if firm s employment average is above average of firm s city industry decile then firm is large                                                               |
+| 64 | size_employment_fc          | map<double,boolean> | if firm s employment average is above average of firm s city decile then firm is large                                                                        |
+| 65 | size_employment_fi          | map<double,boolean> | if firm s employment average is above average of firm s industry decile then firm is large                                                                    |
+| 66 | size_capital_fci            | map<double,boolean> | if firm s capital average is above average of firm s city industry decile then firm is large                                                                  |
+| 67 | size_capital_fc             | map<double,boolean> | if firm s capital average is above average of firm s city decile then firm is large                                                                           |
+| 68 | size_capital_fi             | map<double,boolean> | if firm s capital average is above average of firm s industry decile then firm is large                                                                       |
+| 69 | size_sales_fci              | map<double,boolean> | if firm s sale is above average of firm s city industry decile then firm is large                                                                             |
+| 70 | size_sales_fc               | map<double,boolean> | if firm s sale is above average of firm s city decile then firm is large                                                                                      |
+| 71 | size_sales_fi               | map<double,boolean> | if firm s sale is above average of firm s industry decile then firm is large                                                                                  |
+| 72 | fe_c_i                      | bigint              | City industry fixed effect                                                                                                                                    |
+| 73 | fe_t_i                      | bigint              | year industry fixed effect                                                                                                                                    |
+| 74 | fe_c_t                      | bigint              | city industry fixed effect                                                                                                                                    |
 
     

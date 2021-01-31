@@ -172,7 +172,7 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
 
 - total asset = (tangible + intangible + other fixed assets) + (inventories + accounts receivable + other current assets
     - fixed asset (tofixed):
-        - tangible: tofixed - (c91 + c92)
+        - tangible: tofixed - cudepre 
         - intangible: c91 (无形及递延) + c92 (无形资产)
         - other fixed asset: Missing in the dataset
    - current assets (cuasset):
@@ -189,8 +189,8 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
 |-------------------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|
 | Balance sheet variables | current asset               | c80 + c81 + c82 + c79                                                                                                                                                        | #current-asset     |
 | Balance sheet variables | intangible                  | c91 + c92                                                                                                                                                                    | #intangible-asset  |
-| Balance sheet variables | tangible                    | tofixed - cudepre - (c91 + c92)                                                                                                                                              | #tangible-asset    |
-| Balance sheet variables | net fixed asset             | tofixed - cudepre + (c91 + c92)                                                                                                                                              | #net-fixed-asset   |
+| Balance sheet variables | tangible                    | tofixed - cudepre                                                                                                                                               | #tangible-asset    |
+| Balance sheet variables | total net non current             | tofixed - cudepre + (c91 + c92)                                                                                                                                              | #net-fixed-asset   |
 | Balance sheet variables | error                       | (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c95 + c97  + c99)                                                                                                     |                    |
 | Balance sheet variables | total_liabilities           | if (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c95 + c97  + c99). > 0 then allocate error to liabilities else c98 + c99                                           | #total-liabilities |
 | Balance sheet variables | total_asset                 | if (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c95 + c97  + c99). <  0 then allocate error to asset else c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)  |                    |
@@ -235,8 +235,8 @@ WITH test AS (
     ) END AS indu_2, 
     c80 + c81 + c82 + c79 as current_asset, 
     c91 + c92 AS intangible, 
-    tofixed - cudepre - (c91 + c92) AS tangible, 
-    tofixed - cudepre + (c91 + c92) AS net_fixed_asset, 
+    tofixed - cudepre  AS tangible, 
+    tofixed - cudepre + (c91 + c92) AS net_non_current, 
     (
       c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
     ) - (c95 + c97 + c99) AS error, 
@@ -334,7 +334,7 @@ FROM
         total_right,
         intangible, 
         tangible, 
-        net_fixed_asset, 
+        net_non_current, 
         cashflow, 
         current_ratio,
         quick_ratio,
@@ -623,8 +623,8 @@ WITH test AS (
     ) END AS indu_2, 
     c80 + c81 + c82 + c79 as current_asset,
     c91 + c92 AS intangible, 
-    tofixed - cudepre - (c91 + c92) AS tangible, 
-    tofixed - cudepre + (c91 + c92) AS net_fixed_asset, 
+    tofixed - cudepre AS tangible, 
+    tofixed - cudepre + (c91 + c92) AS net_non_current, 
     (
       c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
     ) - (c95 + c97 + c99) AS error, 
@@ -715,7 +715,7 @@ FROM
           captal AS DECIMAL(16, 5)
         ) AS capital, 
         current_asset, 
-        net_fixed_asset, 
+        net_non_current, 
         total_liabilities, 
         total_asset,
         total_right, 
@@ -867,7 +867,7 @@ FROM
       ratio.employment, 
       ratio.capital, 
       current_asset, 
-      net_fixed_asset,
+      net_non_current,
       intangible, 
       tangible,
       total_asset,
@@ -1594,7 +1594,7 @@ schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'firm ID'},
               'Type': 'decimal(16,5)', 'Comment': 'employment'},
           {'Name': 'capital', 'Type': 'decimal(16,5)', 'Comment': 'capital'},
           {'Name': 'current_asset', 'Type': 'int', 'Comment': 'current asset'},
-          {'Name': 'net_fixed_asset', 'Type': 'int', 'Comment': 'total net fixed asset'},
+          {'Name': 'net_non_current', 'Type': 'int', 'Comment': 'total net current asset'},
           {'Name': 'error', 'Type': 'int',
            'Comment': 'difference between cuasset+tofixed and total liabilities +equity. Error makes the balance sheet equation right'},
           {'Name': 'total_liabilities', 'Type': 'int',
