@@ -282,7 +282,7 @@ Does not work for first two vars
             matches = re.search(regex, line)
             if matches:
                 count_var+=1
-        bottom_text = vars_text[count_var*2 +2:]
+        bottom_text = vars_text[count_var*2:]
         count_var += 2
 
         new_order = [None] * count_var
@@ -296,7 +296,7 @@ Does not work for first two vars
         for order in new_order:
             reorder_full.append(vars_text[order])
             reorder_full.append(vars_text[order+1])
-        new_table = top_text + reorder_full + bottom_text
+        new_table = top_text + reorder_full[:-1] + bottom_text[3:]
 
         with open(table_out, "w") as f:
             for x, line in enumerate(new_table):
