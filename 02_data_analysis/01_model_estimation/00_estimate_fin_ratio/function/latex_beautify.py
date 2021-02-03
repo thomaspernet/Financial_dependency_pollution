@@ -282,7 +282,8 @@ Does not work for first two vars
             matches = re.search(regex, line)
             if matches:
                 count_var+=1
-        bottom_text = vars_text[count_var*2:]
+        bottom_text = vars_text[count_var*2 +2:]
+        count_var += 2
 
         new_order = [None] * count_var
         for key, value in reorder_var.items():
