@@ -227,7 +227,7 @@ if add_to_dic:
         ### depd
         {
         'old':'total\_asset',
-        'new':'\\text{size}'
+        'new':'\\text{total asset}'
         },
         {
         'old':'tangible',
@@ -243,7 +243,7 @@ if add_to_dic:
         },
         {
         'old':'asset\_tangibility\_tot\_asset',
-        'new':'\\text{collateral}'
+        'new':'\\text{asset tangibility}'
         },
         
         ### ind
@@ -252,8 +252,16 @@ if add_to_dic:
         'new':'\\text{current ratio}'
         },
         {
+        'old':'lag\_current\_ratio',
+        'new':'\\text{current ratio}'
+        },
+        {
         'old':'quick\_ratio',
         'new':'\\text{quick ratio}'
+        },
+        {
+        'old':'lag\_liabilities\_tot\_asset',
+        'new':'\\text{liabilities to asset}'
         },
         {
         'old':'liabilities\_tot\_asset',
@@ -261,6 +269,10 @@ if add_to_dic:
         },
         {
         'old':'sales\_tot\_asset',
+        'new':'\\text{sales to asset}'
+        },
+        {
+        'old':'lag\_sales\_tot\_asset',
         'new':'\\text{sales to asset}'
         },
         {
@@ -273,6 +285,10 @@ if add_to_dic:
         },
         {
         'old':'cashflow\_to\_tangible',
+        'new':'\\text{cashflow}'
+        },
+        {
+        'old':'lag\_cashflow\_to\_tangible',
         'new':'\\text{cashflow}'
         },
         {
@@ -309,6 +325,12 @@ if add_to_dic:
         'old':'soe\_vs\_priPRIVATE',
         'new':'\\text{private}'
         },
+        ## TFP
+        {
+        'old':'tfp\_cit',
+        'new':'\\text{TFP}'
+        }
+        
     ]
     
 
@@ -365,6 +387,21 @@ $$
     * FE: 
         - fe 1: `firm`
         - fe 2: `industry-year`
+        
+**var of interest**
+
+- `cashflow_to_tangible``
+- `current_ratio`
+- `liabilities_tot_asset`
+        
+**Control**
+
+- `Sales/Assets` 
+- `age`
+- `export_to_sale` 
+
+
+All explanatory variables are lagged one year.
 <!-- #endregion -->
 
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}
@@ -513,6 +550,10 @@ lb.beautify(table_number = table_nb,
             folder = folder)
 ```
 
+<!-- #region kernel="SoS" -->
+## Interaction
+<!-- #endregion -->
+
 ```sos kernel="SoS"
 folder = 'Tables_0'
 table_nb = 1
@@ -523,6 +564,155 @@ if os.path.exists(folder) == False:
 for ext in ['.txt', '.tex', '.pdf']:
     x = [a for a in os.listdir(folder) if a.endswith(ext)]
     [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+change_target <- function(table){
+    ## supply
+    check_target_current_ratio_supply <- grep("supply_all_credit:log\\(current_ratio\\)", rownames(table$coef))
+    check_target_liabilities_supply <- grep("supply_all_credit:log\\(liabilities_tot_asset\\)", rownames(table$coef))
+    ## LT
+    check_target_current_ratio_lt <- grep("supply_long_term_credit:log\\(current_ratio\\)", rownames(table$coef))
+    check_target_liabilities_lt <- grep("supply_long_term_credit:log\\(liabilities_tot_asset\\)", rownames(table$coef))
+    ## demand
+    check_target_current_ratio_demand <- grep("credit_constraint:log\\(current_ratio\\)", rownames(table$coef))
+    check_target_liabilities_demand <- grep("credit_constraint:log\\(liabilities_tot_asset\\)", rownames(table$coef))
+    
+    if (length(check_target_current_ratio_supply) !=0) {
+    rownames(table$coefficients)[check_target_current_ratio_supply] <- 'log(current_ratio):supply_all_credit'
+    rownames(table$beta)[check_target_current_ratio_supply] <- 'log(current_ratio):supply_all_credit'
+    rownames(table$coefficients)[check_target_liabilities_supply] <- 'log(liabilities_tot_asset):supply_all_credit'
+    rownames(table$beta)[check_target_liabilities_supply] <- 'log(liabilities_tot_asset):supply_all_credit'
+        
+     } else if (length(check_target_current_ratio_lt) !=0){
+        
+    rownames(table$coefficients)[check_target_current_ratio_lt] <- 'log(current_ratio):supply_long_term_credit'
+    rownames(table$beta)[check_target_current_ratio_lt] <- 'log(current_ratio):supply_long_term_credit'
+    rownames(table$coefficients)[check_target_liabilities_lt] <- 'log(liabilities_tot_asset):supply_long_term_credit'
+    rownames(table$beta)[check_target_liabilities_lt] <- 'log(liabilities_tot_asset):supply_long_term_credit'
+        
+    } else if (length(check_target_current_ratio_demand) !=0){
+        
+    rownames(table$coefficients)[check_target_current_ratio_demand] <- 'log(current_ratio):credit_constraint'
+    rownames(table$beta)[check_target_current_ratio_demand] <- 'log(current_ratio):credit_constraint'
+    rownames(table$coefficients)[check_target_liabilities_demand] <- 'log(liabilities_tot_asset):credit_constraint'
+    rownames(table$beta)[check_target_liabilities_demand] <- 'log(liabilities_tot_asset):credit_constraint'
+        
+        }
+    return (table)
+}
+```
+
+```sos kernel="R"
+## all credit
+t_0 <- felm(log(asset_tangibility_tot_asset) ~
+            log(cashflow_to_tangible) * supply_all_credit+
+            log(current_ratio) * supply_all_credit+
+            log(liabilities_tot_asset) * supply_all_credit+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2 |0 | firm,df_final,
+            exactDOF = TRUE)
+t_0 <- change_target(t_0)
+t_1 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible)* supply_all_credit +
+            log(current_ratio) * supply_all_credit+
+            log(liabilities_tot_asset) * supply_all_credit+
+            log(age) +
+            export_to_sale +
+            supply_all_credit
+            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
+            exactDOF = TRUE)
+t_1 <- change_target(t_1)
+## LT credit
+t_2 <- felm(log(asset_tangibility_tot_asset) ~
+            log(cashflow_to_tangible) * supply_long_term_credit+
+            log(current_ratio) * supply_long_term_credit+
+            log(liabilities_tot_asset) * supply_long_term_credit+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final,
+            exactDOF = TRUE)
+t_2 <- change_target(t_2)
+t_3 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible)* supply_long_term_credit +
+            log(current_ratio) * supply_long_term_credit+
+            log(liabilities_tot_asset) * supply_long_term_credit+
+            log(age) +
+            export_to_sale +
+            supply_all_credit
+            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
+            exactDOF = TRUE)
+t_3 <- change_target(t_3)
+
+## demand credit
+t_4 <- felm(log(asset_tangibility_tot_asset) ~
+            log(cashflow_to_tangible) * credit_constraint+
+            log(current_ratio) * credit_constraint+
+            log(liabilities_tot_asset) * credit_constraint+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final,
+            exactDOF = TRUE)
+t_4 <- change_target(t_4)
+t_5 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible)* credit_constraint +
+            log(current_ratio) * credit_constraint+
+            log(liabilities_tot_asset) * credit_constraint+
+            log(age) +
+            export_to_sale +
+            supply_all_credit
+            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
+            exactDOF = TRUE)
+t_5 <- change_target(t_5)
+
+dep <- "Dependent variable"
+fe1 <- list(
+    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1,t_2, t_3, t_4, t_5
+),
+    title="Channel of transmission Asset accumulation",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+) 
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(X). " \
+"Heteroskedasticity-robust standard errors" \
+"clustered at the firm level appear inparentheses."\
+"Dependent variables include firm's Asset tangibility over asset level and RD expenditure over asset." \
+" The later only includes year 2005 to 2007 which is the availablity of the information in the dataset." \
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'All credit': 2,
+    'Long term credit': 2,
+    'demand credit': 2
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& Tangible to asset', 'RD', 'Tangible to asset', 'RD', 'Tangible to asset', 'RD', 'Tangible to asset', 'RD'
+        ]
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            new_row= new_r,
+            multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+            folder = folder)
 ```
 
 <!-- #region kernel="SoS" nteract={"transient": {"deleting": false}} -->
