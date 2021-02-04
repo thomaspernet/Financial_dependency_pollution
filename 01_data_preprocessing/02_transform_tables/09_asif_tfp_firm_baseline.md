@@ -497,16 +497,36 @@ FROM
       credit_constraint,
       1/ supply_all_credit as supply_all_credit,
       1/ supply_long_term_credit as supply_long_term_credit,
-      current_ratio, 
+      current_ratio,
+      LAG(current_ratio, 1) OVER (
+        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic 
+        ORDER BY 
+          ratio.year
+      ) as lag_current_ratio,
       quick_ratio, 
-      liabilities_tot_asset, 
+      liabilities_tot_asset,
+      LAG(liabilities_tot_asset, 1) OVER (
+        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic 
+        ORDER BY 
+          ratio.year
+      ) as lag_liabilities_tot_asset,
       sales_tot_asset, 
+      LAG(sales_tot_asset, 1) OVER (
+        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic 
+        ORDER BY 
+          ratio.year
+      ) as lag_sales_tot_asset,
       -- cash_tot_asset, 
       investment_tot_asset, 
       rd_tot_asset, 
       asset_tangibility_tot_asset, 
       cashflow_tot_asset, 
       cashflow_to_tangible,
+      LAG(cashflow_to_tangible, 1) OVER (
+        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic 
+        ORDER BY 
+          ratio.year
+      ) as lag_cashflow_to_tangible,
       return_to_sale,
       CASE WHEN coverage_ratio IS NULL THEN 0 ELSE coverage_ratio END AS coverage_ratio,
       liquidity,
@@ -866,7 +886,7 @@ FROM
       ratio.output, 
       ratio.employment, 
       ratio.capital, 
-      current_asset, 
+      current_asset,
       net_non_current,
       intangible, 
       tangible,
@@ -884,16 +904,36 @@ FROM
       d_credit_constraint,
       1/supply_all_credit as supply_all_credit,
       1/supply_long_term_credit as supply_long_term_credit,
-      current_ratio, 
+      current_ratio,
+      LAG(current_ratio, 1) OVER (
+        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic 
+        ORDER BY 
+          ratio.year
+      ) as lag_current_ratio,
       quick_ratio, 
-      liabilities_tot_asset, 
-      sales_tot_asset, 
+      liabilities_tot_asset,
+      LAG(liabilities_tot_asset, 1) OVER (
+        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic 
+        ORDER BY 
+          ratio.year
+      ) as lag_liabilities_tot_asset,
+      sales_tot_asset,
+      LAG(sales_tot_asset, 1) OVER (
+        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic 
+        ORDER BY 
+          ratio.year
+      ) as lag_sales_tot_asset,
       --cash_tot_asset, 
       investment_tot_asset, 
       rd_tot_asset, 
       asset_tangibility_tot_asset, 
       cashflow_tot_asset, 
-      cashflow_to_tangible, 
+      cashflow_to_tangible,
+       LAG(cashflow_to_tangible, 1) OVER (
+        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic 
+        ORDER BY 
+          ratio.year
+      ) as lag_cashflow_to_tangible,
       return_to_sale,
       CASE WHEN coverage_ratio IS NULL THEN 0 ELSE coverage_ratio /100 END AS coverage_ratio,
       liquidity,
@@ -1621,12 +1661,15 @@ schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'firm ID'},
           {'Name': 'supply_long_term_credit', 'Type': 'float', 'Comment': 'total long term credit over gdp province'},
           {'Name': 'current_ratio',
            'Type': 'decimal(21,5)', 'Comment': 'current ratio cuasset/流动负债合计 (c95)'},
+          {'Name': 'lag_current_ratio', 'Type': 'decimal(21,5)', 'Comment': 'lag current ratio'},
           {'Name': 'quick_ratio',
            'Type': 'decimal(21,5)', 'Comment': 'quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)'},
           {'Name': 'liabilities_tot_asset',
            'Type': 'decimal(21,5)', 'Comment': 'liabilities to total asset'},
+          {'Name': 'lag_liabilities_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'lag liabilities to asset'},
           {'Name': 'sales_tot_asset',
            'Type': 'decimal(21,5)', 'Comment': 'sales to total asset'},
+          {'Name': 'lag_sales_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'lag sales to asset'},
           #{'Name': 'cash_tot_asset',
           # 'Type': 'decimal(21,5)', 'Comment': 'cash to total asset'},
           {'Name': 'investment_tot_asset',
@@ -1640,6 +1683,7 @@ schema = [{'Name': 'firm', 'Type': 'string', 'Comment': 'firm ID'},
            'Type': 'decimal(21,5)', 'Comment': 'cashflow to total asset'},
           {'Name': 'cashflow_to_tangible',
            'Type': 'decimal(21,5)', 'Comment': 'cashflow to tangible asset'},
+          {'Name': 'lag_cashflow_to_tangible', 'Type': 'decimal(21,5)', 'Comment': 'lag cashflow to tangible asset'},
           {'Name': 'return_to_sale', 'Type': 'decimal(21,5)', 'Comment': ''},
  {'Name': 'export_to_sale', 'Type': 'decimal(21,5)', 'Comment': 'overseas turnover / sales'},
  {'Name': 'labor_productivity', 'Type': 'decimal(21,5)', 'Comment': 'real sales/number of employees.'},

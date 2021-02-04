@@ -14639,7 +14639,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span><span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -14914,16 +14914,36 @@ Make sure there is no duplicates</p>
 <span class="s2">      credit_constraint,</span>
 <span class="s2">      1/ supply_all_credit as supply_all_credit,</span>
 <span class="s2">      1/ supply_long_term_credit as supply_long_term_credit,</span>
-<span class="s2">      current_ratio, </span>
+<span class="s2">      current_ratio,</span>
+<span class="s2">      LAG(current_ratio, 1) OVER (</span>
+<span class="s2">        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          ratio.year</span>
+<span class="s2">      ) as lag_current_ratio,</span>
 <span class="s2">      quick_ratio, </span>
-<span class="s2">      liabilities_tot_asset, </span>
+<span class="s2">      liabilities_tot_asset,</span>
+<span class="s2">      LAG(liabilities_tot_asset, 1) OVER (</span>
+<span class="s2">        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          ratio.year</span>
+<span class="s2">      ) as lag_liabilities_tot_asset,</span>
 <span class="s2">      sales_tot_asset, </span>
+<span class="s2">      LAG(sales_tot_asset, 1) OVER (</span>
+<span class="s2">        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          ratio.year</span>
+<span class="s2">      ) as lag_sales_tot_asset,</span>
 <span class="s2">      -- cash_tot_asset, </span>
 <span class="s2">      investment_tot_asset, </span>
 <span class="s2">      rd_tot_asset, </span>
 <span class="s2">      asset_tangibility_tot_asset, </span>
 <span class="s2">      cashflow_tot_asset, </span>
 <span class="s2">      cashflow_to_tangible,</span>
+<span class="s2">      LAG(cashflow_to_tangible, 1) OVER (</span>
+<span class="s2">        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          ratio.year</span>
+<span class="s2">      ) as lag_cashflow_to_tangible,</span>
 <span class="s2">      return_to_sale,</span>
 <span class="s2">      CASE WHEN coverage_ratio IS NULL THEN 0 ELSE coverage_ratio END AS coverage_ratio,</span>
 <span class="s2">      liquidity,</span>
@@ -15005,7 +15025,7 @@ Make sure there is no duplicates</p>
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
 
 
 
@@ -15063,14 +15083,18 @@ Make sure there is no duplicates</p>
       <th>supply_all_credit</th>
       <th>supply_long_term_credit</th>
       <th>current_ratio</th>
+      <th>lag_current_ratio</th>
       <th>quick_ratio</th>
       <th>liabilities_tot_asset</th>
+      <th>lag_liabilities_tot_asset</th>
       <th>sales_tot_asset</th>
+      <th>lag_sales_tot_asset</th>
       <th>investment_tot_asset</th>
       <th>rd_tot_asset</th>
       <th>asset_tangibility_tot_asset</th>
       <th>cashflow_tot_asset</th>
       <th>cashflow_to_tangible</th>
+      <th>lag_cashflow_to_tangible</th>
       <th>return_to_sale</th>
       <th>coverage_ratio</th>
       <th>liquidity</th>
@@ -15086,68 +15110,492 @@ Make sure there is no duplicates</p>
   <tbody>
     <tr>
       <th>0</th>
-      <td>242712</td>
+      <td>244205</td>
       <td>2001</td>
       <td>False</td>
-      <td>3463</td>
-      <td>34</td>
-      <td>Metals</td>
+      <td>3110</td>
+      <td>31</td>
+      <td>Non-metallic Products</td>
       <td>1101</td>
       <td>Beijing</td>
       <td>1</td>
       <td>1</td>
-      <td>COLLECTIVE</td>
+      <td>PRIVATE</td>
       <td>PRIVATE</td>
       <td>DOMESTIC</td>
       <td>1</td>
       <td>1</td>
-      <td>3</td>
+      <td>2</td>
       <td>0.381358</td>
       <td>3.813583</td>
-      <td>8659.0</td>
-      <td>126.0</td>
-      <td>3000.0</td>
-      <td>21591</td>
-      <td>14622</td>
-      <td>4792</td>
-      <td>8739</td>
-      <td>36766</td>
-      <td>1198</td>
-      <td>13977</td>
-      <td>2166</td>
-      <td>10285.0</td>
-      <td>7.854598</td>
-      <td>-0.93</td>
+      <td>22690.0</td>
+      <td>97.0</td>
+      <td>680.0</td>
+      <td>13348</td>
+      <td>5312</td>
+      <td>2666</td>
+      <td>14112</td>
+      <td>17043</td>
+      <td>0</td>
+      <td>3695</td>
+      <td>1689</td>
+      <td>32033.0</td>
+      <td>9.011743</td>
+      <td>-0.29</td>
       <td>0.436681</td>
       <td>0.787402</td>
-      <td>2.56822</td>
-      <td>1.12109</td>
-      <td>0.23769</td>
-      <td>0.27974</td>
-      <td>0.02777</td>
+      <td>1.35650</td>
       <td>NaN</td>
-      <td>0.38016</td>
-      <td>0.05891</td>
-      <td>0.15497</td>
-      <td>0.22071</td>
-      <td>32.42857</td>
-      <td>0.94326</td>
-      <td>0.0</td>
-      <td>0.08163</td>
-      <td>0.09019</td>
-      <td>9.0</td>
-      <td>284</td>
-      <td>311</td>
+      <td>0.58902</td>
+      <td>0.82808</td>
+      <td>NaN</td>
+      <td>1.87954</td>
+      <td>NaN</td>
+      <td>0.00000</td>
+      <td>NaN</td>
+      <td>0.21680</td>
+      <td>0.09910</td>
+      <td>0.45710</td>
+      <td>NaN</td>
+      <td>0.00396</td>
+      <td>-21.16667</td>
+      <td>0.94939</td>
+      <td>0.00000</td>
+      <td>0.33024</td>
+      <td>0.26287</td>
+      <td>1.0</td>
+      <td>205</td>
+      <td>256</td>
       <td>1</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>346967</td>
+      <td>242722</td>
       <td>2001</td>
       <td>False</td>
-      <td>1314</td>
-      <td>13</td>
-      <td>Processing foods</td>
+      <td>4317</td>
+      <td>43</td>
+      <td>Unknown</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>COLLECTIVE</td>
+      <td>PRIVATE</td>
+      <td>DOMESTIC</td>
+      <td>1</td>
+      <td>1</td>
+      <td>2</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>14636.0</td>
+      <td>297.0</td>
+      <td>8832.0</td>
+      <td>18898</td>
+      <td>43210</td>
+      <td>15630</td>
+      <td>32231</td>
+      <td>74118</td>
+      <td>14588</td>
+      <td>40632</td>
+      <td>2738</td>
+      <td>20455.0</td>
+      <td>8.206100</td>
+      <td>NaN</td>
+      <td>0.436681</td>
+      <td>0.787402</td>
+      <td>0.70697</td>
+      <td>NaN</td>
+      <td>0.18099</td>
+      <td>0.43486</td>
+      <td>NaN</td>
+      <td>0.27598</td>
+      <td>NaN</td>
+      <td>0.00000</td>
+      <td>NaN</td>
+      <td>0.54821</td>
+      <td>0.03694</td>
+      <td>0.06739</td>
+      <td>NaN</td>
+      <td>0.00782</td>
+      <td>0.24169</td>
+      <td>-0.19278</td>
+      <td>0.00000</td>
+      <td>0.06887</td>
+      <td>0.07310</td>
+      <td>27.0</td>
+      <td>524</td>
+      <td>521</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>342893</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>3110</td>
+      <td>31</td>
+      <td>Non-metallic Products</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>HTM</td>
+      <td>PRIVATE</td>
+      <td>FOREIGN</td>
+      <td>2</td>
+      <td>1</td>
+      <td>2</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>109514.0</td>
+      <td>467.0</td>
+      <td>123940.0</td>
+      <td>48320</td>
+      <td>218303</td>
+      <td>20388</td>
+      <td>136164</td>
+      <td>289246</td>
+      <td>29696</td>
+      <td>211230</td>
+      <td>27475</td>
+      <td>105915.0</td>
+      <td>9.874372</td>
+      <td>-0.29</td>
+      <td>0.436681</td>
+      <td>0.787402</td>
+      <td>0.49435</td>
+      <td>NaN</td>
+      <td>0.02829</td>
+      <td>0.47075</td>
+      <td>NaN</td>
+      <td>0.36618</td>
+      <td>NaN</td>
+      <td>0.00000</td>
+      <td>NaN</td>
+      <td>0.73028</td>
+      <td>0.09499</td>
+      <td>0.13007</td>
+      <td>NaN</td>
+      <td>0.19263</td>
+      <td>2.98188</td>
+      <td>-0.23398</td>
+      <td>0.00000</td>
+      <td>0.22680</td>
+      <td>0.02211</td>
+      <td>8.0</td>
+      <td>205</td>
+      <td>256</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>244389</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>1782</td>
+      <td>17</td>
+      <td>Textile</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>COLLECTIVE</td>
+      <td>PRIVATE</td>
+      <td>DOMESTIC</td>
+      <td>2</td>
+      <td>1</td>
+      <td>2</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>27098.0</td>
+      <td>648.0</td>
+      <td>2952.0</td>
+      <td>7484</td>
+      <td>12682</td>
+      <td>1698</td>
+      <td>14201</td>
+      <td>19440</td>
+      <td>121</td>
+      <td>11835</td>
+      <td>835</td>
+      <td>17808.0</td>
+      <td>8.917936</td>
+      <td>-0.48</td>
+      <td>0.436681</td>
+      <td>0.787402</td>
+      <td>0.61339</td>
+      <td>NaN</td>
+      <td>0.12868</td>
+      <td>0.73050</td>
+      <td>NaN</td>
+      <td>0.91605</td>
+      <td>NaN</td>
+      <td>0.01080</td>
+      <td>NaN</td>
+      <td>0.60880</td>
+      <td>0.04295</td>
+      <td>0.07055</td>
+      <td>NaN</td>
+      <td>-0.00067</td>
+      <td>-0.03175</td>
+      <td>-0.39856</td>
+      <td>1.40364</td>
+      <td>0.02748</td>
+      <td>0.54776</td>
+      <td>11.0</td>
+      <td>86</td>
+      <td>119</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>242973</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>1810</td>
+      <td>18</td>
+      <td>Footwear</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>SOE</td>
+      <td>SOE</td>
+      <td>DOMESTIC</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>11003.0</td>
+      <td>397.0</td>
+      <td>14464.0</td>
+      <td>3569</td>
+      <td>7487</td>
+      <td>-93443</td>
+      <td>77202</td>
+      <td>105654</td>
+      <td>1672</td>
+      <td>6970</td>
+      <td>1017</td>
+      <td>12087.0</td>
+      <td>7.846503</td>
+      <td>-1.32</td>
+      <td>0.436681</td>
+      <td>0.787402</td>
+      <td>0.04635</td>
+      <td>NaN</td>
+      <td>0.00062</td>
+      <td>0.73071</td>
+      <td>NaN</td>
+      <td>0.11440</td>
+      <td>NaN</td>
+      <td>0.21031</td>
+      <td>NaN</td>
+      <td>0.06597</td>
+      <td>0.00963</td>
+      <td>0.14591</td>
+      <td>NaN</td>
+      <td>0.06362</td>
+      <td>10.83099</td>
+      <td>-10.53558</td>
+      <td>0.68619</td>
+      <td>0.03045</td>
+      <td>0.56958</td>
+      <td>47.0</td>
+      <td>88</td>
+      <td>123</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>118602</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>3135</td>
+      <td>31</td>
+      <td>Non-metallic Products</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>PRIVATE</td>
+      <td>PRIVATE</td>
+      <td>DOMESTIC</td>
+      <td>2</td>
+      <td>1</td>
+      <td>2</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>7797.0</td>
+      <td>192.0</td>
+      <td>1390.0</td>
+      <td>4272</td>
+      <td>2968</td>
+      <td>-466</td>
+      <td>6206</td>
+      <td>8141</td>
+      <td>775</td>
+      <td>2628</td>
+      <td>690</td>
+      <td>8006.0</td>
+      <td>7.823169</td>
+      <td>-0.29</td>
+      <td>0.436681</td>
+      <td>0.787402</td>
+      <td>0.82059</td>
+      <td>NaN</td>
+      <td>0.12793</td>
+      <td>0.76231</td>
+      <td>NaN</td>
+      <td>0.98342</td>
+      <td>NaN</td>
+      <td>0.00000</td>
+      <td>NaN</td>
+      <td>0.32281</td>
+      <td>0.08476</td>
+      <td>0.26256</td>
+      <td>NaN</td>
+      <td>0.09018</td>
+      <td>4.29762</td>
+      <td>-0.35540</td>
+      <td>0.00000</td>
+      <td>0.04170</td>
+      <td>0.73282</td>
+      <td>4.0</td>
+      <td>217</td>
+      <td>265</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>243802</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>1782</td>
+      <td>17</td>
+      <td>Textile</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>HTM</td>
+      <td>PRIVATE</td>
+      <td>FOREIGN</td>
+      <td>2</td>
+      <td>1</td>
+      <td>3</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>9320.0</td>
+      <td>187.0</td>
+      <td>5580.0</td>
+      <td>9380</td>
+      <td>13200</td>
+      <td>11070</td>
+      <td>12100</td>
+      <td>35880</td>
+      <td>13600</td>
+      <td>12900</td>
+      <td>900</td>
+      <td>9300.0</td>
+      <td>7.833269</td>
+      <td>-0.48</td>
+      <td>0.436681</td>
+      <td>0.787402</td>
+      <td>0.86055</td>
+      <td>NaN</td>
+      <td>0.36606</td>
+      <td>0.33724</td>
+      <td>NaN</td>
+      <td>0.25920</td>
+      <td>NaN</td>
+      <td>0.00000</td>
+      <td>NaN</td>
+      <td>0.35953</td>
+      <td>0.02508</td>
+      <td>0.06977</td>
+      <td>NaN</td>
+      <td>0.06452</td>
+      <td>0.77922</td>
+      <td>-0.11783</td>
+      <td>0.00000</td>
+      <td>0.04973</td>
+      <td>0.14496</td>
+      <td>20.0</td>
+      <td>86</td>
+      <td>119</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>244427</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>3136</td>
+      <td>31</td>
+      <td>Non-metallic Products</td>
+      <td>1101</td>
+      <td>Beijing</td>
+      <td>1</td>
+      <td>1</td>
+      <td>PRIVATE</td>
+      <td>PRIVATE</td>
+      <td>DOMESTIC</td>
+      <td>2</td>
+      <td>1</td>
+      <td>3</td>
+      <td>0.381358</td>
+      <td>3.813583</td>
+      <td>9262.0</td>
+      <td>210.0</td>
+      <td>7007.0</td>
+      <td>5522</td>
+      <td>3878</td>
+      <td>-5374</td>
+      <td>11607</td>
+      <td>16861</td>
+      <td>2619</td>
+      <td>3346</td>
+      <td>747</td>
+      <td>8258.0</td>
+      <td>7.793607</td>
+      <td>-0.29</td>
+      <td>0.436681</td>
+      <td>0.787402</td>
+      <td>0.49716</td>
+      <td>NaN</td>
+      <td>0.21536</td>
+      <td>0.68839</td>
+      <td>NaN</td>
+      <td>0.48977</td>
+      <td>NaN</td>
+      <td>0.26689</td>
+      <td>NaN</td>
+      <td>0.19845</td>
+      <td>0.04430</td>
+      <td>0.22325</td>
+      <td>NaN</td>
+      <td>0.03887</td>
+      <td>0.00000</td>
+      <td>-1.66916</td>
+      <td>0.00000</td>
+      <td>0.03932</td>
+      <td>0.62874</td>
+      <td>2.0</td>
+      <td>218</td>
+      <td>266</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>31916</td>
+      <td>2001</td>
+      <td>False</td>
+      <td>3136</td>
+      <td>31</td>
+      <td>Non-metallic Products</td>
       <td>1101</td>
       <td>Beijing</td>
       <td>1</td>
@@ -15160,488 +15608,104 @@ Make sure there is no duplicates</p>
       <td>2</td>
       <td>0.381358</td>
       <td>3.813583</td>
-      <td>76661.0</td>
-      <td>360.0</td>
-      <td>1500.0</td>
-      <td>13261</td>
-      <td>5200</td>
-      <td>-15022</td>
-      <td>8699</td>
-      <td>33477</td>
-      <td>540</td>
-      <td>4654</td>
-      <td>2744</td>
-      <td>76655.0</td>
-      <td>10.069016</td>
-      <td>-0.47</td>
+      <td>5333.0</td>
+      <td>50.0</td>
+      <td>2000.0</td>
+      <td>3837</td>
+      <td>881</td>
+      <td>479</td>
+      <td>2147</td>
+      <td>4615</td>
+      <td>0</td>
+      <td>778</td>
+      <td>406</td>
+      <td>5100.0</td>
+      <td>7.464255</td>
+      <td>-0.29</td>
       <td>0.436681</td>
       <td>0.787402</td>
-      <td>1.83619</td>
-      <td>0.05206</td>
-      <td>0.25985</td>
-      <td>2.28978</td>
-      <td>0.04176</td>
+      <td>1.97072</td>
       <td>NaN</td>
-      <td>0.13902</td>
-      <td>0.08197</td>
-      <td>0.58960</td>
-      <td>0.03100</td>
-      <td>39.60000</td>
-      <td>1.29759</td>
-      <td>0.0</td>
-      <td>0.21293</td>
-      <td>0.77419</td>
+      <td>0.55829</td>
+      <td>0.46522</td>
+      <td>NaN</td>
+      <td>1.10509</td>
+      <td>NaN</td>
+      <td>0.00000</td>
+      <td>NaN</td>
+      <td>0.16858</td>
+      <td>0.08797</td>
+      <td>0.52185</td>
+      <td>NaN</td>
+      <td>0.05941</td>
+      <td>0.00000</td>
+      <td>2.42931</td>
+      <td>0.00000</td>
+      <td>0.10200</td>
+      <td>0.64935</td>
       <td>4.0</td>
-      <td>6</td>
-      <td>24</td>
+      <td>218</td>
+      <td>266</td>
       <td>1</td>
     </tr>
     <tr>
-      <th>2</th>
-      <td>312171</td>
+      <th>9</th>
+      <td>208756</td>
       <td>2001</td>
       <td>False</td>
-      <td>3463</td>
+      <td>3465</td>
       <td>34</td>
       <td>Metals</td>
       <td>1101</td>
       <td>Beijing</td>
       <td>1</td>
       <td>1</td>
-      <td>HTM</td>
+      <td>COLLECTIVE</td>
       <td>PRIVATE</td>
-      <td>FOREIGN</td>
+      <td>DOMESTIC</td>
       <td>1</td>
       <td>1</td>
-      <td>4</td>
+      <td>1</td>
       <td>0.381358</td>
       <td>3.813583</td>
-      <td>150250.0</td>
-      <td>200.0</td>
-      <td>228181.0</td>
-      <td>94071</td>
-      <td>185994</td>
-      <td>-10157</td>
-      <td>111825</td>
-      <td>342847</td>
-      <td>63638</td>
-      <td>174981</td>
-      <td>35476</td>
-      <td>221536.0</td>
-      <td>10.157305</td>
+      <td>27000.0</td>
+      <td>180.0</td>
+      <td>9610.0</td>
+      <td>11823</td>
+      <td>15500</td>
+      <td>-20509</td>
+      <td>31893</td>
+      <td>47084</td>
+      <td>0</td>
+      <td>14752</td>
+      <td>1348</td>
+      <td>26658.0</td>
+      <td>8.832459</td>
       <td>-0.93</td>
       <td>0.436681</td>
       <td>0.787402</td>
-      <td>0.84218</td>
-      <td>0.15958</td>
-      <td>0.32617</td>
-      <td>0.64617</td>
+      <td>0.37364</td>
+      <td>NaN</td>
+      <td>0.08669</td>
+      <td>0.67736</td>
+      <td>NaN</td>
+      <td>0.56618</td>
+      <td>NaN</td>
+      <td>0.05947</td>
+      <td>NaN</td>
+      <td>0.31331</td>
+      <td>0.02863</td>
+      <td>0.09138</td>
+      <td>NaN</td>
+      <td>0.03316</td>
+      <td>1.20436</td>
+      <td>-1.34355</td>
       <td>0.00000</td>
-      <td>NaN</td>
-      <td>0.51038</td>
-      <td>0.10347</td>
-      <td>0.20274</td>
-      <td>0.11042</td>
-      <td>7.75372</td>
-      <td>-0.10074</td>
-      <td>0.0</td>
-      <td>1.10768</td>
-      <td>0.01143</td>
-      <td>6.0</td>
-      <td>284</td>
-      <td>311</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>60624</td>
-      <td>2001</td>
-      <td>False</td>
-      <td>3110</td>
-      <td>31</td>
-      <td>Non-metallic Products</td>
-      <td>1101</td>
-      <td>Beijing</td>
-      <td>1</td>
-      <td>1</td>
-      <td>COLLECTIVE</td>
-      <td>PRIVATE</td>
-      <td>DOMESTIC</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0.381358</td>
-      <td>3.813583</td>
-      <td>46233.0</td>
-      <td>651.0</td>
-      <td>1500.0</td>
-      <td>20001</td>
-      <td>190765</td>
-      <td>-86034</td>
-      <td>289548</td>
-      <td>306537</td>
-      <td>10088</td>
-      <td>190414</td>
-      <td>259</td>
-      <td>41450.0</td>
-      <td>9.534561</td>
-      <td>-0.29</td>
-      <td>0.436681</td>
-      <td>0.787402</td>
-      <td>0.12265</td>
-      <td>0.05359</td>
-      <td>0.94458</td>
-      <td>0.13522</td>
-      <td>0.00000</td>
-      <td>NaN</td>
-      <td>0.62118</td>
-      <td>0.00084</td>
-      <td>0.00136</td>
-      <td>-0.00222</td>
-      <td>-0.05920</td>
-      <td>-0.75135</td>
-      <td>0.0</td>
-      <td>0.06367</td>
-      <td>0.03419</td>
-      <td>0.0</td>
-      <td>205</td>
-      <td>256</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>102631</td>
-      <td>2001</td>
-      <td>False</td>
-      <td>3110</td>
-      <td>31</td>
-      <td>Non-metallic Products</td>
-      <td>1101</td>
-      <td>Beijing</td>
-      <td>1</td>
-      <td>1</td>
-      <td>COLLECTIVE</td>
-      <td>PRIVATE</td>
-      <td>DOMESTIC</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0.381358</td>
-      <td>3.813583</td>
-      <td>19366.0</td>
-      <td>310.0</td>
-      <td>12400.0</td>
-      <td>21288</td>
-      <td>59837</td>
-      <td>-238</td>
-      <td>69952</td>
-      <td>77917</td>
-      <td>1916</td>
-      <td>54475</td>
-      <td>5345</td>
-      <td>19244.0</td>
-      <td>8.442649</td>
-      <td>-0.29</td>
-      <td>0.436681</td>
-      <td>0.787402</td>
-      <td>0.37918</td>
-      <td>0.02214</td>
-      <td>0.89778</td>
-      <td>0.24698</td>
-      <td>0.00000</td>
-      <td>NaN</td>
-      <td>0.69914</td>
-      <td>0.06860</td>
-      <td>0.09812</td>
-      <td>-0.00088</td>
-      <td>0.00000</td>
-      <td>-0.63982</td>
-      <td>0.0</td>
-      <td>0.06208</td>
-      <td>0.05691</td>
-      <td>29.0</td>
-      <td>205</td>
-      <td>256</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>77112</td>
-      <td>2001</td>
-      <td>False</td>
-      <td>2110</td>
-      <td>21</td>
-      <td>Furniture</td>
-      <td>1101</td>
-      <td>Beijing</td>
-      <td>1</td>
-      <td>1</td>
-      <td>PRIVATE</td>
-      <td>PRIVATE</td>
-      <td>DOMESTIC</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0.381358</td>
-      <td>3.813583</td>
-      <td>36289.0</td>
-      <td>28.0</td>
-      <td>300.0</td>
-      <td>1525</td>
-      <td>539</td>
-      <td>-5704</td>
-      <td>8287</td>
-      <td>8610</td>
-      <td>864</td>
-      <td>517</td>
-      <td>31</td>
-      <td>36289.0</td>
-      <td>9.641502</td>
-      <td>-0.65</td>
-      <td>0.436681</td>
-      <td>0.787402</td>
-      <td>0.20074</td>
-      <td>0.08345</td>
-      <td>0.96249</td>
-      <td>4.21475</td>
-      <td>0.07259</td>
-      <td>NaN</td>
-      <td>0.06005</td>
-      <td>0.00360</td>
-      <td>0.05996</td>
-      <td>0.00030</td>
-      <td>0.11000</td>
-      <td>-11.74468</td>
-      <td>0.0</td>
-      <td>1.29604</td>
-      <td>0.54902</td>
-      <td>4.0</td>
-      <td>108</td>
-      <td>149</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>312214</td>
-      <td>2001</td>
-      <td>False</td>
-      <td>2663</td>
-      <td>26</td>
-      <td>Raw Chemical Materials</td>
-      <td>1101</td>
-      <td>Beijing</td>
-      <td>1</td>
-      <td>1</td>
-      <td>HTM</td>
-      <td>PRIVATE</td>
-      <td>FOREIGN</td>
-      <td>1</td>
-      <td>1</td>
-      <td>3</td>
-      <td>0.381358</td>
-      <td>3.813583</td>
-      <td>146911.0</td>
-      <td>95.0</td>
-      <td>52087.0</td>
-      <td>58884</td>
-      <td>64180</td>
-      <td>7107</td>
-      <td>75290</td>
-      <td>137811</td>
-      <td>19872</td>
-      <td>59055</td>
-      <td>13773</td>
-      <td>119145.0</td>
-      <td>10.351230</td>
-      <td>-0.23</td>
-      <td>0.436681</td>
-      <td>0.787402</td>
-      <td>1.00622</td>
-      <td>0.26461</td>
-      <td>0.54633</td>
-      <td>0.86455</td>
-      <td>0.00000</td>
-      <td>NaN</td>
-      <td>0.42852</td>
-      <td>0.09994</td>
-      <td>0.23322</td>
-      <td>0.07258</td>
-      <td>2.90007</td>
-      <td>0.00616</td>
-      <td>0.0</td>
-      <td>1.25416</td>
-      <td>0.01609</td>
-      <td>4.0</td>
-      <td>163</td>
-      <td>202</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>242635</td>
-      <td>2001</td>
-      <td>False</td>
-      <td>3716</td>
-      <td>37</td>
-      <td>Transport Equipment</td>
-      <td>1101</td>
-      <td>Beijing</td>
-      <td>1</td>
-      <td>1</td>
-      <td>SOE</td>
-      <td>SOE</td>
-      <td>DOMESTIC</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0.381358</td>
-      <td>3.813583</td>
-      <td>17595.0</td>
-      <td>336.0</td>
-      <td>15594.0</td>
-      <td>21998</td>
-      <td>36556</td>
-      <td>-654</td>
-      <td>23068</td>
-      <td>58666</td>
-      <td>0</td>
-      <td>36014</td>
-      <td>346</td>
-      <td>13306.0</td>
-      <td>8.314868</td>
-      <td>-0.72</td>
-      <td>0.436681</td>
-      <td>0.787402</td>
-      <td>0.96406</td>
-      <td>0.13476</td>
-      <td>0.39321</td>
-      <td>0.22681</td>
-      <td>0.00000</td>
-      <td>NaN</td>
-      <td>0.61388</td>
-      <td>0.00590</td>
-      <td>0.00961</td>
-      <td>-0.01473</td>
-      <td>49.00000</td>
-      <td>-0.02277</td>
-      <td>0.0</td>
-      <td>0.03960</td>
-      <td>0.09331</td>
-      <td>42.0</td>
-      <td>393</td>
-      <td>415</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>48380</td>
-      <td>2001</td>
-      <td>False</td>
-      <td>1312</td>
-      <td>13</td>
-      <td>Processing foods</td>
-      <td>1101</td>
-      <td>Beijing</td>
-      <td>1</td>
-      <td>1</td>
-      <td>SOE</td>
-      <td>SOE</td>
-      <td>DOMESTIC</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0.381358</td>
-      <td>3.813583</td>
-      <td>12618.0</td>
-      <td>74.0</td>
-      <td>4230.0</td>
-      <td>5255</td>
-      <td>11811</td>
-      <td>7966</td>
-      <td>6919</td>
-      <td>16561</td>
-      <td>0</td>
-      <td>11306</td>
-      <td>188</td>
-      <td>15195.0</td>
-      <td>8.215030</td>
-      <td>-0.47</td>
-      <td>0.436681</td>
-      <td>0.787402</td>
-      <td>0.77771</td>
-      <td>0.11780</td>
-      <td>0.61276</td>
-      <td>0.91752</td>
-      <td>0.00000</td>
-      <td>NaN</td>
-      <td>0.68269</td>
-      <td>0.01135</td>
-      <td>0.01663</td>
-      <td>-0.02007</td>
-      <td>-2.22628</td>
-      <td>-0.13285</td>
-      <td>0.0</td>
-      <td>0.20534</td>
-      <td>0.06549</td>
-      <td>43.0</td>
-      <td>5</td>
-      <td>22</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>242716</td>
-      <td>2001</td>
-      <td>False</td>
-      <td>4259</td>
-      <td>42</td>
-      <td>Artwork</td>
-      <td>1101</td>
-      <td>Beijing</td>
-      <td>1</td>
-      <td>1</td>
-      <td>SOE</td>
-      <td>SOE</td>
-      <td>DOMESTIC</td>
-      <td>2</td>
-      <td>1</td>
-      <td>2</td>
-      <td>0.381358</td>
-      <td>3.813583</td>
-      <td>20459.0</td>
-      <td>212.0</td>
-      <td>10002.0</td>
-      <td>31915</td>
-      <td>10087</td>
-      <td>15486</td>
-      <td>22553</td>
-      <td>48432</td>
-      <td>7010</td>
-      <td>9507</td>
-      <td>918</td>
-      <td>19921.0</td>
-      <td>8.542223</td>
-      <td>-0.62</td>
-      <td>0.436681</td>
-      <td>0.787402</td>
-      <td>1.72953</td>
-      <td>0.62472</td>
-      <td>0.46566</td>
-      <td>0.41132</td>
-      <td>0.00002</td>
-      <td>NaN</td>
-      <td>0.19630</td>
-      <td>0.01895</td>
-      <td>0.09656</td>
-      <td>0.02530</td>
-      <td>0.66055</td>
-      <td>1.41601</td>
-      <td>0.0</td>
-      <td>0.09397</td>
-      <td>0.22316</td>
-      <td>13.0</td>
-      <td>518</td>
-      <td>512</td>
+      <td>0.14810</td>
+      <td>0.12203</td>
+      <td>21.0</td>
+      <td>285</td>
+      <td>312</td>
       <td>1</td>
     </tr>
   </tbody>
@@ -15672,7 +15736,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s3_output</span> <span class="o">=</span> <span class="s1">&#39;DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/TFP/CREDIT_CONSTRAINT&#39;</span>
@@ -15693,7 +15757,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">try</span><span class="p">:</span>
@@ -15723,7 +15787,7 @@ Make sure there is no duplicates</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;f47133c1-deed-4c58-8a09-6762a56ad72e&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 31 Jan 2021 12:38:08 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;f47133c1-deed-4c58-8a09-6762a56ad72e&#39;}, &#39;RetryAttempts&#39;: 0}}
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;86aeb704-74b8-4168-967f-2bc57c3a1d59&#39;, &#39;HTTPStatusCode&#39;: 200, &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Thu, 04 Feb 2021 08:29:57 GMT&#39;, &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;, &#39;content-length&#39;: &#39;2&#39;, &#39;connection&#39;: &#39;keep-alive&#39;, &#39;x-amzn-requestid&#39;: &#39;86aeb704-74b8-4168-967f-2bc57c3a1d59&#39;}, &#39;RetryAttempts&#39;: 0}}
 </pre>
 </div>
 </div>
@@ -15741,7 +15805,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s3</span><span class="o">.</span><span class="n">remove_all_bucket</span><span class="p">(</span><span class="n">path_remove</span> <span class="o">=</span> <span class="n">s3_output</span><span class="p">)</span>
@@ -15760,7 +15824,7 @@ Make sure there is no duplicates</p>
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[8]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
 
 
 
@@ -15778,7 +15842,7 @@ Make sure there is no duplicates</p>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%time</span>
@@ -16036,7 +16100,7 @@ Make sure there is no duplicates</p>
 <span class="s2">      ratio.output, </span>
 <span class="s2">      ratio.employment, </span>
 <span class="s2">      ratio.capital, </span>
-<span class="s2">      current_asset, </span>
+<span class="s2">      current_asset,</span>
 <span class="s2">      net_non_current,</span>
 <span class="s2">      intangible, </span>
 <span class="s2">      tangible,</span>
@@ -16054,16 +16118,36 @@ Make sure there is no duplicates</p>
 <span class="s2">      d_credit_constraint,</span>
 <span class="s2">      1/supply_all_credit as supply_all_credit,</span>
 <span class="s2">      1/supply_long_term_credit as supply_long_term_credit,</span>
-<span class="s2">      current_ratio, </span>
+<span class="s2">      current_ratio,</span>
+<span class="s2">      LAG(current_ratio, 1) OVER (</span>
+<span class="s2">        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          ratio.year</span>
+<span class="s2">      ) as lag_current_ratio,</span>
 <span class="s2">      quick_ratio, </span>
-<span class="s2">      liabilities_tot_asset, </span>
-<span class="s2">      sales_tot_asset, </span>
+<span class="s2">      liabilities_tot_asset,</span>
+<span class="s2">      LAG(liabilities_tot_asset, 1) OVER (</span>
+<span class="s2">        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          ratio.year</span>
+<span class="s2">      ) as lag_liabilities_tot_asset,</span>
+<span class="s2">      sales_tot_asset,</span>
+<span class="s2">      LAG(sales_tot_asset, 1) OVER (</span>
+<span class="s2">        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          ratio.year</span>
+<span class="s2">      ) as lag_sales_tot_asset,</span>
 <span class="s2">      --cash_tot_asset, </span>
 <span class="s2">      investment_tot_asset, </span>
 <span class="s2">      rd_tot_asset, </span>
 <span class="s2">      asset_tangibility_tot_asset, </span>
 <span class="s2">      cashflow_tot_asset, </span>
-<span class="s2">      cashflow_to_tangible, </span>
+<span class="s2">      cashflow_to_tangible,</span>
+<span class="s2">       LAG(cashflow_to_tangible, 1) OVER (</span>
+<span class="s2">        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic </span>
+<span class="s2">        ORDER BY </span>
+<span class="s2">          ratio.year</span>
+<span class="s2">      ) as lag_cashflow_to_tangible,</span>
 <span class="s2">      return_to_sale,</span>
 <span class="s2">      CASE WHEN coverage_ratio IS NULL THEN 0 ELSE coverage_ratio /100 END AS coverage_ratio,</span>
 <span class="s2">      liquidity,</span>
@@ -16578,8 +16662,8 @@ Make sure there is no duplicates</p>
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>CPU times: user 1.35 s, sys: 42.9 ms, total: 1.39 s
-Wall time: 32.1 s
+<pre>CPU times: user 1.07 s, sys: 68.5 ms, total: 1.13 s
+Wall time: 28.7 s
 </pre>
 </div>
 </div>
@@ -16587,16 +16671,16 @@ Wall time: 32.1 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[9]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
 <pre>{&#39;Results&#39;: {&#39;State&#39;: &#39;SUCCEEDED&#39;,
-  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 1, 31, 12, 38, 8, 641000, tzinfo=tzlocal()),
-  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 1, 31, 12, 38, 40, 177000, tzinfo=tzlocal())},
- &#39;QueryID&#39;: &#39;a2bf9918-368d-4c63-b894-9fba5564f371&#39;}</pre>
+  &#39;SubmissionDateTime&#39;: datetime.datetime(2021, 2, 4, 8, 30, 9, 643000, tzinfo=tzlocal()),
+  &#39;CompletionDateTime&#39;: datetime.datetime(2021, 2, 4, 8, 30, 37, 637000, tzinfo=tzlocal())},
+ &#39;QueryID&#39;: &#39;d0bbf94f-2deb-4231-9382-b4aad34f1352&#39;}</pre>
 </div>
 
 </div>
@@ -16608,7 +16692,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_count</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -16637,7 +16721,7 @@ Wall time: 32.1 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
 
 
 
@@ -16688,7 +16772,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_test</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -16728,7 +16812,7 @@ Wall time: 32.1 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
 
 
 
@@ -16781,7 +16865,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[12]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="o">.</span><span class="mi">75</span><span class="p">,</span> <span class="o">.</span><span class="mi">9</span><span class="p">,</span> <span class="o">.</span><span class="mi">95</span><span class="p">]:</span>
@@ -17077,7 +17161,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_test</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -17122,7 +17206,7 @@ Wall time: 32.1 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[17]:</div>
 
 
 
@@ -17285,7 +17369,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_test</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -17333,7 +17417,7 @@ Wall time: 32.1 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[18]:</div>
 
 
 
@@ -17358,9 +17442,9 @@ Wall time: 32.1 s
       <th>ownership</th>
       <th>SOE</th>
       <th>COLLECTIVE</th>
-      <th>FOREIGN</th>
-      <th>HTM</th>
       <th>PRIVATE</th>
+      <th>HTM</th>
+      <th>FOREIGN</th>
     </tr>
   </thead>
   <tbody>
@@ -17368,113 +17452,113 @@ Wall time: 32.1 s
       <th>nb_obs</th>
       <td>19990.000000</td>
       <td>33852.000000</td>
-      <td>20243.000000</td>
-      <td>20743.000000</td>
       <td>121441.000000</td>
+      <td>20743.000000</td>
+      <td>20243.000000</td>
     </tr>
     <tr>
       <th>avg_tfp_op</th>
       <td>9.671286</td>
       <td>9.096731</td>
-      <td>9.493316</td>
-      <td>9.735402</td>
       <td>9.232619</td>
+      <td>9.735402</td>
+      <td>9.493316</td>
     </tr>
     <tr>
       <th>avg_tangible</th>
       <td>321674.715958</td>
       <td>70798.086524</td>
-      <td>92319.126562</td>
-      <td>153138.095068</td>
       <td>52384.312819</td>
+      <td>153138.095068</td>
+      <td>92319.126562</td>
     </tr>
     <tr>
       <th>avg_intangible</th>
       <td>19577.035268</td>
       <td>5215.621411</td>
-      <td>4259.405029</td>
-      <td>6802.846647</td>
       <td>4179.538739</td>
+      <td>6802.846647</td>
+      <td>4259.405029</td>
     </tr>
     <tr>
       <th>avg_current_asset</th>
       <td>188024.298549</td>
       <td>46641.961538</td>
-      <td>70746.224571</td>
-      <td>113002.389625</td>
       <td>39559.946353</td>
+      <td>113002.389625</td>
+      <td>70746.224571</td>
     </tr>
     <tr>
       <th>avg_return_to_sale</th>
       <td>0.041160</td>
       <td>0.049460</td>
-      <td>0.051680</td>
-      <td>0.067100</td>
       <td>0.048510</td>
+      <td>0.067100</td>
+      <td>0.051680</td>
     </tr>
     <tr>
       <th>avg_liabilities_tot_asset</th>
       <td>0.596310</td>
       <td>0.552540</td>
-      <td>0.509530</td>
-      <td>0.498870</td>
       <td>0.562180</td>
+      <td>0.498870</td>
+      <td>0.509530</td>
     </tr>
     <tr>
       <th>avg_cashflow_tot_asset</th>
       <td>0.053710</td>
       <td>0.100870</td>
-      <td>0.092690</td>
-      <td>0.110060</td>
       <td>0.104400</td>
+      <td>0.110060</td>
+      <td>0.092690</td>
     </tr>
     <tr>
       <th>avg_cashflow_to_tangible</th>
       <td>0.184010</td>
       <td>0.396090</td>
-      <td>0.412290</td>
-      <td>0.530540</td>
       <td>0.454330</td>
+      <td>0.530540</td>
+      <td>0.412290</td>
     </tr>
     <tr>
       <th>avg_liquidity</th>
       <td>-0.107870</td>
       <td>-0.023260</td>
-      <td>-0.002980</td>
-      <td>-0.009740</td>
       <td>-0.046340</td>
+      <td>-0.009740</td>
+      <td>-0.002980</td>
     </tr>
     <tr>
       <th>avg_age</th>
       <td>29.504400</td>
       <td>16.826040</td>
-      <td>9.049150</td>
-      <td>8.144100</td>
       <td>10.129590</td>
+      <td>8.144100</td>
+      <td>9.049150</td>
     </tr>
     <tr>
       <th>avg_labor_capital</th>
       <td>0.252760</td>
       <td>0.398550</td>
-      <td>0.397220</td>
-      <td>0.310320</td>
       <td>0.438740</td>
+      <td>0.310320</td>
+      <td>0.397220</td>
     </tr>
     <tr>
       <th>avg_coverage_ratio</th>
       <td>0.132260</td>
       <td>0.067960</td>
-      <td>0.045480</td>
-      <td>0.352890</td>
       <td>0.127030</td>
+      <td>0.352890</td>
+      <td>0.045480</td>
     </tr>
     <tr>
       <th>avg_export_to_sale</th>
       <td>0.075470</td>
       <td>0.097100</td>
-      <td>0.407110</td>
-      <td>0.407060</td>
       <td>0.112010</td>
+      <td>0.407060</td>
+      <td>0.407110</td>
     </tr>
   </tbody>
 </table>
@@ -17519,7 +17603,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;firm&quot;</span><span class="p">,</span><span class="s2">&quot;year&quot;</span><span class="p">,</span><span class="s2">&quot;cic&quot;</span><span class="p">,</span><span class="s2">&quot;geocode4_corr&quot;</span><span class="p">]</span>
@@ -17541,7 +17625,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">step</span> <span class="o">=</span> <span class="mi">6</span>
@@ -17564,7 +17648,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[21]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">get_table_information</span><span class="p">(</span>
@@ -17585,7 +17669,7 @@ Wall time: 32.1 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[17]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[21]:</div>
 
 
 
@@ -17628,9 +17712,12 @@ Wall time: 32.1 s
  {&#39;Name&#39;: &#39;supply_all_credit&#39;, &#39;Type&#39;: &#39;double&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;supply_long_term_credit&#39;, &#39;Type&#39;: &#39;float&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;current_ratio&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;lag_current_ratio&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;quick_ratio&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;liabilities_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;lag_liabilities_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;sales_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;lag_sales_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;investment_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;rd_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;asset_tangibility_tot_asset&#39;,
@@ -17638,6 +17725,7 @@ Wall time: 32.1 s
   &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;cashflow_tot_asset&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;cashflow_to_tangible&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
+ {&#39;Name&#39;: &#39;lag_cashflow_to_tangible&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;return_to_sale&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;coverage_ratio&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
  {&#39;Name&#39;: &#39;liquidity&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
@@ -17682,7 +17770,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[22]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;firm&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;firm ID&#39;</span><span class="p">},</span>
@@ -17738,12 +17826,15 @@ Wall time: 32.1 s
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;supply_long_term_credit&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;total long term credit over gdp province&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;current_ratio&#39;</span><span class="p">,</span>
            <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;current ratio cuasset/流动负债合计 (c95)&#39;</span><span class="p">},</span>
+          <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;lag_current_ratio&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;lag current ratio&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;quick_ratio&#39;</span><span class="p">,</span>
            <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;liabilities_tot_asset&#39;</span><span class="p">,</span>
            <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;liabilities to total asset&#39;</span><span class="p">},</span>
+          <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;lag_liabilities_tot_asset&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;lag liabilities to asset&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;sales_tot_asset&#39;</span><span class="p">,</span>
            <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;sales to total asset&#39;</span><span class="p">},</span>
+          <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;lag_sales_tot_asset&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;lag sales to asset&#39;</span><span class="p">},</span>
           <span class="c1">#{&#39;Name&#39;: &#39;cash_tot_asset&#39;,</span>
           <span class="c1"># &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;cash to total asset&#39;},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;investment_tot_asset&#39;</span><span class="p">,</span>
@@ -17757,6 +17848,7 @@ Wall time: 32.1 s
            <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;cashflow to total asset&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;cashflow_to_tangible&#39;</span><span class="p">,</span>
            <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;cashflow to tangible asset&#39;</span><span class="p">},</span>
+          <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;lag_cashflow_to_tangible&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;lag cashflow to tangible asset&#39;</span><span class="p">},</span>
           <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;return_to_sale&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
  <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;export_to_sale&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;overseas turnover / sales&#39;</span><span class="p">},</span>
  <span class="p">{</span><span class="s1">&#39;Name&#39;</span><span class="p">:</span> <span class="s1">&#39;labor_productivity&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s1">&#39;decimal(21,5)&#39;</span><span class="p">,</span> <span class="s1">&#39;Comment&#39;</span><span class="p">:</span> <span class="s1">&#39;real sales/number of employees.&#39;</span><span class="p">},</span>
@@ -17827,7 +17919,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[23]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -17856,7 +17948,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">json_etl</span> <span class="o">=</span> <span class="p">{</span>
@@ -17888,7 +17980,7 @@ Wall time: 32.1 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[20]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[24]:</div>
 
 
 
@@ -17896,7 +17988,7 @@ Wall time: 32.1 s
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
 <pre>{&#39;step&#39;: 6,
  &#39;description&#39;: &#39;\nTransform asif tfp firm level and others data by merging asif firms prepared, china credit constraint, ind cic 2 name, china city code normalised, china tcz spz, china city reduction mandate data by constructing asset_tangibility, cash_over_total_asset, sales over asset Andersen method, current ratio (Compute proxy for credit constraint , Construct main variable asset tangibility) to asif tfp credit constraint\n&#39;,
- &#39;query&#39;: &#34;\nCREATE TABLE firms_survey.asif_tfp_credit_constraint WITH (format = &#39;PARQUET&#39;) AS\nWITH test AS (\n  SELECT \n    *, \n    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(\n      &#39;0&#39;, \n      substr(cic, 1, 1)\n    ) END AS indu_2, \n    c80 + c81 + c82 + c79 as current_asset,\n    c91 + c92 AS intangible, \n    tofixed - cudepre AS tangible, \n    tofixed - cudepre + (c91 + c92) AS net_non_current, \n    (\n      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n    ) - (c95 + c97 + c99) AS error, \n    c95 + c97 as total_liabilities,\n    CASE WHEN (\n      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n    ) - (c95 + c97 + c99) &gt; 0 THEN (c95 + c97 + c99) + ABS(\n      (\n        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n      ) - (c95 + c97 + c99)\n    ) ELSE (c95 + c97 + c99) END AS total_right, \n    CASE WHEN (\n      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n    ) - (c95 + c97 + c99) &lt; 0 THEN (c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)) + ABS(\n      (\n        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n      ) - (c95 + c97 + c99)\n    ) ELSE (\n      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n    ) END AS total_asset, \n    (c131 - c134) + cudepre as cashflow, \n    CAST(\n      c80 + c81 + c82 + c79 AS DECIMAL(16, 5)\n    ) / NULLIF(\n      CAST(\n        c95 AS DECIMAL(16, 5)\n      ), \n      0\n    ) AS current_ratio, \n    CAST(\n      c80 + c81 + c82 + c79 - c80 - c81 AS DECIMAL(16, 5)\n    ) / NULLIF(\n      CAST(\n        c95 AS DECIMAL(16, 5)\n      ), \n      0\n    ) AS quick_ratio \n    \n  FROM \n    firms_survey.asif_firms_prepared \n    INNER JOIN (\n      SELECT \n        extra_code, \n        geocode4_corr,\n      province_en\n      FROM \n        chinese_lookup.china_city_code_normalised \n      GROUP BY \n        extra_code, \n      province_en,\n        geocode4_corr\n    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code\n  WHERE\n  c95 &gt; 0 -- current liabilities\n  AND c97 &gt;0 -- long term liabilities\n  AND c98 &gt; 0 -- total liabilities\n  AND c99 &gt; 0 -- equity\n  AND c80 + c81 + c82 + c79 &gt; 0\n  AND tofixed &gt; 0\n  AND output &gt; 0 \n  and employ &gt; 0\n) \nSELECT \n  * \nFROM \n  (\n    WITH ratio AS (\n      SELECT \n        firm, \n        year, \n        cic, \n        indu_2, \n        geocode4_corr,\n        province_en,\n        ownership, \n        CASE WHEN ownership = &#39;SOE&#39; THEN &#39;SOE&#39; ELSE &#39;PRIVATE&#39; END AS soe_vs_pri, \n        CASE WHEN ownership in (&#39;HTM&#39;, &#39;FOREIGN&#39;) THEN &#39;FOREIGN&#39; ELSE &#39;DOMESTIC&#39; END AS for_vs_dom, \n        CAST(\n          output AS DECIMAL(16, 5)\n        ) AS output, \n        CAST(\n          sales AS DECIMAL(16, 5)\n        ) AS sales, \n        CAST(\n          employ AS DECIMAL(16, 5)\n        ) AS employment, \n        CAST(\n          captal AS DECIMAL(16, 5)\n        ) AS capital, \n        current_asset, \n        net_non_current, \n        total_liabilities, \n        total_asset,\n        total_right, \n        error,\n        c91,\n        c92,\n        c95,\n        c97,\n        c98,\n        intangible, \n        tangible, \n        cashflow, \n        current_ratio,\n        quick_ratio,\n        CAST(\n          c98 AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS liabilities_tot_asset, \n        CAST(\n          sales AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS sales_tot_asset,         \n        CAST(\n          c84 AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS investment_tot_asset, \n        CAST(\n          rdfee AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS rd_tot_asset, \n        CAST(\n          tangible AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) asset_tangibility_tot_asset, \n        CAST(\n          cashflow AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS cashflow_tot_asset, \n        CAST(\n          cashflow AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            tangible AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS cashflow_to_tangible,\n       -- update\n       CAST(\n          c131 AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            sales AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS return_to_sale,\n       CAST(\n          c131 AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            c125 AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS coverage_ratio,\n       CAST(\n          current_asset - c95 AS DECIMAL(16, 5)\n         ) /\n           CAST(\n            total_asset AS DECIMAL(16, 5)\n          ) AS liquidity,\n         CAST(\n          sales AS DECIMAL(16, 5)\n         ) / NULLIF(\n          CAST(\n            employ AS DECIMAL(16, 5)\n          ), \n          0\n         ) AS labor_productivity,\n         CAST(\n          employ AS DECIMAL(16, 5)\n         ) / NULLIF(\n          CAST(\n            tangible/10  AS DECIMAL(16, 5)\n          ), \n          0\n         ) AS labor_capital,\n        CAST(year AS DECIMAL(16, 5)) - CAST(setup AS DECIMAL(16, 5)) AS age,\n        CAST(\n           export AS DECIMAL(16, 5)\n         ) / NULLIF(\n          CAST(\n            sales AS DECIMAL(16, 5)\n          ), \n          0\n         ) AS export_to_sale,\n        &#39;FAKE&#39; AS fake \n      FROM \n        test \n      WHERE \n        year in (\n          &#39;2000&#39;, &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, \n          &#39;2005&#39;, &#39;2006&#39;, &#39;2007&#39;\n        )\n        AND tangible &gt; 0\n    ) \n    SELECT \n      ratio.firm, \n      ratio.year, \n      CASE WHEN ratio.year in (\n        &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;\n      ) THEN &#39;FALSE&#39; WHEN ratio.year in (&#39;2006&#39;, &#39;2007&#39;) THEN &#39;TRUE&#39; END AS period, \n      ratio.cic, \n      ratio.indu_2, \n      CASE WHEN short IS NULL THEN &#39;Unknown&#39; ELSE short END AS short, \n      ratio.geocode4_corr,\n      province_en,\n      CASE WHEN tcz IS NULL THEN &#39;0&#39; ELSE tcz END AS tcz, \n      CASE WHEN spz IS NULL \n      OR spz = &#39;#N/A&#39; THEN &#39;0&#39; ELSE spz END AS spz, \n      ratio.ownership, \n      soe_vs_pri, \n      for_vs_dom, \n      tso2_mandate_c, \n      in_10_000_tonnes, \n      ratio.output, \n      ratio.employment, \n      ratio.capital, \n      current_asset, \n      net_non_current,\n      intangible, \n      tangible,\n      total_asset,\n      c95  AS current_liabilities, \n      c97 AS lt_liabilities,\n      c98 AS from_asif_tot_liabilities,\n      total_liabilities, \n      total_right, \n      error,\n      cashflow, \n      sales, \n      tfp_op, \n      credit_constraint,\n      d_credit_constraint,\n      1/supply_all_credit as supply_all_credit,\n      1/supply_long_term_credit as supply_long_term_credit,\n      current_ratio, \n      quick_ratio, \n      liabilities_tot_asset, \n      sales_tot_asset, \n      --cash_tot_asset, \n      investment_tot_asset, \n      rd_tot_asset, \n      asset_tangibility_tot_asset, \n      cashflow_tot_asset, \n      cashflow_to_tangible, \n      return_to_sale,\n      CASE WHEN coverage_ratio IS NULL THEN 0 ELSE coverage_ratio /100 END AS coverage_ratio,\n      liquidity,\n      CASE WHEN export_to_sale IS NULL THEN 0 ELSE export_to_sale END AS export_to_sale,\n      labor_productivity /1000 as labor_productivity,\n      labor_capital,\n      age + 1 AS age,\n      CASE WHEN avg_asset_tangibility_f &gt; avg_asset_tangibility_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_size_asset_fci, \n      CASE WHEN avg_output_f &gt; avg_output_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_size_output_fci, \n      CASE WHEN avg_employment_f &gt; avg_employment_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_employment_fci, \n      CASE WHEN avg_capital_f &gt; avg_capital_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_size_capital_fci, \n      CASE WHEN avg_sales_f &gt; avg_sales_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_sales_fci, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_asset_tangibility_f\n          ), \n          pct_asset_tangibility_ci, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_asset_fci,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_asset_tangibility_f\n          ), \n          pct_asset_tangibility_c, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_asset_fc, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_asset_tangibility_f\n          ), \n          pct_asset_tangibility_i, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_asset_fi,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_output_f\n          ), \n          pct_output_ci, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_output_fci,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_output_f\n          ), \n          pct_output_c, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_output_fc,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_output_f\n          ), \n          pct_output_i, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_output_fi,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_employment_f\n          ), \n          pct_employment_ci, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_employment_fci, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_employment_f\n          ), \n          pct_employment_c, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_employment_fc, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_employment_f\n          ), \n          pct_employment_i, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_employment_fi, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_capital_f\n          ), \n          pct_capital_ci, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_capital_fci, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_capital_f\n          ), \n          pct_capital_c, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_capital_fc, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_capital_f\n          ), \n          pct_capital_i, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_capital_fi, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_sales_f\n          ), \n          pct_sales_ci, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_sales_fci, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_sales_f\n          ), \n          pct_sales_c, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_sales_fc,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_sales_f\n          ), \n          pct_sales_i, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_sales_fi,\n      count_ownership,\n      count_city,\n      count_industry,\n      DENSE_RANK() OVER (\n        ORDER BY \n          ratio.geocode4_corr, \n          ratio.cic\n      ) AS fe_c_i, \n      DENSE_RANK() OVER (\n        ORDER BY \n          ratio.year, \n          ratio.cic\n      ) AS fe_t_i, \n      DENSE_RANK() OVER (\n        ORDER BY \n          ratio.geocode4_corr, \n          ratio.year\n      ) AS fe_c_t \n    FROM \n      ratio \n      INNER JOIN (\n        SELECT \n          year, \n          geocode4_corr, \n          provinces, \n          cityen, \n          indus_code AS cic, \n          SUM(tso2) as tso2, \n          lower_location, \n          larger_location, \n          coastal \n        FROM \n          (\n            SELECT \n              year, \n              provinces, \n              citycode, \n              geocode4_corr, \n              china_city_sector_pollution.cityen, \n              indus_code, \n              tso2, \n              lower_location, \n              larger_location, \n              coastal \n            FROM \n              environment.china_city_sector_pollution \n              INNER JOIN (\n                SELECT \n                  extra_code, \n                  geocode4_corr \n                FROM \n                  chinese_lookup.china_city_code_normalised \n                GROUP BY \n                  extra_code, \n                  geocode4_corr\n              ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code\n          ) \n        GROUP BY \n          year, \n          provinces, \n          geocode4_corr, \n          cityen, \n          indus_code, \n          lower_location, \n          larger_location, \n          coastal\n      ) as aggregate_pol ON ratio.year = aggregate_pol.year \n      AND ratio.geocode4_corr = aggregate_pol.geocode4_corr \n      AND ratio.cic = aggregate_pol.cic \n      INNER JOIN (\n        SELECT \n          geocode4_corr, \n          tso2_mandate_c, \n          in_10_000_tonnes \n        FROM \n          policy.china_city_reduction_mandate \n          INNER JOIN chinese_lookup.china_city_code_normalised ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn \n        WHERE \n          extra_code = geocode4_corr\n      ) as city_mandate ON ratio.geocode4_corr = city_mandate.geocode4_corr \n      LEFT JOIN policy.china_city_tcz_spz ON ratio.geocode4_corr = china_city_tcz_spz.geocode4_corr \n      LEFT JOIN chinese_lookup.ind_cic_2_name ON ratio.indu_2 = ind_cic_2_name.cic\n      LEFT JOIN chinese_lookup.province_credit_constraint ON ratio.province_en = province_credit_constraint.Province\n      LEFT JOIN (\n        SELECT \n          cic, \n          financial_dep_china AS credit_constraint, \n          CASE WHEN financial_dep_china &gt; -.47 THEN &#39;ABOVE&#39; ELSE &#39;BELOW&#39; END AS d_credit_constraint \n        FROM \n          industry.china_credit_constraint\n      ) as cred_constraint ON ratio.indu_2 = cred_constraint.cic \n      LEFT JOIN (\n        SELECT \n          -- fake, \n          geocode4_corr, \n          indu_2,\n          approx_percentile(\n            avg_asset_tangibility_f, ARRAY[.5, \n            .75,.90,.95]\n          ) as pct_asset_tangibility_ci, \n          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility_ci, \n          approx_percentile(\n            avg_output_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_output_ci, \n          AVG(avg_output_f) AS avg_output_ci, \n          approx_percentile(\n            avg_employment_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_employment_ci, \n          AVG(avg_employment_f) AS avg_employment_ci, \n          approx_percentile(\n            avg_capital_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_capital_ci, \n          AVG(avg_capital_f) AS avg_capital_ci, \n          approx_percentile(\n            avg_sales_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_sales_ci, \n          AVG(avg_sales_f) AS avg_sales_ci \n        FROM \n          (\n            SELECT \n              firm, \n              geocode4_corr,\n              indu_2,\n              -- fake, \n              AVG(tangible) as avg_asset_tangibility_f, \n              AVG(output) as avg_output_f, \n              AVG(employment) as avg_employment_f, \n              AVG(capital) as avg_capital_f, \n              AVG(sales) as avg_sales_f \n            FROM \n              ratio \n            GROUP BY \n              -- fake, \n              firm,\n              geocode4_corr,\n              indu_2\n          ) \n        GROUP BY \n          -- fake\n          geocode4_corr, \n          indu_2\n      ) as pct_ci ON ratio.geocode4_corr = pct_ci.geocode4_corr \n    AND ratio.indu_2 = pct_ci.indu_2\n    LEFT JOIN (\n        SELECT \n          -- fake, \n          geocode4_corr, \n          approx_percentile(\n            avg_asset_tangibility_f, ARRAY[.5, \n            .75,.90,.95]\n          ) as pct_asset_tangibility_c, \n          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility_c, \n          approx_percentile(\n            avg_output_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_output_c, \n          AVG(avg_output_f) AS avg_output_c, \n          approx_percentile(\n            avg_employment_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_employment_c, \n          AVG(avg_employment_f) AS avg_employment_c, \n          approx_percentile(\n            avg_capital_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_capital_c, \n          AVG(avg_capital_f) AS avg_capital_c, \n          approx_percentile(\n            avg_sales_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_sales_c, \n          AVG(avg_sales_f) AS avg_sales_c\n        FROM \n          (\n            SELECT \n              firm, \n              geocode4_corr,\n              -- fake, \n              AVG(tangible) as avg_asset_tangibility_f, \n              AVG(output) as avg_output_f, \n              AVG(employment) as avg_employment_f, \n              AVG(capital) as avg_capital_f, \n              AVG(sales) as avg_sales_f \n            FROM \n              ratio \n            GROUP BY \n              -- fake, \n              firm,\n              geocode4_corr\n          ) \n        GROUP BY \n          -- fake\n          geocode4_corr\n      ) as pct_c ON ratio.geocode4_corr = pct_c.geocode4_corr\n      LEFT JOIN (\n        SELECT \n          -- fake, \n          indu_2, \n          approx_percentile(\n            avg_asset_tangibility_f, ARRAY[.5, \n            .75,.90,.95]\n          ) as pct_asset_tangibility_i, \n          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility_i, \n          approx_percentile(\n            avg_output_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_output_i, \n          AVG(avg_output_f) AS avg_output_i, \n          approx_percentile(\n            avg_employment_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_employment_i, \n          AVG(avg_employment_f) AS avg_employment_i, \n          approx_percentile(\n            avg_capital_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_capital_i, \n          AVG(avg_capital_f) AS avg_capital_i, \n          approx_percentile(\n            avg_sales_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_sales_i, \n          AVG(avg_sales_f) AS avg_sales_i\n        FROM \n          (\n            SELECT \n              firm, \n              indu_2,\n              -- fake, \n              AVG(tangible) as avg_asset_tangibility_f, \n              AVG(output) as avg_output_f, \n              AVG(employment) as avg_employment_f, \n              AVG(capital) as avg_capital_f, \n              AVG(sales) as avg_sales_f \n            FROM \n              ratio \n            GROUP BY \n              -- fake, \n              firm,\n              indu_2\n          ) \n        GROUP BY \n          -- fake\n          indu_2\n      ) as pct_i ON ratio.indu_2 = pct_i.indu_2 \n      INNER JOIN (\n        SELECT \n          firm, \n          -- fake, \n          AVG(tangible) as avg_asset_tangibility_f,\n          AVG(output) as avg_output_f, \n          AVG(employment) as avg_employment_f, \n          AVG(capital) as avg_capital_f, \n          AVG(sales) as avg_sales_f\n        FROM \n          ratio \n        GROUP BY \n          -- fake, \n          firm\n      ) as firm_avg ON ratio.firm = firm_avg.firm\n    INNER JOIN firms_survey.asif_tfp_firm_level on \n      ratio.firm = asif_tfp_firm_level.firm \n      AND ratio.year = asif_tfp_firm_level.year\n      AND ratio.geocode4_corr = asif_tfp_firm_level.geocode4_corr\n      AND ratio.ownership = asif_tfp_firm_level.ownership\n    ORDER BY \n      year \n  )\n&#34;,
+ &#39;query&#39;: &#34;\nCREATE TABLE firms_survey.asif_tfp_credit_constraint WITH (format = &#39;PARQUET&#39;) AS\nWITH test AS (\n  SELECT \n    *, \n    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(\n      &#39;0&#39;, \n      substr(cic, 1, 1)\n    ) END AS indu_2, \n    c80 + c81 + c82 + c79 as current_asset,\n    c91 + c92 AS intangible, \n    tofixed - cudepre AS tangible, \n    tofixed - cudepre + (c91 + c92) AS net_non_current, \n    (\n      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n    ) - (c95 + c97 + c99) AS error, \n    c95 + c97 as total_liabilities,\n    CASE WHEN (\n      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n    ) - (c95 + c97 + c99) &gt; 0 THEN (c95 + c97 + c99) + ABS(\n      (\n        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n      ) - (c95 + c97 + c99)\n    ) ELSE (c95 + c97 + c99) END AS total_right, \n    CASE WHEN (\n      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n    ) - (c95 + c97 + c99) &lt; 0 THEN (c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)) + ABS(\n      (\n        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n      ) - (c95 + c97 + c99)\n    ) ELSE (\n      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)\n    ) END AS total_asset, \n    (c131 - c134) + cudepre as cashflow, \n    CAST(\n      c80 + c81 + c82 + c79 AS DECIMAL(16, 5)\n    ) / NULLIF(\n      CAST(\n        c95 AS DECIMAL(16, 5)\n      ), \n      0\n    ) AS current_ratio, \n    CAST(\n      c80 + c81 + c82 + c79 - c80 - c81 AS DECIMAL(16, 5)\n    ) / NULLIF(\n      CAST(\n        c95 AS DECIMAL(16, 5)\n      ), \n      0\n    ) AS quick_ratio \n    \n  FROM \n    firms_survey.asif_firms_prepared \n    INNER JOIN (\n      SELECT \n        extra_code, \n        geocode4_corr,\n      province_en\n      FROM \n        chinese_lookup.china_city_code_normalised \n      GROUP BY \n        extra_code, \n      province_en,\n        geocode4_corr\n    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code\n  WHERE\n  c95 &gt; 0 -- current liabilities\n  AND c97 &gt;0 -- long term liabilities\n  AND c98 &gt; 0 -- total liabilities\n  AND c99 &gt; 0 -- equity\n  AND c80 + c81 + c82 + c79 &gt; 0\n  AND tofixed &gt; 0\n  AND output &gt; 0 \n  and employ &gt; 0\n) \nSELECT \n  * \nFROM \n  (\n    WITH ratio AS (\n      SELECT \n        firm, \n        year, \n        cic, \n        indu_2, \n        geocode4_corr,\n        province_en,\n        ownership, \n        CASE WHEN ownership = &#39;SOE&#39; THEN &#39;SOE&#39; ELSE &#39;PRIVATE&#39; END AS soe_vs_pri, \n        CASE WHEN ownership in (&#39;HTM&#39;, &#39;FOREIGN&#39;) THEN &#39;FOREIGN&#39; ELSE &#39;DOMESTIC&#39; END AS for_vs_dom, \n        CAST(\n          output AS DECIMAL(16, 5)\n        ) AS output, \n        CAST(\n          sales AS DECIMAL(16, 5)\n        ) AS sales, \n        CAST(\n          employ AS DECIMAL(16, 5)\n        ) AS employment, \n        CAST(\n          captal AS DECIMAL(16, 5)\n        ) AS capital, \n        current_asset, \n        net_non_current, \n        total_liabilities, \n        total_asset,\n        total_right, \n        error,\n        c91,\n        c92,\n        c95,\n        c97,\n        c98,\n        intangible, \n        tangible, \n        cashflow, \n        current_ratio,\n        quick_ratio,\n        CAST(\n          c98 AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS liabilities_tot_asset, \n        CAST(\n          sales AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS sales_tot_asset,         \n        CAST(\n          c84 AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS investment_tot_asset, \n        CAST(\n          rdfee AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS rd_tot_asset, \n        CAST(\n          tangible AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) asset_tangibility_tot_asset, \n        CAST(\n          cashflow AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            total_asset AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS cashflow_tot_asset, \n        CAST(\n          cashflow AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            tangible AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS cashflow_to_tangible,\n       -- update\n       CAST(\n          c131 AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            sales AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS return_to_sale,\n       CAST(\n          c131 AS DECIMAL(16, 5)\n        ) / NULLIF(\n          CAST(\n            c125 AS DECIMAL(16, 5)\n          ), \n          0\n        ) AS coverage_ratio,\n       CAST(\n          current_asset - c95 AS DECIMAL(16, 5)\n         ) /\n           CAST(\n            total_asset AS DECIMAL(16, 5)\n          ) AS liquidity,\n         CAST(\n          sales AS DECIMAL(16, 5)\n         ) / NULLIF(\n          CAST(\n            employ AS DECIMAL(16, 5)\n          ), \n          0\n         ) AS labor_productivity,\n         CAST(\n          employ AS DECIMAL(16, 5)\n         ) / NULLIF(\n          CAST(\n            tangible/10  AS DECIMAL(16, 5)\n          ), \n          0\n         ) AS labor_capital,\n        CAST(year AS DECIMAL(16, 5)) - CAST(setup AS DECIMAL(16, 5)) AS age,\n        CAST(\n           export AS DECIMAL(16, 5)\n         ) / NULLIF(\n          CAST(\n            sales AS DECIMAL(16, 5)\n          ), \n          0\n         ) AS export_to_sale,\n        &#39;FAKE&#39; AS fake \n      FROM \n        test \n      WHERE \n        year in (\n          &#39;2000&#39;, &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, \n          &#39;2005&#39;, &#39;2006&#39;, &#39;2007&#39;\n        )\n        AND tangible &gt; 0\n    ) \n    SELECT \n      ratio.firm, \n      ratio.year, \n      CASE WHEN ratio.year in (\n        &#39;2001&#39;, &#39;2002&#39;, &#39;2003&#39;, &#39;2004&#39;, &#39;2005&#39;\n      ) THEN &#39;FALSE&#39; WHEN ratio.year in (&#39;2006&#39;, &#39;2007&#39;) THEN &#39;TRUE&#39; END AS period, \n      ratio.cic, \n      ratio.indu_2, \n      CASE WHEN short IS NULL THEN &#39;Unknown&#39; ELSE short END AS short, \n      ratio.geocode4_corr,\n      province_en,\n      CASE WHEN tcz IS NULL THEN &#39;0&#39; ELSE tcz END AS tcz, \n      CASE WHEN spz IS NULL \n      OR spz = &#39;#N/A&#39; THEN &#39;0&#39; ELSE spz END AS spz, \n      ratio.ownership, \n      soe_vs_pri, \n      for_vs_dom, \n      tso2_mandate_c, \n      in_10_000_tonnes, \n      ratio.output, \n      ratio.employment, \n      ratio.capital, \n      current_asset,\n      net_non_current,\n      intangible, \n      tangible,\n      total_asset,\n      c95  AS current_liabilities, \n      c97 AS lt_liabilities,\n      c98 AS from_asif_tot_liabilities,\n      total_liabilities, \n      total_right, \n      error,\n      cashflow, \n      sales, \n      tfp_op, \n      credit_constraint,\n      d_credit_constraint,\n      1/supply_all_credit as supply_all_credit,\n      1/supply_long_term_credit as supply_long_term_credit,\n      current_ratio,\n      LAG(current_ratio, 1) OVER (\n        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic \n        ORDER BY \n          ratio.year\n      ) as lag_current_ratio,\n      quick_ratio, \n      liabilities_tot_asset,\n      LAG(liabilities_tot_asset, 1) OVER (\n        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic \n        ORDER BY \n          ratio.year\n      ) as lag_liabilities_tot_asset,\n      sales_tot_asset,\n      LAG(sales_tot_asset, 1) OVER (\n        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic \n        ORDER BY \n          ratio.year\n      ) as lag_sales_tot_asset,\n      --cash_tot_asset, \n      investment_tot_asset, \n      rd_tot_asset, \n      asset_tangibility_tot_asset, \n      cashflow_tot_asset, \n      cashflow_to_tangible,\n       LAG(cashflow_to_tangible, 1) OVER (\n        PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic \n        ORDER BY \n          ratio.year\n      ) as lag_cashflow_to_tangible,\n      return_to_sale,\n      CASE WHEN coverage_ratio IS NULL THEN 0 ELSE coverage_ratio /100 END AS coverage_ratio,\n      liquidity,\n      CASE WHEN export_to_sale IS NULL THEN 0 ELSE export_to_sale END AS export_to_sale,\n      labor_productivity /1000 as labor_productivity,\n      labor_capital,\n      age + 1 AS age,\n      CASE WHEN avg_asset_tangibility_f &gt; avg_asset_tangibility_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_size_asset_fci, \n      CASE WHEN avg_output_f &gt; avg_output_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_size_output_fci, \n      CASE WHEN avg_employment_f &gt; avg_employment_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_employment_fci, \n      CASE WHEN avg_capital_f &gt; avg_capital_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_size_capital_fci, \n      CASE WHEN avg_sales_f &gt; avg_sales_ci THEN &#39;LARGE&#39; ELSE &#39;SMALL&#39; END AS avg_sales_fci, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_asset_tangibility_f\n          ), \n          pct_asset_tangibility_ci, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_asset_fci,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_asset_tangibility_f\n          ), \n          pct_asset_tangibility_c, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_asset_fc, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_asset_tangibility_f\n          ), \n          pct_asset_tangibility_i, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_asset_fi,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_output_f\n          ), \n          pct_output_ci, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_output_fci,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_output_f\n          ), \n          pct_output_c, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_output_fc,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_output_f\n          ), \n          pct_output_i, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_output_fi,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_employment_f\n          ), \n          pct_employment_ci, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_employment_fci, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_employment_f\n          ), \n          pct_employment_c, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_employment_fc, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_employment_f\n          ), \n          pct_employment_i, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_employment_fi, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_capital_f\n          ), \n          pct_capital_ci, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_capital_fci, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_capital_f\n          ), \n          pct_capital_c, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_capital_fc, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_capital_f\n          ), \n          pct_capital_i, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_capital_fi, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_sales_f\n          ), \n          pct_sales_ci, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_sales_fci, \n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_sales_f\n          ), \n          pct_sales_c, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_sales_fc,\n      MAP(\n        ARRAY[.5, \n        .75, \n        .90, \n        .95 ], \n        zip_with(\n          transform(\n            sequence(1, 4), \n            x -&gt; avg_sales_f\n          ), \n          pct_sales_i, \n          (x, y) -&gt; x &gt; y\n        )\n      ) AS size_sales_fi,\n      count_ownership,\n      count_city,\n      count_industry,\n      DENSE_RANK() OVER (\n        ORDER BY \n          ratio.geocode4_corr, \n          ratio.cic\n      ) AS fe_c_i, \n      DENSE_RANK() OVER (\n        ORDER BY \n          ratio.year, \n          ratio.cic\n      ) AS fe_t_i, \n      DENSE_RANK() OVER (\n        ORDER BY \n          ratio.geocode4_corr, \n          ratio.year\n      ) AS fe_c_t \n    FROM \n      ratio \n      INNER JOIN (\n        SELECT \n          year, \n          geocode4_corr, \n          provinces, \n          cityen, \n          indus_code AS cic, \n          SUM(tso2) as tso2, \n          lower_location, \n          larger_location, \n          coastal \n        FROM \n          (\n            SELECT \n              year, \n              provinces, \n              citycode, \n              geocode4_corr, \n              china_city_sector_pollution.cityen, \n              indus_code, \n              tso2, \n              lower_location, \n              larger_location, \n              coastal \n            FROM \n              environment.china_city_sector_pollution \n              INNER JOIN (\n                SELECT \n                  extra_code, \n                  geocode4_corr \n                FROM \n                  chinese_lookup.china_city_code_normalised \n                GROUP BY \n                  extra_code, \n                  geocode4_corr\n              ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code\n          ) \n        GROUP BY \n          year, \n          provinces, \n          geocode4_corr, \n          cityen, \n          indus_code, \n          lower_location, \n          larger_location, \n          coastal\n      ) as aggregate_pol ON ratio.year = aggregate_pol.year \n      AND ratio.geocode4_corr = aggregate_pol.geocode4_corr \n      AND ratio.cic = aggregate_pol.cic \n      INNER JOIN (\n        SELECT \n          geocode4_corr, \n          tso2_mandate_c, \n          in_10_000_tonnes \n        FROM \n          policy.china_city_reduction_mandate \n          INNER JOIN chinese_lookup.china_city_code_normalised ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn \n        WHERE \n          extra_code = geocode4_corr\n      ) as city_mandate ON ratio.geocode4_corr = city_mandate.geocode4_corr \n      LEFT JOIN policy.china_city_tcz_spz ON ratio.geocode4_corr = china_city_tcz_spz.geocode4_corr \n      LEFT JOIN chinese_lookup.ind_cic_2_name ON ratio.indu_2 = ind_cic_2_name.cic\n      LEFT JOIN chinese_lookup.province_credit_constraint ON ratio.province_en = province_credit_constraint.Province\n      LEFT JOIN (\n        SELECT \n          cic, \n          financial_dep_china AS credit_constraint, \n          CASE WHEN financial_dep_china &gt; -.47 THEN &#39;ABOVE&#39; ELSE &#39;BELOW&#39; END AS d_credit_constraint \n        FROM \n          industry.china_credit_constraint\n      ) as cred_constraint ON ratio.indu_2 = cred_constraint.cic \n      LEFT JOIN (\n        SELECT \n          -- fake, \n          geocode4_corr, \n          indu_2,\n          approx_percentile(\n            avg_asset_tangibility_f, ARRAY[.5, \n            .75,.90,.95]\n          ) as pct_asset_tangibility_ci, \n          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility_ci, \n          approx_percentile(\n            avg_output_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_output_ci, \n          AVG(avg_output_f) AS avg_output_ci, \n          approx_percentile(\n            avg_employment_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_employment_ci, \n          AVG(avg_employment_f) AS avg_employment_ci, \n          approx_percentile(\n            avg_capital_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_capital_ci, \n          AVG(avg_capital_f) AS avg_capital_ci, \n          approx_percentile(\n            avg_sales_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_sales_ci, \n          AVG(avg_sales_f) AS avg_sales_ci \n        FROM \n          (\n            SELECT \n              firm, \n              geocode4_corr,\n              indu_2,\n              -- fake, \n              AVG(tangible) as avg_asset_tangibility_f, \n              AVG(output) as avg_output_f, \n              AVG(employment) as avg_employment_f, \n              AVG(capital) as avg_capital_f, \n              AVG(sales) as avg_sales_f \n            FROM \n              ratio \n            GROUP BY \n              -- fake, \n              firm,\n              geocode4_corr,\n              indu_2\n          ) \n        GROUP BY \n          -- fake\n          geocode4_corr, \n          indu_2\n      ) as pct_ci ON ratio.geocode4_corr = pct_ci.geocode4_corr \n    AND ratio.indu_2 = pct_ci.indu_2\n    LEFT JOIN (\n        SELECT \n          -- fake, \n          geocode4_corr, \n          approx_percentile(\n            avg_asset_tangibility_f, ARRAY[.5, \n            .75,.90,.95]\n          ) as pct_asset_tangibility_c, \n          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility_c, \n          approx_percentile(\n            avg_output_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_output_c, \n          AVG(avg_output_f) AS avg_output_c, \n          approx_percentile(\n            avg_employment_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_employment_c, \n          AVG(avg_employment_f) AS avg_employment_c, \n          approx_percentile(\n            avg_capital_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_capital_c, \n          AVG(avg_capital_f) AS avg_capital_c, \n          approx_percentile(\n            avg_sales_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_sales_c, \n          AVG(avg_sales_f) AS avg_sales_c\n        FROM \n          (\n            SELECT \n              firm, \n              geocode4_corr,\n              -- fake, \n              AVG(tangible) as avg_asset_tangibility_f, \n              AVG(output) as avg_output_f, \n              AVG(employment) as avg_employment_f, \n              AVG(capital) as avg_capital_f, \n              AVG(sales) as avg_sales_f \n            FROM \n              ratio \n            GROUP BY \n              -- fake, \n              firm,\n              geocode4_corr\n          ) \n        GROUP BY \n          -- fake\n          geocode4_corr\n      ) as pct_c ON ratio.geocode4_corr = pct_c.geocode4_corr\n      LEFT JOIN (\n        SELECT \n          -- fake, \n          indu_2, \n          approx_percentile(\n            avg_asset_tangibility_f, ARRAY[.5, \n            .75,.90,.95]\n          ) as pct_asset_tangibility_i, \n          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility_i, \n          approx_percentile(\n            avg_output_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_output_i, \n          AVG(avg_output_f) AS avg_output_i, \n          approx_percentile(\n            avg_employment_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_employment_i, \n          AVG(avg_employment_f) AS avg_employment_i, \n          approx_percentile(\n            avg_capital_f, ARRAY[.5,.75,.90, \n            .95]\n          ) as pct_capital_i, \n          AVG(avg_capital_f) AS avg_capital_i, \n          approx_percentile(\n            avg_sales_f, ARRAY[.5,.75,.90,.95]\n          ) as pct_sales_i, \n          AVG(avg_sales_f) AS avg_sales_i\n        FROM \n          (\n            SELECT \n              firm, \n              indu_2,\n              -- fake, \n              AVG(tangible) as avg_asset_tangibility_f, \n              AVG(output) as avg_output_f, \n              AVG(employment) as avg_employment_f, \n              AVG(capital) as avg_capital_f, \n              AVG(sales) as avg_sales_f \n            FROM \n              ratio \n            GROUP BY \n              -- fake, \n              firm,\n              indu_2\n          ) \n        GROUP BY \n          -- fake\n          indu_2\n      ) as pct_i ON ratio.indu_2 = pct_i.indu_2 \n      INNER JOIN (\n        SELECT \n          firm, \n          -- fake, \n          AVG(tangible) as avg_asset_tangibility_f,\n          AVG(output) as avg_output_f, \n          AVG(employment) as avg_employment_f, \n          AVG(capital) as avg_capital_f, \n          AVG(sales) as avg_sales_f\n        FROM \n          ratio \n        GROUP BY \n          -- fake, \n          firm\n      ) as firm_avg ON ratio.firm = firm_avg.firm\n    INNER JOIN firms_survey.asif_tfp_firm_level on \n      ratio.firm = asif_tfp_firm_level.firm \n      AND ratio.year = asif_tfp_firm_level.year\n      AND ratio.geocode4_corr = asif_tfp_firm_level.geocode4_corr\n      AND ratio.ownership = asif_tfp_firm_level.ownership\n    ORDER BY \n      year \n  )\n&#34;,
  &#39;schema&#39;: [{&#39;Name&#39;: &#39;firm&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;firm ID&#39;},
   {&#39;Name&#39;: &#39;year&#39;, &#39;Type&#39;: &#39;string&#39;, &#39;Comment&#39;: &#39;year&#39;},
   {&#39;Name&#39;: &#39;period&#39;,
@@ -17972,15 +18064,24 @@ Wall time: 32.1 s
   {&#39;Name&#39;: &#39;current_ratio&#39;,
    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
    &#39;Comment&#39;: &#39;current ratio cuasset/流动负债合计 (c95)&#39;},
+  {&#39;Name&#39;: &#39;lag_current_ratio&#39;,
+   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+   &#39;Comment&#39;: &#39;lag current ratio&#39;},
   {&#39;Name&#39;: &#39;quick_ratio&#39;,
    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
    &#39;Comment&#39;: &#39;quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)&#39;},
   {&#39;Name&#39;: &#39;liabilities_tot_asset&#39;,
    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
    &#39;Comment&#39;: &#39;liabilities to total asset&#39;},
+  {&#39;Name&#39;: &#39;lag_liabilities_tot_asset&#39;,
+   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+   &#39;Comment&#39;: &#39;lag liabilities to asset&#39;},
   {&#39;Name&#39;: &#39;sales_tot_asset&#39;,
    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
    &#39;Comment&#39;: &#39;sales to total asset&#39;},
+  {&#39;Name&#39;: &#39;lag_sales_tot_asset&#39;,
+   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+   &#39;Comment&#39;: &#39;lag sales to asset&#39;},
   {&#39;Name&#39;: &#39;investment_tot_asset&#39;,
    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
    &#39;Comment&#39;: &#39;investment to total asset&#39;},
@@ -17996,6 +18097,9 @@ Wall time: 32.1 s
   {&#39;Name&#39;: &#39;cashflow_to_tangible&#39;,
    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
    &#39;Comment&#39;: &#39;cashflow to tangible asset&#39;},
+  {&#39;Name&#39;: &#39;lag_cashflow_to_tangible&#39;,
+   &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+   &#39;Comment&#39;: &#39;lag cashflow to tangible asset&#39;},
   {&#39;Name&#39;: &#39;return_to_sale&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
   {&#39;Name&#39;: &#39;export_to_sale&#39;,
    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
@@ -18100,7 +18204,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[21]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[25]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
@@ -18121,7 +18225,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[22]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">index_to_remove</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
@@ -18144,7 +18248,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[23]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;TABLES&#39;</span><span class="p">][</span><span class="s1">&#39;TRANSFORMATION&#39;</span><span class="p">][</span><span class="s1">&#39;STEPS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">json_etl</span><span class="p">)</span>
@@ -18164,7 +18268,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[28]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="s1">&#39;parameters_ETL_Financial_dependency_pollution.json&#39;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span><span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
@@ -18206,7 +18310,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[25]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">glue</span><span class="o">.</span><span class="n">update_schema_table</span><span class="p">(</span>
@@ -18228,19 +18332,19 @@ Wall time: 32.1 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[25]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[29]:</div>
 
 
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;5f56e778-572e-4e35-a997-ddf9c08f70c9&#39;,
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;ec1bb7e7-e5dc-422f-8ab5-998cf78cd24e&#39;,
   &#39;HTTPStatusCode&#39;: 200,
-  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 31 Jan 2021 12:52:39 GMT&#39;,
+  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Thu, 04 Feb 2021 08:34:26 GMT&#39;,
    &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;,
    &#39;content-length&#39;: &#39;2&#39;,
    &#39;connection&#39;: &#39;keep-alive&#39;,
-   &#39;x-amzn-requestid&#39;: &#39;5f56e778-572e-4e35-a997-ddf9c08f70c9&#39;},
+   &#39;x-amzn-requestid&#39;: &#39;ec1bb7e7-e5dc-422f-8ab5-998cf78cd24e&#39;},
   &#39;RetryAttempts&#39;: 0}}</pre>
 </div>
 
@@ -18260,7 +18364,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[26]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[30]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">partition_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;firm&quot;</span><span class="p">,</span><span class="s2">&quot;year&quot;</span><span class="p">,</span><span class="s2">&quot;cic&quot;</span><span class="p">,</span><span class="s2">&quot;geocode4_corr&quot;</span><span class="p">]</span>
@@ -18277,7 +18381,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[31]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### COUNT DUPLICATES</span>
@@ -18360,7 +18464,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[28]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[32]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#table = &#39;XX&#39;</span>
@@ -18384,7 +18488,7 @@ Wall time: 32.1 s
 <div class="jp-OutputArea-child">
 
     
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[28]:</div>
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[32]:</div>
 
 
 
@@ -18393,8 +18497,8 @@ Wall time: 32.1 s
 <pre>{&#39;Name&#39;: &#39;asif_tfp_credit_constraint&#39;,
  &#39;DatabaseName&#39;: &#39;firms_survey&#39;,
  &#39;Owner&#39;: &#39;468786073381&#39;,
- &#39;CreateTime&#39;: datetime.datetime(2021, 1, 31, 12, 38, 39, tzinfo=tzlocal()),
- &#39;UpdateTime&#39;: datetime.datetime(2021, 1, 31, 12, 52, 39, tzinfo=tzlocal()),
+ &#39;CreateTime&#39;: datetime.datetime(2021, 2, 4, 8, 30, 37, tzinfo=tzlocal()),
+ &#39;UpdateTime&#39;: datetime.datetime(2021, 2, 4, 8, 34, 26, tzinfo=tzlocal()),
  &#39;LastAccessTime&#39;: datetime.datetime(1970, 1, 1, 0, 0, tzinfo=tzlocal()),
  &#39;Retention&#39;: 0,
  &#39;StorageDescriptor&#39;: {&#39;Columns&#39;: [{&#39;Name&#39;: &#39;firm&#39;,
@@ -18476,15 +18580,24 @@ Wall time: 32.1 s
    {&#39;Name&#39;: &#39;current_ratio&#39;,
     &#39;Type&#39;: &#39;decimal(21,5)&#39;,
     &#39;Comment&#39;: &#39;current ratio cuasset/流动负债合计 (c95)&#39;},
+   {&#39;Name&#39;: &#39;lag_current_ratio&#39;,
+    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+    &#39;Comment&#39;: &#39;lag current ratio&#39;},
    {&#39;Name&#39;: &#39;quick_ratio&#39;,
     &#39;Type&#39;: &#39;decimal(21,5)&#39;,
     &#39;Comment&#39;: &#39;quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)&#39;},
    {&#39;Name&#39;: &#39;liabilities_tot_asset&#39;,
     &#39;Type&#39;: &#39;decimal(21,5)&#39;,
     &#39;Comment&#39;: &#39;liabilities to total asset&#39;},
+   {&#39;Name&#39;: &#39;lag_liabilities_tot_asset&#39;,
+    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+    &#39;Comment&#39;: &#39;lag liabilities to asset&#39;},
    {&#39;Name&#39;: &#39;sales_tot_asset&#39;,
     &#39;Type&#39;: &#39;decimal(21,5)&#39;,
     &#39;Comment&#39;: &#39;sales to total asset&#39;},
+   {&#39;Name&#39;: &#39;lag_sales_tot_asset&#39;,
+    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+    &#39;Comment&#39;: &#39;lag sales to asset&#39;},
    {&#39;Name&#39;: &#39;investment_tot_asset&#39;,
     &#39;Type&#39;: &#39;decimal(21,5)&#39;,
     &#39;Comment&#39;: &#39;investment to total asset&#39;},
@@ -18500,6 +18613,9 @@ Wall time: 32.1 s
    {&#39;Name&#39;: &#39;cashflow_to_tangible&#39;,
     &#39;Type&#39;: &#39;decimal(21,5)&#39;,
     &#39;Comment&#39;: &#39;cashflow to tangible asset&#39;},
+   {&#39;Name&#39;: &#39;lag_cashflow_to_tangible&#39;,
+    &#39;Type&#39;: &#39;decimal(21,5)&#39;,
+    &#39;Comment&#39;: &#39;lag cashflow to tangible asset&#39;},
    {&#39;Name&#39;: &#39;return_to_sale&#39;, &#39;Type&#39;: &#39;decimal(21,5)&#39;, &#39;Comment&#39;: &#39;&#39;},
    {&#39;Name&#39;: &#39;coverage_ratio&#39;,
     &#39;Type&#39;: &#39;decimal(21,5)&#39;,
@@ -18581,7 +18697,7 @@ Wall time: 32.1 s
    {&#39;Name&#39;: &#39;fe_c_t&#39;,
     &#39;Type&#39;: &#39;bigint&#39;,
     &#39;Comment&#39;: &#39;city industry fixed effect&#39;}],
-  &#39;Location&#39;: &#39;s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/TFP/CREDIT_CONSTRAINT/tables/a2bf9918-368d-4c63-b894-9fba5564f371&#39;,
+  &#39;Location&#39;: &#39;s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/TFP/CREDIT_CONSTRAINT/tables/d0bbf94f-2deb-4231-9382-b4aad34f1352&#39;,
   &#39;InputFormat&#39;: &#39;org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat&#39;,
   &#39;OutputFormat&#39;: &#39;org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat&#39;,
   &#39;Compressed&#39;: False,
@@ -18612,7 +18728,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[33]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
@@ -18627,7 +18743,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[30]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[34]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">table_top</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;ANALYSIS&quot;</span><span class="p">][</span><span class="s2">&quot;COUNT_MISSING&quot;</span><span class="p">][</span><span class="s2">&quot;top&quot;</span><span class="p">]</span>
@@ -18682,420 +18798,444 @@ Wall time: 32.1 s
 
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output " data-mime-type="text/html">
 <style  type="text/css" >
-#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row0_col1{
+#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row0_col1{
             width:  10em;
              height:  80%;
             background:  linear-gradient(90deg,#d65f5f 100.0%, transparent 100.0%);
-        }#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row1_col1{
+        }#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row1_col1{
             width:  10em;
              height:  80%;
             background:  linear-gradient(90deg,#d65f5f 61.3%, transparent 61.3%);
-        }#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row2_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row3_col1{
+        }#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row2_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row3_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row4_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row5_col1{
+            width:  10em;
+             height:  80%;
+            background:  linear-gradient(90deg,#d65f5f 60.4%, transparent 60.4%);
+        }#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row6_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row7_col1{
             width:  10em;
              height:  80%;
             background:  linear-gradient(90deg,#d65f5f 0.2%, transparent 0.2%);
-        }#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row4_col1{
+        }#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row8_col1{
             width:  10em;
              height:  80%;
             background:  linear-gradient(90deg,#d65f5f 0.0%, transparent 0.0%);
-        }#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row5_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row6_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row7_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row8_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row9_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row10_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row11_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row12_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row13_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row14_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row15_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row16_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row17_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row18_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row19_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row20_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row21_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row22_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row23_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row24_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row25_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row26_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row27_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row28_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row29_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row30_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row31_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row32_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row33_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row34_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row35_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row36_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row37_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row38_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row39_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row40_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row41_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row42_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row43_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row44_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row45_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row46_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row47_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row48_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row49_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row50_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row51_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row52_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row53_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row54_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row55_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row56_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row57_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row58_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row59_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row60_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row61_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row62_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row63_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row64_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row65_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row66_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row67_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row68_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row69_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row70_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row71_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row72_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row73_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row74_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row75_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row76_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row77_col1,#T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row78_col1{
+        }#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row9_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row10_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row11_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row12_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row13_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row14_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row15_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row16_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row17_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row18_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row19_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row20_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row21_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row22_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row23_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row24_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row25_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row26_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row27_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row28_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row29_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row30_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row31_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row32_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row33_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row34_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row35_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row36_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row37_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row38_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row39_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row40_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row41_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row42_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row43_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row44_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row45_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row46_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row47_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row48_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row49_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row50_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row51_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row52_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row53_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row54_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row55_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row56_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row57_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row58_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row59_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row60_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row61_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row62_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row63_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row64_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row65_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row66_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row67_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row68_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row69_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row70_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row71_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row72_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row73_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row74_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row75_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row76_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row77_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row78_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row79_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row80_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row81_col1,#T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row82_col1{
             width:  10em;
              height:  80%;
-        }</style><table id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >total_missing</th>        <th class="col_heading level0 col1" >total_missing_pct</th>    </tr></thead><tbody>
+        }</style><table id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68" ><thead>    <tr>        <th class="blank level0" ></th>        <th class="col_heading level0 col0" >total_missing</th>        <th class="col_heading level0 col1" >total_missing_pct</th>    </tr></thead><tbody>
                 <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row0" class="row_heading level0 row0" >nb_obs</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row0_col0" class="data row0 col0" >237542</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row0_col1" class="data row0 col1" >100.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row0" class="row_heading level0 row0" >nb_obs</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row0_col0" class="data row0 col0" >237542</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row0_col1" class="data row0 col1" >100.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row1" class="row_heading level0 row1" >rd_tot_asset</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row1_col0" class="data row1 col0" >145701</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row1_col1" class="data row1 col1" >61.34%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row1" class="row_heading level0 row1" >rd_tot_asset</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row1_col0" class="data row1 col0" >145701</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row1_col1" class="data row1 col1" >61.34%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row2" class="row_heading level0 row2" >d_credit_constraint</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row2_col0" class="data row2 col0" >438</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row2_col1" class="data row2 col1" >0.18%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row2" class="row_heading level0 row2" >lag_current_ratio</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row2_col0" class="data row2 col0" >143583</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row2_col1" class="data row2 col1" >60.45%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row3" class="row_heading level0 row3" >credit_constraint</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row3_col0" class="data row3 col0" >438</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row3_col1" class="data row3 col1" >0.18%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row3" class="row_heading level0 row3" >lag_cashflow_to_tangible</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row3_col0" class="data row3 col0" >143583</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row3_col1" class="data row3 col1" >60.45%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row4" class="row_heading level0 row4" >labor_capital</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row4_col0" class="data row4 col0" >60</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row4_col1" class="data row4 col1" >0.03%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row4" class="row_heading level0 row4" >lag_sales_tot_asset</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row4_col0" class="data row4 col0" >143583</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row4_col1" class="data row4 col1" >60.45%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row5" class="row_heading level0 row5" >fe_t_i</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row5_col0" class="data row5 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row5_col1" class="data row5 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row5" class="row_heading level0 row5" >lag_liabilities_tot_asset</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row5_col0" class="data row5 col0" >143583</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row5_col1" class="data row5 col1" >60.45%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row6" class="row_heading level0 row6" >labor_productivity</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row6_col0" class="data row6 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row6_col1" class="data row6 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row6" class="row_heading level0 row6" >credit_constraint</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row6_col0" class="data row6 col0" >438</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row6_col1" class="data row6 col1" >0.18%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row7" class="row_heading level0 row7" >avg_size_capital_fci</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row7_col0" class="data row7 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row7_col1" class="data row7 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row7" class="row_heading level0 row7" >d_credit_constraint</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row7_col0" class="data row7 col0" >438</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row7_col1" class="data row7 col1" >0.18%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row8" class="row_heading level0 row8" >avg_employment_fci</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row8_col0" class="data row8 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row8_col1" class="data row8 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row8" class="row_heading level0 row8" >labor_capital</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row8_col0" class="data row8 col0" >60</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row8_col1" class="data row8 col1" >0.03%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row9" class="row_heading level0 row9" >avg_size_output_fci</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row9_col0" class="data row9 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row9_col1" class="data row9 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row9" class="row_heading level0 row9" >age</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row9_col0" class="data row9 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row9_col1" class="data row9 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row10" class="row_heading level0 row10" >avg_size_asset_fci</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row10_col0" class="data row10 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row10_col1" class="data row10 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row10" class="row_heading level0 row10" >avg_sales_fci</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row10_col0" class="data row10 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row10_col1" class="data row10 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row11" class="row_heading level0 row11" >age</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row11_col0" class="data row11 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row11_col1" class="data row11 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row11" class="row_heading level0 row11" >avg_size_capital_fci</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row11_col0" class="data row11 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row11_col1" class="data row11 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row12" class="row_heading level0 row12" >liquidity</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row12_col0" class="data row12 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row12_col1" class="data row12 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row12" class="row_heading level0 row12" >avg_employment_fci</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row12_col0" class="data row12 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row12_col1" class="data row12 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row13" class="row_heading level0 row13" >export_to_sale</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row13_col0" class="data row13 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row13_col1" class="data row13 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row13" class="row_heading level0 row13" >avg_size_output_fci</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row13_col0" class="data row13 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row13_col1" class="data row13 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row14" class="row_heading level0 row14" >fe_c_i</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row14_col0" class="data row14 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row14_col1" class="data row14 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row14" class="row_heading level0 row14" >avg_size_asset_fci</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row14_col0" class="data row14 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row14_col1" class="data row14 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row15" class="row_heading level0 row15" >coverage_ratio</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row15_col0" class="data row15 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row15_col1" class="data row15 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row15" class="row_heading level0 row15" >short</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row15_col0" class="data row15 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row15_col1" class="data row15 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row16" class="row_heading level0 row16" >return_to_sale</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row16_col0" class="data row16 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row16_col1" class="data row16 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row16" class="row_heading level0 row16" >size_asset_fc</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row16_col0" class="data row16 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row16_col1" class="data row16 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row17" class="row_heading level0 row17" >cashflow_to_tangible</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row17_col0" class="data row17 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row17_col1" class="data row17 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row17" class="row_heading level0 row17" >labor_productivity</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row17_col0" class="data row17 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row17_col1" class="data row17 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row18" class="row_heading level0 row18" >cashflow_tot_asset</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row18_col0" class="data row18 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row18_col1" class="data row18 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row18" class="row_heading level0 row18" >export_to_sale</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row18_col0" class="data row18 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row18_col1" class="data row18 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row19" class="row_heading level0 row19" >asset_tangibility_tot_asset</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row19_col0" class="data row19 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row19_col1" class="data row19 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row19" class="row_heading level0 row19" >liquidity</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row19_col0" class="data row19 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row19_col1" class="data row19 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row20" class="row_heading level0 row20" >avg_sales_fci</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row20_col0" class="data row20 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row20_col1" class="data row20 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row20" class="row_heading level0 row20" >coverage_ratio</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row20_col0" class="data row20 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row20_col1" class="data row20 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row21" class="row_heading level0 row21" >size_asset_fci</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row21_col0" class="data row21 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row21_col1" class="data row21 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row21" class="row_heading level0 row21" >return_to_sale</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row21_col0" class="data row21 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row21_col1" class="data row21 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row22" class="row_heading level0 row22" >investment_tot_asset</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row22_col0" class="data row22 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row22_col1" class="data row22 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row22" class="row_heading level0 row22" >year</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row22_col0" class="data row22 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row22_col1" class="data row22 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row23" class="row_heading level0 row23" >size_asset_fi</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row23_col0" class="data row23 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row23_col1" class="data row23 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row23" class="row_heading level0 row23" >cashflow_to_tangible</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row23_col0" class="data row23 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row23_col1" class="data row23 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row24" class="row_heading level0 row24" >count_industry</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row24_col0" class="data row24 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row24_col1" class="data row24 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row24" class="row_heading level0 row24" >size_asset_fci</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row24_col0" class="data row24 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row24_col1" class="data row24 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row25" class="row_heading level0 row25" >count_city</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row25_col0" class="data row25 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row25_col1" class="data row25 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row25" class="row_heading level0 row25" >size_asset_fi</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row25_col0" class="data row25 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row25_col1" class="data row25 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row26" class="row_heading level0 row26" >count_ownership</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row26_col0" class="data row26 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row26_col1" class="data row26 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row26" class="row_heading level0 row26" >asset_tangibility_tot_asset</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row26_col0" class="data row26 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row26_col1" class="data row26 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row27" class="row_heading level0 row27" >size_sales_fi</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row27_col0" class="data row27 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row27_col1" class="data row27 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row27" class="row_heading level0 row27" >size_sales_fci</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row27_col0" class="data row27 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row27_col1" class="data row27 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row28" class="row_heading level0 row28" >size_sales_fc</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row28_col0" class="data row28 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row28_col1" class="data row28 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row28" class="row_heading level0 row28" >fe_t_i</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row28_col0" class="data row28 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row28_col1" class="data row28 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row29" class="row_heading level0 row29" >size_sales_fci</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row29_col0" class="data row29 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row29_col1" class="data row29 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row29" class="row_heading level0 row29" >fe_c_i</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row29_col0" class="data row29 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row29_col1" class="data row29 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row30" class="row_heading level0 row30" >size_capital_fi</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row30_col0" class="data row30 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row30_col1" class="data row30 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row30" class="row_heading level0 row30" >count_industry</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row30_col0" class="data row30 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row30_col1" class="data row30 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row31" class="row_heading level0 row31" >size_capital_fc</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row31_col0" class="data row31 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row31_col1" class="data row31 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row31" class="row_heading level0 row31" >count_city</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row31_col0" class="data row31 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row31_col1" class="data row31 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row32" class="row_heading level0 row32" >size_capital_fci</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row32_col0" class="data row32 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row32_col1" class="data row32 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row32" class="row_heading level0 row32" >count_ownership</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row32_col0" class="data row32 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row32_col1" class="data row32 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row33" class="row_heading level0 row33" >size_employment_fi</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row33_col0" class="data row33 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row33_col1" class="data row33 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row33" class="row_heading level0 row33" >size_sales_fi</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row33_col0" class="data row33 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row33_col1" class="data row33 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row34" class="row_heading level0 row34" >size_employment_fc</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row34_col0" class="data row34 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row34_col1" class="data row34 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row34" class="row_heading level0 row34" >size_sales_fc</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row34_col0" class="data row34 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row34_col1" class="data row34 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row35" class="row_heading level0 row35" >size_employment_fci</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row35_col0" class="data row35 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row35_col1" class="data row35 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row35" class="row_heading level0 row35" >size_capital_fi</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row35_col0" class="data row35 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row35_col1" class="data row35 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row36" class="row_heading level0 row36" >size_output_fi</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row36_col0" class="data row36 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row36_col1" class="data row36 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row36" class="row_heading level0 row36" >size_output_fci</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row36_col0" class="data row36 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row36_col1" class="data row36 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row37" class="row_heading level0 row37" >size_output_fc</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row37_col0" class="data row37 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row37_col1" class="data row37 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row37" class="row_heading level0 row37" >size_capital_fc</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row37_col0" class="data row37 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row37_col1" class="data row37 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row38" class="row_heading level0 row38" >size_output_fci</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row38_col0" class="data row38 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row38_col1" class="data row38 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row38" class="row_heading level0 row38" >size_capital_fci</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row38_col0" class="data row38 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row38_col1" class="data row38 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row39" class="row_heading level0 row39" >size_asset_fc</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row39_col0" class="data row39 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row39_col1" class="data row39 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row39" class="row_heading level0 row39" >size_employment_fi</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row39_col0" class="data row39 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row39_col1" class="data row39 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row40" class="row_heading level0 row40" >liabilities_tot_asset</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row40_col0" class="data row40 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row40_col1" class="data row40 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row40" class="row_heading level0 row40" >size_employment_fc</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row40_col0" class="data row40 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row40_col1" class="data row40 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row41" class="row_heading level0 row41" >sales_tot_asset</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row41_col0" class="data row41 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row41_col1" class="data row41 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row41" class="row_heading level0 row41" >size_employment_fci</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row41_col0" class="data row41 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row41_col1" class="data row41 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row42" class="row_heading level0 row42" >spz</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row42_col0" class="data row42 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row42_col1" class="data row42 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row42" class="row_heading level0 row42" >size_output_fi</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row42_col0" class="data row42 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row42_col1" class="data row42 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row43" class="row_heading level0 row43" >employment</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row43_col0" class="data row43 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row43_col1" class="data row43 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row43" class="row_heading level0 row43" >size_output_fc</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row43_col0" class="data row43 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row43_col1" class="data row43 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row44" class="row_heading level0 row44" >output</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row44_col0" class="data row44 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row44_col1" class="data row44 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row44" class="row_heading level0 row44" >cashflow_tot_asset</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row44_col0" class="data row44 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row44_col1" class="data row44 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row45" class="row_heading level0 row45" >in_10_000_tonnes</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row45_col0" class="data row45 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row45_col1" class="data row45 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row45" class="row_heading level0 row45" >investment_tot_asset</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row45_col0" class="data row45 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row45_col1" class="data row45 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row46" class="row_heading level0 row46" >tso2_mandate_c</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row46_col0" class="data row46 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row46_col1" class="data row46 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row46" class="row_heading level0 row46" >period</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row46_col0" class="data row46 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row46_col1" class="data row46 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row47" class="row_heading level0 row47" >for_vs_dom</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row47_col0" class="data row47 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row47_col1" class="data row47 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row47" class="row_heading level0 row47" >current_liabilities</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row47_col0" class="data row47 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row47_col1" class="data row47 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row48" class="row_heading level0 row48" >soe_vs_pri</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row48_col0" class="data row48 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row48_col1" class="data row48 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row48" class="row_heading level0 row48" >tangible</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row48_col0" class="data row48 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row48_col1" class="data row48 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row49" class="row_heading level0 row49" >ownership</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row49_col0" class="data row49 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row49_col1" class="data row49 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row49" class="row_heading level0 row49" >intangible</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row49_col0" class="data row49 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row49_col1" class="data row49 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row50" class="row_heading level0 row50" >tcz</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row50_col0" class="data row50 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row50_col1" class="data row50 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row50" class="row_heading level0 row50" >net_non_current</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row50_col0" class="data row50 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row50_col1" class="data row50 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row51" class="row_heading level0 row51" >firm</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row51_col0" class="data row51 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row51_col1" class="data row51 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row51" class="row_heading level0 row51" >current_asset</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row51_col0" class="data row51 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row51_col1" class="data row51 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row52" class="row_heading level0 row52" >province_en</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row52_col0" class="data row52 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row52_col1" class="data row52 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row52" class="row_heading level0 row52" >capital</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row52_col0" class="data row52 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row52_col1" class="data row52 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row53" class="row_heading level0 row53" >geocode4_corr</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row53_col0" class="data row53 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row53_col1" class="data row53 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row53" class="row_heading level0 row53" >employment</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row53_col0" class="data row53 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row53_col1" class="data row53 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row54" class="row_heading level0 row54" >short</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row54_col0" class="data row54 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row54_col1" class="data row54 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row54" class="row_heading level0 row54" >output</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row54_col0" class="data row54 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row54_col1" class="data row54 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row55" class="row_heading level0 row55" >indu_2</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row55_col0" class="data row55 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row55_col1" class="data row55 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row55" class="row_heading level0 row55" >in_10_000_tonnes</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row55_col0" class="data row55 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row55_col1" class="data row55 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row56" class="row_heading level0 row56" >cic</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row56_col0" class="data row56 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row56_col1" class="data row56 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row56" class="row_heading level0 row56" >tso2_mandate_c</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row56_col0" class="data row56 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row56_col1" class="data row56 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row57" class="row_heading level0 row57" >period</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row57_col0" class="data row57 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row57_col1" class="data row57 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row57" class="row_heading level0 row57" >for_vs_dom</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row57_col0" class="data row57 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row57_col1" class="data row57 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row58" class="row_heading level0 row58" >year</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row58_col0" class="data row58 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row58_col1" class="data row58 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row58" class="row_heading level0 row58" >soe_vs_pri</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row58_col0" class="data row58 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row58_col1" class="data row58 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row59" class="row_heading level0 row59" >capital</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row59_col0" class="data row59 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row59_col1" class="data row59 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row59" class="row_heading level0 row59" >ownership</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row59_col0" class="data row59 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row59_col1" class="data row59 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row60" class="row_heading level0 row60" >current_asset</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row60_col0" class="data row60 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row60_col1" class="data row60 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row60" class="row_heading level0 row60" >spz</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row60_col0" class="data row60 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row60_col1" class="data row60 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row61" class="row_heading level0 row61" >net_non_current</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row61_col0" class="data row61 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row61_col1" class="data row61 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row61" class="row_heading level0 row61" >tcz</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row61_col0" class="data row61 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row61_col1" class="data row61 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row62" class="row_heading level0 row62" >intangible</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row62_col0" class="data row62 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row62_col1" class="data row62 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row62" class="row_heading level0 row62" >province_en</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row62_col0" class="data row62 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row62_col1" class="data row62 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row63" class="row_heading level0 row63" >quick_ratio</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row63_col0" class="data row63 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row63_col1" class="data row63 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row63" class="row_heading level0 row63" >total_asset</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row63_col0" class="data row63 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row63_col1" class="data row63 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row64" class="row_heading level0 row64" >current_ratio</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row64_col0" class="data row64 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row64_col1" class="data row64 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row64" class="row_heading level0 row64" >lt_liabilities</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row64_col0" class="data row64 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row64_col1" class="data row64 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row65" class="row_heading level0 row65" >supply_long_term_credit</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row65_col0" class="data row65 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row65_col1" class="data row65 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row65" class="row_heading level0 row65" >geocode4_corr</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row65_col0" class="data row65 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row65_col1" class="data row65 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row66" class="row_heading level0 row66" >supply_all_credit</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row66_col0" class="data row66 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row66_col1" class="data row66 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row66" class="row_heading level0 row66" >from_asif_tot_liabilities</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row66_col0" class="data row66 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row66_col1" class="data row66 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row67" class="row_heading level0 row67" >tfp_op</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row67_col0" class="data row67 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row67_col1" class="data row67 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row67" class="row_heading level0 row67" >cic</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row67_col0" class="data row67 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row67_col1" class="data row67 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row68" class="row_heading level0 row68" >sales</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row68_col0" class="data row68 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row68_col1" class="data row68 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row68" class="row_heading level0 row68" >sales_tot_asset</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row68_col0" class="data row68 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row68_col1" class="data row68 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row69" class="row_heading level0 row69" >cashflow</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row69_col0" class="data row69 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row69_col1" class="data row69 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row69" class="row_heading level0 row69" >firm</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row69_col0" class="data row69 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row69_col1" class="data row69 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row70" class="row_heading level0 row70" >error</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row70_col0" class="data row70 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row70_col1" class="data row70 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row70" class="row_heading level0 row70" >liabilities_tot_asset</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row70_col0" class="data row70 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row70_col1" class="data row70 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row71" class="row_heading level0 row71" >total_right</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row71_col0" class="data row71 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row71_col1" class="data row71 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row71" class="row_heading level0 row71" >quick_ratio</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row71_col0" class="data row71 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row71_col1" class="data row71 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row72" class="row_heading level0 row72" >total_liabilities</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row72_col0" class="data row72 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row72_col1" class="data row72 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row72" class="row_heading level0 row72" >indu_2</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row72_col0" class="data row72 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row72_col1" class="data row72 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row73" class="row_heading level0 row73" >from_asif_tot_liabilities</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row73_col0" class="data row73 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row73_col1" class="data row73 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row73" class="row_heading level0 row73" >current_ratio</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row73_col0" class="data row73 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row73_col1" class="data row73 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row74" class="row_heading level0 row74" >lt_liabilities</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row74_col0" class="data row74 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row74_col1" class="data row74 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row74" class="row_heading level0 row74" >supply_long_term_credit</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row74_col0" class="data row74 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row74_col1" class="data row74 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row75" class="row_heading level0 row75" >current_liabilities</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row75_col0" class="data row75 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row75_col1" class="data row75 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row75" class="row_heading level0 row75" >supply_all_credit</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row75_col0" class="data row75 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row75_col1" class="data row75 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row76" class="row_heading level0 row76" >total_asset</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row76_col0" class="data row76 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row76_col1" class="data row76 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row76" class="row_heading level0 row76" >tfp_op</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row76_col0" class="data row76 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row76_col1" class="data row76 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row77" class="row_heading level0 row77" >tangible</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row77_col0" class="data row77 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row77_col1" class="data row77 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row77" class="row_heading level0 row77" >sales</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row77_col0" class="data row77 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row77_col1" class="data row77 col1" >0.00%</td>
             </tr>
             <tr>
-                        <th id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216level0_row78" class="row_heading level0 row78" >fe_c_t</th>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row78_col0" class="data row78 col0" >0</td>
-                        <td id="T_3d2edabe_63c3_11eb_b674_f9cbcbfa4216row78_col1" class="data row78 col1" >0.00%</td>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row78" class="row_heading level0 row78" >cashflow</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row78_col0" class="data row78 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row78_col1" class="data row78 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row79" class="row_heading level0 row79" >error</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row79_col0" class="data row79 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row79_col1" class="data row79 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row80" class="row_heading level0 row80" >total_right</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row80_col0" class="data row80 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row80_col1" class="data row80 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row81" class="row_heading level0 row81" >total_liabilities</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row81_col0" class="data row81 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row81_col1" class="data row81 col1" >0.00%</td>
+            </tr>
+            <tr>
+                        <th id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68level0_row82" class="row_heading level0 row82" >fe_c_t</th>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row82_col0" class="data row82 col0" >0</td>
+                        <td id="T_d982b3a6_66c3_11eb_a7bb_ef1923ca0a68row82_col1" class="data row82 col1" >0.00%</td>
             </tr>
     </tbody></table>
 </div>
@@ -19116,7 +19256,7 @@ Wall time: 32.1 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[31]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[35]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">README</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -19232,7 +19372,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[32]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">boto3</span>
@@ -19253,7 +19393,7 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[33]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">primary_key</span> <span class="o">=</span> <span class="s1">&#39;year&#39;</span>
@@ -19266,10 +19406,10 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[34]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
@@ -19294,42 +19434,10 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
 </div>
 </div>
 
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[34]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;input_path&#39;: &#39;s3://datalake-datascience/ANALYTICS/TEMPLATE_NOTEBOOKS/template_analysis_from_lambda.ipynb&#39;,
- &#39;output_prefix&#39;: &#39;s3://datalake-datascience/ANALYTICS/OUTPUT/ASIF_TFP_CREDIT_CONSTRAINT/&#39;,
- &#39;parameters&#39;: {&#39;region&#39;: &#39;eu-west-3&#39;,
-  &#39;bucket&#39;: &#39;datalake-datascience&#39;,
-  &#39;DatabaseName&#39;: &#39;firms_survey&#39;,
-  &#39;table_name&#39;: &#39;asif_tfp_credit_constraint&#39;,
-  &#39;group&#39;: &#39;firm,year,cic,geocode4_corr&#39;,
-  &#39;keys&#39;: &#39;year,short&#39;,
-  &#39;y_var&#39;: &#39;tfp_op&#39;,
-  &#39;threshold&#39;: 0.5}}</pre>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[35]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">client_lambda</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
@@ -19344,44 +19452,6 @@ jupyter nbconvert --to html Template_analysis_from_lambda-2020-11-22-08-12-20.ip
      </div>
 </div>
 </div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[35]:</div>
-
-
-
-
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;5f088402-8d30-45db-8105-f212aabdf434&#39;,
-  &#39;HTTPStatusCode&#39;: 200,
-  &#39;HTTPHeaders&#39;: {&#39;date&#39;: &#39;Sun, 31 Jan 2021 12:53:09 GMT&#39;,
-   &#39;content-type&#39;: &#39;application/json&#39;,
-   &#39;content-length&#39;: &#39;75&#39;,
-   &#39;connection&#39;: &#39;keep-alive&#39;,
-   &#39;x-amzn-requestid&#39;: &#39;5f088402-8d30-45db-8105-f212aabdf434&#39;,
-   &#39;x-amzn-remapped-content-length&#39;: &#39;0&#39;,
-   &#39;x-amz-executed-version&#39;: &#39;$LATEST&#39;,
-   &#39;x-amz-log-result&#39;: &#39;U1RBUlQgUmVxdWVzdElkOiA1ZjA4ODQwMi04ZDMwLTQ1ZGItODEwNS1mMjEyYWFiZGY0MzQgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiA1ZjA4ODQwMi04ZDMwLTQ1ZGItODEwNS1mMjEyYWFiZGY0MzQKUkVQT1JUIFJlcXVlc3RJZDogNWYwODg0MDItOGQzMC00NWRiLTgxMDUtZjIxMmFhYmRmNDM0CUR1cmF0aW9uOiAyNTExLjc2IG1zCUJpbGxlZCBEdXJhdGlvbjogMjUxMiBtcwlNZW1vcnkgU2l6ZTogMTI4IE1CCU1heCBNZW1vcnkgVXNlZDogODMgTUIJSW5pdCBEdXJhdGlvbjogMjc1Ljk5IG1zCQo=&#39;,
-   &#39;x-amzn-trace-id&#39;: &#39;root=1-6016a832-16beb1e53611a2fe331e0660;sampled=0&#39;},
-  &#39;RetryAttempts&#39;: 0},
- &#39;StatusCode&#39;: 200,
- &#39;LogResult&#39;: &#39;U1RBUlQgUmVxdWVzdElkOiA1ZjA4ODQwMi04ZDMwLTQ1ZGItODEwNS1mMjEyYWFiZGY0MzQgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiA1ZjA4ODQwMi04ZDMwLTQ1ZGItODEwNS1mMjEyYWFiZGY0MzQKUkVQT1JUIFJlcXVlc3RJZDogNWYwODg0MDItOGQzMC00NWRiLTgxMDUtZjIxMmFhYmRmNDM0CUR1cmF0aW9uOiAyNTExLjc2IG1zCUJpbGxlZCBEdXJhdGlvbjogMjUxMiBtcwlNZW1vcnkgU2l6ZTogMTI4IE1CCU1heCBNZW1vcnkgVXNlZDogODMgTUIJSW5pdCBEdXJhdGlvbjogMjc1Ljk5IG1zCQo=&#39;,
- &#39;ExecutedVersion&#39;: &#39;$LATEST&#39;,
- &#39;Payload&#39;: &lt;botocore.response.StreamingBody at 0x7fc77de8aac0&gt;}</pre>
-</div>
-
-</div>
-
-</div>
-
 </div>
 
 </div>
