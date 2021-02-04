@@ -106,7 +106,6 @@ if pandas_setting:
 
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
-
 ```
 
 <!-- #region kernel="SoS" -->
@@ -139,7 +138,7 @@ for key, value in enumerate(schema):
 ```
 
 ```sos kernel="SoS"
-download_data = True
+download_data = False
 filename = 'df_{}'.format(table)
 full_path_filename = 'SQL_OUTPUT_ATHENA/CSV/{}.csv'.format(filename)
 path_local = os.path.join(str(Path(path).parent.parent.parent), 
@@ -253,8 +252,12 @@ if add_to_dic:
         'new':'\\text{quick ratio}'
         },
         {
+        'old':'lag\_liabilities\_tot\_asset',
+        'new':'\\text{liabilities to asset}'
+        },
+        {
         'old':'liabilities\_tot\_asset',
-        'new':'\\text{leverage}'
+        'new':'\\text{liabilities to asset}'
         },
         {
         'old':'sales\_tot\_asset',
@@ -286,7 +289,7 @@ if add_to_dic:
         },
         ## control
         {
-        'old':'age',
+        'old':'age + 1',
         'new':'\\text{age}'
         },
         {
@@ -314,10 +317,12 @@ if add_to_dic:
         'old':'soe\_vs\_priPRIVATE',
         'new':'\\text{private}'
         },
+        ## TFP
         {
         'old':'tfp\_cit',
-        'new':'\\text{TFP}_{cit}'
+        'new':'\\text{TFP}'
         }
+        
     ]
     
 
@@ -404,7 +409,7 @@ It is not possible to include:
 
 in the same regression. It is collinear. 
 
-Andersen used the lagged of `Sales to total asset`, `current ratio`, `liabilities over asset`. We will replicate in the second table
+Andersen used the lagged of `Sales to total asset`, `current ratio`, `liabilities over asset` and `lag_sales_tot_asset`. We will replicate in the second table
 <!-- #endregion -->
 
 ```sos kernel="SoS"
@@ -495,8 +500,9 @@ table_1 <- go_latex(list(
 tbe1  = "This table estimates eq(3). " \
 "Heteroskedasticity-robust standard errors " \
 "clustered at the city level appear inp arentheses. "\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%." 
 #multi_lines_dep = '(city/product/trade regime/year)'
 #new_r = ['& test1', 'test2']
 lb.beautify(table_number = table_nb,
@@ -535,6 +541,13 @@ for ext in ['.txt', '.tex', '.pdf']:
 ```sos kernel="R"
 %get path table
 t_0 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset)  +
+            log(sales) +
+            log(total_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_1 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset) +
             log(sales) +
             log(total_asset) +
@@ -543,46 +556,57 @@ t_0 <- felm(log(tso2) ~
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
             exactDOF = TRUE)
 
-t_1 <- felm(log(tso2) ~
+t_2 <- felm(log(tso2) ~
             log(asset_tangibility_tot_asset) +
             log(sales) +
             log(total_asset) +
             log(lag_cashflow_to_tangible) +
             log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset)
             | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
             exactDOF = TRUE)
 
-t_2 <- felm(log(tso2) ~ 
+### TFP
+t_3 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset)  +
+            log(sales) +
+            log(total_asset) +
+            log(tfp_cit)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset) +
             log(sales) +
             log(total_asset) +
-            log(tfp_cit) + 
             log(lag_cashflow_to_tangible) +
-            log(lag_current_ratio) 
+            log(lag_current_ratio) +
+            log(tfp_cit)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
             exactDOF = TRUE)
-t_3 <- felm(log(tso2) ~ 
+t_5 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset) +
             log(sales) +
             log(total_asset) +
             log(tfp_cit) + 
             log(lag_cashflow_to_tangible) +
             log(lag_current_ratio) +
-            log(lag_sales_tot_asset) 
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) +
+            log(tfp_cit)
             | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
             exactDOF = TRUE)
 
-
 dep <- "Dependent variable: SO2 emission"
 fe1 <- list(
-    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3
+    t_0,t_1, t_2, t_3, t_4, t_5
 ),
-    title="Baseline Estimate, determinant of SO2 emission lagged values",
+    title="Baseline Estimate, determinant of SO2 emission",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
@@ -595,6 +619,9 @@ table_1 <- go_latex(list(
 tbe1  = "This table estimates eq(3). " \
 "Heteroskedasticity-robust standard errors " \
 "clustered at the city level appear inp arentheses. "\
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets"
 "\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
 
 #multi_lines_dep = '(city/product/trade regime/year)'
@@ -621,7 +648,8 @@ $$
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-table_nb = 2
+folder = 'Tables_0'
+table_nb = 1
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
@@ -629,7 +657,6 @@ if os.path.exists(folder) == False:
 for ext in ['.txt', '.tex', '.pdf']:
     x = [a for a in os.listdir(folder) if a.endswith(ext)]
     [os.remove(os.path.join(folder, i)) for i in x]
-path
 ```
 
 ```sos kernel="R"
@@ -760,19 +787,9 @@ table_1 <- go_latex(list(
 tbe1  = "This table estimates eq(3). " \
 "Heteroskedasticity-robust standard errors " \
 "clustered at the city level appear inp arentheses. "\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-multicolumn ={
-    'SO2': 1,
-    'SO2 intensity': 8
-}
-
-#reorder = {
-    
-#    7:0,
-#    8:1,
-    #9:2
-#}
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%." 
 
 #multi_lines_dep = '(city/product/trade regime/year)'
 new_r = ['& Above', 'Below','Above', 'Below','Above', 'Below','Above', 'Below','Above', 'Below','Above', 'Below']
@@ -784,6 +801,111 @@ lb.beautify(table_number = table_nb,
             table_nte = tbe1,
             jupyter_preview = True,
             resolution = 200,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## Table 3 bis: determinant of SO2 emission, polluted vs no polluted sectors lag
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) +
+            log(tfp_cit)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+t_3 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) +
+            log(tfp_cit)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3
+),
+    title="determinant of SO2 emission, polluted vs no polluted sectors",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets"
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& Above', 'Below','Above', 'Below']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
            folder = folder)
 ```
 
@@ -808,7 +930,8 @@ Notebook reference: https://github.com/thomaspernet/Financial_dependency_polluti
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-table_nb = 5
+folder = 'Tables_0'
+table_nb = 1
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
@@ -816,7 +939,6 @@ if os.path.exists(folder) == False:
 for ext in ['.txt', '.tex', '.pdf']:
     x = [a for a in os.listdir(folder) if a.endswith(ext)]
     [os.remove(os.path.join(folder, i)) for i in x]
-path
 ```
 
 ```sos kernel="R"
@@ -947,8 +1069,9 @@ table_1 <- go_latex(list(
 tbe1  = "This table estimates eq(3). " \
 "Heteroskedasticity-robust standard errors " \
 "clustered at the city level appear inp arentheses. "\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%." 
 
 #multi_lines_dep = '(city/product/trade regime/year)'
 new_r = ['& SOE', 'Private', 'SOE', 'Private', 'SOE', 'Private','SOE', 'Private','SOE', 'Private','SOE', 'Private']
@@ -964,6 +1087,118 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
+## Table 4 bis: Heterogeneity effect, city ownership public vs private lag
+
+City ownership are available for the following variables:
+
+- output
+- capital
+- employment
+- sales
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(dominated_output_soe_c == TRUE&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(dominated_output_soe_c == FALSE&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+## TFP
+t_2 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)  +
+            log(tfp_cit)
+            | fe_t_i +fe_c_t|0 | geocode4_corr,df_final %>% filter(dominated_output_soe_c == TRUE&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+t_3 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)  +
+            log(tfp_cit)
+            | fe_t_i +fe_c_t|0 | geocode4_corr,df_final %>% filter(dominated_output_soe_c == FALSE&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3
+),
+    title="Heterogeneity effect, city ownership public vs private lag",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets"
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%." 
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& SOE', 'Private', 'SOE', 'Private']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
 ## Table 4: Heterogeneity effect, TCZ vs No TCZ and SPZ vs No SPZ
 
 <!-- #endregion -->
@@ -973,7 +1208,8 @@ lb.beautify(table_number = table_nb,
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-table_nb = 6
+folder = 'Tables_0'
+table_nb = 1
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
@@ -981,7 +1217,6 @@ if os.path.exists(folder) == False:
 for ext in ['.txt', '.tex', '.pdf']:
     x = [a for a in os.listdir(folder) if a.endswith(ext)]
     [os.remove(os.path.join(folder, i)) for i in x]
-path
 ```
 
 ```sos kernel="R"
@@ -1112,19 +1347,9 @@ table_1 <- go_latex(list(
 tbe1  = "This table estimates eq(3). " \
 "Heteroskedasticity-robust standard errors " \
 "clustered at the city level appear inp arentheses. "\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-multicolumn ={
-    'SO2': 1,
-    'SO2 intensity': 5
-}
-
-#reorder = {
-    
-#    7:0,
-#    8:1,
-    #9:2
-#}
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%." 
 
 #multi_lines_dep = '(city/product/trade regime/year)'
 new_r = ['& TCZ', 'No TCZ', 'TCZ', 'No TCZ', 'TCZ', 'No TCZ', 'TCZ', 'No TCZ', 'TCZ', 'No TCZ', 'TCZ', 'No TCZ']
@@ -1140,11 +1365,12 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-## SPZ
+### TCZ lagged
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-table_nb = 7
+folder = 'Tables_0'
+table_nb = 1
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
@@ -1152,7 +1378,112 @@ if os.path.exists(folder) == False:
 for ext in ['.txt', '.tex', '.pdf']:
     x = [a for a in os.listdir(folder) if a.endswith(ext)]
     [os.remove(os.path.join(folder, i)) for i in x]
-path
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(tcz == 1&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(tcz == 0&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+## TFP
+t_2 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)  +
+            log(tfp_cit)
+            | fe_t_i +fe_c_t|0 | geocode4_corr,df_final %>% filter(tcz == 1&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+t_3 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) +
+            log(tfp_cit)
+            | fe_t_i +fe_c_t|0 | geocode4_corr,df_final %>% filter(tcz == 0&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3
+),
+    title="Heterogeneity effect, TCZ vs No TCZ lag",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets"
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%." 
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& TCZ', 'No TCZ', 'TCZ', 'No TCZ']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## SPZ
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
 ```
 
 ```sos kernel="R"
@@ -1283,19 +1614,9 @@ table_1 <- go_latex(list(
 tbe1  = "This table estimates eq(3). " \
 "Heteroskedasticity-robust standard errors " \
 "clustered at the city level appear inp arentheses. "\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-multicolumn ={
-    'SO2': 1,
-    'SO2 intensity': 5
-}
-
-#reorder = {
-    
-#    7:0,
-#    8:1,
-    #9:2
-#}
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%." 
 
 #multi_lines_dep = '(city/product/trade regime/year)'
 new_r = ['& SPZ', 'No SPZ', 'SPZ', 'No SPZ', 'SPZ', 'No SPZ', 'SPZ', 'No SPZ', 'SPZ', 'No SPZ', 'SPZ', 'No SPZ']
@@ -1311,7 +1632,112 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-## Table 5: Heterogeneity effect,  Industrial size effect
+## SPZ lagged
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(spz == 1&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(spz == 0&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)  +
+            log(tfp_cit)
+            | fe_t_i +fe_c_t|0 | geocode4_corr,df_final %>% filter(spz == 1&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+t_3 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) +
+            log(tfp_cit)
+            | fe_t_i +fe_c_t|0 | geocode4_corr,df_final %>% filter(spz == 0&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3
+),
+    title="Heterogeneity effect, SPZ vs No SPZ",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets"
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%." 
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& SPZ', 'No SPZ', 'SPZ', 'No SPZ']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## Table 5: Heterogeneity effect, Industrial size effect
 
 Industrial are available for the following variables:
 
@@ -1330,7 +1756,8 @@ Notebook reference: https://github.com/thomaspernet/Financial_dependency_polluti
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-table_nb = 8
+folder = 'Tables_0'
+table_nb = 1
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
@@ -1338,7 +1765,6 @@ if os.path.exists(folder) == False:
 for ext in ['.txt', '.tex', '.pdf']:
     x = [a for a in os.listdir(folder) if a.endswith(ext)]
     [os.remove(os.path.join(folder, i)) for i in x]
-path
 ```
 
 ```sos kernel="R"
@@ -1490,9 +1916,10 @@ for (var in list(
 tbe1  = "This table estimates eq(3). " \
 "Heteroskedasticity-robust standard errors " \
 "clustered at the city level appear inp arentheses. "\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%." 
 
-#multi_lines_dep = '(city/product/trade regime/year)'
 new_r = ['& Large', 'No Large', 'Large', 'No Large', 'Large', 'No Large', 'Large', 'No Large', 'Large', 'No Large', 'Large', 'No Large']
 for i in range(1, 2):
     print('\n\nTable {}\n\n'.format(i))
@@ -1508,11 +1935,12 @@ for i in range(1, 2):
 ```
 
 <!-- #region kernel="SoS" -->
-## Table 6: Heterogeneity effect, city policy mandate threshold
+## Table 5 bis: Heterogeneity effect,  Industrial size effect lagged
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-table_nb = 9
+folder = 'Tables_0'
+table_nb = 1
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
@@ -1520,7 +1948,236 @@ if os.path.exists(folder) == False:
 for ext in ['.txt', '.tex', '.pdf']:
     x = [a for a in os.listdir(folder) if a.endswith(ext)]
     [os.remove(os.path.join(folder, i)) for i in x]
-path
+```
+
+```sos kernel="R"
+%get folder
+
+t <- 1
+for (var in list(
+    '0.5'#,
+    #'0.75',
+    #'0.9'#,
+    #'0.95'
+    )){
+    
+    title <- paste0("Baseline Estimate, Industrial size effect (Output ", var, ")")
+    path_1 <- paste0(folder,"/table_",t ,".txt")
+
+    df_temp_true = df_final %>% 
+    mutate(filter_ = str_extract(dominated_output_i, paste0("(?<=", var, "\\=)(.*?)(?=\\,)")))%>%
+    filter(filter_ == 'false') ### fix do not change
+    df_temp_false = df_final %>% 
+    mutate(filter_ = str_extract(dominated_output_i, paste0("(?<=", var, "\\=)(.*?)(?=\\,)"))) %>%
+    filter(filter_ == 'true') ### fix do not change
+
+    t_0 <- felm(log(tso2) ~ 
+                log(asset_tangibility_tot_asset) +
+                log(sales) +
+                log(total_asset) +
+                log(lag_cashflow_to_tangible) +
+                log(lag_current_ratio) +
+                log(lag_liabilities_tot_asset) +
+                log(lag_sales_tot_asset)
+                | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true%>%filter(
+                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+                exactDOF = TRUE)
+    t_1 <- felm(log(tso2) ~ 
+                log(asset_tangibility_tot_asset) +
+                log(sales) +
+                log(total_asset) +
+                log(lag_cashflow_to_tangible) +
+                log(lag_current_ratio) +
+                log(lag_liabilities_tot_asset) +
+                log(lag_sales_tot_asset) 
+                | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false%>%filter(
+                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+                exactDOF = TRUE)
+
+    t_2 <- felm(log(tso2) ~ 
+                log(asset_tangibility_tot_asset) +
+                log(sales) +
+                log(total_asset) +
+                log(lag_cashflow_to_tangible) +
+                log(lag_current_ratio) +
+                log(lag_liabilities_tot_asset) +
+                log(lag_sales_tot_asset)  +
+                log(tfp_cit)
+                | fe_t_i +fe_c_t|0 | geocode4_corr,df_temp_true%>%filter(
+                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+                exactDOF = TRUE)
+    t_3 <- felm(log(tso2) ~ 
+                log(asset_tangibility_tot_asset) +
+                log(sales) +
+                log(total_asset) +
+                log(lag_cashflow_to_tangible) +
+                log(lag_current_ratio) +
+                log(lag_liabilities_tot_asset) +
+                log(lag_sales_tot_asset)  +
+                log(tfp_cit)
+                | fe_t_i +fe_c_t|0 | geocode4_corr,df_temp_false%>%filter(
+                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+                exactDOF = TRUE)
+
+    dep <- "Dependent variable: SO2 emission"
+    fe1 <- list(
+        c("industry-year", "Yes", "Yes", "Yes", "Yes"),
+        c("city-year", "Yes", "Yes", "Yes", "Yes")
+                 )
+    table_1 <- go_latex(list(
+        t_0,t_1, t_2, t_3
+    ),
+        title=title,
+        dep_var = dep,
+        addFE=fe1,
+        save=TRUE,
+        note = FALSE,
+        name=path_1
+    ) 
+    t <- t+1
+}
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets"
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& Large', 'No Large', 'Large', 'No Large']
+for i in range(1, 2):
+    print('\n\nTable {}\n\n'.format(i))
+    lb.beautify(table_number = i,
+                #reorder_var = reorder,
+                #multi_lines_dep = multi_lines_dep,
+                new_row= new_r,
+                #multicolumn = multicolumn,
+                table_nte = tbe1,
+                jupyter_preview = True,
+                resolution = 150,
+                folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## Table 6: DDD policy mandate
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+t_0 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) * period * tso2_mandate_c +
+            log(sales) +
+            log(total_asset) +
+            log(cashflow_to_tangible) +
+            log(current_ratio) +
+            log(liabilities_tot_asset)
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_1 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset)  +
+            log(sales) +
+            log(total_asset) +
+            log(cashflow_to_tangible) * period * tso2_mandate_c+
+            log(current_ratio) +
+            log(liabilities_tot_asset)
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) * period * tso2_mandate_c +
+            log(sales) +
+            log(total_asset) +
+            log(cashflow_to_tangible) +
+            log(current_ratio) * period * tso2_mandate_c+
+            log(liabilities_tot_asset)
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+t_3 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) * period * tso2_mandate_c +
+            log(sales) +
+            log(total_asset) +
+            log(cashflow_to_tangible) +
+            log(current_ratio) +
+            log(liabilities_tot_asset) * period * tso2_mandate_c
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+t_4 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) * period * tso2_mandate_c +
+            log(sales) +
+            log(total_asset) +
+            log(cashflow_to_tangible) * period * tso2_mandate_c+
+            log(current_ratio) * period * tso2_mandate_c+
+            log(liabilities_tot_asset) * period * tso2_mandate_c
+            | fe_c_i + fe_t_i + fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4
+),
+    title="DDD policy mandate",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& Above', 'Below', 'Above', 'Below', 'Above', 'Below', 'Above', 'Below', 'Above', 'Below', 'Above', 'Below']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## Table 7: heterogeneity effect: Policy mandate 
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
 ```
 
 ```sos kernel="R"
@@ -1537,13 +2194,13 @@ t_0 <- felm(log(tso2) ~
             log(asset_tangibility_tot_asset)  +
             log(sales) +
             log(total_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr, df_temp_true,
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_temp_true %>% filter(year %in% list("2006", "2007")),
             exactDOF = TRUE)
 t_1 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset)  +
             log(sales) +
             log(total_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr, df_temp_false,
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_temp_false%>% filter(year %in% list("2006", "2007")),
             exactDOF = TRUE)
 
 
@@ -1553,7 +2210,7 @@ t_2 <- felm(log(tso2) ~
             log(total_asset) +
             log(cashflow_to_tangible) +
             log(current_ratio)
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true,
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true%>% filter(year %in% list("2006", "2007")),
             exactDOF = TRUE)
 t_3 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset)  +
@@ -1561,7 +2218,7 @@ t_3 <- felm(log(tso2) ~
             log(total_asset) +
             log(cashflow_to_tangible) +
             log(current_ratio)
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false,
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false%>% filter(year %in% list("2006", "2007")),
             exactDOF = TRUE)
 
 t_4 <- felm(log(tso2) ~ 
@@ -1571,7 +2228,7 @@ t_4 <- felm(log(tso2) ~
             log(cashflow_to_tangible) +
             log(current_ratio) +
             log(liabilities_tot_asset)
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true,
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true%>% filter(year %in% list("2006", "2007")),
             exactDOF = TRUE)
 t_5 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset)  +
@@ -1580,7 +2237,7 @@ t_5 <- felm(log(tso2) ~
             log(cashflow_to_tangible) +
             log(current_ratio) +
             log(liabilities_tot_asset)
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false,
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false%>% filter(year %in% list("2006", "2007")),
             exactDOF = TRUE)
 
 t_6 <- felm(log(tso2) ~
@@ -1588,14 +2245,14 @@ t_6 <- felm(log(tso2) ~
             log(sales) +
             log(total_asset) + 
             log(tfp_cit)
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_temp_true,
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_temp_true%>% filter(year %in% list("2006", "2007")),
             exactDOF = TRUE)
 t_7 <- felm(log(tso2) ~
             log(asset_tangibility_tot_asset)  +
             log(sales) +
             log(total_asset) + 
             log(tfp_cit)
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_temp_false,
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_temp_false%>% filter(year %in% list("2006", "2007")),
             exactDOF = TRUE)
 
 t_8 <- felm(log(tso2) ~ 
@@ -1605,7 +2262,7 @@ t_8 <- felm(log(tso2) ~
             log(cashflow_to_tangible) +
             log(current_ratio) +
             log(tfp_cit)
-            | fe_t_i +fe_c_t|0 | geocode4_corr,df_temp_true,
+            | fe_t_i +fe_c_t|0 | geocode4_corr,df_temp_true%>% filter(year %in% list("2006", "2007")),
             exactDOF = TRUE)
 t_9 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset)  +
@@ -1614,7 +2271,7 @@ t_9 <- felm(log(tso2) ~
             log(cashflow_to_tangible) +
             log(current_ratio) +
             log(tfp_cit)
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false,
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false%>% filter(year %in% list("2006", "2007")),
             exactDOF = TRUE)
 
 t_10 <- felm(log(tso2) ~ 
@@ -1625,7 +2282,7 @@ t_10 <- felm(log(tso2) ~
             log(current_ratio) +
             log(liabilities_tot_asset) +
             log(tfp_cit)
-            | fe_t_i +fe_c_t|0 | geocode4_corr,df_temp_true,
+            | fe_t_i +fe_c_t|0 | geocode4_corr,df_temp_true%>% filter(year %in% list("2006", "2007")),
             exactDOF = TRUE)
 t_11 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset)  +
@@ -1635,7 +2292,7 @@ t_11 <- felm(log(tso2) ~
             log(current_ratio) +
             log(liabilities_tot_asset) +
             log(tfp_cit)
-            | fe_t_i +fe_c_t|0 | geocode4_corr,df_temp_false,
+            | fe_t_i +fe_c_t|0 | geocode4_corr,df_temp_false%>% filter(year %in% list("2006", "2007")),
             exactDOF = TRUE)
 
 dep <- "Dependent variable: SO2 emission"
@@ -1659,7 +2316,9 @@ table_1 <- go_latex(list(
 tbe1  = "This table estimates eq(3). " \
 "Heteroskedasticity-robust standard errors " \
 "clustered at the city level appear inp arentheses. "\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%." 
 
 #multi_lines_dep = '(city/product/trade regime/year)'
 new_r = ['& Above', 'Below', 'Above', 'Below', 'Above', 'Below', 'Above', 'Below', 'Above', 'Below', 'Above', 'Below']
@@ -1675,7 +2334,120 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-## Table 7: Effect external finance
+## Table 7 bis: heterogeneity effect: Policy mandate lagged
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+
+df_temp_true = df_final %>% 
+mutate(filter_ = str_extract(above_threshold_mandate, "(?<=0.5\\=)(.*?)(?=\\,)"))%>%
+filter(filter_ == 'true')
+df_temp_false = df_final %>% 
+mutate(filter_ = str_extract(above_threshold_mandate, "(?<=0.5\\=)(.*?)(?=\\,)"))%>%
+filter(filter_ == 'false')
+
+t_0 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_true%>% filter(year %in% list("2006", "2007")&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+t_1 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_temp_false%>% filter(year %in% list("2006", "2007")&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) +
+            log(tfp_cit)
+            | fe_t_i +fe_c_t|0 | geocode4_corr,df_temp_true%>% filter(year %in% list("2006", "2007")&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+t_3 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) +
+            log(tfp_cit)
+            | fe_t_i +fe_c_t|0 | geocode4_corr,df_temp_false%>% filter(year %in% list("2006", "2007")&
+                                                                    lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3
+),
+    title="Heterogeneity effect, city policy mandate threshold (median)",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets"
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%." 
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& Above', 'Below', 'Above', 'Below']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## Table 8: Effect external finance lagged
 
 **External**
 
@@ -1696,252 +2468,7 @@ Interact external finance with internal finance indicators:
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-table_nb = 9
-table = 'table_{}'.format(table_nb)
-path = os.path.join(folder, table + '.txt')
-if os.path.exists(folder) == False:
-        os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
-path
-```
-
-```sos kernel="R"
-%get path table
-t_0 <- felm(log(tso2) ~ 
-            log(asset_tangibility_tot_asset)  +
-            log(sales) +
-            log(total_asset) +
-            log(cashflow_to_tangible) * supply_all_credit+
-            log(current_ratio) * supply_all_credit+
-            log(liabilities_tot_asset) * supply_all_credit
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_1 <- felm(log(tso2) ~ 
-            log(asset_tangibility_tot_asset)  +
-            log(sales) +
-            log(total_asset) +
-            log(cashflow_to_tangible) * supply_long_term_credit+
-            log(current_ratio) * supply_long_term_credit+
-            log(liabilities_tot_asset) * supply_long_term_credit
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_2 <- felm(log(tso2) ~ 
-            log(asset_tangibility_tot_asset)  +
-            log(sales) +
-            log(total_asset) +
-            log(cashflow_to_tangible) * credit_constraint+
-            log(current_ratio) * credit_constraint+
-            log(liabilities_tot_asset) * credit_constraint
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_3 <- felm(log(tso2) ~ 
-            log(asset_tangibility_tot_asset)  +
-            log(sales) +
-            log(total_asset) +
-            log(cashflow_to_tangible) * supply_all_credit+
-            log(current_ratio) * supply_all_credit+
-            log(liabilities_tot_asset) * supply_all_credit +
-            log(tfp_cit)
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_4 <- felm(log(tso2) ~ 
-            log(asset_tangibility_tot_asset)  +
-            log(sales) +
-            log(total_asset) +
-            log(cashflow_to_tangible) * supply_long_term_credit+
-            log(current_ratio) * supply_long_term_credit+
-            log(liabilities_tot_asset) * supply_long_term_credit+
-            log(tfp_cit)
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_5 <- felm(log(tso2) ~ 
-            log(asset_tangibility_tot_asset)  +
-            log(sales) +
-            log(total_asset) +
-            log(cashflow_to_tangible) * credit_constraint+
-            log(current_ratio) * credit_constraint+
-            log(liabilities_tot_asset) * credit_constraint+
-            log(tfp_cit)
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-dep <- "Dependent variable: SO2 emission"
-fe1 <- list(
-    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-             )
-table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5
-),
-    title="Effect external finance",
-    dep_var = dep,
-    addFE=fe1,
-    save=TRUE,
-    note = FALSE,
-    name=path
-)
-```
-
-```sos kernel="SoS"
-tbe1  = "This table estimates eq(3). " \
-"Heteroskedasticity-robust standard errors " \
-"clustered at the city level appear inp arentheses. "\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-#multi_lines_dep = '(city/product/trade regime/year)'
-new_r = ['& All credit', 'Long term credit', 'Demand', 'All credit', 'Long term credit', 'Demand']
-lb.beautify(table_number = table_nb,
-            #reorder_var = reorder,
-            #multi_lines_dep = multi_lines_dep,
-            new_row= new_r,
-            #multicolumn = multicolumn,
-            table_nte = tbe1,
-            jupyter_preview = True,
-            resolution = 200,
-           folder = folder)
-```
-
-<!-- #region kernel="SoS" -->
-## Table 9: Effect external finance bis
-<!-- #endregion -->
-
-```sos kernel="SoS"
-table_nb = 9
-table = 'table_{}'.format(table_nb)
-path = os.path.join(folder, table + '.txt')
-if os.path.exists(folder) == False:
-        os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
-path
-```
-
-```sos kernel="R"
-%get path table
-### supply all
-t_0 <- felm(log(tso2) ~ 
-            log(asset_tangibility_tot_asset)  +
-            log(sales) +
-            log(total_asset) +
-            log(cashflow_to_tangible) * supply_all_credit
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_1 <- felm(log(tso2) ~ 
-            log(asset_tangibility_tot_asset)  +
-            log(sales) +
-            log(total_asset) +
-            log(current_ratio) * supply_all_credit
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_2 <- felm(log(tso2) ~ 
-            log(asset_tangibility_tot_asset)  +
-            log(sales) +
-            log(total_asset) +
-            log(liabilities_tot_asset) * supply_all_credit
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-## supply lt
-t_3 <- felm(log(tso2) ~ 
-            log(asset_tangibility_tot_asset)  +
-            log(sales) +
-            log(total_asset) +
-            log(cashflow_to_tangible) * supply_long_term_credit
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_4 <- felm(log(tso2) ~ 
-            log(asset_tangibility_tot_asset)  +
-            log(sales) +
-            log(total_asset) +
-            log(current_ratio) * supply_long_term_credit
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_5 <- felm(log(tso2) ~ 
-            log(asset_tangibility_tot_asset)  +
-            log(sales) +
-            log(total_asset) +
-            log(liabilities_tot_asset) * supply_long_term_credit
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-## demand
-t_6 <- felm(log(tso2) ~ 
-            log(asset_tangibility_tot_asset)  +
-            log(sales) +
-            log(total_asset) +
-            log(cashflow_to_tangible) * credit_constraint
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_7 <- felm(log(tso2) ~ 
-            log(asset_tangibility_tot_asset)  +
-            log(sales) +
-            log(total_asset) +
-            log(current_ratio) * credit_constraint
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-t_8 <- felm(log(tso2) ~ 
-            log(asset_tangibility_tot_asset)  +
-            log(sales) +
-            log(total_asset) +
-            log(liabilities_tot_asset) * credit_constraint
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
-            exactDOF = TRUE)
-
-dep <- "Dependent variable: SO2 emission"
-fe1 <- list(
-    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-             )
-table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8
-),
-    title="Effect external finance",
-    dep_var = dep,
-    addFE=fe1,
-    save=TRUE,
-    note = FALSE,
-    name=path
-)
-```
-
-```sos kernel="SoS"
-tbe1  = "This table estimates eq(3). " \
-"Heteroskedasticity-robust standard errors " \
-"clustered at the city level appear inp arentheses. "\
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-multicolumn ={
-    'All credits': 3,
-    'LT credits': 3,
-    'demand credits': 3
-}
-
-lb.beautify(table_number = table_nb,
-            #reorder_var = reorder,
-            #multi_lines_dep = multi_lines_dep,
-            #new_row= new_r,
-            multicolumn = multicolumn,
-            table_nte = tbe1,
-            jupyter_preview = True,
-            resolution = 200,
-           folder = folder)
-```
-
-```sos kernel="SoS"
+folder = 'Tables_0'
 table_nb = 1
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
@@ -1950,7 +2477,231 @@ if os.path.exists(folder) == False:
 for ext in ['.txt', '.tex', '.pdf']:
     x = [a for a in os.listdir(folder) if a.endswith(ext)]
     [os.remove(os.path.join(folder, i)) for i in x]
-path
+```
+
+```sos kernel="R"
+%get path table
+## All
+t_0 <- felm(log(tso2) ~
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(
+                supply_all_credit > 0.99 &
+                lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+t_0 <- felm(log(tso2) ~
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(
+                supply_all_credit <= 0.99 &
+                lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+### TFP
+
+t_2 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(tfp_cit) + 
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) +
+            log(tfp_cit)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(
+                supply_all_credit > 0.99 &
+                lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(tfp_cit) + 
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) +
+            log(tfp_cit)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(
+                supply_all_credit <= 0.99 & 
+                lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+### LT
+t_4 <- felm(log(tso2) ~
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(
+                supply_long_term_credit > 2.3255813 &
+                lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+t_5 <- felm(log(tso2) ~
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(
+                supply_long_term_credit <= 2.3255813 &
+                lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+### TFP
+
+t_6 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(tfp_cit) + 
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) +
+            log(tfp_cit)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(
+                supply_long_term_credit > 2.3255813 &
+                lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+t_7 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(tfp_cit) + 
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) +
+            log(tfp_cit)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(
+                supply_long_term_credit <= 2.3255813 & 
+                lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+## Credit demand
+t_8 <- felm(log(tso2) ~
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(
+                credit_constraint > -0.47 &
+                lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+t_9 <- felm(log(tso2) ~
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr, df_final %>% filter(
+                credit_constraint <= -0.47 &
+                lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+### TFP
+
+t_10 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(tfp_cit) + 
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) +
+            log(tfp_cit)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(
+                credit_constraint > -0.47 &
+                lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+t_11 <- felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(tfp_cit) + 
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) +
+            log(tfp_cit)
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(
+                credit_constraint <= -0.47 & 
+                lag_current_ratio > 0 & lag_cashflow_to_tangible > 0),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: SO2 emission"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11
+),
+    title="Baseline Estimate, determinant of SO2 emission",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets"
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%." 
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+
+multicolumn ={
+    'All credit': 4,
+    'Long term credit': 4,
+    'demand credit': 4
+}
+
+
+new_r = ['& Above', 'Below', 'Above', 'Below','Above', 'Below', 'Above', 'Below','Above', 'Below', 'Above', 'Below']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            new_row= new_r,
+            multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+           folder = folder)
 ```
 
 <!-- #region kernel="SoS" nteract={"transient": {"deleting": false}} -->
