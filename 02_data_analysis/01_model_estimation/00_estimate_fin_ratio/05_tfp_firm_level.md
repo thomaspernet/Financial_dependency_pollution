@@ -671,65 +671,6 @@ table_1 <- go_latex(list(
 ) 
 ```
 
-```sos kernel="python3"
-import re
-table_out = "{}/table_{}.tex".format("Tables_0", 1)
-reorder_var = {
-    12:3,
-    13:4,
-    14:5
-}
-with open(table_out, 'r') as f:
-    lines = f.readlines()
-
-regex = r"\((\d+)\)"
-found = False
-for x, line in enumerate(lines):
-    matches = re.search(regex, line)
-    if matches  and found != True:
-        found = True
-        coef_rows = x + 2
-top_text = lines[:coef_rows]
-vars_text = lines[coef_rows:]
-
-regex = r"\((\d+)\)"
-found = False
-for x, line in enumerate(lines):
-    matches = re.search(regex, line)
-    if matches  and found != True:
-        found = True
-        coef_rows = x + 2
-top_text = lines[:coef_rows]
-vars_text = lines[coef_rows:]
-
-regex= r"\((\d+)"
-count_var = -1
-for x, line in enumerate(vars_text):
-    matches = re.search(regex, line)
-    if matches:
-        count_var+=1
-bottom_text = vars_text[count_var*2:]
-count_var += 2
-
-new_order = [None] * count_var
-for key, value in reorder_var.items():
-    new_order[value] = key * 2
-for i in range(0, count_var * 2, 2):
-    if i not in new_order:
-        position = next(i for i, j in enumerate(new_order) if j == None)
-        new_order[position] = i
-reorder_full = []
-for order in new_order:
-    reorder_full.append(vars_text[order])
-    reorder_full.append(vars_text[order+1])
-new_table = top_text + reorder_full[:-1] + bottom_text[3:]
-new_table
-```
-
-```sos kernel="python3"
-bottom_text[3:]
-```
-
 ```sos kernel="SoS"
 tbe1  = "This table estimates eq(X). " \
 "Heteroskedasticity-robust standard errors" \
@@ -771,6 +712,364 @@ lb.beautify(table_number = table_nb,
 
 <!-- #region kernel="SoS" -->
 ### TCZ
+<!-- #endregion -->
+
+<!-- #region kernel="SoS" -->
+### Subset
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm, df_final %>% filter(tcz == 1),
+            exactDOF = TRUE)
+t_1 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm, df_final %>% filter(tcz == 0),
+            exactDOF = TRUE)
+###
+t_2 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm, df_final %>% filter(
+                tso2_mandate_c >= 0.061568804 & 
+                year %in% list("2006", "2007")),
+            exactDOF = TRUE)
+t_3 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm, df_final %>% filter(
+                tso2_mandate_c < 0.061568804 & 
+                year %in% list("2006", "2007")),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: Total factor productivity"
+fe1 <- list(
+    c("firm", "Yes", "Yes", "Yes", "Yes"),
+    c("industry", "Yes", "Yes", "Yes", "Yes"),
+    c("year", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1,t_2, t_3
+),
+    title="PH Strong version",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+) 
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(X). " \
+"Heteroskedasticity-robust standard errors" \
+"clustered at the firm level appear inparentheses."\
+"Dependent variables include firm's TFP level " \
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'City': 2,
+    'Policy mandate': 2,
+#    'All': 1,
+#    'All benchmark': 1,
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& TCZ', 'No TCZ', 'Above', 'Below']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            new_row= new_r,
+            multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+            folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## Ownership and policy
+<!-- #endregion -->
+
+<!-- #region kernel="SoS" -->
+### TCZ
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+### SOE
+t_0 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm, df_final %>% filter(
+                soe_vs_pri == 'SOE' & tcz == 1),
+            exactDOF = TRUE)
+t_1 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm, df_final %>% filter(
+                soe_vs_pri == 'SOE' & tcz == 0),
+            exactDOF = TRUE)
+
+### Private
+t_2 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm, df_final %>% filter(
+                soe_vs_pri == 'PRIVATE' & tcz == 1),
+            exactDOF = TRUE)
+t_3 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm, df_final %>% filter(
+                soe_vs_pri == 'PRIVATE' & tcz == 0),
+            exactDOF = TRUE)
+dep <- "Dependent variable: Total factor productivity"
+fe1 <- list(
+    c("firm", "Yes", "Yes", "Yes", "Yes"),
+    c("industry", "Yes", "Yes", "Yes", "Yes"),
+    c("year", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1,t_2, t_3
+),
+    title="PH Strong version",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+) 
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(X). " \
+"Heteroskedasticity-robust standard errors" \
+"clustered at the firm level appear inparentheses."\
+"Dependent variables include firm's TFP level " \
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'SOE': 2,
+    'Private': 2
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& TCZ', 'No TCZ', 'TCZ','No TCZ']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            new_row= new_r,
+            multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+            folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+### Policy mandate
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+### SOE
+t_0 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm, df_final %>% filter(
+                soe_vs_pri == 'SOE' & tso2_mandate_c >= 0.061568804 & 
+                year %in% list("2006", "2007")),
+            exactDOF = TRUE)
+t_1 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm, df_final %>% filter(
+                soe_vs_pri == 'SOE' & tso2_mandate_c < 0.061568804 & 
+                year %in% list("2006", "2007")),
+            exactDOF = TRUE)
+
+### Private
+t_2 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm, df_final %>% filter(
+                soe_vs_pri == 'PRIVATE' & tso2_mandate_c >= 0.061568804 & 
+                year %in% list("2006", "2007")),
+            exactDOF = TRUE)
+t_3 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm, df_final %>% filter(
+                soe_vs_pri == 'PRIVATE' & tso2_mandate_c < 0.061568804 & 
+                year %in% list("2006", "2007")),
+            exactDOF = TRUE)
+dep <- "Dependent variable: Total factor productivity"
+fe1 <- list(
+    c("firm", "Yes", "Yes", "Yes", "Yes"),
+    c("industry", "Yes", "Yes", "Yes", "Yes"),
+    c("year", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1,t_2, t_3
+),
+    title="PH Strong version",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+) 
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(X). " \
+"Heteroskedasticity-robust standard errors" \
+"clustered at the firm level appear inparentheses."\
+"Dependent variables include firm's TFP level " \
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'SOE': 2,
+    'Private': 2
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& Above', 'Below', 'Above','Below']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            new_row= new_r,
+            multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+            folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+### Interaction
 <!-- #endregion -->
 
 ```sos kernel="SoS"
