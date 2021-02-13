@@ -939,6 +939,400 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
+### Interaction
+<!-- #endregion -->
+
+```sos kernel="R"
+change_target <- function(table){
+    ## supply
+    check_target_current_ratio <- grep("tcz:log\\(current_ratio\\)", rownames(table$coef))
+    check_target_liabilities <- grep("tcz:log\\(liabilities_tot_asset\\)", rownames(table$coef))
+    
+    if (length(check_target_current_ratio) !=0) {
+    rownames(table$coefficients)[check_target_current_ratio] <- 'log(current_ratio):tcz'
+    rownames(table$beta)[check_target_current_ratio] <- 'log(current_ratio):tcz'
+    rownames(table$coefficients)[check_target_liabilities] <- 'log(liabilities_tot_asset):tcz'
+    rownames(table$beta)[check_target_liabilities] <- 'log(liabilities_tot_asset):tcz'
+     }
+    return (table)
+}
+```
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+##Asset
+t_0 <- felm(log(asset_tangibility_tot_asset) ~
+            log(cashflow_to_tangible) * tcz+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final,
+            exactDOF = TRUE)
+t_0 <- change_target(t_0)
+t_1 <- felm(log(asset_tangibility_tot_asset) ~
+            log(current_ratio) * tcz+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final,
+            exactDOF = TRUE)
+t_1 <- change_target(t_1)
+t_2 <- felm(log(asset_tangibility_tot_asset) ~
+            log(liabilities_tot_asset) * tcz+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final,
+            exactDOF = TRUE)
+t_2 <- change_target(t_2)
+t_3 <- felm(log(asset_tangibility_tot_asset) ~
+            log(cashflow_to_tangible) * tcz+
+            log(current_ratio) * tcz+
+            log(liabilities_tot_asset) * tcz+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final,
+            exactDOF = TRUE)
+t_3 <- change_target(t_3)
+## RD
+t_4 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible) * tcz+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
+            exactDOF = TRUE)
+t_4 <- change_target(t_4)
+t_5 <- felm(rd_tot_asset_trick ~
+            log(current_ratio) * tcz+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
+            exactDOF = TRUE)
+t_5 <- change_target(t_5)
+t_6 <- felm(rd_tot_asset_trick ~
+            log(liabilities_tot_asset) * tcz+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
+            exactDOF = TRUE)
+t_6 <- change_target(t_6)
+t_7 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible) * tcz+
+            log(current_ratio) * tcz+
+            log(liabilities_tot_asset) * tcz+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
+            exactDOF = TRUE)
+t_7 <- change_target(t_7)
+dep <- "Dependent variable"
+fe1 <- list(
+    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7
+),
+    title="PH Weak version TCZ interaction",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+) 
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(X). " \
+"Heteroskedasticity-robust standard errors" \
+"clustered at the firm level appear inparentheses."\
+"Dependent variables include firm's Asset tangibility over asset level and RD expenditure over asset." \
+" The later only includes year 2005 to 2007 which is the availablity of the information in the dataset." \
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'Asset Tangible': 4,
+    'RD': 4
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& TCZ', 'No TCZ', 'TCZ','No TCZ']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+            folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## Ownership
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+##Asset
+t_0 <- felm(log(asset_tangibility_tot_asset) ~
+            log(cashflow_to_tangible) +
+            log(current_ratio) +
+            log(liabilities_tot_asset) +
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final%>% filter(
+                soe_vs_pri == 'SOE'),
+            exactDOF = TRUE)
+
+
+t_1 <- felm(log(asset_tangibility_tot_asset) ~
+            log(cashflow_to_tangible) +
+            log(current_ratio) +
+            log(liabilities_tot_asset) +
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final%>% filter(
+                soe_vs_pri == 'PRIVATE'),
+            exactDOF = TRUE)
+
+## RD
+t_2 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible) +
+            log(current_ratio) +
+            log(liabilities_tot_asset) +
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final %>% filter(
+                soe_vs_pri == 'SOE' & year %in% list("2005","2006", "2007")),
+            exactDOF = TRUE)
+
+t_3 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible) +
+            log(current_ratio) +
+            log(liabilities_tot_asset) +
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final %>% filter(
+                soe_vs_pri == 'PRIVATE' & year %in% list("2005","2006", "2007")),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable"
+fe1 <- list(
+    c("firm", "Yes", "Yes", "Yes", "Yes"),
+    c("industry", "Yes", "Yes", "Yes", "Yes"),
+    c("year", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1,t_2, t_3
+),
+    title="PH Weak version",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+) 
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(X). " \
+"Heteroskedasticity-robust standard errors" \
+"clustered at the firm level appear inparentheses."\
+"Dependent variables include firm's Asset tangibility over asset level and RD expenditure over asset." \
+" The later only includes year 2005 to 2007 which is the availablity of the information in the dataset." \
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'Asset Tangible': 2,
+    'RD': 2
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+new_r = ['& SOE', 'Private', 'SOE','Private']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            new_row= new_r,
+            multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+            folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+### Interaction
+<!-- #endregion -->
+
+```sos kernel="R"
+change_target <- function(table){
+    ## supply
+    check_target_current_ratio <- grep("soe_vs_priPRIVATE:log\\(current_ratio\\)", rownames(table$coef))
+    check_target_liabilities <- grep("soe_vs_priPRIVATE:log\\(liabilities_tot_asset\\)", rownames(table$coef))
+    
+    if (length(check_target_current_ratio) !=0) {
+    rownames(table$coefficients)[check_target_current_ratio] <- 'log(current_ratio):soe_vs_priPRIVATE'
+    rownames(table$beta)[check_target_current_ratio] <- 'log(current_ratio):soe_vs_priPRIVATE'
+    rownames(table$coefficients)[check_target_liabilities] <- 'log(liabilities_tot_asset):soe_vs_priPRIVATE'
+    rownames(table$beta)[check_target_liabilities] <- 'log(liabilities_tot_asset):soe_vs_priPRIVATE'
+     }
+    return (table)
+}
+```
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+##Asset
+t_0 <- felm(log(asset_tangibility_tot_asset) ~
+            log(cashflow_to_tangible) * soe_vs_pri+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final,
+            exactDOF = TRUE)
+t_0 <- change_target(t_0)
+t_1 <- felm(log(asset_tangibility_tot_asset) ~
+            log(current_ratio) * soe_vs_pri+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final,
+            exactDOF = TRUE)
+t_1 <- change_target(t_1)
+t_2 <- felm(log(asset_tangibility_tot_asset) ~
+            log(liabilities_tot_asset) * soe_vs_pri+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final,
+            exactDOF = TRUE)
+t_2 <- change_target(t_2)
+t_3 <- felm(log(asset_tangibility_tot_asset) ~
+            log(cashflow_to_tangible) * soe_vs_pri+
+            log(current_ratio) * soe_vs_pri+
+            log(liabilities_tot_asset) * soe_vs_pri+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final,
+            exactDOF = TRUE)
+t_3 <- change_target(t_3)
+## RD
+t_4 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible) * soe_vs_pri+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
+            exactDOF = TRUE)
+t_4 <- change_target(t_4)
+t_5 <- felm(rd_tot_asset_trick ~
+            log(current_ratio) * soe_vs_pri+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
+            exactDOF = TRUE)
+t_5 <- change_target(t_5)
+t_6 <- felm(rd_tot_asset_trick ~
+            log(liabilities_tot_asset) * soe_vs_pri+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
+            exactDOF = TRUE)
+t_6 <- change_target(t_6)
+t_7 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible) * soe_vs_pri+
+            log(current_ratio) * soe_vs_pri+
+            log(liabilities_tot_asset) * soe_vs_pri+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007")),
+            exactDOF = TRUE)
+t_7 <- change_target(t_7)
+dep <- "Dependent variable"
+fe1 <- list(
+    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7
+),
+    title="PH Weak version ownership interaction",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+) 
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(X). " \
+"Heteroskedasticity-robust standard errors" \
+"clustered at the firm level appear inparentheses."\
+"Dependent variables include firm's Asset tangibility over asset level and RD expenditure over asset." \
+" The later only includes year 2005 to 2007 which is the availablity of the information in the dataset." \
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'Asset Tangible': 4,
+    'RD': 4
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& TCZ', 'No TCZ', 'TCZ','No TCZ']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+            folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
 ## Ownership and Policy
 <!-- #endregion -->
 
@@ -967,7 +1361,7 @@ t_0 <- felm(rd_tot_asset_trick ~
             log(age) +
             export_to_sale 
             | firm + year + indu_2|0 | firm,df_final %>% filter(
-                soe_vs_pri == 'SOE' & tcz == 1 & year %in% list("2005","2006", "2007")),
+                soe_vs_pri == 'SOE' & tcz == 1 ),
             exactDOF = TRUE)
 
 t_1 <- felm(rd_tot_asset_trick ~
@@ -977,7 +1371,7 @@ t_1 <- felm(rd_tot_asset_trick ~
             log(age) +
             export_to_sale 
             | firm + year + indu_2|0 | firm,df_final %>% filter(
-                soe_vs_pri == 'SOE' & tcz == 0 & year %in% list("2005","2006", "2007")),
+                soe_vs_pri == 'SOE' & tcz == 0 ),
             exactDOF = TRUE)
 
 ## Private 
@@ -1030,8 +1424,130 @@ tbe1  = "This table estimates eq(X). " \
 "\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
 
 multicolumn ={
-    'SOE': 2,
-    'Private': 2
+    'Asset Tangible': 4,
+    'RD': 4
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& TCZ', 'No TCZ', 'TCZ','No TCZ']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+            folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+### Interaction
+<!-- #endregion -->
+
+```sos kernel="R"
+change_target <- function(table){
+    ## supply
+    check_target_current_ratio <- grep("soe_vs_priPRIVATE:log\\(current_ratio\\)", rownames(table$coef))
+    check_target_liabilities <- grep("soe_vs_priPRIVATE:log\\(liabilities_tot_asset\\)", rownames(table$coef))
+    
+    if (length(check_target_current_ratio) !=0) {
+    rownames(table$coefficients)[check_target_current_ratio] <- 'log(current_ratio):soe_vs_priPRIVATE'
+    rownames(table$beta)[check_target_current_ratio] <- 'log(current_ratio):soe_vs_priPRIVATE'
+    rownames(table$coefficients)[check_target_liabilities] <- 'log(liabilities_tot_asset):soe_vs_priPRIVATE'
+    rownames(table$beta)[check_target_liabilities] <- 'log(liabilities_tot_asset):soe_vs_priPRIVATE'
+     }
+    return (table)
+}
+```
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+## SOE
+t_0 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible) * soe_vs_pri +
+            log(current_ratio) *soe_vs_pri+
+            log(liabilities_tot_asset) *soe_vs_pri+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final %>% filter(
+             tcz == 1),
+            exactDOF = TRUE)
+t_0 <- change_target(t_0)
+t_1 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible) * soe_vs_pri+
+            log(current_ratio) *soe_vs_pri+
+            log(liabilities_tot_asset) *soe_vs_pri+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final %>% filter(
+            tcz == 0),
+            exactDOF = TRUE)
+t_1 <- change_target(t_1)
+## Private 
+t_2 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible) *soe_vs_pri+
+            log(current_ratio) *soe_vs_pri+
+            log(liabilities_tot_asset) *soe_vs_pri+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final %>% filter(
+            tcz == 1 & year %in% list("2005","2006", "2007")),
+            exactDOF = TRUE)
+t_2 <- change_target(t_2)
+t_3 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible) *soe_vs_pri+
+            log(current_ratio) *soe_vs_pri+
+            log(liabilities_tot_asset) *soe_vs_pri+
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm,df_final %>% filter(
+            tcz == 0 & year %in% list("2005","2006", "2007")),
+            exactDOF = TRUE)
+t_3 <- change_target(t_3)
+dep <- "Dependent variable RD"
+fe1 <- list(
+    c("firm", "Yes", "Yes", "Yes", "Yes"),
+    c("industry", "Yes", "Yes", "Yes", "Yes"),
+    c("year", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0,t_1,t_2, t_3
+),
+    title="PH Weak version Ownership interaction",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+) 
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(X). " \
+"Heteroskedasticity-robust standard errors" \
+"clustered at the firm level appear inparentheses."\
+"Dependent variables include firm's Asset tangibility over asset level and RD expenditure over asset." \
+" The later only includes year 2005 to 2007 which is the availablity of the information in the dataset." \
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'Asset Tangible': 2,
+    'RD': 2
 }
 
 #multi_lines_dep = '(city/product/trade regime/year)'
