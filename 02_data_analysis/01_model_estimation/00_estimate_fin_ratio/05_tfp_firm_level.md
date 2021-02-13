@@ -707,6 +707,166 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
+### Subset ownership
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table 
+t_0 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible)+ 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm, df_final %>% filter(soe_vs_pri == 'SOE'),
+            exactDOF = TRUE)
+### More control
+t_1 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale +
+            supply_all_credit
+            | firm + year + indu_2|0 | firm, df_final%>% filter(soe_vs_pri == 'SOE'),
+            exactDOF = TRUE)
+t_2 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale +
+            supply_long_term_credit 
+            | firm + year + indu_2|0 | firm, df_final%>% filter(soe_vs_pri == 'SOE'),
+            exactDOF = TRUE)
+t_3 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale +
+            credit_constraint
+            | firm + year|0 | firm, df_final%>% filter(soe_vs_pri == 'SOE'),
+            exactDOF = TRUE)
+
+### PRivate
+t_4 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible)+ 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale 
+            | firm + year + indu_2|0 | firm, df_final %>% filter(soe_vs_pri == 'PRIVATE'),
+            exactDOF = TRUE)
+### More control
+t_5 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale +
+            supply_all_credit
+            | firm + year + indu_2|0 | firm, df_final%>% filter(soe_vs_pri == 'PRIVATE'),
+            exactDOF = TRUE)
+t_6 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale +
+            supply_long_term_credit 
+            | firm + year + indu_2|0 | firm, df_final%>% filter(soe_vs_pri == 'PRIVATE'),
+            exactDOF = TRUE)
+t_7 <- felm(log(tfp_op) ~ 
+            log(cashflow_to_tangible) + 
+            log(current_ratio) + 
+            log(liabilities_tot_asset) + 
+            log(asset_tangibility_tot_asset) +
+            log(labor_capital) +
+            log(total_asset) + 
+            log(age) +
+            export_to_sale +
+            credit_constraint
+            | firm + year|0 | firm, df_final%>% filter(soe_vs_pri == 'PRIVATE'),
+            exactDOF = TRUE)
+
+
+dep <- "Dependent variable: Total factor productivity"
+fe1 <- list(
+    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("industry", "Yes", "Yes", "Yes", "Yes", "Yes", "No", "No"),
+    c("year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+
+table_1 <- go_latex(list(
+    t_0, t_1, t_2, t_3, t_4,t_5, t_6, t_7
+),
+    title="Ownership structure effect",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+) 
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(X). " \
+"Heteroskedasticity-robust standard errors" \
+"clustered at the firm level appear inparentheses."\
+"Dependent variables include firm's TFP level " \
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+multicolumn ={
+    'SOE': 4,
+    'Private': 4,
+}
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 200,
+            folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
 ## Table 3: city characteristic structure effect
 <!-- #endregion -->
 
