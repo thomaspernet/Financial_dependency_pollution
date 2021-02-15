@@ -637,13 +637,13 @@ display(img)
 # Generate reports
 <!-- #endregion -->
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
+```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
 import os, time, shutil, urllib, ipykernel, json
 from pathlib import Path
 from notebook import notebookapp
 ```
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
+```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
 def create_report(extension = "html", keep_code = False, notebookname = None):
     """
     Create a report from the current notebook and save it in the 
@@ -703,6 +703,6 @@ def create_report(extension = "html", keep_code = False, notebookname = None):
     print("Report Available at this adress:\n {}".format(dest))
 ```
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}} outputExpanded=false
-create_report(extension = "html", keep_code = False, notebookname = None)
+```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
+create_report(extension = "html", keep_code = False, notebookname = '00_asset_tangibility_tfp.ipynb')
 ```
