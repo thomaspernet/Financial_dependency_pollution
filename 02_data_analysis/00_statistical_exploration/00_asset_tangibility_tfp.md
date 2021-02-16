@@ -420,17 +420,13 @@ df_tfp = (
 ```
 
 ```sos kernel="SoS"
-df_tfp.head()
-```
-
-```sos kernel="SoS"
 sns.lmplot(x="log_cashflow_to_tangible",
-           y="log_tfp_op",
+           y="log_asset_tangibility_tot_asset",
            data=df_tfp
           )
 plt.xlabel('Cashflow')
-plt.ylabel('TFP')
-plt.title('Relationship between {} and TFP'.format('Cashflow'))
+plt.ylabel('Asset tangible')
+plt.title('Relationship between {} and TFP'.format('Asset tangible'))
 ```
 
 <!-- #region kernel="SoS" -->
@@ -450,6 +446,24 @@ sns.lmplot(x="log_cashflow_to_tangible",
 plt.xlabel('Cashflow')
 plt.ylabel('RD')
 plt.title('Relationship between {} and RD'.format('Cashflow'))
+```
+
+<!-- #region kernel="SoS" -->
+## TFP
+<!-- #endregion -->
+
+<!-- #region kernel="SoS" -->
+### Cashflow
+<!-- #endregion -->
+
+```sos kernel="SoS"
+sns.lmplot(x="log_cashflow_to_tangible",
+           y="log_tfp_op",
+           data=df_tfp
+          )
+plt.xlabel('Cashflow')
+plt.ylabel('TFP')
+plt.title('Relationship between {} and TFP'.format('Cashflow'))
 ```
 
 <!-- #region kernel="SoS" -->
