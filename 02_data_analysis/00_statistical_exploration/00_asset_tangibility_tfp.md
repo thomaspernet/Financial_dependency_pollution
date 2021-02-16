@@ -319,7 +319,11 @@ def generate_plots(df,
 ```
 
 <!-- #region kernel="SoS" -->
-## Asset tangible
+## SO2
+<!-- #endregion -->
+
+<!-- #region kernel="SoS" -->
+### Asset tangible
 <!-- #endregion -->
 
 ```sos kernel="SoS"
@@ -389,6 +393,72 @@ generate_plots(df,
                    x = 'log_tfp_cit', 
                    industry = ['Tobacco', 'Smelting ferrous Metals']
                   )
+```
+
+<!-- #region kernel="SoS" -->
+## Asset tangible
+<!-- #endregion -->
+
+<!-- #region kernel="SoS" -->
+### Cashflow
+<!-- #endregion -->
+
+```sos kernel="SoS"
+path_local = os.path.join(str(Path(path).parent.parent), 
+                              "00_data_catalogue/temporary_local_data",
+                         'df_asif_tfp_credit_constraint.csv')
+df_tfp = (
+    pd.read_csv(path_local)
+    .assign(
+        log_tfp_op = lambda x: np.log(x['tfp_op']), 
+        log_current_ratio = lambda x: np.log(x['current_ratio']), 
+        log_liabilities_tot_asset = lambda x: np.log(x['liabilities_tot_asset']), 
+        log_asset_tangibility_tot_asset = lambda x: np.log(x['asset_tangibility_tot_asset']), 
+        log_cashflow_to_tangible = lambda x: np.log(x['cashflow_to_tangible'])
+    )
+)
+```
+
+```sos kernel="SoS"
+df_tfp.head()
+```
+
+```sos kernel="SoS"
+sns.lmplot(x="log_cashflow_to_tangible",
+           y="log_tfp_op",
+           data=df_tfp
+          )
+plt.xlabel('Cashflow')
+plt.ylabel('TFP')
+plt.title('Relationship between {} and TFP'.format('Cashflow'))
+```
+
+<!-- #region kernel="SoS" -->
+## RD
+<!-- #endregion -->
+
+```sos kernel="SoS"
+sns.lmplot(x="log_cashflow_to_tangible",
+           y="rd_tot_asset",
+           data=df_tfp.loc[lambda x: 
+                           (x['year'] >2004) &
+                           (x['rd_tot_asset'] > 0)
+                           &
+                           (x['rd_tot_asset'] < 1.5)
+                          ]
+          )
+plt.xlabel('Cashflow')
+plt.ylabel('RD')
+plt.title('Relationship between {} and RD'.format('Cashflow'))
+```
+
+```sos kernel="SoS"
+df_tfp.loc[lambda x: 
+                           (x['year'] >2004) &
+                           (x['rd_tot_asset'] > 0)
+                           &
+                           (x['rd_tot_asset'] < 1.5)
+                          ].describe()
 ```
 
 <!-- #region kernel="SoS" -->
