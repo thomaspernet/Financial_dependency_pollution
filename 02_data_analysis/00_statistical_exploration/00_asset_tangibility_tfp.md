@@ -157,28 +157,37 @@ SELECT
   fin_dep_pollution_baseline_city.year, 
   fin_dep_pollution_baseline_city.geocode4_corr, 
   fin_dep_pollution_baseline_city.ind2, 
+  short,
   tso2, 
-  avg_tangible, 
-  median_tangible, 
-  avg_tfp, 
-  median_tfp,
-  avg_rd,
-  median_rd,
-  sales_tot_asset,
-  total_asset,
-  employment,
-  capital,
-  current_asset,
-  current_ratio,
-  liabilities_tot_asset,
+  ln(tso2) AS log_tso2,
   asset_tangibility_tot_asset,
+  ln(asset_tangibility_tot_asset) AS log_asset_tangibility_tot_asset,
+  total_asset,
+  ln(total_asset) AS log_total_asset,
   cashflow_to_tangible, 
+  ln(cashflow_to_tangible) AS log_cashflow_to_tangible,
+  current_ratio,
+  ln(current_ratio) AS log_current_ratio,
+  liabilities_tot_asset,
+  ln(liabilities_tot_asset) AS log_liabilities_tot_asset,
+  sales_tot_asset,
+  ln(sales_tot_asset) AS log_sales_tot_asset,
+  tfp_cit, 
+  ln(tfp_cit) AS log_tfp_cit,
+  sum_rd,
+  avg_rd,
   dominated_output_soe_c, 
   element_at(dominated_output_i, .5) as dominated_output_i,
   lower_location,
   larger_location,
   tcz,
-  spz
+  spz,
+  credit_constraint,
+  supply_all_credit,
+  supply_long_term_credit,
+  CASE WHEN credit_constraint > -0.47 THEN 'EXTERNAL_CONSTRAINT' ELSE 'NO_EXTERNAL_CONSTRAINT' END AS d_credit_constraint,
+  CASE WHEN supply_all_credit < 0.99 THEN 'INTERNAL_CONSTRAINT' ELSE 'NO_INTERNAL_CONSTRAINT' END AS d_supply_all_credit,
+  CASE WHEN supply_long_term_credit < 2.3255813 THEN 'INTERNAL_CONSTRAINT' ELSE 'NO_INTERNAL_CONSTRAINT' END AS d_supply_long_term_credit
   
 FROM 
   environment.fin_dep_pollution_baseline_city 
@@ -187,12 +196,8 @@ FROM
       year, 
       indu_2, 
       geocode4_corr, 
-      AVG(asset_tangibility_tot_asset) AS avg_tangible, 
-      approx_percentile(asset_tangibility_tot_asset,.5) AS median_tangible, 
-      AVG(tfp_op) AS avg_tfp, 
-      approx_percentile(tfp_op,.5) AS median_tfp,
-      AVG(rd_tot_asset) AS avg_rd, 
-      approx_percentile(rd_tot_asset,.5) AS median_rd
+      SUM(rd_tot_asset) AS sum_rd,
+      AVG(rd_tot_asset) AS avg_rd
     FROM 
       firms_survey.asif_tfp_credit_constraint 
     GROUP BY 
@@ -217,13 +222,6 @@ df = (
     # destination_key="SQL_OUTPUT_ATHENA/CSV",  # Use it temporarily
     # dtype=dtypes,
     )
-    .assign(
-    log_tso2= lambda x: np.log(x['tso2']),
-    log_avg_tangible=lambda x: np.log(x['avg_tangible']),
-    log_median_tangible=lambda x: np.log(x['median_tangible']),
-    log_avg_tfp=lambda x: np.log(x['avg_tfp']),
-    log_median_tfp=lambda x: np.log(x['median_tfp'])
-    )
 )
 df.head()
 ```
@@ -233,62 +231,140 @@ df.shape
 ```
 
 <!-- #region kernel="SoS" -->
+Load credit constraint
+<!-- #endregion -->
+
+```sos kernel="SoS"
+query_cc = """
+SELECT DISTINCT(short), AVG(credit_constraint) as credit_constraint
+FROM environment.fin_dep_pollution_baseline_city 
+GROUP BY short
+ORDER BY credit_constraint
+"""
+df_cc = (
+    s3.run_query(
+    query=query_cc,
+    database=db,
+    s3_output="SQL_OUTPUT_ATHENA",
+    filename="scatter_plot_2",  # Add filename to print dataframe
+    # destination_key="SQL_OUTPUT_ATHENA/CSV",  # Use it temporarily
+    # dtype=dtypes,
+    )
+)
+df_cc
+```
+
+```sos kernel="SoS"
+def generate_plots(df, 
+                   x_title = 'Asset tangibility',
+                   x = 'log_asset_tangibility_tot_asset', 
+                   industry = ['Tobacco', 'Smelting ferrous Metals']
+                  ):
+    """
+    industry-> List of two items. First items be less constraints than second items
+    """
+    sns.set_style("white")
+    ### plot 1
+    sns.lmplot(x=x,
+           y="log_tso2",
+           data=df
+          )
+    plt.xlabel(x_title)
+    plt.ylabel('SO2 emission')
+    plt.title('Relationship between {} and SO2 emission'.format(x_title))
+    #plt.savefig("fig_2.png",
+    #       bbox_inches='tight',
+    #        dpi=600)
+    
+    ### Plot 2
+    sns.lmplot(x=x,
+           y="log_tso2",
+           hue="dominated_output_soe_c",
+           data=df
+          )
+    plt.xlabel(x_title)
+    plt.ylabel('SO2 emission')
+    plt.title('Relationship between {} and SO2 emission, by city ownership'.format(x_title))
+    
+    ### Plot 3
+    sns.lmplot(x=x,
+           y="log_tso2",
+           hue="dominated_output_i",
+           data=df
+          )
+    plt.xlabel(x_title)
+    plt.ylabel('SO2 emission')
+    plt.title('Relationship between {} and SO2 emission, by industry size'.format(x_title))
+    
+    ### Plot 4
+    sns.lmplot(x=x,
+           y="log_tso2",
+           hue="d_credit_constraint",
+           data=df
+          )
+    plt.xlabel(x_title)
+    plt.ylabel('SO2 emission')
+    plt.title('Relationship between {} and SO2 emission, by external finance'.format(x_title))
+    
+    ### Plot 5
+    sns.lmplot(x=x,
+           y="log_tso2",
+           hue="short",
+           data=df.loc[lambda x: x['short'].isin(industry)]
+          )
+    plt.xlabel(x_title)
+    plt.ylabel('SO2 emission')
+    plt.title('Relationship between {} and SO2 emission, by external finance'.format(x_title))
+    
+```
+
+<!-- #region kernel="SoS" -->
 ## Asset tangible
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-sns.set_style("white")
-#beingsaved.set_rasterized(True)
-sns.lmplot(x="log_avg_tangible",
-           y="log_tso2",
-           data=df.loc[lambda x: x['log_avg_tangible'] > -6])
-#plt.title('Relationship between Financial dependencies and variation of SO2 between 2005 and 2007, in log')
-# Set x-axis label
-plt.xlabel('Asset tangibility')
-# Set y-axis label
-plt.ylabel('SO2 emission')
-plt.title('Relationship between Asset tangibility and SO2 emission')
-#plt.savefig("fig_2.png",
-#            bbox_inches='tight',
-#            dpi=600)
+generate_plots(df.loc[lambda x: 
+                      x['log_asset_tangibility_tot_asset'] > -6], 
+                   x_title = 'Asset tangibility',
+                   x = 'log_asset_tangibility_tot_asset', 
+                   industry = ['Tobacco', 'Smelting ferrous Metals']
+                  )
 ```
 
-```sos kernel="SoS"
-sns.set_style("white")
-#beingsaved.set_rasterized(True)
-sns.lmplot(x="log_avg_tangible",
-           y="log_tso2",
-           hue="dominated_output_soe_c",
-           data=df.loc[lambda x: x['log_avg_tangible'] > -6]
-          )
-#plt.title('Relationship between Financial dependencies and variation of SO2 between 2005 and 2007, in log')
-# Set x-axis label
-plt.xlabel('Asset tangibility')
-# Set y-axis label
-plt.ylabel('SO2 emission')
-plt.title('Relationship between Asset tangibility and SO2 emission, by city ownership')
-#plt.savefig("fig_2.png",
-#            bbox_inches='tight',
-#            dpi=600)
-```
+<!-- #region kernel="SoS" -->
+### Cashflow
+<!-- #endregion -->
 
 ```sos kernel="SoS"
-sns.set_style("white")
-#beingsaved.set_rasterized(True)
-sns.lmplot(x="log_avg_tangible",
-           y="log_tso2",
-           hue="dominated_output_i",
-           data=df.loc[lambda x: x['log_avg_tangible'] > -6]
-          )
-#plt.title('Relationship between Financial dependencies and variation of SO2 between 2005 and 2007, in log')
-# Set x-axis label
-plt.xlabel('Asset tangibility')
-# Set y-axis label
-plt.ylabel('SO2 emission')
-plt.title('Relationship between Asset tangibility and SO2 emission, by industry size')
-#plt.savefig("fig_2.png",
-#            bbox_inches='tight',
-#            dpi=600)
+generate_plots(df, 
+                   x_title = 'Cashflow',
+                   x = 'log_cashflow_to_tangible', 
+                   industry = ['Tobacco', 'Smelting ferrous Metals']
+                  )
+```
+
+<!-- #region kernel="SoS" -->
+### Current ratio
+<!-- #endregion -->
+
+```sos kernel="SoS"
+generate_plots(df, 
+                   x_title = 'Current ratio',
+                   x = 'log_current_ratio', 
+                   industry = ['Tobacco', 'Smelting ferrous Metals']
+                  )
+```
+
+<!-- #region kernel="SoS" -->
+### Liabilities to asset
+<!-- #endregion -->
+
+```sos kernel="SoS"
+generate_plots(df, 
+                   x_title = 'Liabilities to asset',
+                   x = 'log_liabilities_tot_asset', 
+                   industry = ['Tobacco', 'Smelting ferrous Metals']
+                  )
 ```
 
 <!-- #region kernel="SoS" -->
@@ -296,56 +372,11 @@ plt.title('Relationship between Asset tangibility and SO2 emission, by industry 
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-sns.set_style("white")
-#beingsaved.set_rasterized(True)
-sns.lmplot(x="avg_rd",
-           y="log_tso2",
-           data=df.loc[lambda x: x['year'] > 2004])
-#plt.title('Relationship between Financial dependencies and variation of SO2 between 2005 and 2007, in log')
-# Set x-axis label
-plt.xlabel('R&D')
-# Set y-axis label
-plt.ylabel('SO2 emission')
-plt.title('Relationship between RD and SO2 emission')
-#plt.savefig("fig_2.png",
-#            bbox_inches='tight',
-#            dpi=600)
-```
-
-```sos kernel="SoS"
-sns.set_style("white")
-#beingsaved.set_rasterized(True)
-sns.lmplot(x="avg_rd",
-           y="log_tso2",
-           hue="dominated_output_soe_c",
-           data=df.loc[lambda x: x['year'] > 2004])
-#plt.title('Relationship between Financial dependencies and variation of SO2 between 2005 and 2007, in log')
-# Set x-axis label
-plt.xlabel('R&D')
-# Set y-axis label
-plt.ylabel('SO2 emission')
-plt.title('Relationship between RD and SO2 emission, by city ownership')
-#plt.savefig("fig_2.png",
-#            bbox_inches='tight',
-#            dpi=600)
-```
-
-```sos kernel="SoS"
-sns.set_style("white")
-#beingsaved.set_rasterized(True)
-sns.lmplot(x="avg_rd",
-           y="log_tso2",
-           hue="dominated_output_i",
-           data=df.loc[lambda x: x['year'] > 2004])
-#plt.title('Relationship between Financial dependencies and variation of SO2 between 2005 and 2007, in log')
-# Set x-axis label
-plt.xlabel('R&D')
-# Set y-axis label
-plt.ylabel('SO2 emission')
-plt.title('Relationship between RD and SO2 emission, by industry size')
-#plt.savefig("fig_2.png",
-#            bbox_inches='tight',
-#            dpi=600)
+generate_plots(df, 
+                   x_title = 'R&D',
+                   x = 'avg_rd', 
+                   industry = ['Tobacco', 'Smelting ferrous Metals']
+                  )
 ```
 
 <!-- #region kernel="SoS" -->
@@ -353,59 +384,11 @@ plt.title('Relationship between RD and SO2 emission, by industry size')
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-sns.set_style("white")
-#beingsaved.set_rasterized(True)
-sns.lmplot(x="log_avg_tfp",
-           y="log_tso2",
-           data=df#.loc[lambda x: x['log_avg_tangible'] > -6]
-          )
-#plt.title('Relationship between Financial dependencies and variation of SO2 between 2005 and 2007, in log')
-# Set x-axis label
-plt.xlabel('TFP')
-# Set y-axis label
-plt.ylabel('SO2 emission')
-plt.title('Relationship between TFP and SO2 emission')
-#plt.savefig("fig_2.png",
-#            bbox_inches='tight',
-#            dpi=600)
-```
-
-```sos kernel="SoS"
-sns.set_style("white")
-#beingsaved.set_rasterized(True)
-sns.lmplot(x="log_avg_tfp",
-           y="log_tso2",
-           hue="dominated_output_soe_c",
-           data=df#.loc[lambda x: x['log_avg_tangible'] > -6]
-          )
-#plt.title('Relationship between Financial dependencies and variation of SO2 between 2005 and 2007, in log')
-# Set x-axis label
-plt.xlabel('TFP')
-# Set y-axis label
-plt.ylabel('SO2 emission')
-plt.title('Relationship between TFP and SO2 emission, by city ownership')
-#plt.savefig("fig_2.png",
-#            bbox_inches='tight',
-#            dpi=600)
-```
-
-```sos kernel="SoS"
-sns.set_style("white")
-#beingsaved.set_rasterized(True)
-sns.lmplot(x="log_avg_tfp",
-           y="log_tso2",
-           hue="dominated_output_i",
-           data=df#.loc[lambda x: x['log_avg_tangible'] > -6]
-          )
-#plt.title('Relationship between Financial dependencies and variation of SO2 between 2005 and 2007, in log')
-# Set x-axis label
-plt.xlabel('TFP')
-# Set y-axis label
-plt.ylabel('SO2 emission')
-plt.title('Relationship between TFP and SO2 emission, by industry size')
-#plt.savefig("fig_2.png",
-#            bbox_inches='tight',
-#            dpi=600)
+generate_plots(df, 
+                   x_title = 'TFP',
+                   x = 'log_tfp_cit', 
+                   industry = ['Tobacco', 'Smelting ferrous Metals']
+                  )
 ```
 
 <!-- #region kernel="SoS" -->
@@ -433,8 +416,8 @@ df_table = (
                             "cashflow_to_tangible": ["mean", "std"],
                             "current_ratio": ["mean", "std"],
                             "liabilities_tot_asset": ["mean", "std"],
-                            "avg_tfp": ["mean", "std"],
-                            "avg_rd": ["mean", "std"],
+                            "tfp_cit": ["mean", "std"],
+                            "sum_rd": ["mean", "std"],
                         }
                     )
                     .T.assign(
@@ -444,7 +427,7 @@ df_table = (
                         + ")"
                     )
                     .reindex(columns=["full_sample"])
-                    .rename(columns={"full_sample": ""})
+                    .rename(columns={"full_sample": "ALL"})
                 )
             ],
             axis=1,
@@ -468,8 +451,8 @@ df_table = (
                             "cashflow_to_tangible": ["mean", "std"],
                             "current_ratio": ["mean", "std"],
                             "liabilities_tot_asset": ["mean", "std"],
-                            "avg_tfp": ["mean", "std"],
-                            "avg_rd": ["mean", "std"],
+                            "tfp_cit": ["mean", "std"],
+                            "sum_rd": ["mean", "std"],
                         }
                     )
                     .T.unstack(-1)
@@ -515,8 +498,8 @@ df_table = (
                                     "cashflow_to_tangible": ["mean", "std"],
                                     "current_ratio": ["mean", "std"],
                                     "liabilities_tot_asset": ["mean", "std"],
-                                    "avg_tfp": ["mean", "std"],
-                                    "avg_rd": ["mean", "std"],
+                                    "tfp_cit": ["mean", "std"],
+                                    "sum_rd": ["mean", "std"],
                                 }
                             )
                             .T.unstack(-1)
@@ -554,8 +537,8 @@ df_table = (
                                     "cashflow_to_tangible": ["mean", "std"],
                                     "current_ratio": ["mean", "std"],
                                     "liabilities_tot_asset": ["mean", "std"],
-                                    "avg_tfp": ["mean", "std"],
-                                    "avg_rd": ["mean", "std"],
+                                    "tfp_cit": ["mean", "std"],
+                                    "sum_rd": ["mean", "std"],
                                 }
                             )
                             .T.unstack(-1)
@@ -595,8 +578,8 @@ df_table = (
     "cashflow_to_tangible": "cashflow",
     "current_ratio": "current ratio",
     "liabilities_tot_asset": "liabilities to asset",
-    "avg_tfp": "TFP",
-    "avg_rd": "RD",
+    "tfp_cit": "TFP",
+    "sum_rd": "RD",
 })
 )
 df_latex = df_table.to_latex()
@@ -605,10 +588,26 @@ df_latex = df_table.to_latex()
 
 ```sos kernel="SoS"
 folder = 'Tables'
-table_number = 1
 ```
 
 ```sos kernel="SoS"
+title = "Summary statistic"
+tb_note = """
+The information about the SO2 level is collected using various editions of the China Environment Statistics Yearbook and is reported in millions of tons.
+cashflow is measured as net income + depreciation over asset;
+current ratio is measured as current asset over current liabilities. 
+TFP is computed the Olley-Parkes algorithm. 
+RD is available for 2005 to 2007 only.  
+An industry is labelled as large (small) when the city-industrial output share above (below) a critical threshold, for instance the 50th decile.
+(Non-)SOE-dominated cities refers to cities where the output share of SOEs is (below) above a critical threshold, for instance the 60th decile.
+The list of TCZ is provided by the State Council, 1998. “Ofcial Reply to the State Council Concerning
+Acid Rain Control Areas and Sulfur Dioxide Pollution Control Areas”.
+Standard deviation is reported in parenthesis
+"""
+```
+
+```sos kernel="SoS"
+table_number = 1
 with open('{}/table_{}.tex'.format(folder,table_number), 'w') as fout:
     for i in range(len( df_latex)):
         if i ==0:
@@ -616,13 +615,157 @@ with open('{}/table_{}.tex'.format(folder,table_number), 'w') as fout:
             "\\usepackage{booktabs,caption,threeparttable, siunitx, adjustbox}\n\n" \
             "\\begin{document}"
             top =  '\n\\begin{adjustbox}{width=\\textwidth, totalheight=\\textheight-2\\baselineskip,keepaspectratio}\n'
+            table_top = "\n\\begin{table}[!htbp] \centering"
+            table_title = "\n\caption{%s}\n" % title
+            
             fout.write(header)
+            fout.write(table_top)
+            fout.write(table_title)
             fout.write(top)
+           
         fout.write( df_latex[i])
     
     bottom =  '\n\\end{adjustbox}\n'
+    tb_note_top = "\n\\begin{tablenotes}\n\small\n\item"
+    table_bottom = "\n\end{table}"
     footer = "\n\n\\end{document}"
+    tb_note_bottom = "\n\end{tablenotes}"
     fout.write(bottom)
+    fout.write(tb_note_top)
+    fout.write(tb_note)
+    fout.write(tb_note_bottom)
+    fout.write(table_bottom)
+    fout.write(footer)
+ 
+f = open('{}/table_{}.tex'.format(folder,table_number))
+r = tex2pix.Renderer(f, runbibtex=False)
+r.mkpdf('{}/table_{}.pdf'.format(folder,table_number))
+img = WImage(filename='{}/table_{}.pdf'.format(folder,table_number),
+resolution = 200)
+display(img)
+```
+
+```sos kernel="SoS"
+import os
+path = os.path.join(folder)
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+<!-- #region kernel="SoS" -->
+### Distribution by industry
+<!-- #endregion -->
+
+```sos kernel="SoS"
+df_industry = (
+    df.assign(
+        tso2=lambda x: x["tso2"] / 1000000,
+        sales=lambda x: x["sales_tot_asset"] / 1000000,
+        total_asset=lambda x: x["total_asset"] / 1000000,
+    )
+    .groupby("short")
+    .agg(
+        {
+            "tso2": ["mean", "std"],
+            "asset_tangibility_tot_asset": ["mean", "std"],
+            "cashflow_to_tangible": ["mean", "std"],
+            "current_ratio": ["mean", "std"],
+            "liabilities_tot_asset": ["mean", "std"],
+            #"tfp_cit": ["mean", "std"],
+            #"sum_rd": ["mean", "std"],
+        }
+    )
+    .assign(
+        tso2_=lambda x: np.round(x[("tso2", "mean")], 2).astype(str)
+        + " ("
+        + np.round(x[("tso2", "std")], 2).astype(str)
+        + ")",
+        asset_tangibility_tot_asset_=lambda x: np.round(
+            x[("asset_tangibility_tot_asset", "mean")], 2
+        ).astype(str)
+        + " ("
+        + np.round(x[("asset_tangibility_tot_asset", "std")], 2).astype(str)
+        + ")",
+        cashflow_to_tangible_=lambda x: np.round(
+            x[("cashflow_to_tangible", "mean")], 2
+        ).astype(str)
+        + " ("
+        + np.round(x[("cashflow_to_tangible", "std")], 2).astype(str)
+        + ")",
+        current_ratio_=lambda x: np.round(x[("current_ratio", "mean")], 2).astype(str)
+        + " ("
+        + np.round(x[("current_ratio", "std")], 2).astype(str)
+        + ")",
+        liabilities_tot_asset_=lambda x: np.round(
+            x[("liabilities_tot_asset", "mean")], 2
+        ).astype(str)
+        + " ("
+        + np.round(x[("liabilities_tot_asset", "std")], 2).astype(str)
+        + ")",
+        #tfp_cit_=lambda x: np.round(x[("tfp_cit", "mean")], 2).astype(str)
+        #+ " ("
+        #+ np.round(x[("tfp_cit", "std")], 2).astype(str)
+        #+ ")",
+    )
+    .iloc[:, 10:]
+    .rename(
+        columns={
+            "tso2_": "SO2",
+            "asset_tangibility_tot_asset_": "asset tangibility",
+            "cashflow_to_tangible_": "cashflow",
+            "current_ratio_": "current ratio",
+            "liabilities_tot_asset_": "liabilities to asset",
+            #"tfp_cit_": "TFP",
+        }
+    )
+    .rename_axis(index={'short': 'Industry'})
+)
+df_latex = df_industry.to_latex()
+#df_industry
+```
+
+```sos kernel="SoS"
+title = "Average main variables by industry"
+tb_note = """
+The information about the SO2 level is collected using various editions of the China Environment Statistics Yearbook and is reported in millions of tons.
+cashflow is measured as net income + depreciation over asset;
+current ratio is measured as current asset over current liabilities. 
+Standard deviation is reported in parenthesis
+"""
+```
+
+```sos kernel="SoS"
+table_number = 1
+with open('{}/table_{}.tex'.format(folder,table_number), 'w') as fout:
+    for i in range(len( df_latex)):
+        if i ==0:
+            header= "\documentclass[preview]{standalone} \n\\usepackage[utf8]{inputenc}\n" \
+            "\\usepackage{booktabs,caption,threeparttable, siunitx, adjustbox}\n\n" \
+            "\\begin{document}"
+            top =  '\n\\begin{adjustbox}{width=\\textwidth, totalheight=\\textheight-2\\baselineskip,keepaspectratio}\n'
+            table_top = "\n\\begin{table}[!htbp] \centering"
+            table_title = "\n\caption{%s}\n" % title
+            
+            fout.write(header)
+            fout.write(table_top)
+            fout.write(table_title)
+            fout.write(top)
+           
+        fout.write( df_latex[i])
+    
+    bottom =  '\n\\end{adjustbox}\n'
+    tb_note_top = "\n\\begin{tablenotes}\n\small\n\item"
+    table_bottom = "\n\end{table}"
+    footer = "\n\n\\end{document}"
+    tb_note_bottom = "\n\end{tablenotes}"
+    fout.write(bottom)
+    fout.write(tb_note_top)
+    fout.write(tb_note)
+    fout.write(tb_note_bottom)
+    fout.write(table_bottom)
     fout.write(footer)
  
 f = open('{}/table_{}.tex'.format(folder,table_number))
