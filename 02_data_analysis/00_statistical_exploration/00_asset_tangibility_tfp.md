@@ -452,15 +452,6 @@ plt.ylabel('RD')
 plt.title('Relationship between {} and RD'.format('Cashflow'))
 ```
 
-```sos kernel="SoS"
-df_tfp.loc[lambda x: 
-                           (x['year'] >2004) &
-                           (x['rd_tot_asset'] > 0)
-                           &
-                           (x['rd_tot_asset'] < 1.5)
-                          ].describe()
-```
-
 <!-- #region kernel="SoS" -->
 ## Table
 <!-- #endregion -->
