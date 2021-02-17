@@ -1,11 +1,25 @@
-# Download Data
 
-The project requires to download data from the internet, or from Google Drive (previously saved in Drive) and to move them to S3:
+# 00 download data from
 
-- [TCZ_SPZ](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from_/TCZ_SPZ): Create Control zone policy city
-- [PROVINCE_LOCATION](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from_/PROVINCE_LOCATION):Create Chinese province geographical description
-- [CITY_SECTOR_POLLUTION](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from_/CITY_SECTOR_POLLUTION): Create China city sector pollution
-- [CITY_REDUCTION_MANDATE](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from_/CITY_REDUCTION_MANDATE): Create city reduction mandate policy 6th FYP
-- [CITY_CODE_CORRESPONDANCE](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from_/CITY_CODE_CORRESPONDANCE): Create consistent city code
-- [CIC_NAME](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from_/CIC_NAME): Create industry name 2 digits
-- [ASIF_PANEL](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from_/ASIF_PANEL): Create Firms survey ASIF panel data from STATA
+
+        
+## Table of Content
+
+ - **ASIF_PANEL/**
+   - [firm_asif.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/ASIF_PANEL/firm_asif.py)
+ - **CIC_CREDIT_CONSTRAINT/**
+   - [financial_dependency.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/CIC_CREDIT_CONSTRAINT/financial_dependency.py)
+ - **CIC_NAME/**
+   - [cic_industry_name.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/CIC_NAME/cic_industry_name.py)
+ - **CITY_CODE_CORRESPONDANCE/**
+   - [city_code_correspondance.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py)
+ - **CITY_REDUCTION_MANDATE/**
+   - [city_reduction_mandate.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/CITY_REDUCTION_MANDATE/city_reduction_mandate.py)
+ - **CITY_SECTOR_POLLUTION/**
+   - [city_sector_pollution.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/CITY_SECTOR_POLLUTION/city_sector_pollution.py)
+ - **PROVINCE_CREDIT_CONSTRAINT/**
+   - [supply_credit.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/PROVINCE_CREDIT_CONSTRAINT/supply_credit.py)
+ - **PROVINCE_LOCATION/**
+   - [chinese_province.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/PROVINCE_LOCATION/chinese_province.py)
+ - **TCZ_SPZ/**
+   - [tcz_spz_policy.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/TCZ_SPZ/tcz_spz_policy.py)

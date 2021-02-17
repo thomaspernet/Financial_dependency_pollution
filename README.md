@@ -1,13 +1,98 @@
-# Financial_dependency_pollution
 
-We study how a bank s involvement in a firm s financing may be in line with environmental policies pursued by the Chinese central government. Specifically, we evaluated the effectiveness of credit reallocation away from polluting projects when the government imposes stringent environmental policies. We combine the industries financial dependencies with time, including cross-cities variation in policy intensity to identify the causal effect on the sulfur dioxide (SO2) emission. We find that SO2 emissions are lower in industries with high reliance on credits and stricter environmental regulations. Furthermore, our results suggest that locations with strong environmental policies lead firms to seek funding in less regulated areas, which confirms the pollution haven hypothesis
+# Financial dependency pollution
 
-## Table of Content Financial_dependency_pollution
 
-- [Documentation](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/Documentation)
-- [Data Catalogue](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue)
-- [Data preprocessing](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing)
-  - [00_download_data_from](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from)
-  - [01_prepare_tables](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/01_prepare_tables)
-  - [02_transform_tables](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables)
 
+We study how a bank s involvement in a firm s financing may be in line with environmental policies pursued by the Chinese central government. Specifically, we evaluated the effectiveness of credit reallocation away from polluting projects when the government imposes stringent environmental policies. We combine the industries financial dependencies with time, including cross-cities variation in policy intensity to identify the causal effect on the sulfur dioxide (SO2 emission. We find that SO2 emissions are lower in industries with high reliance on credits and stricter environmental regulations. Furthermore, our results suggest that locations with strong environmental policies lead firms to seek funding in less regulated areas, which confirms the pollution haven hypothesis
+        
+## Table of Content
+
+ - **00_data_catalogue/**
+   - [README.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue/README.md)
+   - **HTML_ANALYSIS/**
+     - [ASIF_CITY_INDUSTRY_FINANCIAL_RATIO.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue/HTML_ANALYSIS/ASIF_CITY_INDUSTRY_FINANCIAL_RATIO.html)
+     - [ASIF_FINANCIAL_RATIO_BASELINE_FIRM.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue/HTML_ANALYSIS/ASIF_FINANCIAL_RATIO_BASELINE_FIRM.html)
+     - [ASIF_INDUSTRY_FINANCIAL_RATIO_CITY.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue/HTML_ANALYSIS/ASIF_INDUSTRY_FINANCIAL_RATIO_CITY.html)
+     - [ASIF_TFP_CREDIT_CONSTRAINT.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue/HTML_ANALYSIS/ASIF_TFP_CREDIT_CONSTRAINT.html)
+     - [ASIF_TFP_FIRM_LEVEL.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue/HTML_ANALYSIS/ASIF_TFP_FIRM_LEVEL.html)
+     - [ASIF_UNZIP_DATA_CSV.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue/HTML_ANALYSIS/ASIF_UNZIP_DATA_CSV.html)
+     - [FIN_DEP_POLLUTION_BASELINE_CITY.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue/HTML_ANALYSIS/FIN_DEP_POLLUTION_BASELINE_CITY.html)
+     - [FIN_DEP_POLLUTION_BASELINE_INDUSTRY.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue/HTML_ANALYSIS/FIN_DEP_POLLUTION_BASELINE_INDUSTRY.html)
+     - [README.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue/HTML_ANALYSIS/README.md)
+   - **temporary_local_data/**
+     - [README.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/00_data_catalogue/temporary_local_data/README.md)
+ - **01_data_preprocessing/**
+   - [README.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/README.md)
+   - **00_download_data_from/**
+     - [README.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from/README.md)
+     - **ASIF_PANEL/**
+       - [firm_asif.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from/ASIF_PANEL/firm_asif.py)
+     - **CIC_CREDIT_CONSTRAINT/**
+       - [financial_dependency.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from/CIC_CREDIT_CONSTRAINT/financial_dependency.py)
+     - **CIC_NAME/**
+       - [cic_industry_name.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from/CIC_NAME/cic_industry_name.py)
+     - **CITY_CODE_CORRESPONDANCE/**
+       - [city_code_correspondance.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py)
+     - **CITY_REDUCTION_MANDATE/**
+       - [city_reduction_mandate.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from/CITY_REDUCTION_MANDATE/city_reduction_mandate.py)
+     - **CITY_SECTOR_POLLUTION/**
+       - [city_sector_pollution.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from/CITY_SECTOR_POLLUTION/city_sector_pollution.py)
+     - **PROVINCE_CREDIT_CONSTRAINT/**
+       - [supply_credit.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from/PROVINCE_CREDIT_CONSTRAINT/supply_credit.py)
+     - **PROVINCE_LOCATION/**
+       - [chinese_province.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from/PROVINCE_LOCATION/chinese_province.py)
+     - **TCZ_SPZ/**
+       - [tcz_spz_policy.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/00_download_data_from/TCZ_SPZ/tcz_spz_policy.py)
+   - **01_prepare_tables/**
+     - [00_prepare_asif.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/01_prepare_tables/00_prepare_asif.md)
+     - [README.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/01_prepare_tables/README.md)
+     - **Reports/**
+       - [00_prepare_asif.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/01_prepare_tables/Reports/00_prepare_asif.html)
+   - **02_transform_tables/**
+     - [00_asif_financial_ratio.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/00_asif_financial_ratio.md)
+     - [01_fin_dep_pol_baseline.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/01_fin_dep_pol_baseline.md)
+     - [02_so2_polluted_sectors.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/02_so2_polluted_sectors.md)
+     - [03_asif_financial_ratio_city.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/03_asif_financial_ratio_city.md)
+     - [04_fin_dep_pol_baseline_city.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/04_fin_dep_pol_baseline_city.md)
+     - [05_tfp_computation.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md)
+     - [06_asif_financial_ratio_firm_baseline.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/06_asif_financial_ratio_firm_baseline.md)
+     - [07_dominated_city_ownership.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/07_dominated_city_ownership.md)
+     - [08_dominated_industry_ownership.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/08_dominated_industry_ownership.md)
+     - [09_asif_tfp_firm_baseline.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/09_asif_tfp_firm_baseline.md)
+     - [README.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/README.md)
+     - **Reports/**
+       - [00_asif_financial_ratio.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/Reports/00_asif_financial_ratio.html)
+       - [01_fin_dep_pol_baseline.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/Reports/01_fin_dep_pol_baseline.html)
+       - [02_so2_polluted_sectors.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/Reports/02_so2_polluted_sectors.html)
+       - [03_asif_financial_ratio_city.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/Reports/03_asif_financial_ratio_city.html)
+       - [04_fin_dep_pol_baseline_city.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/Reports/04_fin_dep_pol_baseline_city.html)
+       - [05_tfp_computation.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/Reports/05_tfp_computation.html)
+       - [06_asif_financial_ratio_firm_baseline.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/Reports/06_asif_financial_ratio_firm_baseline.html)
+       - [07_dominated_city_ownership.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/Reports/07_dominated_city_ownership.html)
+       - [08_dominated_industry_ownership.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/Reports/08_dominated_industry_ownership.html)
+       - [09_asif_tfp_firm_baseline.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/Reports/09_asif_tfp_firm_baseline.html)
+   - **00_statistical_exploration/**
+     - [00_asset_tangibility_tfp.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/00_statistical_exploration/00_asset_tangibility_tfp.md)
+     - [README.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/00_statistical_exploration/README.md)
+     - **Reports/**
+       - [00_asset_tangibility_tfp.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/00_statistical_exploration/Reports/00_asset_tangibility_tfp.html)
+     - **00_estimate_fin_ratio/**
+       - [00_so2_fin_ratio.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/00_so2_fin_ratio.md)
+       - [01_so2_fin_ratio_sector_by_sector.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/01_so2_fin_ratio_sector_by_sector.md)
+       - [02_so2_fin_ratio_city_sector_by_sector.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/02_so2_fin_ratio_city_sector_by_sector.md)
+       - [03_so2_fin_ratio_sector.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/03_so2_fin_ratio_sector.md)
+       - [04_asset_tang_firm_level.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/04_asset_tang_firm_level.md)
+       - [05_tfp_firm_level.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/05_tfp_firm_level.md)
+       - [06_internal_finance_firm_level.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/06_internal_finance_firm_level.md)
+       - **Reports/**
+         - [00_so2_fin_ratio.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/Reports/00_so2_fin_ratio.html)
+         - [01_so2_fin_ratio_sector_by_sector.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/Reports/01_so2_fin_ratio_sector_by_sector.html)
+         - [02_so2_fin_ratio_city_sector_by_sector.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/Reports/02_so2_fin_ratio_city_sector_by_sector.html)
+         - [03_so2_fin_ratio_sector.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/Reports/03_so2_fin_ratio_sector.html)
+         - [04_asset_tang_firm_level.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/Reports/04_asset_tang_firm_level.html)
+         - [05_tfp_firm_level.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/Reports/05_tfp_firm_level.html)
+         - [06_internal_finance_firm_level.html](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/Reports/06_internal_finance_firm_level.html)
+       - **function/**
+         - [latex_beautify.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/function/latex_beautify.py)
+ - **utils/**
+   - [make_toc.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/utils/make_toc.py)

@@ -1030,6 +1030,9 @@ For a partial analysis, run the cells below
 import os, time, shutil, urllib, ipykernel, json
 from pathlib import Path
 from notebook import notebookapp
+import sys
+sys.path.append(os.path.join(parent_path, 'utils'))
+import make_toc
 ```
 
 ```python
@@ -1094,4 +1097,22 @@ def create_report(extension = "html", keep_code = False):
 
 ```python
 create_report(extension = "html", keep_code = True)
+```
+
+```python
+### Update TOC in Github
+for p in [parent_path, path, str(Path(path).parent), os.path.join(str(Path(path).parent), "00_download_data_from")]:
+    try:
+        os.remove(os.path.join(p, 'README.md'))
+    except:
+        pass
+    path_parameter = os.path.join(parent_path,'utils', 'parameters_ETL_Financial_dependency_pollution.json')
+    md_lines =  make_toc.create_index(cwd = p, path_parameter = path_parameter)
+    md_out_fn = os.path.join(p,'README.md')
+    
+    if p == parent_path:
+    
+        make_toc.replace_index(md_out_fn, md_lines, Header = os.path.basename(p).replace('_', ' '), add_description = True, path_parameter = path_parameter)
+    else:
+        make_toc.replace_index(md_out_fn, md_lines, Header = os.path.basename(p).replace('_', ' '), add_description = False)
 ```

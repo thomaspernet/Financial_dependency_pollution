@@ -50,7 +50,7 @@ def create_index(cwd, path_parameter):
     return md_lines
 
 
-def replace_index(filename, new_index, Header = "Project"):
+def replace_index(filename, new_index, Header = "Project", add_description = False, path_parameter = None):
     """ finds the old index in filename and replaces it with the lines in new_index
     if no existing index places new index at end of file
     if file doesn't exist creates it and adds new index
@@ -78,9 +78,21 @@ def replace_index(filename, new_index, Header = "Project"):
         top = README = """
 # {}
 
+""".format(Header.replace('_', ' '))
+
+        if add_description:
+            with open(path_parameter) as json_file:
+                parameters = json.load(json_file)
+
+            top += "\n\n{}".format(parameters['GLOBAL']['DESCRIPTION'])
+
+        top += """
+        
 ## Table of Content
 
-""".format(Header.replace('_', ' '))
+"""
+
+
         md_out.writelines(top)
         md_out.writelines(pre_index)
         md_out.writelines(new_index)
