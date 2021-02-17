@@ -42,11 +42,21 @@ def create_index(cwd, path_parameter):
                 rel_dir = '.{1}{0}'.format(os.sep, root[base_len:])
                 for md_filename in files:
                     indent = '  ' * level
-                    md_lines.append('{0} {3} [{1}]({4}/tree/master{2}{1})\n'.format(indent,
-                                                                         md_filename,
-                                                                         rel_dir[1:], ### remove dot
-                                                                         TOC_LIST_PREFIX,
-                                                                         github_link))
+                    if os.path.splitext(md_filename)[1] == '.html':
+                        bitbucket = "https://htmlpreview.github.io/?"
+                        md_lines.append('{0} {3} [{1}]({5}{4}/blob/master{2}{1})\n'.format(indent,
+                                                                             md_filename,
+                                                                             rel_dir[1:], ### remove dot
+                                                                             TOC_LIST_PREFIX,
+                                                                             github_link,
+                                                                             bitbucket))
+                    else:
+                        to_report = 'tree'
+                        md_lines.append('{0} {3} [{1}]({4}/tree/master{2}{1})\n'.format(indent,
+                                                                             md_filename,
+                                                                             rel_dir[1:], ### remove dot
+                                                                             TOC_LIST_PREFIX,
+                                                                             github_link))
     return md_lines
 
 
@@ -87,7 +97,7 @@ def replace_index(filename, new_index, Header = "Project", add_description = Fal
             top += "\n\n{}".format(parameters['GLOBAL']['DESCRIPTION'])
 
         top += """
-        
+
 ## Table of Content
 
 """
