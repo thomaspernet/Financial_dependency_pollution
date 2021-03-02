@@ -31,6 +31,10 @@ def create_index(cwd, path_parameter):
             #    files.remove('README.md')
             #except:
             #    pass
+            ### find where the repo begins
+            base_len = re.search(
+            r'{}'.format(parameters['GLOBAL']['GITHUB']['repo_name']), root
+            ).start() + len(parameters['GLOBAL']['GITHUB']['repo_name'])
             if len(files) > 0:
                 level = root.count(os.sep) - base_level
                 indent = '  ' * level
@@ -42,6 +46,7 @@ def create_index(cwd, path_parameter):
                 rel_dir = '.{1}{0}'.format(os.sep, root[base_len:])
                 for md_filename in files:
                     indent = '  ' * level
+
                     if os.path.splitext(md_filename)[1] == '.html':
                         bitbucket = "https://htmlpreview.github.io/?"
                         md_lines.append('{0} {3} [{1}]({5}{4}/blob/master{2}{1})\n'.format(indent,
