@@ -2510,22 +2510,13 @@ create_schema.create_schema(path_json, path_save_image = os.path.join(parent_pat
 ```
 
 ```python
-string = "/Users/thomas/Google Drive/PROJECT/GITHUB/REPOSITORIES/Financial_dependency_pollution/01_data_preprocessing/01_prepare_tables/Reports/01_prepare_tables/Reports"
-re.search(r'Financial_dependency_pollution', string).start()
-```
-
-```python
-len(parameters['GLOBAL']['GITHUB']['repo_name'])
-```
-
-```python
 ### Update TOC in Github
-for p in [#parent_path,
+for p in [parent_path,
           str(Path(path).parent),
-          #os.path.join(str(Path(path).parent), "00_download_data_from"),
-          #os.path.join(str(Path(path).parent.parent), "02_data_analysis"),
-          #os.path.join(str(Path(path).parent.parent), "02_data_analysis", "00_statistical_exploration"),
-          #os.path.join(str(Path(path).parent.parent), "02_data_analysis", "01_model_estimation"),
+          os.path.join(str(Path(path).parent), "00_download_data_from"),
+          os.path.join(str(Path(path).parent.parent), "02_data_analysis"),
+          os.path.join(str(Path(path).parent.parent), "02_data_analysis", "00_statistical_exploration"),
+          os.path.join(str(Path(path).parent.parent), "02_data_analysis", "01_model_estimation"),
          ]:
     try:
         os.remove(os.path.join(p, 'README.md'))
