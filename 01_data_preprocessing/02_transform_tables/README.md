@@ -1,38 +1,83 @@
-# Transform Data
+# FIN DEP POLLUTION BASELINE CITY
 
-Information related to the source of data
+Transform (creating time-break variables and fixed effect) asif_financial_ratio data and merging pollution, industry and city mandate tables
+with financial ratio at the city level
 
-## Transform ASIF data by constructing financial variables raw data data to S3
+* **[fin_dep_pollution_baseline_city](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/04_fin_dep_pol_baseline_city.md)**
+    * TRANSFORMATION
+        * asif_industry_financial_ratio_city
+            * PREPARATION
+                * [asif_firms_prepared](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/01_prepare_tables/00_prepare_asif.md)
+                    * CREATION
+                        * [asif_unzip_data_csv](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/ASIF_PANEL/firm_asif.py)
+            * CREATION
+                * [china_city_code_normalised](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py)
+    * TRANSFORMATION
+        * china_sector_pollution_threshold
+            * CREATION
+                * [china_city_sector_pollution](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_SECTOR_POLLUTION/city_sector_pollution.py)
+    * TRANSFORMATION
+        * asif_tfp_firm_level
+            * PREPARATION
+                * [asif_firms_prepared](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/01_prepare_tables/00_prepare_asif.md)
+                    * CREATION
+                        * [asif_unzip_data_csv](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/ASIF_PANEL/firm_asif.py)
+            * CREATION
+                * [china_city_code_normalised](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py)
+    * TRANSFORMATION
+        * asif_industry_characteristics_ownership
+            * PREPARATION
+                * [asif_firms_prepared](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/01_prepare_tables/00_prepare_asif.md)
+                    * CREATION
+                        * [asif_unzip_data_csv](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/ASIF_PANEL/firm_asif.py)
+            * CREATION
+                * [china_city_code_normalised](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py)
+    * TRANSFORMATION
+        * asif_city_characteristics_ownership
+            * PREPARATION
+                * [asif_firms_prepared](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/01_prepare_tables/00_prepare_asif.md)
+                    * CREATION
+                        * [asif_unzip_data_csv](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/ASIF_PANEL/firm_asif.py)
+            * CREATION
+                * [china_city_code_normalised](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py)
+    * CREATION
+        * [china_city_sector_pollution](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_SECTOR_POLLUTION/city_sector_pollution.py)
+        * [china_city_code_normalised](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py)
+        * [china_city_reduction_mandate](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_REDUCTION_MANDATE/city_reduction_mandate.py)
+        * [china_city_tcz_spz](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/TCZ_SPZ/tcz_spz_policy.py)
+        * [ind_cic_2_name](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CIC_NAME/cic_industry_name.py)
+        * [china_credit_constraint](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CIC_CREDIT_CONSTRAINT/financial_dependency.py)
+        * [province_credit_constraint](None)
+# ASIF TFP CREDIT CONSTRAINT
 
-- Description: 
+Transform asif tfp firm level and others data by merging asif firms prepared, china credit constraint, ind cic 2 name, china city code normalised, china tcz spz, china city reduction mandate data by constructing asset_tangibility, cash_over_total_asset, sales over asset Andersen method, current ratio (Compute proxy for credit constraint , Construct main variable asset tangibility) to asif tfp credit constraint
 
-Transform (creating financial variables) ASIF data using Athena and save output to S3 + Glue. 
+* **[asif_tfp_credit_constraint](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/09_asif_tfp_firm_baseline.md)**
+    * TRANSFORMATION
+        * asif_tfp_firm_level
+            * PREPARATION
+                * [asif_firms_prepared](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/01_prepare_tables/00_prepare_asif.md)
+                    * CREATION
+                        * [asif_unzip_data_csv](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/ASIF_PANEL/firm_asif.py)
+            * CREATION
+                * [china_city_code_normalised](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py)
+    * CREATION
+        * [china_city_code_normalised](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py)
+        * [china_city_sector_pollution](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_SECTOR_POLLUTION/city_sector_pollution.py)
+        * [china_city_reduction_mandate](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_REDUCTION_MANDATE/city_reduction_mandate.py)
+        * [china_city_tcz_spz](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/TCZ_SPZ/tcz_spz_policy.py)
+        * [ind_cic_2_name](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CIC_NAME/cic_industry_name.py)
+        * [province_credit_constraint](None)
+        * [china_credit_constraint](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CIC_CREDIT_CONSTRAINT/financial_dependency.py)
 
-- Tables: 
 
-[DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO](https://coda.io/d/_dY_ZokB7AWF#DATALAKE_tuQRD/r120&modal=true)[asif_city_industry_financial_ratio](https://coda.io/d/_dY_ZokB7AWF#DATALAKE_tuQRD/r121&modal=true)
 
-- Github URL (parents): https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/00_asif_financial_ratio.md
+# ETL diagrams
 
-### Explanation
 
-1.  Construct financial ratio at the city-industry-year, city-industry, industry level
-2.  Add consistent city code to avoid duplicates
+## fin_dep_pollution_baseline_city.jpg 
 
-## Transform (creating time break variables) financial ratio data and merging pollution tables to S3
+![](https://raw.githubusercontent.com/thomaspernet/Financial_dependency_pollution/master/utils/IMAGES/fin_dep_pollution_baseline_city.jpg)
+## asif_tfp_credit_constraint.jpg 
 
-- Description: 
-
-Transform (creating time-break variables and fixed effect) asif_financial_ratio data and merging pollution, industry and city mandate tables using Athena and save output to S3 + Glue. 
-
-- Tables: 
-
-[DATA/ENVIRONMENT/CHINA/FYP/FINANCIAL_CONTRAINT/PAPER_FYP_FINANCE_POL/BASELINE](https://coda.io/d/_dY_ZokB7AWF#DATALAKE_tuQRD/r122&modal=true)[fin_dep_pollution_baseline](https://coda.io/d/_dY_ZokB7AWF#DATALAKE_tuQRD/r123&modal=true)
-
-- Github URL (parents): https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/01_fin_dep_pol_baseline.md
-
-### Explanation
-
-1.  Merge financial ratio with the pollution, city mandate, tcz table
-2. Filter year 2001 to 2007 and add time break
-3.  Create fixed effect 
+![](https://raw.githubusercontent.com/thomaspernet/Financial_dependency_pollution/master/utils/IMAGES/asif_tfp_credit_constraint.jpg)

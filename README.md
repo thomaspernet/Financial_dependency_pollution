@@ -71,11 +71,15 @@ We study how a bank s involvement in a firm s financing may be in line with envi
        - [07_dominated_city_ownership.html](https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/Reports/07_dominated_city_ownership.html)
        - [08_dominated_industry_ownership.html](https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/Reports/08_dominated_industry_ownership.html)
        - [09_asif_tfp_firm_baseline.html](https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/Reports/09_asif_tfp_firm_baseline.html)
+ - **02_data_analysis/**
+   - [README.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/README.md)
    - **00_statistical_exploration/**
      - [00_asset_tangibility_tfp.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/00_statistical_exploration/00_asset_tangibility_tfp.md)
      - [README.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/00_statistical_exploration/README.md)
      - **Reports/**
        - [00_asset_tangibility_tfp.html](https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/02_data_analysis/00_statistical_exploration/Reports/00_asset_tangibility_tfp.html)
+   - **01_model_estimation/**
+     - [README.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/README.md)
      - **00_estimate_fin_ratio/**
        - [00_so2_fin_ratio.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/00_so2_fin_ratio.md)
        - [01_so2_fin_ratio_sector_by_sector.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/01_so2_fin_ratio_sector_by_sector.md)
@@ -93,6 +97,14 @@ We study how a bank s involvement in a firm s financing may be in line with envi
          - [05_tfp_firm_level.html](https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/Reports/05_tfp_firm_level.html)
          - [06_internal_finance_firm_level.html](https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/Reports/06_internal_finance_firm_level.html)
  - **utils/**
+   - [README.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/utils/README.md)
+   - [create_schema.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/utils/create_schema.py)
    - [make_toc.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/utils/make_toc.py)
+   - **IMAGES/**
+     - [script_diagram_asif_tfp_credit_constraint.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/utils/IMAGES/script_diagram_asif_tfp_credit_constraint.py)
+     - [script_diagram_fin_dep_pollution_baseline_city.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/utils/IMAGES/script_diagram_fin_dep_pollution_baseline_city.py)
+     - **IMAGES/**
+       - [script_diagram_asif_tfp_credit_constraint.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/utils/IMAGES/IMAGES/script_diagram_asif_tfp_credit_constraint.py)
+       - [script_diagram_fin_dep_pollution_baseline_city.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/utils/IMAGES/IMAGES/script_diagram_fin_dep_pollution_baseline_city.py)
    - **latex/**
      - [latex_beautify.py](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/utils/latex/latex_beautify.py)
