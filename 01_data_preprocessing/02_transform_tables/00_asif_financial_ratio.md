@@ -2102,26 +2102,13 @@ This step is mandatory to validate the query in the ETL. If you are not sure abo
 
 To validate the query, please fillin the json below. Don't forget to change the schema so that the crawler can use it.
 
-1. Add a partition key:
+1. Change the schema if needed. It is highly recommanded to add comment to the fields
+2. Add a partition key:
     - Inform if there is group in the table so that, the parser can compute duplicate
-2. Add the steps number -> Not automtic yet. Start at 0
-3. Change the schema if needed. It is highly recommanded to add comment to the fields
-4. Provide a description -> detail the steps 
+3. Provide a description -> detail the steps 
 
 
-1. Add a partition key
-
-```python
-partition_keys = ["indu_2"]
-```
-
-2. Add the steps number
-
-```python
-step = 0
-```
-
-3. Change the schema
+1. Change the schema
 
 Bear in mind that CSV SerDe (OpenCSVSerDe) does not support empty fields in columns defined as a numeric data type. All columns with missing values should be saved as string. 
 
@@ -2167,7 +2154,7 @@ schema = [{'Name': 'indu_2', 'Type': 'string', 'Comment': 'Two digits industry. 
  {'Name': 'std_inventory_to_sales_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'}]
 ```
 
-4. Provide a description
+2. Provide a description
 
 ```python
 description = """
@@ -2175,46 +2162,95 @@ Compute the financial ratio by industry
 """
 ```
 
-5. provide metadata
+3. provide metadata
 
-- DatabaseName
-- TablePrefix
-- 
+- DatabaseName:
+- TablePrefix:
+- input: 
+- filename: Name of the notebook or Python script: to indicate
+- Task ID: from Coda
+- index_final_table: a list to indicate if the current table is used to prepare the final table(s). If more than one, pass the index. Start at 0
+- if_final: A boolean. Indicates if the current table is the final table -> the one the model will be used to be trained
 
 ```python
-DatabaseName = 'firms_survey'
+name_json = 'parameters_ETL_Financial_dependency_pollution.json'
+path_json = os.path.join(str(Path(path).parent.parent), 'utils',name_json)
+```
+
+```python
+with open(path_json) as json_file:
+    parameters = json.load(json_file)
+```
+
+```python
+partition_keys = ["indu_2"]
+filename =  "00_asif_financial_ratio.ipynb"
+index_final_table = []
+if_final = 'False'
+```
+
+Add Github URL
+
+```python
+github_url = os.path.join(
+    "https://github.com/",
+    parameters['GLOBAL']['GITHUB']['owner'],
+    parameters['GLOBAL']['GITHUB']['repo_name'],
+    "blob/master",
+    re.sub(parameters['GLOBAL']['GITHUB']['repo_name'],
+           '', re.sub(
+               r".*(?={})".format(parameters['GLOBAL']['GITHUB']['repo_name'])
+               , '', path))[1:],
+    re.sub('.ipynb','.md',filename)
+)
+github_url
+```
+
+Grab the input name from query
+
+```python
+import re
+```
+
+```python
+list_input = []
+tables = glue.get_tables(full_output = False)
+regex_matches = re.findall(r'(?=\.).*?(?=\s)|(?=\.\").*?(?=\")', query)
+for i in regex_matches:
+    cleaning = i.lstrip().rstrip().replace('.', '').replace('"', '')
+    if cleaning in tables and cleaning != table_name:
+        list_input.append(cleaning)
 ```
 
 ```python
 json_etl = {
-    'step': step,
-    'description':description,
-    'query':query,
+    'description': description,
+    'query': query,
     'schema': schema,
-    'partition_keys':partition_keys,
-    'metadata':{
-    'DatabaseName' : DatabaseName,
-    'TableName' : table_name,
-    'target_S3URI' : os.path.join('s3://',bucket, s3_output),
-    'from_athena': 'True'    
+    'partition_keys': partition_keys,
+    'metadata': {
+        'DatabaseName': DatabaseName,
+        'TableName': table_name,
+        'input': list_input,
+        'target_S3URI': os.path.join('s3://', bucket, s3_output),
+        'from_athena': 'True',
+        'filename': notebookname,
+        'index_final_table' : index_final_table,
+        'if_final': if_final,
+        'github_url':github_url
     }
 }
-json_etl
+json_etl['metadata']
 ```
 
-```python
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
-    parameters = json.load(json_file)
-```
-
-Remove the step number from the current file (if exist)
+Remove the table name from the current file (if exist)
 
 ```python
 index_to_remove = next(
                 (
                     index
                     for (index, d) in enumerate(parameters['TABLES']['TRANSFORMATION']['STEPS'])
-                    if d["step"] == step
+                    if d['metadata']['TableName'] == table_name
                 ),
                 None,
             )
@@ -2226,11 +2262,15 @@ if index_to_remove != None:
 parameters['TABLES']['TRANSFORMATION']['STEPS'].append(json_etl)
 ```
 
+```python
+print("Currently, the ETL has {} tables".format(len(parameters['TABLES']['TRANSFORMATION']['STEPS'])))
+```
+
 Save JSON
 
 ```python
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json'), "w")as outfile:
-    json.dump(parameters, outfile)
+with open(path_json, "w") as json_file:
+    json.dump(parameters, json_file)
 ```
 
 # Create or update the data catalog
@@ -2388,6 +2428,10 @@ Add a new folder with the table name in upper case
 import os, time, shutil, urllib, ipykernel, json
 from pathlib import Path
 from notebook import notebookapp
+import sys
+sys.path.append(os.path.join(parent_path, 'utils'))
+import make_toc
+import create_schema
 ```
 
 ```python
@@ -2451,5 +2495,35 @@ def create_report(extension = "html", keep_code = False, notebookname = None):
 ```
 
 ```python
-create_report(extension = "html", keep_code = True, notebookname ="00_asif_financial_ratio.ipynb")
+create_report(extension = "html", keep_code = True, notebookname =filename)
+```
+
+Create or update ETL
+
+```python
+create_schema.create_schema(path_json, path_save_image = os.path.join(parent_path, 'utils'))
+```
+
+```python
+### Update TOC in Github
+for p in [parent_path,
+          str(Path(path).parent),
+          os.path.join(str(Path(path).parent), "00_download_data_from"),
+          os.path.join(str(Path(path).parent.parent), "02_data_analysis"),
+          os.path.join(str(Path(path).parent.parent), "02_data_analysis", "00_statistical_exploration"),
+          os.path.join(str(Path(path).parent.parent), "02_data_analysis", "01_model_estimation"),
+         ]:
+    try:
+        os.remove(os.path.join(p, 'README.md'))
+    except:
+        pass
+    path_parameter = os.path.join(parent_path,'utils', name_json)
+    md_lines =  make_toc.create_index(cwd = p, path_parameter = path_parameter)
+    md_out_fn = os.path.join(p,'README.md')
+    
+    if p == parent_path:
+    
+        make_toc.replace_index(md_out_fn, md_lines, Header = os.path.basename(p).replace('_', ' '), add_description = True, path_parameter = path_parameter)
+    else:
+        make_toc.replace_index(md_out_fn, md_lines, Header = os.path.basename(p).replace('_', ' '), add_description = False)
 ```

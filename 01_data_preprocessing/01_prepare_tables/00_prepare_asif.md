@@ -762,23 +762,16 @@ This step is mandatory to validate the query in the ETL. If you are not sure abo
 
 To validate the query, please fillin the json below. Don't forget to change the schema so that the crawler can use it.
 
-1. Add a partition key:
+1. Change the schema if needed. It is highly recommanded to add comment to the fields
+2. Add a partition key:
     - Inform if there is group in the table so that, the parser can compute duplicate
-2. Add the steps number -> Not automtic yet. Start at 0
-3. Change the schema if needed. It is highly recommanded to add comment to the fields
-4. Provide a description -> detail the steps 
+3. Provide a description -> detail the steps 
 
 
 1. Add a partition key
 
 ```python
 partition_keys = ['firm', 'year']
-```
-
-2. Add the steps number
-
-```python
-step = 0
 ```
 
 3. Change the schema
@@ -793,7 +786,7 @@ schema = glue.get_table_information(
 schema
 ```
 
-4. Provide a description
+2. Provide a description
 
 ```python
 description = """
@@ -801,30 +794,59 @@ Prepare ASIF raw data by removing unconsistent year format, industry and birth y
 """
 ```
 
-5. provide metadata
+3. provide metadata
 
-- DatabaseName
-- TablePrefix
-- 
+- DatabaseName:
+- TablePrefix:
+- input: 
+- notebook name: to indicate
+- Task ID: from Coda
+- index_final_table: a list to indicate if the current table is used to prepare the final table(s). If more than one, pass the index. Start at 0
+- if_final: A boolean. Indicates if the current table is the final table -> the one the model will be used to be trained
 
 ```python
-json_etl = {
-    'step': step,
-    'description':description,
-    'query':query,
-    'schema': schema,
-    'partition_keys':partition_keys,
-    'metadata':{
-    'DatabaseName' : DatabaseName,
-    'TableName' : table_name,
-    'target_S3URI' : os.path.join('s3://',bucket, s3_output),
-    'from_athena': 'True'    
-    }
-}
+notebookname =  "00_prepare_asif.ipynb"
 ```
 
 ```python
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
+import re
+```
+
+```python
+list_input = []
+tables = glue.get_tables(full_output = False)
+regex_matches = re.findall(r'(?=\.).*?(?=\s)|(?=\.\").*?(?=\")', query)
+for i in regex_matches:
+    cleaning = i.lstrip().rstrip().replace('.', '').replace('"', '')
+    if cleaning in tables and cleaning != table_name:
+        list_input.append(cleaning)
+```
+
+```python
+
+```
+
+```python
+json_etl = {
+    'description': description,
+    'query': query,
+    'schema': '',
+    'partition_keys': partition_keys,
+    'metadata': {
+        'DatabaseName': DatabaseName,
+        'TableName': table_name,
+        'input': list_input,
+        'target_S3URI': os.path.join('s3://', bucket, s3_output),
+        'from_athena': 'True',
+        'notebookname': notebookname
+        'github_url':''
+    }
+}
+json_etl['metadata']
+```
+
+```python
+with open(os.path.join(str(Path(path).parent.parent), 'utils','parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
 
@@ -834,8 +856,8 @@ Remove the step number from the current file (if exist)
 index_to_remove = next(
                 (
                     index
-                    for (index, d) in enumerate(parameters['TABLES']['PREPARATION']['STEPS'])
-                    if d["step"] == step
+                    for (index, d) in enumerate(parameters['TABLES']['TRANSFORMATION']['STEPS'])
+                    if d['metadata']['TableName'] == table_name
                 ),
                 None,
             )
@@ -847,11 +869,15 @@ if index_to_remove != None:
 parameters['TABLES']['PREPARATION']['STEPS'].append(json_etl)
 ```
 
+```python
+print("Currently, the ETL has {} tables".format(len(parameters['TABLES']['PREPARATION']['STEPS'])))
+```
+
 Save JSON
 
 ```python
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json'), "w")as outfile:
-    json.dump(parameters, outfile)
+with open(os.path.join(str(Path(path).parent.parent), 'utils','parameters_ETL_Financial_dependency_pollution.json'), "w") as json_file:
+    json.dump(parameters, json_file)
 ```
 
 # Create or update the data catalog

@@ -10,9 +10,9 @@ jupyter:
   kernel_info:
     name: python3
   kernelspec:
-    display_name: SoS
-    language: sos
-    name: sos
+    display_name: Python 3
+    language: python
+    name: python3
 ---
 
 <!-- #region kernel="SoS" -->
@@ -87,7 +87,7 @@ https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_depende
 * GitHub:
 * https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md
 <!-- #endregion -->
-```sos inputHidden=false jupyter={"outputs_hidden": false} outputHidden=false kernel="python3"
+```python inputHidden=false jupyter={"outputs_hidden": false} outputHidden=false kernel="python3"
 from awsPy.aws_authorization import aws_connector
 from awsPy.aws_s3 import service_s3
 from awsPy.aws_glue import service_glue
@@ -107,7 +107,7 @@ bucket = 'datalake-datascience'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 ```
 
-```sos inputHidden=false jupyter={"outputs_hidden": false} outputHidden=false kernel="python3"
+```python inputHidden=false jupyter={"outputs_hidden": false} outputHidden=false kernel="python3"
 con = aws_connector.aws_instantiate(credential = path_cred,
                                        region = region)
 client= con.client_boto()
@@ -116,7 +116,7 @@ s3 = service_s3.connect_S3(client = client,
 glue = service_glue.connect_glue(client = client) 
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 pandas_setting = True
 if pandas_setting:
     cm = sns.light_palette("green", as_cmap=True)
@@ -155,7 +155,7 @@ Variables needed:
 ## Example step by step
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 DatabaseName = 'firms_survey'
 s3_output_example = 'SQL_OUTPUT_ATHENA'
 ```
@@ -164,7 +164,7 @@ s3_output_example = 'SQL_OUTPUT_ATHENA'
 Check all firm ID are digits. 
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 query= """
 SELECT test, COUNT(test) as count
 FROM (
@@ -186,7 +186,7 @@ output
 Example firm with multiple cities, or ownerships or industries
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 query = """
 WITH test as (
   SELECT 
@@ -303,7 +303,7 @@ output
 Make sure the number of observations before filtering is higher than after
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 query = """
 WITH test as (
   SELECT 
@@ -371,7 +371,7 @@ output = s3.run_query(
 output
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 query = """
 WITH test as (
   SELECT 
@@ -479,7 +479,7 @@ output
 Count by year
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 query ="""
 WITH test as ( 
   SELECT 
@@ -585,7 +585,7 @@ Relax the constraint on:
 We will predict the model using the constraint **but** we will predict on all firms
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 s3_output = 'DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/TFP/FIRM_LEVEL'
 table_name = 'asif_tfp_firm_level'
 
@@ -605,11 +605,11 @@ path_temporary_file_out = os.path.join(str(Path(path).parent.parent),
 Clean up the folder with the previous csv file. Be careful, it will erase all files inside the folder
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 s3.remove_all_bucket(path_remove = s3_output)
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 query = """
 WITH test as (
   SELECT 
@@ -738,7 +738,7 @@ output
 Need to load the data to the instance
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 s3.download_file(
     key = os.path.join('SQL_OUTPUT_ATHENA/CSV', output['QueryID'] + ".csv"),
     path_local = LOCAL_PATH_CONFIG_FILE
@@ -752,7 +752,7 @@ os.rename(
 Load the data in the instance, and open it using R. **DONT FORGET TO WRITE AGAIN THE TABLE NAME**
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 from pathlib import Path
 import os
 table_name = "asif_tfp_firm_level"
@@ -770,18 +770,18 @@ path_temporary_file_out = os.path.join(str(Path(path).parent.parent),
                                       )
 ```
 
-```sos kernel="R"
+```python kernel="R"
 options(warn=-1)
 library(tidyverse)
 ```
 
-```sos kernel="R"
+```python kernel="R"
 %get path_temporary_file
 df_input <- read_csv(path_temporary_file) 
 df_input %>% head()
 ```
 
-```sos kernel="R"
+```python kernel="R"
 dim(df_input)
 ```
 
@@ -795,7 +795,7 @@ Note that, we change the program to make sure we can use it within our environme
 We bring together the file https://github.com/GabrieleRovigatti/prodest/blob/master/prodest/R/auxFun.R and https://github.com/GabrieleRovigatti/prodest/blob/master/prodest/R/prodestOPLP.R. We change a few lines of codes to avoid issue with the data preparation. 
 <!-- #endregion -->
 
-```sos kernel="R"
+```python kernel="R"
 path = "TFP_R_PROGRAM/program_OP_TFP.R"
 source(path)
 ```
@@ -804,7 +804,7 @@ source(path)
 Estimate TFP excluding largest firms and firms switching industry, city and ownership
 <!-- #endregion -->
 
-```sos kernel="R"
+```python kernel="R"
 df_train <- df_input %>% filter(
     output < output_upper_bound 
     & 
@@ -819,12 +819,12 @@ df_train$id_1 <- df_train %>% group_indices(firm)
 dim(df_train)
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 import time
 start_time = time.time()
 ```
 
-```sos kernel="R"
+```python kernel="R"
 OP.fit <- prodestOP(Y = log(df_train$output),
                     fX = log(df_train$employ),
                     sX= log(df_train$captal),
@@ -833,11 +833,11 @@ OP.fit <- prodestOP(Y = log(df_train$output),
                     timevar = df_train$year)
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 (time.time() - start_time)/60
 ```
 
-```sos kernel="R"
+```python kernel="R"
 OP.fit
 ```
 
@@ -847,20 +847,20 @@ Compute the TFP using the coefficients of employment and capital.
 TFP is predicted on all firms
 <!-- #endregion -->
 
-```sos kernel="R"
+```python kernel="R"
 df_input$tfp_OP <- log(df_input$output) - (log(df_input$employ) * OP.fit$pars[1] +
                                       log(df_input$captal) * OP.fit$pars[2])
 ```
 
-```sos kernel="R"
+```python kernel="R"
 df_output <- df_input #%>% select (-id_1)
 ```
 
-```sos kernel="R"
+```python kernel="R"
 glimpse(df_output)
 ```
 
-```sos kernel="R"
+```python kernel="R"
 df_output %>% filter(firm == '246379')
 ```
 
@@ -870,7 +870,7 @@ Save the data with R in the temporary folder `00_data_catalogue/temporary_local_
 If need to save the model, use `saveRDS(XX.fit, "XX.rds")` and choose another path in S3
 <!-- #endregion -->
 
-```sos kernel="R"
+```python kernel="R"
 %get path_temporary_file_out
 write.csv(df_output, path_temporary_file_out, row.names=FALSE)
 ```
@@ -879,7 +879,7 @@ write.csv(df_output, path_temporary_file_out, row.names=FALSE)
 Save the data back in the S3 folder using Python
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 s3.upload_file(file_to_upload = path_temporary_file_out, destination_in_s3 = s3_output)
 ```
 
@@ -903,16 +903,8 @@ To validate the query, please fillin the json below. Don't forget to change the 
 1. Add a partition key
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 partition_keys = ['year', 'ownership']
-```
-
-<!-- #region kernel="SoS" -->
-2. Add the steps number
-<!-- #endregion -->
-
-```sos kernel="python3"
-step = 3
 ```
 
 <!-- #region kernel="SoS" -->
@@ -921,13 +913,13 @@ step = 3
 Bear in mind that CSV SerDe (OpenCSVSerDe) does not support empty fields in columns defined as a numeric data type. All columns with missing values should be saved as string. 
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 #glue.get_table_information(
 #    database = DatabaseName,
 #    table = table_name)['Table']['StorageDescriptor']['Columns']
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 schema = [
     {
         "Name": "firm",
@@ -1016,57 +1008,98 @@ schema = [
 4. Provide a description
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 description = """
 Compute TFP using Olley and Pakes approach at the firm level
 """
 ```
 
 <!-- #region kernel="SoS" -->
-5. provide metadata
+3. provide metadata
 
-- DatabaseName
-- TablePrefix
-- 
+- DatabaseName:
+- TablePrefix:
+- input: 
+- notebook name: to indicate
+- Task ID: from Coda
+- index_final_table: a list to indicate if the current table is used to prepare the final table(s). If more than one, pass the index. Start at 0
+- if_final: A boolean. Indicates if the current table is the final table -> the one the model will be used to be trained
 <!-- #endregion -->
 
-```sos kernel="python3"
-DatabaseName = 'firms_survey'
-TablePrefix = 'asif_tfp_'
+```python kernel="python3"
+with open(os.path.join(str(Path(path).parent.parent), 'utils','parameters_ETL_Financial_dependency_pollution.json')) as json_file:
+    parameters = json.load(json_file)
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
+TablePrefix = 'asif_tfp_'
+filename =  "05_tfp_computation.ipynb"
+index_final_table = [0,1]
+if_final = 'False'
+```
+
+```python
+github_url = os.path.join(
+    "https://github.com/",
+    parameters['GLOBAL']['GITHUB']['owner'],
+    parameters['GLOBAL']['GITHUB']['repo_name'],
+    "blob/master",
+    re.sub(parameters['GLOBAL']['GITHUB']['repo_name'],
+           '', re.sub(
+               r".*(?={})".format(parameters['GLOBAL']['GITHUB']['repo_name'])
+               , '', path))[1:],
+    re.sub('.ipynb','.md',filename)
+)
+```
+
+Grab the input name from query
+
+```python
+import re
+```
+
+```python
+list_input = []
+tables = glue.get_tables(full_output = False)
+regex_matches = re.findall(r'(?=\.).*?(?=\s)|(?=\.\").*?(?=\")', query)
+for i in regex_matches:
+    cleaning = i.lstrip().rstrip().replace('.', '').replace('"', '')
+    if cleaning in tables and cleaning != table_name:
+        list_input.append(cleaning)
+```
+
+```python kernel="python3"
 json_etl = {
-    'step': step,
-    'description':description,
-    'query':query,
+    'description': description,
+    'query': query,
     'schema': schema,
-    'partition_keys':partition_keys,
-    'metadata':{
-    'DatabaseName' : DatabaseName,
-    'TablePrefix' : TablePrefix,
-    'target_S3URI' : os.path.join('s3://',bucket, s3_output),
-    'from_athena': 'True'    
+    'partition_keys': partition_keys,
+    'metadata': {
+        'DatabaseName': DatabaseName,
+        'TablePrefix' : TablePrefix,
+        'TableName': table_name,
+        'input': list_input,
+        'target_S3URI': os.path.join('s3://', bucket, s3_output),
+        'from_athena': 'True',
+        'filename': notebookname,
+        'index_final_table' : index_final_table,
+        'if_final': if_final,
+        'github_url':github_url
     }
 }
-json_etl
-```
-
-```sos kernel="python3"
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
-    parameters = json.load(json_file)
+json_etl['metadata']
 ```
 
 <!-- #region kernel="SoS" -->
 Remove the step number from the current file (if exist)
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 index_to_remove = next(
                 (
                     index
                     for (index, d) in enumerate(parameters['TABLES']['TRANSFORMATION']['STEPS'])
-                    if d["step"] == step
+                    if d['metadata']['TableName'] == table_name
                 ),
                 None,
             )
@@ -1074,17 +1107,21 @@ if index_to_remove != None:
     parameters['TABLES']['TRANSFORMATION']['STEPS'].pop(index_to_remove)
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 parameters['TABLES']['TRANSFORMATION']['STEPS'].append(json_etl)
+```
+
+```python
+print("Currently, the ETL has {} tables".format(len(parameters['TABLES']['TRANSFORMATION']['STEPS'])))
 ```
 
 <!-- #region kernel="SoS" -->
 Save JSON
 <!-- #endregion -->
 
-```sos kernel="python3"
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json'), "w")as outfile:
-    json.dump(parameters, outfile)
+```python kernel="python3"
+with open(os.path.join(str(Path(path).parent.parent), 'utils','parameters_ETL_Financial_dependency_pollution.json'), "w") as json_file:
+    json.dump(parameters, json_file)
 ```
 
 <!-- #region kernel="SoS" -->
@@ -1117,19 +1154,19 @@ schema = [
 ```
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 name_crawler = 'table-test-parser'
 Role = 'arn:aws:iam::468786073381:role/AWSGlueServiceRole-crawler-datalake'
 #DatabaseName = 'firms_survey'
 #TablePrefix = 'asif_tfp_'
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 target_S3URI = os.path.join('s3://',bucket, s3_output)
 table_name = '{}{}'.format(TablePrefix, os.path.basename(target_S3URI).lower())
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 glue.create_table_glue(
     target_S3URI,
     name_crawler,
@@ -1141,7 +1178,7 @@ glue.create_table_glue(
 )
 ```
 
-```sos nteract={"transient": {"deleting": false}} kernel="python3"
+```python nteract={"transient": {"deleting": false}} kernel="python3"
 query_count = """
 SELECT COUNT(*) AS CNT
 FROM {}.{} 
@@ -1163,14 +1200,14 @@ One of the most important step when creating a table is to check if the table co
 You are required to define the group(s) that Athena will use to compute the duplicate. For instance, your table can be grouped by COL1 and COL2 (need to be string or varchar), then pass the list ['COL1', 'COL2'] 
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 partition_keys = ['firm', 'year']
 
 with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 ### COUNT DUPLICATES
 if len(partition_keys) > 0:
     groups = ' , '.join(partition_keys)
@@ -1191,7 +1228,7 @@ if len(partition_keys) > 0:
 ## Count missing values
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 #table = 'XX'
 schema = glue.get_table_information(
     database = DatabaseName,
@@ -1200,12 +1237,12 @@ schema = glue.get_table_information(
 schema
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 from datetime import date
 today = date.today().strftime('%Y%M%d')
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 table_top = parameters["ANALYSIS"]["COUNT_MISSING"]["top"]
 table_middle = ""
 table_bottom = parameters["ANALYSIS"]["COUNT_MISSING"]["bottom"].format(
@@ -1247,7 +1284,7 @@ The data catalog is available in Glue. Although, we might want to get a quick ac
 Bear in mind the code will erase the previous README. 
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 README = """
 # Data Catalogue
 
@@ -1268,6 +1305,7 @@ template = """
 - Database: {1}
 - S3uri: `{2}`
 - Partitition: {3}
+- Script: {5}
 
 {4}
 
@@ -1285,30 +1323,31 @@ for key, value in parameters['TABLES'].items():
         DatabaseName = schema['metadata']['DatabaseName']
         target_S3URI = schema['metadata']['target_S3URI']
         partition = schema['partition_keys']
-        
+        script = schema['metadata']['github_url']
         if param =='ALL_SCHEMA':
-            table_name = '{}{}'.format(
+            table_name_git = '{}{}'.format(
                 schema['metadata']['TablePrefix'],
                 os.path.basename(schema['metadata']['target_S3URI']).lower()
             )
         else:
             try:
-                table_name = schema['metadata']['TableName']
+                table_name_git = schema['metadata']['TableName']
             except:
-                table_name = '{}{}'.format(
+                table_name_git = '{}{}'.format(
                 schema['metadata']['TablePrefix'],
                 os.path.basename(schema['metadata']['target_S3URI']).lower()
             )
         
         tb = pd.json_normalize(schema['schema']).to_markdown()
-        toc = "{}{}".format(github_link, table_name)
-        top_readme += '\n- [{0}]({1})'.format(table_name, toc)
+        toc = "{}{}".format(github_link, table_name_git)
+        top_readme += '\n- [{0}]({1})'.format(table_name_git, toc)
 
-        README += template.format(table_name,
+        README += template.format(table_name_git,
                                   DatabaseName,
                                   target_S3URI,
                                   partition,
-                                  tb
+                                  tb,
+                                  script
                                   )
 README = README.format(top_readme)
 with open(os.path.join(str(Path(path).parent.parent), '00_data_catalogue/README.md'), "w") as outfile:
@@ -1359,7 +1398,7 @@ Then upload the HTML to: https://s3.console.aws.amazon.com/s3/buckets/datalake-d
 Add a new folder with the table name in upper case
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 import boto3
 
 key, secret_ = con.load_credential()
@@ -1370,13 +1409,13 @@ client_lambda = boto3.client(
     region_name = region)
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 primary_key = 'year'
 secondary_key = 'ownership'
 y_var = 'tfp_OP'
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 payload = {
     "input_path": "s3://datalake-datascience/ANALYTICS/TEMPLATE_NOTEBOOKS/template_analysis_from_lambda.ipynb",
     "output_prefix": "s3://datalake-datascience/ANALYTICS/OUTPUT/{}/".format(table_name.upper()),
@@ -1394,7 +1433,7 @@ payload = {
 payload
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 response = client_lambda.invoke(
     FunctionName='RunNotebook',
     InvocationType='RequestResponse',
@@ -1408,13 +1447,17 @@ response
 # Generation report
 <!-- #endregion -->
 
-```sos kernel="python3"
+```python kernel="python3"
 import os, time, shutil, urllib, ipykernel, json
 from pathlib import Path
 from notebook import notebookapp
+import sys
+sys.path.append(os.path.join(parent_path, 'utils'))
+import make_toc
+import create_schema
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 def create_report(extension = "html", keep_code = False, notebookname = None):
     """
     Create a report from the current notebook and save it in the 
@@ -1474,6 +1517,34 @@ def create_report(extension = "html", keep_code = False, notebookname = None):
     print("Report Available at this adress:\n {}".format(dest))
 ```
 
-```sos kernel="python3"
+```python kernel="python3"
 create_report(extension = "html", keep_code = True, notebookname = '05_tfp_computation.ipynb')
+```
+
+```python
+create_schema.create_schema(path_json, path_save_image = os.path.join(parent_path, 'utils'))
+```
+
+```python
+### Update TOC in Github
+for p in [parent_path,
+          str(Path(path).parent),
+          os.path.join(str(Path(path).parent), "00_download_data_from"),
+          os.path.join(str(Path(path).parent.parent), "02_data_analysis"),
+          os.path.join(str(Path(path).parent.parent), "02_data_analysis", "00_statistical_exploration"),
+          os.path.join(str(Path(path).parent.parent), "02_data_analysis", "01_model_estimation"),
+         ]:
+    try:
+        os.remove(os.path.join(p, 'README.md'))
+    except:
+        pass
+    path_parameter = os.path.join(parent_path,'utils', name_json)
+    md_lines =  make_toc.create_index(cwd = p, path_parameter = path_parameter)
+    md_out_fn = os.path.join(p,'README.md')
+    
+    if p == parent_path:
+    
+        make_toc.replace_index(md_out_fn, md_lines, Header = os.path.basename(p).replace('_', ' '), add_description = True, path_parameter = path_parameter)
+    else:
+        make_toc.replace_index(md_out_fn, md_lines, Header = os.path.basename(p).replace('_', ' '), add_description = False)
 ```
