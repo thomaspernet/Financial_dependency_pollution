@@ -175,21 +175,28 @@ def sort_origin(data, list_to_check, reverse =True):
 def find_github_url(data, table_name):
     """
     """
-    url = [val['metadata']['github_url'] for i, val in enumerate(data['TABLES']['TRANSFORMATION']['STEPS']) if
+    info = [val for i, val in enumerate(data['TABLES']['TRANSFORMATION']['STEPS']) if
     val['metadata']['TableName'] == table_name]
-    if len(url) == 0:
-        url = [val['metadata']['github_url'] for i, val in enumerate(data['TABLES']['PREPARATION']['STEPS']) if
+    #url = info[0]['metadata']['github_url']
+    #desc = info[0]['description']
+    if len(info) == 0:
+        info = [val for i, val in enumerate(data['TABLES']['PREPARATION']['STEPS']) if
         val['metadata']['TableName'] == table_name]
-        origin = 'PREPARATION'
-    if len(url) == 0:
-        url = [val['metadata']['github_url'] for i, val in enumerate(data['TABLES']['CREATION']['ALL_SCHEMA']) if
+        #url = info[0]['metadata']['github_url']
+        #desc = info[0]['description']
+    if len(info) == 0:
+        info = [val for i, val in enumerate(data['TABLES']['CREATION']['ALL_SCHEMA']) if
         val['metadata']['TableName'] == table_name]
+        #url = info[0]['metadata']['github_url']
+        #desc = info[0]['description']
 
-    if len(url) > 0:
-        url = url[0]
+    if len(info) > 0:
+        url = info[0]['metadata']['github_url']
+        desc = info[0]['description']
     else:
         url  = None
-    return url
+        desc = None
+    return url, desc
 
 #find_github_url('china_credit_constraint')
 
@@ -198,12 +205,14 @@ def organise_table_md(data, dic_final, output):
     """
     ### Create md
     md = ["# {}\n".format(dic_final['final_table']).replace("_", " ").upper()]
-    desc = [val['description'] for i, val in enumerate(data['TABLES']['TRANSFORMATION']['STEPS']) if
+    desc_final = [val['description'] for i, val in enumerate(data['TABLES']['TRANSFORMATION']['STEPS']) if
     val['metadata']['TableName'] == output]
-    md.append("{}\n".format(desc[0]))
-    md.append("* **[{0}]({1})**\n".format(
+    url, desc = find_github_url(data = data,table_name = dic_final['final_table'])
+    md.append("{}\n".format(desc_final[0]))
+    md.append("* **[{0}]({1})**: {2}\n".format(
     dic_final['final_table'],
-    find_github_url(data = data,table_name = dic_final['final_table'])
+    url,
+    desc
     )
     )
 
@@ -214,18 +223,26 @@ def organise_table_md(data, dic_final, output):
     for i in dic_final['pipeline']:
         if i['origin'] == 'TRANSFORMATION':
             transform = i
+            url, desc = find_github_url(data = data,table_name = transform['output'])
             md.append("{}* TRANSFORMATION\n".format(indent_0))
-            md.append("{0}* {1}\n".format(indent_0 * 2, transform['output']))
+            md.append("{0}* [{1}]({2}): {3}\n".format(
+            indent_0 * 2,
+            transform['output'],
+            url,
+            desc
+            ))
             nb_input = len(transform['input'])
             nb = 0
             ## Sort ORIGIN
             list_input = sort_origin(data = data,list_to_check= transform['input'])
             while nb < nb_input:
+                url, desc = find_github_url(data = data,table_name = list_input[nb]['table'])
                 md.append("{0}* {1}\n".format(indent_0 * 3, list_input[nb]['origin']))
-                md.append("{0}* [{1}]({2})\n".format(
+                md.append("{0}* [{1}]({2}): {3}\n".format(
                 indent_0 * 4,
                 list_input[nb]['table'],
-                find_github_url(data = data,table_name = list_input[nb]['table'])
+                url,
+                desc
                 ))
                 ### Find input
                 list_input_1 = [val['input'] for i, val in enumerate(dic_final['pipeline']) if
@@ -237,27 +254,27 @@ def organise_table_md(data, dic_final, output):
                 while nb_1 < nb_input_1:
 
                     if list_input_1[nb_1]['table'] !=  None:
+                        url, desc =find_github_url(data = data,table_name = list_input_1[nb_1]['table'])
                         md.append("{0}* {1}\n".format(indent_0 * 5, list_input_1[nb_1]['origin']))
-                        md.append("{0}* [{1}]({2})\n".format(
+                        md.append("{0}* [{1}]({2}): {3}\n".format(
                         indent_0 * 6,
                         list_input_1[nb_1]['table'],
-                        find_github_url(data = data,table_name = list_input_1[nb_1]['table'])
+                        url,
+                        desc
                         ))
                     nb_1 +=1
 
         if i['origin'] == 'CREATION':
-            md_creation.append("{0}* [{1}]({2})\n".format(
+            url, desc = find_github_url(data = data,table_name = i['output'])
+            md_creation.append("{0}* [{1}]({2}): {3}\n".format(
             indent_0 * 2,
             i['output'],
-            find_github_url(data = data,table_name = i['output'])
+            url,
+            desc
             ))
 
     md.extend(md_creation)
-    README = ""
-    for line in md:
-        README += line
-
-    return README
+    return md
 
 
 def create_schema(path_json, path_save_image):
@@ -265,7 +282,7 @@ def create_schema(path_json, path_save_image):
         data = json.load(json_file)
 
     list_final = []
-    README = ""
+    list_README = []
     for i, val in enumerate(data['TABLES']['TRANSFORMATION']['STEPS']):
         if val['metadata']['if_final'] == 'True':
             output = val['metadata']['TableName']
@@ -311,21 +328,24 @@ def create_schema(path_json, path_save_image):
                         test = test[i:]
                     dic_final['pipeline'].extend(list_output_input)
             list_final.append(dic_final)
-            README += organise_table_md(data = data,dic_final = dic_final, output = output)
+            README = organise_table_md(data = data,dic_final = dic_final, output = output)
+            list_README.append(README)
 
     path_to_add = generate_graph_etl(data = data,list_final =list_final, path_save_image = path_save_image)
     ### append to readme
     add_image = """
-
-
-# ETL diagrams
+### ETL diagrams
 
 """
-    for i in path_to_add:
-        i.split("/")[-1]
-        path = "\n## {0} \n\n![]({1})".format(i.split("/")[-1],i)
-        add_image+=path
-    README += add_image
+    for i, val in enumerate(path_to_add):
+        #i.split("/")[-1]
+        path = "{0}\n\n![]({1})\n\n".format(add_image, val)
+        list_README[i].append(path)
+
+    README = ""
+    for line in list_README:
+        for lines in line:
+            README += lines
 
     with open('README.md', "w") as outfile:
         outfile.write(README)
