@@ -33,7 +33,7 @@
 - Database: firms_survey
 - S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/UNZIP_DATA_CSV`
 - Partitition: []
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_prepare_tables/00_download_data_from/ASIF_PANEL/firm_asif.py
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/ASIF_PANEL/firm_asif.py
 
 |     | Name           | Type   | Comment                                                                                        |
 |----:|:---------------|:-------|:-----------------------------------------------------------------------------------------------|
@@ -158,7 +158,7 @@
 - Database: chinese_lookup
 - S3uri: `s3://datalake-datascience/DATA/ECON/LOOKUP_DATA/CIC_2_NAME`
 - Partitition: []
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_prepare_tables/00_download_data_from/CIC_NAME/cic_industry_name.py
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CIC_NAME/cic_industry_name.py
 
 |    | Name          | Type   | Comment                      |
 |---:|:--------------|:-------|:-----------------------------|
@@ -173,7 +173,7 @@
 - Database: chinese_lookup
 - S3uri: `s3://datalake-datascience/DATA/ECON/LOOKUP_DATA/CITY_CODE_NORMALISED`
 - Partitition: []
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_prepare_tables/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py
 
 |    | Name           | Type   | Comment                          |
 |---:|:---------------|:-------|:---------------------------------|
@@ -193,7 +193,7 @@
 - Database: policy
 - S3uri: `s3://datalake-datascience/DATA/ENVIRONMENT/CHINA/FYP/CITY_REDUCTION_MANDATE`
 - Partitition: []
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_prepare_tables/00_download_data_from/CITY_REDUCTION_MANDATE/city_reduction_mandate.py
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_REDUCTION_MANDATE/city_reduction_mandate.py
 
 |    | Name                      | Type   | Comment                              |
 |---:|:--------------------------|:-------|:-------------------------------------|
@@ -215,7 +215,7 @@
 - Database: environment
 - S3uri: `s3://datalake-datascience/DATA/ENVIRONMENT/CHINA/CITY_SECTOR_POLLUTION`
 - Partitition: []
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_prepare_tables/00_download_data_from/CITY_SECTOR_POLLUTION/city_sector_pollution.py
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_SECTOR_POLLUTION/city_sector_pollution.py
 
 |    | Name              | Type   | Comment                                                                 |
 |---:|:------------------|:-------|:------------------------------------------------------------------------|
@@ -247,7 +247,7 @@
 - Database: chinese_lookup
 - S3uri: `s3://datalake-datascience/DATA/ECON/LOOKUP_DATA/CHINESE_PROVINCE_LOCATION`
 - Partitition: []
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_prepare_tables/00_download_data_from/PROVINCE_LOCATION/chinese_province.py
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/PROVINCE_LOCATION/chinese_province.py
 
 |    | Name            | Type   | Comment                                                                 |
 |---:|:----------------|:-------|:------------------------------------------------------------------------|
@@ -264,7 +264,7 @@
 - Database: policy
 - S3uri: `s3://datalake-datascience/DATA/ECON/POLICY/CHINA/STRUCTURAL_TRANSFORMATION/CITY_TARGET/TCZ_SPZ`
 - Partitition: []
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_prepare_tables/00_download_data_from/TCZ_SPZ/tcz_spz_policy.py
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/TCZ_SPZ/tcz_spz_policy.py
 
 |    | Name          | Type   | Comment                         |
 |---:|:--------------|:-------|:--------------------------------|
@@ -281,7 +281,7 @@
 - Database: industry
 - S3uri: `s3://datalake-datascience/DATA/ECON/INDUSTRY/ADDITIONAL_DATA/CHINA/CIC/CREDIT_CONSTRAINT`
 - Partitition: []
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_prepare_tables/00_download_data_from/CIC_CREDIT_CONSTRAINT/financial_dependency.py
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CIC_CREDIT_CONSTRAINT/financial_dependency.py
 
 |    | Name                | Type   | Comment                      |
 |---:|:--------------------|:-------|:-----------------------------|
@@ -296,7 +296,7 @@
 - Database: firms_survey
 - S3uri: `s3://datalake-datascience/SQL_OUTPUT_ATHENA`
 - Partitition: ['firm', 'year']
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_prepare_tables/01_transform_tables/00_prepare_asif.ipynb
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/01_prepare_tables/00_prepare_asif.md
 
 |     | Name           | Type   | Comment                                                                                        |
 |----:|:---------------|:-------|:-----------------------------------------------------------------------------------------------|
@@ -421,7 +421,7 @@
 - Database: firms_survey
 - S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/INDUSTRY`
 - Partitition: ['indu_2']
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_data_preprocessing/02_transform_tables/00_asif_financial_ratio.ipynb
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/00_asif_financial_ratio.md
 
 |    | Name                              | Type   | Comment                                                                                                                                                             |
 |---:|:----------------------------------|:-------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -464,7 +464,7 @@
 - Database: environment
 - S3uri: `s3://datalake-datascience/DATA/ENVIRONMENT/CHINA/FYP/FINANCIAL_CONTRAINT/PAPER_FYP_FINANCE_POL/BASELINE/INDUSTRY`
 - Partitition: ['geocode4_corr', 'year', 'ind2']
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_data_preprocessing/02_transform_tables/01_fin_dep_pol_baseline.ipynb
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/01_fin_dep_pol_baseline.md
 
 |    | Name                              | Type          | Comment                                                                                                                                                             |
 |---:|:----------------------------------|:--------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -536,7 +536,7 @@
 - Database: environment
 - S3uri: `s3://datalake-datascience/DATA/ENVIRONMENT/CHINA/SECTOR_POLLUTION_THRESHOLD`
 - Partitition: ['year', 'polluted_di']
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_data_preprocessing/02_transform_tables/02_so2_polluted_sectors.ipynb
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/02_so2_polluted_sectors.md
 
 |    | Name          | Type       | Comment                                                                           |
 |---:|:--------------|:-----------|:----------------------------------------------------------------------------------|
@@ -558,7 +558,7 @@
 - Database: firms_survey
 - S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/CITY`
 - Partitition: ['province_en', 'geocode4_corr', 'indu_2', 'year']
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_data_preprocessing/02_transform_tables/03_asif_financial_ratio_city.ipynb
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/03_asif_financial_ratio_city.md
 
 |    | Name                        | Type          | Comment                                                                                                        |
 |---:|:----------------------------|:--------------|:---------------------------------------------------------------------------------------------------------------|
@@ -605,7 +605,7 @@
 - Database: environment
 - S3uri: `s3://datalake-datascience/DATA/ENVIRONMENT/CHINA/FYP/FINANCIAL_CONTRAINT/PAPER_FYP_FINANCE_POL/BASELINE/CITY`
 - Partitition: ['province_en', 'geocode4_corr', 'indu_2', 'year']
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_data_preprocessing/02_transform_tables/04_fin_dep_pol_baseline_city.ipynb
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/04_fin_dep_pol_baseline_city.md
 
 |    | Name                        | Type                | Comment                                                                                                                                                                                                   |
 |---:|:----------------------------|:--------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -684,7 +684,7 @@
 - Database: firms_survey
 - S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/TFP/FIRM_LEVEL`
 - Partitition: ['year', 'ownership']
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_data_preprocessing/02_transform_tables/05_tfp_computation.ipynb
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md
 
 |    | Name               | Type   | Comment                                     |
 |---:|:-------------------|:-------|:--------------------------------------------|
@@ -712,7 +712,7 @@
 - Database: firms_survey
 - S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/FINANCIAL_RATIO/FIRM`
 - Partitition: ['firm', 'year', 'cic', 'geocode4_corr']
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_data_preprocessing/02_transform_tables/06_asif_financial_ratio_firm_baseline.ipynb
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/06_asif_financial_ratio_firm_baseline.md
 
 |    | Name                        | Type                | Comment                                                                                                                                                             |
 |---:|:----------------------------|:--------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -779,7 +779,7 @@
 - Database: firms_survey
 - S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/CITY_CHARACTERISTICS/OWNERSHIP`
 - Partitition: ['geocode4_corr']
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_data_preprocessing/02_transform_tables/07_dominated_city_ownership.ipynb
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/07_dominated_city_ownership.md
 
 |    | Name                       | Type    | Comment                                                                    |
 |---:|:---------------------------|:--------|:---------------------------------------------------------------------------|
@@ -800,7 +800,7 @@
 - Database: firms_survey
 - S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/INDUSTRY_CHARACTERISTICS/OWNERSHIP`
 - Partitition: ['geocode4_corr', 'indu_2']
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_data_preprocessing/02_transform_tables/08_dominated_industry_ownership.ipynb
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/08_dominated_industry_ownership.md
 
 |    | Name                       | Type                | Comment                                                                                              |
 |---:|:---------------------------|:--------------------|:-----------------------------------------------------------------------------------------------------|
@@ -826,7 +826,7 @@
 - Database: firms_survey
 - S3uri: `s3://datalake-datascience/DATA/ECON/FIRM_SURVEY/ASIF_CHINA/TRANSFORMED/TFP/CREDIT_CONSTRAINT`
 - Partitition: ['firm', 'year', 'cic', 'geocode4_corr']
-- Script: https://github.com/thomaspernet/Financial_dependency_pollution/01_data_preprocessing/02_transform_tables/09_asif_tfp_firm_baseline.ipynb
+- Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/09_asif_tfp_firm_baseline.md
 
 |    | Name                        | Type                | Comment                                                                                                                                                       |
 |---:|:----------------------------|:--------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------|
