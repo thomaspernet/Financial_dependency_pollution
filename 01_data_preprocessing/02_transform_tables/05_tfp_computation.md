@@ -785,6 +785,8 @@ df_input %>% head()
 dim(df_input)
 ```
 
+### Compute TFP
+
 <!-- #region kernel="R" -->
 Prepare R code for transformation, rename the final table `df_output`. Make sure there is no missing values, the crawler cannot handle missing values, neither any econometrics or machine learning model
 <!-- #endregion -->
@@ -793,6 +795,8 @@ Prepare R code for transformation, rename the final table `df_output`. Make sure
 Note that, we change the program to make sure we can use it within our environment. The original file can be found here https://github.com/GabrieleRovigatti/prodest/tree/master/prodest/R
 
 We bring together the file https://github.com/GabrieleRovigatti/prodest/blob/master/prodest/R/auxFun.R and https://github.com/GabrieleRovigatti/prodest/blob/master/prodest/R/prodestOPLP.R. We change a few lines of codes to avoid issue with the data preparation. 
+
+The modified program is available in Github, https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/TFP_R_PROGRAM/program_OP_TFP.R
 <!-- #endregion -->
 
 ```python kernel="R"
