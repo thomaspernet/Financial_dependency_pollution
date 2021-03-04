@@ -164,14 +164,14 @@ SELECT
   ln(asset_tangibility_tot_asset) AS log_asset_tangibility_tot_asset,
   total_asset,
   ln(total_asset) AS log_total_asset,
-  cashflow_to_tangible, 
-  ln(cashflow_to_tangible) AS log_cashflow_to_tangible,
-  current_ratio,
-  ln(current_ratio) AS log_current_ratio,
-  liabilities_tot_asset,
-  ln(liabilities_tot_asset) AS log_liabilities_tot_asset,
-  sales_tot_asset,
-  ln(sales_tot_asset) AS log_sales_tot_asset,
+  lag_cashflow_to_tangible, 
+  ln(lag_cashflow_to_tangible) AS log_lag_cashflow_to_tangible,
+  lag_current_ratio,
+  ln(lag_current_ratio) AS log_lag_current_ratio,
+  lag_liabilities_tot_asset,
+  ln(lag_liabilities_tot_asset) AS log_lag_liabilities_tot_asset,
+  lag_sales_tot_asset,
+  ln(lag_sales_tot_asset) AS log_lag_sales_tot_asset,
   tfp_cit, 
   ln(tfp_cit) AS log_tfp_cit,
   sum_rd,
@@ -340,11 +340,18 @@ generate_plots(df.loc[lambda x:
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-generate_plots(df, 
-                   x_title = 'Cashflow',
-                   x = 'log_cashflow_to_tangible', 
-                   industry = ['Tobacco', 'Smelting ferrous Metals']
-                  )
+generate_plots(
+    (
+        df
+        .loc[
+            lambda x: x["lag_cashflow_to_tangible"]
+            > 0 & ~x["lag_cashflow_to_tangible"].isin([np.nan])
+        ]
+    ),
+    x_title="Cashflow",
+    x="log_lag_cashflow_to_tangible",
+    industry=["Tobacco", "Smelting ferrous Metals"],
+)
 ```
 
 <!-- #region kernel="SoS" -->
@@ -352,9 +359,15 @@ generate_plots(df,
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-generate_plots(df, 
+generate_plots( (
+        df
+    .loc[
+            lambda x: x["lag_current_ratio"]
+            > 0 & ~x["lag_current_ratio"].isin([np.nan])
+        ]
+    ), 
                    x_title = 'Current ratio',
-                   x = 'log_current_ratio', 
+                   x = 'log_lag_current_ratio', 
                    industry = ['Tobacco', 'Smelting ferrous Metals']
                   )
 ```
@@ -364,9 +377,15 @@ generate_plots(df,
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-generate_plots(df, 
+generate_plots((
+        df
+    .loc[
+            lambda x: x["lag_liabilities_tot_asset"]
+            > 0 & ~x["lag_liabilities_tot_asset"].isin([np.nan])
+        ]
+    ), 
                    x_title = 'Liabilities to asset',
-                   x = 'log_liabilities_tot_asset', 
+                   x = 'log_lag_liabilities_tot_asset', 
                    industry = ['Tobacco', 'Smelting ferrous Metals']
                   )
 ```
@@ -393,6 +412,46 @@ generate_plots(df,
                    x = 'log_tfp_cit', 
                    industry = ['Tobacco', 'Smelting ferrous Metals']
                   )
+```
+
+<!-- #region kernel="SoS" -->
+## Side by side
+<!-- #endregion -->
+
+```sos kernel="SoS"
+fig_dims = (15, 10)
+fig, (ax1, ax2) = plt.subplots(ncols=2, sharey=False, figsize=fig_dims)
+
+sns.regplot(
+    x="log_lag_cashflow_to_tangible",
+    y="log_tso2",
+    data=(
+        df[
+            ["log_tso2", "lag_cashflow_to_tangible", "log_lag_cashflow_to_tangible"]
+        ].loc[
+            lambda x: x["lag_cashflow_to_tangible"]
+            > 0 & ~x["lag_cashflow_to_tangible"].isin([np.nan])
+        ]
+    ),
+    ax=ax1,
+)
+ax1.set_xlabel("Lag Cashflow")
+ax1.set_ylabel("SO2 emission")
+sns.regplot(
+    x="log_lag_current_ratio",
+    y="log_tso2",
+    data=(
+        df[["log_tso2", "lag_current_ratio", "log_lag_current_ratio"]].loc[
+            lambda x: x["lag_current_ratio"]
+            > 0 & ~x["lag_current_ratio"].isin([np.nan])
+        ]
+    ),
+    ax=ax2,
+)
+ax2.set_xlabel("Lag Current ratio")
+ax2.set_ylabel("SO2 emission")
+# plt.xlabel(x_title)
+fig.suptitle('Relationship between internal finance and SO2 emission')
 ```
 
 <!-- #region kernel="SoS" -->
@@ -471,28 +530,36 @@ plt.title('Relationship between {} and TFP'.format('Cashflow'))
 <!-- #endregion -->
 
 ```sos kernel="SoS"
-df_table = (
-    pd.concat(
+path_local = os.path.join(str(Path(path).parent.parent), 
+                              "00_data_catalogue/temporary_local_data",
+                         'df_fin_dep_pollution_baseline_city.csv')
+df_so2 = (
+    pd.read_csv(path_local)
+)
+```
+
+```sos kernel="SoS"
+df_table = pd.concat(
     [
         pd.concat(
             [
                 (
-                    df.assign(
+                    df_so2.assign(
                         tso2=lambda x: x["tso2"] / 1000000,
-                        sales=lambda x: x["sales_tot_asset"] / 1000000,
+                        sales=lambda x: x["lag_sales_tot_asset"] / 1000000,
                         total_asset=lambda x: x["total_asset"] / 1000000,
                     )
                     .agg(
                         {
                             "tso2": ["mean", "std"],
                             "asset_tangibility_tot_asset": ["mean", "std"],
-                            "sales_tot_asset": ["mean", "std"],
+                            "lag_sales_tot_asset": ["mean", "std"],
                             "total_asset": ["mean", "std"],
-                            "cashflow_to_tangible": ["mean", "std"],
-                            "current_ratio": ["mean", "std"],
-                            "liabilities_tot_asset": ["mean", "std"],
+                            "lag_cashflow_to_tangible": ["mean", "std"],
+                            "lag_current_ratio": ["mean", "std"],
+                            "lag_liabilities_tot_asset": ["mean", "std"],
                             "tfp_cit": ["mean", "std"],
-                            "sum_rd": ["mean", "std"],
+                            # "sum_rd": ["mean", "std"],
                         }
                     )
                     .T.assign(
@@ -511,23 +578,28 @@ df_table = (
         pd.concat(
             [
                 (
-                    df.assign(
+                    df_so2
+                    .assign(
                         tso2=lambda x: x["tso2"] / 1000000,
-                        sales=lambda x: x["sales_tot_asset"] / 1000000,
+                        sales=lambda x: x["lag_sales_tot_asset"] / 1000000,
                         total_asset=lambda x: x["total_asset"] / 1000000,
+                        dominated_output_i = lambda x: 
+                        np.where(
+        x['dominated_output_i'].str.extract(r"(?<=0.5\=)(.*?)(?=\,)") == 'true', True, False
+        )
                     )
                     .groupby(["dominated_output_i"])
                     .agg(
                         {
                             "tso2": ["mean", "std"],
                             "asset_tangibility_tot_asset": ["mean", "std"],
-                            "sales_tot_asset": ["mean", "std"],
+                            "lag_sales_tot_asset": ["mean", "std"],
                             "total_asset": ["mean", "std"],
-                            "cashflow_to_tangible": ["mean", "std"],
-                            "current_ratio": ["mean", "std"],
-                            "liabilities_tot_asset": ["mean", "std"],
+                            "lag_cashflow_to_tangible": ["mean", "std"],
+                            "lag_current_ratio": ["mean", "std"],
+                            "lag_liabilities_tot_asset": ["mean", "std"],
                             "tfp_cit": ["mean", "std"],
-                            "sum_rd": ["mean", "std"],
+                            # "sum_rd": ["mean", "std"],
                         }
                     )
                     .T.unstack(-1)
@@ -558,9 +630,10 @@ df_table = (
                 pd.concat(
                     [
                         (
-                            df.assign(
+                            df_so2
+                            .assign(
                                 tso2=lambda x: x["tso2"] / 1000000,
-                                sales=lambda x: x["sales_tot_asset"] / 1000000,
+                                sales=lambda x: x["lag_sales_tot_asset"] / 1000000,
                                 total_asset=lambda x: x["total_asset"] / 1000000,
                             )
                             .groupby(["dominated_output_soe_c"])
@@ -568,13 +641,13 @@ df_table = (
                                 {
                                     "tso2": ["mean", "std"],
                                     "asset_tangibility_tot_asset": ["mean", "std"],
-                                    "sales_tot_asset": ["mean", "std"],
+                                    "lag_sales_tot_asset": ["mean", "std"],
                                     "total_asset": ["mean", "std"],
-                                    "cashflow_to_tangible": ["mean", "std"],
-                                    "current_ratio": ["mean", "std"],
-                                    "liabilities_tot_asset": ["mean", "std"],
+                                    "lag_cashflow_to_tangible": ["mean", "std"],
+                                    "lag_current_ratio": ["mean", "std"],
+                                    "lag_liabilities_tot_asset": ["mean", "std"],
                                     "tfp_cit": ["mean", "std"],
-                                    "sum_rd": ["mean", "std"],
+                                    # "sum_rd": ["mean", "std"],
                                 }
                             )
                             .T.unstack(-1)
@@ -597,9 +670,10 @@ df_table = (
                             .rename(columns={"soe_false": "PRIVATE", "soe_true": "SOE"})
                         ),
                         (
-                            df.assign(
+                            df_so2
+                            .assign(
                                 tso2=lambda x: x["tso2"] / 1000000,
-                                sales=lambda x: x["sales_tot_asset"] / 1000000,
+                                sales=lambda x: x["lag_sales_tot_asset"] / 1000000,
                                 total_asset=lambda x: x["total_asset"] / 1000000,
                             )
                             .groupby(["tcz"])
@@ -607,13 +681,13 @@ df_table = (
                                 {
                                     "tso2": ["mean", "std"],
                                     "asset_tangibility_tot_asset": ["mean", "std"],
-                                    "sales_tot_asset": ["mean", "std"],
+                                    "lag_sales_tot_asset": ["mean", "std"],
                                     "total_asset": ["mean", "std"],
-                                    "cashflow_to_tangible": ["mean", "std"],
-                                    "current_ratio": ["mean", "std"],
-                                    "liabilities_tot_asset": ["mean", "std"],
+                                    "lag_cashflow_to_tangible": ["mean", "std"],
+                                    "lag_current_ratio": ["mean", "std"],
+                                    "lag_liabilities_tot_asset": ["mean", "std"],
                                     "tfp_cit": ["mean", "std"],
-                                    "sum_rd": ["mean", "std"],
+                                    # "sum_rd": ["mean", "std"],
                                 }
                             )
                             .T.unstack(-1)
@@ -644,21 +718,21 @@ df_table = (
         ),
     ],
     axis=1,
-)
-.rename(index={
-    "tso2": "SO2",
-    "asset_tangibility_tot_asset": "asset tangibility",
-    "sales_tot_asset": "sales to asset",
-    "total_asset": "total asset",
-    "cashflow_to_tangible": "cashflow",
-    "current_ratio": "current ratio",
-    "liabilities_tot_asset": "liabilities to asset",
-    "tfp_cit": "TFP",
-    "sum_rd": "RD",
-})
+).rename(
+    index={
+        "tso2": "SO2",
+        "asset_tangibility_tot_asset": "asset tangibility",
+        "total_asset": "total asset",
+        "lag_cashflow_to_tangible": "cashflow",
+        "lag_current_ratio": "current ratio",
+        "lag_liabilities_tot_asset": "liabilities to asset",
+        "tfp_cit": "TFP",
+        "lag_sales_tot_asset": "sales to asset",
+        # "sum_rd": "RD",
+    }
 )
 df_latex = df_table.to_latex()
-#df_table
+# df_table
 ```
 
 ```sos kernel="SoS"
@@ -670,12 +744,11 @@ title = "Summary statistic"
 tb_note = """
 The information about the SO2 level is collected using various editions of the China Environment Statistics Yearbook and is reported in millions of tons.
 cashflow is measured as net income + depreciation over asset;
-current ratio is measured as current asset over current liabilities. 
+current ratio is measured as current asset over current liabilities. Cashflow, current ratio, sales to asset and liabilities to asset are lagged by one year.
 TFP is computed the Olley-Parkes algorithm. 
-RD is available for 2005 to 2007 only.  
 An industry is labelled as large (small) when the city-industrial output share above (below) a critical threshold, for instance the 50th decile.
 (Non-)SOE-dominated cities refers to cities where the output share of SOEs is (below) above a critical threshold, for instance the 60th decile.
-The list of TCZ is provided by the State Council, 1998. “Ofcial Reply to the State Council Concerning
+The list of TCZ is provided by the State Council, 1998. “Official Reply to the State Council Concerning
 Acid Rain Control Areas and Sulfur Dioxide Pollution Control Areas”.
 Standard deviation is reported in parenthesis
 """
@@ -736,7 +809,8 @@ for ext in ['.txt', '.tex', '.pdf']:
 
 ```sos kernel="SoS"
 df_industry = (
-    df.assign(
+    df_so2
+    .assign(
         tso2=lambda x: x["tso2"] / 1000000,
         sales=lambda x: x["sales_tot_asset"] / 1000000,
         total_asset=lambda x: x["total_asset"] / 1000000,
@@ -746,9 +820,9 @@ df_industry = (
         {
             "tso2": ["mean", "std"],
             "asset_tangibility_tot_asset": ["mean", "std"],
-            "cashflow_to_tangible": ["mean", "std"],
-            "current_ratio": ["mean", "std"],
-            "liabilities_tot_asset": ["mean", "std"],
+            "lag_cashflow_to_tangible": ["mean", "std"],
+            "lag_current_ratio": ["mean", "std"],
+            "lag_liabilities_tot_asset": ["mean", "std"],
             #"tfp_cit": ["mean", "std"],
             #"sum_rd": ["mean", "std"],
         }
@@ -765,20 +839,20 @@ df_industry = (
         + np.round(x[("asset_tangibility_tot_asset", "std")], 2).astype(str)
         + ")",
         cashflow_to_tangible_=lambda x: np.round(
-            x[("cashflow_to_tangible", "mean")], 2
+            x[("lag_cashflow_to_tangible", "mean")], 2
         ).astype(str)
         + " ("
-        + np.round(x[("cashflow_to_tangible", "std")], 2).astype(str)
+        + np.round(x[("lag_cashflow_to_tangible", "std")], 2).astype(str)
         + ")",
-        current_ratio_=lambda x: np.round(x[("current_ratio", "mean")], 2).astype(str)
+        current_ratio_=lambda x: np.round(x[("lag_current_ratio", "mean")], 2).astype(str)
         + " ("
-        + np.round(x[("current_ratio", "std")], 2).astype(str)
+        + np.round(x[("lag_current_ratio", "std")], 2).astype(str)
         + ")",
         liabilities_tot_asset_=lambda x: np.round(
-            x[("liabilities_tot_asset", "mean")], 2
+            x[("lag_liabilities_tot_asset", "mean")], 2
         ).astype(str)
         + " ("
-        + np.round(x[("liabilities_tot_asset", "std")], 2).astype(str)
+        + np.round(x[("lag_liabilities_tot_asset", "std")], 2).astype(str)
         + ")",
         #tfp_cit_=lambda x: np.round(x[("tfp_cit", "mean")], 2).astype(str)
         #+ " ("
@@ -808,6 +882,7 @@ tb_note = """
 The information about the SO2 level is collected using various editions of the China Environment Statistics Yearbook and is reported in millions of tons.
 cashflow is measured as net income + depreciation over asset;
 current ratio is measured as current asset over current liabilities. 
+Cashflow, current ratio, sales to asset and liabilities to asset are lagged by one year.
 Standard deviation is reported in parenthesis
 """
 ```
