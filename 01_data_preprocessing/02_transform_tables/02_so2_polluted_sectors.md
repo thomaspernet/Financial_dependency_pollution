@@ -253,7 +253,7 @@ output = s3.run_query(
 output
 ```
 
-# Table `china_sector_pallution_threshold`
+# Table `china_sector_pollution_threshold`
 
 Since the table to create has missing value, please use the following at the top of the query
 
@@ -305,9 +305,13 @@ SELECT
   ind2, 
   tso2, 
   pct_75_tso2, 
+  pct_90_tso2,
+  pct_95_tso2,
   avg_tso2, 
   mdn_tso2,
   CASE WHEN tso2 > pct_75_tso2 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_di,
+  CASE WHEN tso2 > pct_90_tso2 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_d90i,
+  CASE WHEN tso2 > pct_95_tso2 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_d95i,
   CASE WHEN tso2 > avg_tso2 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_mi,
   CASE WHEN tso2 > mdn_tso2 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_mei,
   CASE WHEN tso2 > 68070.78 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_thre
@@ -317,6 +321,8 @@ FROM
     SELECT 
       year, 
       approx_percentile(tso2,.75) AS pct_75_tso2, 
+      approx_percentile(tso2,.90) AS pct_90_tso2,
+      approx_percentile(tso2,.55) AS pct_95_tso2,
       AVG(tso2) AS avg_tso2, 
       approx_percentile(tso2,.50) AS mdn_tso2 
     FROM 
@@ -387,9 +393,13 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': ''},
  {'Name': 'ind2', 'Type': 'string', 'Comment': ''},
  {'Name': 'tso2', 'Type': 'bigint', 'Comment': ''},
  {'Name': 'pct_75_tso2', 'Type': 'bigint', 'Comment': 'Yearly 75th percentile of SO2'},
+ {'Name': 'pct_90_tso2', 'Type': 'bigint', 'Comment': 'Yearly 90th percentile of SO2'},
+ {'Name': 'pct_95_tso2', 'Type': 'bigint', 'Comment': 'Yearly 95th percentile of SO2'},
  {'Name': 'avg_tso2', 'Type': 'double', 'Comment': 'Yearly average of SO2'},
  {'Name': 'mdn_tso2', 'Type': 'bigint', 'Comment': 'Yearly median of SO2'},
  {'Name': 'polluted_di', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 75th percentile of SO2 label as ABOVE else BELOW'},
+ {'Name': 'polluted_d90i', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 90th percentile of SO2 label as ABOVE else BELOW'},
+ {'Name': 'polluted_d95i', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 95th percentile of SO2 label as ABOVE else BELOW'},         
  {'Name': 'polluted_mi', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly average of SO2 label as ABOVE else BELOW'},
  {'Name': 'polluted_mei', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly median of SO2 label as ABOVE else BELOW'},
  {'Name': 'polluted_thre', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above 68070.78  of SO2 label as ABOVE else BELOW'}]
@@ -414,7 +424,13 @@ description = """
 - if_final: A boolean. Indicates if the current table is the final table -> the one the model will be used to be trained
 
 ```python
-with open(os.path.join(str(Path(path).parent.parent), 'utils','parameters_ETL_Financial_dependency_pollution.json')) as json_file:
+import re
+name_json = 'parameters_ETL_Financial_dependency_pollution.json'
+path_json = os.path.join(str(Path(path).parent.parent), 'utils',name_json)
+```
+
+```python
+with open(path_json) as json_file:
     parameters = json.load(json_file)
 ```
 
@@ -439,10 +455,6 @@ github_url = os.path.join(
 ```
 
 Grab the input name from query
-
-```python
-import re
-```
 
 ```python
 list_input = []
@@ -501,7 +513,7 @@ print("Currently, the ETL has {} tables".format(len(parameters['TABLES']['TRANSF
 Save JSON
 
 ```python
-with open(os.path.join(str(Path(path).parent.parent), 'utils','parameters_ETL_Financial_dependency_pollution.json'), "w") as json_file:
+with open(path_json, "w") as json_file:
     json.dump(parameters, json_file)
 ```
 
@@ -549,7 +561,7 @@ You are required to define the group(s) that Athena will use to compute the dupl
 ```python
 partition_keys = ['year', 'ind2']
 
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
+with open(path_json) as json_file:
     parameters = json.load(json_file)
 ```
 
@@ -705,13 +717,14 @@ from notebook import notebookapp
 import sys
 sys.path.append(os.path.join(parent_path, 'utils'))
 import make_toc
-import create_schemaimport os, time, shutil, urllib, ipykernel, json
+import create_schema
+import os, time, shutil, urllib, ipykernel, json
 from pathlib import Path
 from notebook import notebookapp
 ```
 
 ```python
-def create_report(extension = "html", keep_code = False):
+def create_report(extension = "html", keep_code = False, notebookname = None):
     """
     Create a report from the current notebook and save it in the 
     Report folder (Parent-> child directory)
@@ -741,7 +754,7 @@ def create_report(extension = "html", keep_code = False):
             sessions = json.load(req)
             notebookname = sessions[0]['name']
         except:
-            pass  
+            notebookname = notebookname  
     
     sep = '.'
     path = os.getcwd()
@@ -771,7 +784,7 @@ def create_report(extension = "html", keep_code = False):
 ```
 
 ```python
-create_report(extension = "html", keep_code = True)
+create_report(extension = "html", keep_code = True, notebookname =filename)
 ```
 
 ```python
