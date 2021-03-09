@@ -55,10 +55,12 @@ Prepare ASIF raw data by removing unconsistent year format, industry and birth y
                 * [china_city_code_normalised](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py): Create consistent city code 
     * TRANSFORMATION
         * [china_sector_pollution_threshold](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/02_so2_polluted_sectors.md): 
- Yearly Rank sectors based on SO2 emissionsand label them as ABOVE or BELOW
+ city-year Rank sectors based on SO2 emissionsand label them as ABOVE or BELOW
 
             * CREATION
                 * [china_city_sector_pollution](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_SECTOR_POLLUTION/city_sector_pollution.py): Create China city sector pollution
+            * CREATION
+                * [china_city_code_normalised](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/00_download_data_from/CITY_CODE_CORRESPONDANCE/city_code_correspondance.py): Create consistent city code 
     * TRANSFORMATION
         * [asif_tfp_firm_level](https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/05_tfp_computation.md): 
 Compute TFP using Olley and Pakes approach at the firm level
