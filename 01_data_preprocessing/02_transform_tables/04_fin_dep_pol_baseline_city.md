@@ -526,6 +526,8 @@ SELECT
   aggregate_pol.ind2, 
   CASE WHEN short IS NULL THEN 'Unknown' ELSE short END AS short, 
   polluted_di, 
+  polluted_d90i, 
+  polluted_d95i, 
   polluted_mi, 
   polluted_mei, 
   tso2, 
@@ -662,6 +664,8 @@ FROM
       ind2, 
       year,
       polluted_di, 
+      polluted_d90i, 
+      polluted_d95i, 
       polluted_mi, 
       polluted_mei
     FROM 
@@ -963,6 +967,8 @@ schema = [
         "Type": "varchar(5)",
         "Comment": "Sectors with values above Yearly average of SO2 label as ABOVE else BELOW",
     },
+    {'Name': 'polluted_d90i', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 90th percentile of SO2 label as ABOVE else BELOW'},
+ {'Name': 'polluted_d95i', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 95th percentile of SO2 label as ABOVE else BELOW'},
     {
         "Name": "polluted_mei",
         "Type": "varchar(5)",
