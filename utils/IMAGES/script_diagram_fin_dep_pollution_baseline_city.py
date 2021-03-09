@@ -34,7 +34,7 @@ with Diagram("FIN DEP POLLUTION BASELINE CITY", show=False, filename="/home/ec2-
      temp_final_1 << temp_6
      temp_final_1 << temp_7
      temp_2 >>temp_8 >>temp_12 >> temp_final_1
-     temp_1 >>temp_2 >>temp_13 >> temp_final_1
+     temp_1 >>temp_13 >> temp_final_1
      temp_2 >>temp_8 >>temp_14 >> temp_final_1
      temp_2 >>temp_8 >>temp_15 >> temp_final_1
      temp_2 >>temp_8 >>temp_16 >> temp_final_1

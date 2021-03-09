@@ -815,28 +815,27 @@
 
 - Database: environment
 - S3uri: `s3://datalake-datascience/DATA/ENVIRONMENT/CHINA/SECTOR_POLLUTION_THRESHOLD`
-- Partitition: ['year', 'geocode4_corr', 'polluted_d75i']
+- Partitition: ['year', 'polluted_d95i']
 - Script: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/02_so2_polluted_sectors.md
 
 |    | Name          | Type       | Comment                                                                           |
 |---:|:--------------|:-----------|:----------------------------------------------------------------------------------|
 |  0 | year          | string     |                                                                                   |
-|  1 | geocode4_corr | string     | city code                                                                         |
-|  2 | ind2          | string     |                                                                                   |
-|  3 | tso2          | bigint     |                                                                                   |
-|  4 | pct_50_tso2   | bigint     | Yearly 50th percentile of SO2                                                     |
-|  5 | pct_75_tso2   | bigint     | Yearly 75th percentile of SO2                                                     |
-|  6 | pct_80_tso2   | bigint     | Yearly 80th percentile of SO2                                                     |
-|  7 | pct_85_tso2   | bigint     | Yearly 85th percentile of SO2                                                     |
-|  8 | pct_90_tso2   | bigint     | Yearly 90th percentile of SO2                                                     |
-|  9 | pct_95_tso2   | bigint     | Yearly 95th percentile of SO2                                                     |
-| 10 | avg_tso2      | double     | Yearly average of SO2                                                             |
-| 11 | polluted_d50i | varchar(5) | Sectors with values above Yearly 50th percentile of SO2 label as ABOVE else BELOW |
-| 12 | polluted_d80i | varchar(5) | Sectors with values above Yearly 80th percentile of SO2 label as ABOVE else BELOW |
-| 13 | polluted_d85i | varchar(5) | Sectors with values above Yearly 85th percentile of SO2 label as ABOVE else BELOW |
-| 14 | polluted_d90i | varchar(5) | Sectors with values above Yearly 90th percentile of SO2 label as ABOVE else BELOW |
-| 15 | polluted_d95i | varchar(5) | Sectors with values above Yearly 95th percentile of SO2 label as ABOVE else BELOW |
-| 16 | polluted_mi   | varchar(5) | Sectors with values above Yearly average of SO2 label as ABOVE else BELOW         |
+|  1 | ind2          | string     |                                                                                   |
+|  2 | tso2          | bigint     |                                                                                   |
+|  3 | pct_50_tso2   | bigint     | Yearly 50th percentile of SO2                                                     |
+|  4 | pct_75_tso2   | bigint     | Yearly 75th percentile of SO2                                                     |
+|  5 | pct_80_tso2   | bigint     | Yearly 80th percentile of SO2                                                     |
+|  6 | pct_85_tso2   | bigint     | Yearly 85th percentile of SO2                                                     |
+|  7 | pct_90_tso2   | bigint     | Yearly 90th percentile of SO2                                                     |
+|  8 | pct_95_tso2   | bigint     | Yearly 95th percentile of SO2                                                     |
+|  9 | avg_tso2      | double     | Yearly average of SO2                                                             |
+| 10 | polluted_d50i | varchar(5) | Sectors with values above Yearly 50th percentile of SO2 label as ABOVE else BELOW |
+| 11 | polluted_d80i | varchar(5) | Sectors with values above Yearly 80th percentile of SO2 label as ABOVE else BELOW |
+| 12 | polluted_d85i | varchar(5) | Sectors with values above Yearly 85th percentile of SO2 label as ABOVE else BELOW |
+| 13 | polluted_d90i | varchar(5) | Sectors with values above Yearly 90th percentile of SO2 label as ABOVE else BELOW |
+| 14 | polluted_d95i | varchar(5) | Sectors with values above Yearly 95th percentile of SO2 label as ABOVE else BELOW |
+| 15 | polluted_mi   | varchar(5) | Sectors with values above Yearly average of SO2 label as ABOVE else BELOW         |
 
     
 
