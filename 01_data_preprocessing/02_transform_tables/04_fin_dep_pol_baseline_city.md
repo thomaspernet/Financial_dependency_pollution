@@ -660,14 +660,15 @@ FROM
   LEFT JOIN (
     SELECT 
       ind2, 
+      year,
       polluted_di, 
       polluted_mi, 
       polluted_mei
     FROM 
       "environment"."china_sector_pollution_threshold" 
-    WHERE 
-      year = '2001'
+
   ) as polluted_sector ON aggregate_pol.ind2 = polluted_sector.ind2 
+  and aggregate_pol.year = polluted_sector.year 
   LEFT JOIN (
     SELECT 
       cic, 
@@ -1118,7 +1119,13 @@ with financial ratio at the city level
 - if_final: A boolean. Indicates if the current table is the final table -> the one the model will be used to be trained
 
 ```python
-with open(os.path.join(str(Path(path).parent.parent), 'utils','parameters_ETL_Financial_dependency_pollution.json')) as json_file:
+import re
+name_json = 'parameters_ETL_Financial_dependency_pollution.json'
+path_json = os.path.join(str(Path(path).parent.parent), 'utils',name_json)
+```
+
+```python
+with open(path_json) as json_file:
     parameters = json.load(json_file)
 ```
 
@@ -1156,10 +1163,6 @@ for i in regex_matches:
     cleaning = i.lstrip().rstrip().replace('.', '').replace('"', '')
     if cleaning in tables and cleaning != table_name:
         list_input.append(cleaning)
-```
-
-```python
-
 ```
 
 ```python
@@ -1209,7 +1212,7 @@ print("Currently, the ETL has {} tables".format(len(parameters['TABLES']['TRANSF
 Save JSON
 
 ```python
-with open(os.path.join(str(Path(path).parent.parent), 'utils','parameters_ETL_Financial_dependency_pollution.json'), "w") as json_file:
+with open(path_json, "w") as json_file:
     json.dump(parameters, json_file)
 ```
 
@@ -1257,7 +1260,7 @@ You are required to define the group(s) that Athena will use to compute the dupl
 ```python
 partition_keys = ["province_en", "geocode4_corr","ind2", "year" ]
 
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
+with open(os.path.join(str(Path(path).parent.parent), 'utils','parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
 
