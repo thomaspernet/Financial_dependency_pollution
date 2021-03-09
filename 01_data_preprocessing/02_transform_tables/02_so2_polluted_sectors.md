@@ -304,27 +304,32 @@ SELECT
   agg_ind2.year, 
   ind2, 
   tso2, 
+  pct_50_tso2,
   pct_75_tso2, 
+  pct_80_tso2, 
+  pct_85_tso2, 
   pct_90_tso2,
   pct_95_tso2,
   avg_tso2, 
-  mdn_tso2,
-  CASE WHEN tso2 > pct_75_tso2 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_di,
+  CASE WHEN tso2 > pct_50_tso2 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_d50i,
+  CASE WHEN tso2 > pct_75_tso2 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_d75i,
+  CASE WHEN tso2 > pct_80_tso2 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_d80i,
+  CASE WHEN tso2 > pct_85_tso2 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_d85i,
   CASE WHEN tso2 > pct_90_tso2 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_d90i,
   CASE WHEN tso2 > pct_95_tso2 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_d95i,
-  CASE WHEN tso2 > avg_tso2 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_mi,
-  CASE WHEN tso2 > mdn_tso2 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_mei,
-  CASE WHEN tso2 > 68070.78 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_thre
+  CASE WHEN tso2 > avg_tso2 THEN 'ABOVE' ELSE 'BELOW' END AS polluted_mi
 FROM 
   agg_ind2 
   LEFT JOIN (
     SELECT 
       year, 
+      approx_percentile(tso2,.50) AS pct_50_tso2,
       approx_percentile(tso2,.75) AS pct_75_tso2, 
+      approx_percentile(tso2,.80) AS pct_80_tso2, 
+      approx_percentile(tso2,.85) AS pct_85_tso2, 
       approx_percentile(tso2,.90) AS pct_90_tso2,
-      approx_percentile(tso2,.55) AS pct_95_tso2,
-      AVG(tso2) AS avg_tso2, 
-      approx_percentile(tso2,.50) AS mdn_tso2 
+      approx_percentile(tso2,.95) AS pct_95_tso2,
+      AVG(tso2) AS avg_tso2
     FROM 
       agg_ind2 
     WHERE 
@@ -375,7 +380,7 @@ To validate the query, please fillin the json below. Don't forget to change the 
 1. Add a partition key
 
 ```python
-partition_keys = ['year', 'polluted_di']
+partition_keys = ['year', 'polluted_d95i']
 ```
 
 3. Change the schema
@@ -392,17 +397,19 @@ glue.get_table_information(
 schema = [{'Name': 'year', 'Type': 'string', 'Comment': ''},
  {'Name': 'ind2', 'Type': 'string', 'Comment': ''},
  {'Name': 'tso2', 'Type': 'bigint', 'Comment': ''},
+ {'Name': 'pct_50_tso2', 'Type': 'bigint', 'Comment': 'Yearly 50th percentile of SO2'},
  {'Name': 'pct_75_tso2', 'Type': 'bigint', 'Comment': 'Yearly 75th percentile of SO2'},
+ {'Name': 'pct_80_tso2', 'Type': 'bigint', 'Comment': 'Yearly 80th percentile of SO2'},
+ {'Name': 'pct_85_tso2', 'Type': 'bigint', 'Comment': 'Yearly 85th percentile of SO2'},
  {'Name': 'pct_90_tso2', 'Type': 'bigint', 'Comment': 'Yearly 90th percentile of SO2'},
  {'Name': 'pct_95_tso2', 'Type': 'bigint', 'Comment': 'Yearly 95th percentile of SO2'},
  {'Name': 'avg_tso2', 'Type': 'double', 'Comment': 'Yearly average of SO2'},
- {'Name': 'mdn_tso2', 'Type': 'bigint', 'Comment': 'Yearly median of SO2'},
- {'Name': 'polluted_di', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 75th percentile of SO2 label as ABOVE else BELOW'},
+ {'Name': 'polluted_d50i', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 50th percentile of SO2 label as ABOVE else BELOW'},
+ {'Name': 'polluted_d80i', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 80th percentile of SO2 label as ABOVE else BELOW'},
+ {'Name': 'polluted_d85i', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 85th percentile of SO2 label as ABOVE else BELOW'}, 
  {'Name': 'polluted_d90i', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 90th percentile of SO2 label as ABOVE else BELOW'},
  {'Name': 'polluted_d95i', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 95th percentile of SO2 label as ABOVE else BELOW'},         
- {'Name': 'polluted_mi', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly average of SO2 label as ABOVE else BELOW'},
- {'Name': 'polluted_mei', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly median of SO2 label as ABOVE else BELOW'},
- {'Name': 'polluted_thre', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above 68070.78  of SO2 label as ABOVE else BELOW'}]
+ {'Name': 'polluted_mi', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly average of SO2 label as ABOVE else BELOW'}]
 ```
 
 4. Provide a description
