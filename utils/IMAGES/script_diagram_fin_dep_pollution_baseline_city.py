@@ -5,7 +5,7 @@ from diagrams.aws.database import Redshift, RDS
 from diagrams.aws.integration import SQS
 from diagrams.aws.storage import S3
 
-with Diagram("FIN DEP POLLUTION BASELINE CITY", show=False, filename="/Users/thomas/Google Drive/PROJECT/GITHUB/REPOSITORIES/Financial_dependency_pollution/utils/IMAGES/fin_dep_pollution_baseline_city", outformat="jpg"):
+with Diagram("FIN DEP POLLUTION BASELINE CITY", show=False, filename="/home/ec2-user/Financial_dependency_pollution/utils/IMAGES/fin_dep_pollution_baseline_city", outformat="jpg"):
 
      temp_1 = S3('china_city_sector_pollution')
      temp_2 = S3('china_city_code_normalised')
@@ -23,18 +23,18 @@ with Diagram("FIN DEP POLLUTION BASELINE CITY", show=False, filename="/Users/tho
 
      with Cluster("FINAL"):
 
-         temp_final_0 = Redshift('fin_dep_pollution_baseline_city')
+         temp_final_1 = Redshift('fin_dep_pollution_baseline_city')
 
 
-     temp_final_0 << temp_1
-     temp_final_0 << temp_2
-     temp_final_0 << temp_3
-     temp_final_0 << temp_4
-     temp_final_0 << temp_5
-     temp_final_0 << temp_6
-     temp_final_0 << temp_7
-     temp_2 >>temp_8 >>temp_12 >> temp_final_0
-     temp_1 >>temp_13 >> temp_final_0
-     temp_2 >>temp_8 >>temp_14 >> temp_final_0
-     temp_2 >>temp_8 >>temp_15 >> temp_final_0
-     temp_2 >>temp_8 >>temp_16 >> temp_final_0
+     temp_final_1 << temp_1
+     temp_final_1 << temp_2
+     temp_final_1 << temp_3
+     temp_final_1 << temp_4
+     temp_final_1 << temp_5
+     temp_final_1 << temp_6
+     temp_final_1 << temp_7
+     temp_2 >>temp_8 >>temp_12 >> temp_final_1
+     temp_1 >>temp_13 >> temp_final_1
+     temp_2 >>temp_8 >>temp_14 >> temp_final_1
+     temp_2 >>temp_8 >>temp_15 >> temp_final_1
+     temp_2 >>temp_8 >>temp_16 >> temp_final_1

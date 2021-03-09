@@ -5,7 +5,7 @@ from diagrams.aws.database import Redshift, RDS
 from diagrams.aws.integration import SQS
 from diagrams.aws.storage import S3
 
-with Diagram("ASIF TFP CREDIT CONSTRAINT", show=False, filename="/Users/thomas/Google Drive/PROJECT/GITHUB/REPOSITORIES/Financial_dependency_pollution/utils/IMAGES/asif_tfp_credit_constraint", outformat="jpg"):
+with Diagram("ASIF TFP CREDIT CONSTRAINT", show=False, filename="/home/ec2-user/Financial_dependency_pollution/utils/IMAGES/asif_tfp_credit_constraint", outformat="jpg"):
 
      temp_1 = S3('china_city_code_normalised')
      temp_2 = S3('china_city_sector_pollution')
@@ -19,14 +19,14 @@ with Diagram("ASIF TFP CREDIT CONSTRAINT", show=False, filename="/Users/thomas/G
 
      with Cluster("FINAL"):
 
-         temp_final_1 = Redshift('asif_tfp_credit_constraint')
+         temp_final_0 = Redshift('asif_tfp_credit_constraint')
 
 
-     temp_final_1 << temp_1
-     temp_final_1 << temp_2
-     temp_final_1 << temp_3
-     temp_final_1 << temp_4
-     temp_final_1 << temp_5
-     temp_final_1 << temp_6
-     temp_final_1 << temp_7
-     temp_1 >>temp_8 >>temp_9 >> temp_final_1
+     temp_final_0 << temp_1
+     temp_final_0 << temp_2
+     temp_final_0 << temp_3
+     temp_final_0 << temp_4
+     temp_final_0 << temp_5
+     temp_final_0 << temp_6
+     temp_final_0 << temp_7
+     temp_1 >>temp_8 >>temp_9 >> temp_final_0
