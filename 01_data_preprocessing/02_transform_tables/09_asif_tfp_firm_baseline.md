@@ -1751,7 +1751,16 @@ Transform asif tfp firm level and others data by merging asif firms prepared, ch
 - if_final: A boolean. Indicates if the current table is the final table -> the one the model will be used to be trained
 
 ```python
-with open(os.path.join(str(Path(path).parent.parent), 'utils','parameters_ETL_Financial_dependency_pollution.json')) as json_file:
+import re
+```
+
+```python
+name_json = 'parameters_ETL_Financial_dependency_pollution.json'
+path_json = os.path.join(str(Path(path).parent.parent), 'utils',name_json)
+```
+
+```python
+with open(path_json) as json_file:
     parameters = json.load(json_file)
 ```
 
@@ -1776,10 +1785,6 @@ github_url = os.path.join(
 ```
 
 Grab the input name from query
-
-```python
-import re
-```
 
 ```python
 list_input = []
@@ -1838,7 +1843,7 @@ print("Currently, the ETL has {} tables".format(len(parameters['TABLES']['TRANSF
 Save JSON
 
 ```python
-with open(os.path.join(str(Path(path).parent.parent), 'utils','parameters_ETL_Financial_dependency_pollution.json'), "w") as json_file:
+with open(path_json, "w") as json_file:
     json.dump(parameters, json_file)
 ```
 
@@ -1886,7 +1891,7 @@ You are required to define the group(s) that Athena will use to compute the dupl
 ```python
 partition_keys = ["firm","year","cic","geocode4_corr"]
 
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
+with open(path_json) as json_file:
     parameters = json.load(json_file)
 ```
 
