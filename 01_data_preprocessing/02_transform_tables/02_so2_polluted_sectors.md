@@ -293,15 +293,42 @@ CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS
 WITH agg_ind2 AS (
   SELECT 
     year, 
+    geocode4_corr, 
     ind2, 
     SUM(tso2) as tso2 
-  FROM environment.china_city_sector_pollution 
+  FROM 
+    (
+      SELECT 
+        year, 
+        province_en, 
+        citycode, 
+        geocode4_corr, 
+        china_city_sector_pollution.cityen, 
+        ind2, 
+        tso2 
+      FROM 
+        environment.china_city_sector_pollution 
+        INNER JOIN (
+          SELECT 
+            extra_code, 
+            geocode4_corr, 
+            province_en 
+          FROM 
+            chinese_lookup.china_city_code_normalised 
+          GROUP BY 
+            extra_code, 
+            geocode4_corr, 
+            province_en
+        ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code
+    ) 
   GROUP BY 
     year, 
+    geocode4_corr, 
     ind2
 ) 
 SELECT 
-  agg_ind2.year, 
+  agg_ind2.year,
+  agg_ind2.geocode4_corr,
   ind2, 
   tso2, 
   pct_50_tso2,
@@ -322,7 +349,8 @@ FROM
   agg_ind2 
   LEFT JOIN (
     SELECT 
-      year, 
+      year,
+      geocode4_corr,
       approx_percentile(tso2,.50) AS pct_50_tso2,
       approx_percentile(tso2,.75) AS pct_75_tso2, 
       approx_percentile(tso2,.80) AS pct_80_tso2, 
@@ -335,11 +363,12 @@ FROM
     WHERE 
       tso2 > 0 
     GROUP BY 
-      year 
+      year, geocode4_corr 
     ORDER BY 
       year
   ) as threshold ON agg_ind2.year = threshold.year 
-  ORDER BY year, ind2
+  and agg_ind2.geocode4_corr = threshold.geocode4_corr 
+  ORDER BY year, ind2, geocode4_corr
 """.format(DatabaseName, table_name)
 output = s3.run_query(
                     query=query,
@@ -380,7 +409,7 @@ To validate the query, please fillin the json below. Don't forget to change the 
 1. Add a partition key
 
 ```python
-partition_keys = ['year', 'polluted_d95i']
+partition_keys = ['year', 'geocode4_corr','polluted_d75i']
 ```
 
 3. Change the schema
@@ -395,6 +424,7 @@ glue.get_table_information(
 
 ```python
 schema = [{'Name': 'year', 'Type': 'string', 'Comment': ''},
+          {'Name': 'geocode4_corr', 'Type': 'string', 'Comment': 'city code'},
  {'Name': 'ind2', 'Type': 'string', 'Comment': ''},
  {'Name': 'tso2', 'Type': 'bigint', 'Comment': ''},
  {'Name': 'pct_50_tso2', 'Type': 'bigint', 'Comment': 'Yearly 50th percentile of SO2'},
@@ -416,7 +446,7 @@ schema = [{'Name': 'year', 'Type': 'string', 'Comment': ''},
 
 ```python
 description = """
- Yearly Rank sectors based on SO2 emissionsand label them as ABOVE or BELOW
+ city-year Rank sectors based on SO2 emissionsand label them as ABOVE or BELOW
 """
 ```
 
@@ -566,7 +596,7 @@ One of the most important step when creating a table is to check if the table co
 You are required to define the group(s) that Athena will use to compute the duplicate. For instance, your table can be grouped by COL1 and COL2 (need to be string or varchar), then pass the list ['COL1', 'COL2'] 
 
 ```python
-partition_keys = ['year', 'ind2']
+partition_keys = ['year','geocode4_corr', 'ind2']
 
 with open(path_json) as json_file:
     parameters = json.load(json_file)
