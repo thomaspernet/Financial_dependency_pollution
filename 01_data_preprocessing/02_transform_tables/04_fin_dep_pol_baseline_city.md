@@ -565,6 +565,8 @@ SELECT
   lag_liabilities_tot_asset,
   cashflow_to_tangible,
   lag_cashflow_to_tangible,
+  cashflow_tot_asset,
+  lag_cashflow_tot_asset,
   return_to_sale,
   lag_return_to_sale,
   lower_location, 
@@ -807,6 +809,7 @@ AVG(current_asset) AS avg_current_asset,
 AVG(return_to_sale)AS avg_return_to_sale, 
 AVG(liabilities_tot_asset) AS avg_liabilities_tot_asset, 
 AVG(cashflow_to_tangible) AS avg_cashflow_to_tangible,
+AVG(cashflow_tot_asset) AS avg_cashflow_tot_asset,
 AVG(sales_tot_asset) AS avg_sales_tot_asset
 FROM fin_dep_pollution_baseline_city  
 
@@ -1039,6 +1042,8 @@ schema = [
         'Type': 'decimal(21,5)', 'Comment': 'cashflow to tangible asset'},
     {'Name': 'lag_cashflow_to_tangible',
         'Type': 'decimal(21,5)', 'Comment': 'lag value of cashflow to tangible asset'},
+    {'Name': 'cashflow_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'cashflow to total asset'},
+    {'Name': 'lag_cashflow_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'lag value of cashflow to total asset'},
     {'Name': 'return_to_sale',
         'Type': 'decimal(21,5)', 'Comment': 'return to sale'},
     {'Name': 'lag_return_to_sale',
