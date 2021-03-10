@@ -59,6 +59,7 @@ We study how a bank s involvement in a firm s financing may be in line with envi
      - [07_dominated_city_ownership.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/07_dominated_city_ownership.md)
      - [08_dominated_industry_ownership.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/08_dominated_industry_ownership.md)
      - [09_asif_tfp_firm_baseline.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/09_asif_tfp_firm_baseline.md)
+     - [10_city_sector_year_polluted_sectors.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/10_city_sector_year_polluted_sectors.md)
      - [README.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/01_data_preprocessing/02_transform_tables/README.md)
      - **Reports/**
        - [00_asif_financial_ratio.html](https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/Reports/00_asif_financial_ratio.html)
@@ -71,6 +72,7 @@ We study how a bank s involvement in a firm s financing may be in line with envi
        - [07_dominated_city_ownership.html](https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/Reports/07_dominated_city_ownership.html)
        - [08_dominated_industry_ownership.html](https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/Reports/08_dominated_industry_ownership.html)
        - [09_asif_tfp_firm_baseline.html](https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/Reports/09_asif_tfp_firm_baseline.html)
+       - [10_city_sector_year_polluted_sectors.html](https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/Reports/10_city_sector_year_polluted_sectors.html)
  - **02_data_analysis/**
    - [README.md](https://github.com/thomaspernet/Financial_dependency_pollution/tree/master/02_data_analysis/README.md)
    - **00_statistical_exploration/**
