@@ -667,7 +667,6 @@ FROM
     SELECT 
       ind2, 
       year,
-      geocode4_corr,
       polluted_d50i, 
       polluted_d75i, 
       polluted_d80i, 
@@ -679,8 +678,7 @@ FROM
       "environment"."china_sector_pollution_threshold" 
 
   ) as polluted_sector ON aggregate_pol.ind2 = polluted_sector.ind2 
-  AND aggregate_pol.year = polluted_sector.year 
-  AND aggregate_pol.geocode4_corr = polluted_sector.geocode4_corr 
+  and aggregate_pol.year = polluted_sector.year 
   LEFT JOIN (
     SELECT 
       cic, 
