@@ -17,9 +17,10 @@ with Diagram("FIN DEP POLLUTION BASELINE CITY", show=False, filename="/home/ec2-
      temp_8 = ECS('asif_firms_prepared')
      temp_12 = SQS('asif_industry_financial_ratio_city')
      temp_13 = SQS('china_sector_pollution_threshold')
-     temp_14 = SQS('asif_tfp_firm_level')
-     temp_15 = SQS('asif_industry_characteristics_ownership')
-     temp_16 = SQS('asif_city_characteristics_ownership')
+     temp_14 = SQS('china_city_sector_year_pollution_threshold')
+     temp_15 = SQS('asif_tfp_firm_level')
+     temp_16 = SQS('asif_industry_characteristics_ownership')
+     temp_17 = SQS('asif_city_characteristics_ownership')
 
      with Cluster("FINAL"):
 
@@ -35,6 +36,7 @@ with Diagram("FIN DEP POLLUTION BASELINE CITY", show=False, filename="/home/ec2-
      temp_final_1 << temp_7
      temp_2 >>temp_8 >>temp_12 >> temp_final_1
      temp_1 >>temp_13 >> temp_final_1
-     temp_2 >>temp_8 >>temp_14 >> temp_final_1
+     temp_1 >>temp_2 >>temp_14 >> temp_final_1
      temp_2 >>temp_8 >>temp_15 >> temp_final_1
      temp_2 >>temp_8 >>temp_16 >> temp_final_1
+     temp_2 >>temp_8 >>temp_17 >> temp_final_1
