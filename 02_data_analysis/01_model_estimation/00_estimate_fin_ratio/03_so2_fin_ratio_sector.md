@@ -363,9 +363,13 @@ mutate_if(is.character, as.factor) %>%
     mutate_at(vars(starts_with("fe")), as.factor) %>%
 mutate(
     period = relevel(as.factor(period), ref='FALSE'),
-    polluted_di = relevel(as.factor(polluted_di), ref='BELOW'),
-    polluted_mi = relevel(as.factor(polluted_mi), ref='BELOW'),
-    polluted_mei = relevel(as.factor(polluted_mei), ref='BELOW')    
+    polluted_d50i = relevel(as.factor(polluted_d50i), ref='BELOW'),
+    polluted_d75i = relevel(as.factor(polluted_d75i), ref='BELOW'),
+    polluted_d80i = relevel(as.factor(polluted_d80i), ref='BELOW'),
+    polluted_d85i = relevel(as.factor(polluted_d85i), ref='BELOW'),
+    polluted_d90i = relevel(as.factor(polluted_d90i), ref='BELOW'),
+    polluted_d95i = relevel(as.factor(polluted_d95i), ref='BELOW'),
+    polluted_mi = relevel(as.factor(polluted_mi), ref='BELOW')  
 )
 ```
 
@@ -489,7 +493,6 @@ t_5 <- felm(log(tso2) ~
             log(asset_tangibility_tot_asset) +
             log(sales) +
             log(total_asset) +
-            log(tfp_cit) + 
             log(lag_cashflow_to_tangible) +
             log(lag_current_ratio) +
             log(lag_liabilities_tot_asset) +
@@ -569,7 +572,9 @@ t_0 <- felm(log(tso2) ~
             log(lag_current_ratio) +
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset) 
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_t_i +fe_c_t|0 | geocode4_corr, 
+            df_final %>% 
+            filter(polluted_d75i == 'ABOVE'),
             exactDOF = TRUE)
 
 t_1 <- felm(log(tso2) ~ 
@@ -580,7 +585,9 @@ t_1 <- felm(log(tso2) ~
             log(lag_current_ratio) +
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset) 
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_t_i +fe_c_t|0 | geocode4_corr,
+            df_final %>% 
+            filter(polluted_d75i == 'BELOW'),
             exactDOF = TRUE)
 
 t_2 <- felm(log(tso2) ~ 
@@ -592,7 +599,9 @@ t_2 <- felm(log(tso2) ~
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset) +
             log(tfp_cit)
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'ABOVE'),
+            | fe_t_i +fe_c_t|0 | geocode4_corr, 
+            df_final %>% 
+            filter(polluted_d75i == 'ABOVE'),
             exactDOF = TRUE)
 t_3 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset) +
@@ -603,7 +612,9 @@ t_3 <- felm(log(tso2) ~
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset) +
             log(tfp_cit)
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(polluted_di == 'BELOW'),
+            | fe_t_i +fe_c_t|0 | geocode4_corr,
+            df_final %>% 
+            filter(polluted_d75i == 'BELOW'),
             exactDOF = TRUE)
 
 dep <- "Dependent variable: SO2 emission"
