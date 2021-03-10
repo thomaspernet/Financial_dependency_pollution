@@ -531,7 +531,14 @@ SELECT
   polluted_d85i, 
   polluted_d90i, 
   polluted_d95i, 
-  polluted_mi, 
+  polluted_mi,
+  polluted_d50_cit, 
+  polluted_d75_cit, 
+  polluted_d80_cit, 
+  polluted_d85_cit, 
+  polluted_d90_cit, 
+  polluted_d95_cit, 
+  polluted_m_cit,
   tso2, 
   CAST(
     tso2 AS DECIMAL(16, 5)
@@ -679,6 +686,24 @@ FROM
 
   ) as polluted_sector ON aggregate_pol.ind2 = polluted_sector.ind2 
   and aggregate_pol.year = polluted_sector.year 
+  LEFT JOIN (
+    SELECT 
+      ind2, 
+      year,
+      geocode4_corr,
+      polluted_d50_cit, 
+      polluted_d75_cit, 
+      polluted_d80_cit, 
+      polluted_d85_cit, 
+      polluted_d90_cit, 
+      polluted_d95_cit, 
+      polluted_m_cit
+    FROM 
+      "environment"."china_city_sector_year_pollution_threshold" 
+
+  ) as polluted_sector_cit ON aggregate_pol.ind2 = polluted_sector_cit.ind2 
+  and aggregate_pol.year = polluted_sector_cit.year 
+  and aggregate_pol.geocode4_corr = polluted_sector_cit.geocode4_corr 
   LEFT JOIN (
     SELECT 
       cic, 
@@ -976,6 +1001,12 @@ schema = [
         'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 95th percentile of SO2 label as ABOVE else BELOW'},
     {'Name': 'polluted_mi',
         'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly average of SO2 label as ABOVE else BELOW'},
+    {'Name': 'polluted_d50_cit', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 50th percentile of SO2 label as ABOVE else BELOW'},
+ {'Name': 'polluted_d80_cit', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 80th percentile of SO2 label as ABOVE else BELOW'},
+ {'Name': 'polluted_d85_cit', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 85th percentile of SO2 label as ABOVE else BELOW'}, 
+ {'Name': 'polluted_d90_cit', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 90th percentile of SO2 label as ABOVE else BELOW'},
+ {'Name': 'polluted_d95_cit', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly 95th percentile of SO2 label as ABOVE else BELOW'},         
+ {'Name': 'polluted_m_cit', 'Type': 'varchar(5)', 'Comment': 'Sectors with values above Yearly average of SO2 label as ABOVE else BELOW'},
     {
         "Name": "tso2",
         "Type": "bigint",
@@ -1179,10 +1210,6 @@ github_url = os.path.join(
 Grab the input name from query
 
 ```python
-import re
-```
-
-```python
 list_input = []
 tables = glue.get_tables(full_output = False)
 regex_matches = re.findall(r'(?=\.).*?(?=\s)|(?=\.\").*?(?=\")', query)
@@ -1316,7 +1343,6 @@ schema = glue.get_table_information(
     database = DatabaseName,
     table = table_name
 )['Table']
-schema
 ```
 
 ```python
