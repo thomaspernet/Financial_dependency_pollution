@@ -430,6 +430,7 @@ for ext in ['.txt', '.pdf']:
 t_0 <- felm(log(tfp_op) ~ 
             log(cashflow_to_tangible) + 
             log(asset_tangibility_tot_asset) +
+            log(liabilities_tot_asset) + 
             log(labor_capital) +
             log(total_asset) + 
             log(age) +
@@ -439,6 +440,7 @@ t_0 <- felm(log(tfp_op) ~
 t_1 <- felm(log(tfp_op) ~ 
             log(current_ratio) + 
             log(asset_tangibility_tot_asset) +
+            log(liabilities_tot_asset) + 
             log(labor_capital) +
             log(total_asset) + 
             log(age) +
