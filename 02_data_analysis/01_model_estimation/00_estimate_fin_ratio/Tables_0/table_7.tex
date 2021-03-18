@@ -1,0 +1,57 @@
+
+\documentclass[preview]{standalone} 
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs,caption,threeparttable, siunitx, adjustbox}
+
+\begin{document}% Date and time \times  Thu, Mar 18, 2021 - 08 \times 55 \times 14
+\begin{table}[!htbp] \centering 
+  \caption{Baseline effect of internal finance on firm TFP} 
+\label{}
+\begin{adjustbox}{width=\textwidth, totalheight=\textheight-2\baselineskip,keepaspectratio}
+\begin{tabular}{@{\extracolsep{5pt}}lcccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{6}{c}{Dependent variable: Total factor productivity} \\ 
+\cline{2-7} 
+\\[-1.8ex] & (1) & (2) & (3) & (4) & (5) & (6)\\ 
+\hline \\[-1.8ex] 
+ log(\text{cashflow}) & 0.017$^{***}$ &  & 0.017$^{***}$ & 0.017$^{***}$ & 0.017$^{***}$ & 0.017$^{***}$ \\ 
+  & (0.0002) &  & (0.0002) & (0.0002) & (0.0002) & (0.0002) \\ 
+  log(\text{current ratio}) &  & 0.002$^{***}$ & 0.003$^{***}$ & 0.003$^{***}$ & 0.003$^{***}$ & 0.003$^{***}$ \\ 
+  &  & (0.0003) & (0.0003) & (0.0003) & (0.0003) & (0.0003) \\ 
+  log(\text{liabilities to asset}) &  &  & 0.009$^{***}$ & 0.009$^{***}$ & 0.009$^{***}$ & 0.009$^{***}$ \\ 
+  &  &  & (0.001) & (0.001) & (0.001) & (0.001) \\ 
+  log(\text{collateral}) & 0.044$^{***}$ & 0.034$^{***}$ & 0.043$^{***}$ & 0.043$^{***}$ & 0.043$^{***}$ & 0.043$^{***}$ \\ 
+  & (0.001) & (0.001) & (0.001) & (0.001) & (0.001) & (0.001) \\ 
+  log(\text{labor to capital}) & 0.027$^{***}$ & 0.033$^{***}$ & 0.027$^{***}$ & 0.027$^{***}$ & 0.027$^{***}$ & 0.027$^{***}$ \\ 
+  & (0.001) & (0.001) & (0.001) & (0.001) & (0.001) & (0.001) \\ 
+  log(\text{total asset}) & 0.066$^{***}$ & 0.065$^{***}$ & 0.066$^{***}$ & 0.066$^{***}$ & 0.066$^{***}$ & 0.066$^{***}$ \\ 
+  & (0.001) & (0.001) & (0.001) & (0.001) & (0.001) & (0.001) \\ 
+  log(age) & 0.004$^{***}$ & 0.004$^{***}$ & 0.004$^{***}$ & 0.004$^{***}$ & 0.004$^{***}$ & 0.004$^{***}$ \\ 
+  & (0.0004) & (0.0004) & (0.0004) & (0.0004) & (0.0004) & (0.0004) \\ 
+  \text{export to sale} & 0.006$^{**}$ & 0.006$^{**}$ & 0.006$^{**}$ & 0.006$^{**}$ & 0.006$^{**}$ & 0.005$^{**}$ \\ 
+  & (0.003) & (0.003) & (0.003) & (0.003) & (0.003) & (0.003) \\ 
+  \text{all credit} &  &  &  & 0.082$^{***}$ &  &  \\ 
+  &  &  &  & (0.012) &  &  \\ 
+  \text{long term credit} &  &  &  &  & 0.024$^{***}$ &  \\ 
+  &  &  &  &  & (0.002) &  \\ 
+  \text{credit demand} &  &  &  &  &  & $-$0.001 \\ 
+  &  &  &  &  &  & (0.001) \\ 
+ \hline \\[-1.8ex] 
+firm & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+industry & Yes & Yes & Yes & Yes & No & No \\ 
+year & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Observations & 216,219 & 216,219 & 216,219 & 216,219 & 216,219 & 215,812 \\ 
+R$^{2}$ & 0.963 & 0.959 & 0.963 & 0.963 & 0.963 & 0.963 \\ 
+\hline 
+\hline \\[-1.8ex] 
+\end{tabular}
+\end{adjustbox}
+\begin{tablenotes} 
+ \small 
+ \item \\ 
+This table estimates eq(X). Heteroskedasticity-robust standard errorsclustered at the firm level appear inparentheses.Dependent variables include firm's TFP level  Independent variable cashflow is measured as net income + depreciation over asset; current ratio is measured as current asset over current liabilities. \sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%. 
+\end{tablenotes}
+\end{table}
+
+\end{document}

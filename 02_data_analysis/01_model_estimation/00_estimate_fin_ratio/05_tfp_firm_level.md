@@ -355,10 +355,9 @@ if add_to_dic:
 ```
 
 ```sos kernel="SoS"
-import function.latex_beautify as lb
-
-#%load_ext autoreload
-#%autoreload 2
+import sys
+sys.path.append(os.path.join(parent_path, 'utils'))
+import latex.latex_beautify as lb
 ```
 
 ```sos kernel="R"
@@ -367,7 +366,7 @@ library(tidyverse)
 library(lfe)
 #library(lazyeval)
 library('progress')
-path = "function/table_golatex.R"
+path = "../../../utils/latex/table_golatex.R"
 source(path)
 ```
 
@@ -416,12 +415,12 @@ $$ \begin{aligned}
 
 ```sos kernel="SoS"
 folder = 'Tables_0'
-table_nb = 1
+table_nb = 7
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
         os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
+for ext in ['.txt', '.pdf']:
     x = [a for a in os.listdir(folder) if a.endswith(ext)]
     [os.remove(os.path.join(folder, i)) for i in x]
 ```
@@ -446,17 +445,17 @@ t_1 <- felm(log(tfp_op) ~
             export_to_sale 
             | firm + year + indu_2|0 | firm, df_final,
             exactDOF = TRUE)
-t_2 <- felm(log(tfp_op) ~ 
-            log(liabilities_tot_asset) + 
-            log(asset_tangibility_tot_asset) +
-            log(labor_capital) +
-            log(total_asset) + 
-            log(age) +
-            export_to_sale 
-            | firm + year + indu_2|0 | firm, df_final,
-            exactDOF = TRUE)
+#t_2 <- felm(log(tfp_op) ~ 
+#            log(liabilities_tot_asset) + 
+#            log(asset_tangibility_tot_asset) +
+#            log(labor_capital) +
+#            log(total_asset) + 
+#            log(age) +
+#            export_to_sale 
+#            | firm + year + indu_2|0 | firm, df_final,
+#            exactDOF = TRUE)
 ###
-t_3 <- felm(log(tfp_op) ~ 
+t_2 <- felm(log(tfp_op) ~ 
             log(cashflow_to_tangible) + 
             log(current_ratio) + 
             log(liabilities_tot_asset) + 
@@ -469,7 +468,7 @@ t_3 <- felm(log(tfp_op) ~
             exactDOF = TRUE)
 
 ### More control
-t_4 <- felm(log(tfp_op) ~ 
+t_3 <- felm(log(tfp_op) ~ 
             log(cashflow_to_tangible) + 
             log(current_ratio) + 
             log(liabilities_tot_asset) + 
@@ -481,7 +480,7 @@ t_4 <- felm(log(tfp_op) ~
             supply_all_credit
             | firm + year + indu_2|0 | firm, df_final,
             exactDOF = TRUE)
-t_5 <- felm(log(tfp_op) ~ 
+t_4 <- felm(log(tfp_op) ~ 
             log(cashflow_to_tangible) + 
             log(current_ratio) + 
             log(liabilities_tot_asset) + 
@@ -493,7 +492,7 @@ t_5 <- felm(log(tfp_op) ~
             supply_long_term_credit 
             | firm + year + indu_2|0 | firm, df_final,
             exactDOF = TRUE)
-t_6 <- felm(log(tfp_op) ~ 
+t_5 <- felm(log(tfp_op) ~ 
             log(cashflow_to_tangible) + 
             log(current_ratio) + 
             log(liabilities_tot_asset) + 
@@ -508,13 +507,13 @@ t_6 <- felm(log(tfp_op) ~
 
 dep <- "Dependent variable: Total factor productivity"
 fe1 <- list(
-    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("industry", "Yes", "Yes", "Yes", "Yes", "Yes", "No", "No"),
+    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("industry", "Yes", "Yes", "Yes", "Yes", "No", "No"),
     c("year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0, t_1, t_2, t_3, t_4,t_5, t_6
+    t_0, t_1, t_2, t_3, t_4,t_5#, t_6
 ),
     title="Baseline effect of internal finance on firm TFP",
     dep_var = dep,
