@@ -189,28 +189,33 @@ Write query and save the CSV back in the S3 bucket `datalake-datascience`
 
 Detail computation:
 
-| index | Metrics                        | comments                                                                                                    | variables                                                                                                                                                           | Roam_link                                       | Exepected sign              | Comment                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-|-------|--------------------------------|-------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1     | External finance dependence    | From #[[Fan et al. 2015 - Credit constraints, quality, and export prices - Theory and evidence from China]] |                                                                                                                                                                     | #external-finance-dependence                    | Negative                    | An industry’s external finance dependence (ExtFini) is defined as the share of capital expenditure not financed with cash flows from operations. If external finance dependence is high, the industry is more financially vulnerable and have higher credit needs                                                                                                                                                                                                                                                                              |
-| 2     | R&D intensity                  | RD / Sales                                                                                                  | rdfee/sales                                                                                                                                                         | #rd-intensity                                   | Negative                    | Share of RD expenditure over sales. larger values indicates larger use of sales to spend on RD. Say differently, lower borrowing done toward RD                                                                                                                                                                                                                                                                                                                                                                                                |
-| 3     | Inventory to sales             | Inventory / sales                                                                                           | 存货 (c81) / sales                                                                                                                                                  | #inventory-to-sales                             | Negative                    | Share of inventory over sales. Larger values indicates share of unsold or not consumed items. large values is a demonstration of tighter credit constraint                                                                                                                                                                                                                                                                                                                                                                                     |
-| 4     | % receivable                   | receivable account / current asset                                                                          | 应收帐款 (c80) / cuasset                                                                                                                                            | #account-receivable #current-asset              | Negative                    | Share of receivable over current asset. Larger value indicates longer time before collecting the money from the customers                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| 5     | Liabilities over asset         | (Short-Tern Debt + Long-Term Debt)/total asset                                                              | (流动负债合计 (c95) + 长期负债合计 (c97)) / toasset                                                                                                                 | #total-debt-to-total-assets                     | Negative                    | Share of liabilities over total asset. Larger value indicates assets that are financed by external creditors                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| 6     | working capital requirement    | Inventory + Accounts receivable - Accounts payable                                                          | 存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)                                                                                                                       | #working-capital                                | Negative                    | Working Capital Requirement is the amount of money needed to finance the gap between disbursements (payments to suppliers) and receipts (payments from customers). Larger values indicate the amount of money needed to meet the debt.                                                                                                                                                                                                                                                                                                         |
-| 7     | % cash                         | Current asset - cash / current asset                                                                        | (cuasset- 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset                                                                   | #current-asset #cash                            | Positive                    | Share of cash asset over current asset. Larger values indicate more cash in hand.                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| 8     | cash ratio                     | (Cash + marketable securities)/current liabilities                                                          | 1-(cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)                                                           | #cash-asset #cash-ratio                         | Positive                    | Cash divided by liabilities. A portion of short-term debt that can be financed by cash. A larger value indicates the company generates enough cash to cope with the short term debt                                                                                                                                                                                                                                                                                                                                                            |
-| 9     | Working capital                | Current asset - current liabilities                                                                         | cuasset- 流动负债合计 (c95)                                                                                                                                         | #working-capital-requirement                    | Positive                    | Difference between current asset and current liabilities. Larger value indicates that assets are enough to cope with the short term need                                                                                                                                                                                                                                                                                                                                                                                                       |
-| 10    | current ratio                  | Current asset /current liabilities                                                                          | cuasset/流动负债合计 (c95)                                                                                                                                          | #current-ratio                                  | Ambiguous                   | Asset divided by liabilities. Values above 1 indicate there are more assets than liabilities. There are two effects on the liquidity constraint. Larger values imply the company has more liquidity, hence they may be less dependent on the formal financial market. By analogy, the financial market prefers to invest or provide money to the more liquid company (reduce the risk default)                                                                                                                                                 |
-| 11    | Quick ratio                    | (Current asset - Inventory)/current liabilities                                                             | (cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)) / 流动负债合计 (c95)                                                                                | #quick-ratio                                    | Ambiguous                   | The quick ratio is a measure of liquidity. The higher the more liquid the company is. To improve the ratio, the company should reduce the account receivable (reduce payment time) and increase the account payable (negotiate payment term). There are two effects on the liquidity constraint. Larger values imply the company has more liquidity, hence they may be less dependent on the formal financial market. By analogy, the financial market prefers to invest or provide money to the more liquid company (reduce the risk default) |
-| 12    | Return on Asset                | Net income / Total assets                                                                                   | sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset | #return-on-asset                                | Ambiguous                   | Net income over total asset. Capacity of an asset to generate income. Larger value indicates that asset are used in an efficiente way to generate income                                                                                                                                                                                                                                                                                                                                                                                       |
-| 13    | Asset Turnover Ratio           | Total sales / ((delta total asset)/2)                                                                       | 全年营业收入合计 (c64) /($\Delta$ toasset/2)                                                                                                                        | #asset-turnover-ratio                           | Ambiguous                   | Sales divided by the average changes in total asset. Larger value indicates better efficiency at using asset to generate revenue                                                                                                                                                                                                                                                                                                                                                                                                               |
-| 14    | Sale over asset                | Total sales /total asset                                                                                    | 全年营业收入合计 (c64) /(toasset)                                                                                                                                   | #sale-over-asset                                | Ambiguous                   | Sales divided by total asset. Larger value indicates better efficiency at using asset to generate revenue                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| 15    | Asset tangibility              | Total fixed assets - Intangible assets                                                                      | tofixed - 无形资产 (c92)                                                                                                                                            | #asset-tangibility                              | Ambiguous                   | Difference between fixed sset and intangible asset. Larger value indicates more collateral, hence higher borrowing capacity                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| 16    | Account payable to total asset | (delta account payable)/ (delta total asset)                                                                | ($\Delta$ 应付帐款  (c96))/ ($\Delta$$ (toasset))                                                                                                                   | #change-account-paybable-to-change-total-assets | Ambiguous (favour positive) | Variation of account payable over variation total asset. If the nominator larger than the denominator, it means the account payable grew larger than an asset, or more time is given to pay back the supplier relative to the total asset.  Say differently,  companies can more easily access buyer or supplier trade credit, they may be less dependent on the formal financial market                                                                                                                                                       |
-    
-**pct missing**
+| Origin                  | Variable                    | construction                                                                                                                                                                 | Roam               |
+|-------------------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|
+| Balance sheet variables | current asset               | c80 + c81 + c82 + c79                                                                                                                                                        | #current-asset     |
+| Balance sheet variables | intangible                  | c91 + c92                                                                                                                                                                    | #intangible-asset  |
+| Balance sheet variables | tangible                    | tofixed - cudepre                                                                                                                                               | #tangible-asset    |
+| Balance sheet variables | total net non current             | tofixed - cudepre + (c91 + c92)                                                                                                                                              | #net-fixed-asset   |
+| Balance sheet variables | error                       | (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c95 + c97  + c99)                                                                                                     |                    |
+| Balance sheet variables | total_liabilities           | if (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c95 + c97  + c99). > 0 then allocate error to liabilities else c98 + c99                                           | #total-liabilities |
+| Balance sheet variables | total_asset                 | if (c80 + c81 + c82 + c79 +  tofixed - cudepre + (c91 + c92)) - (c95 + c97  + c99). <  0 then allocate error to asset else c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)  |                    |
+| Financial metric        | cashflow                    | (c131 - c134) + cudepre                                                                                                                                                      | #cashflow          |
+| Financial metric        | current_ratio               |  c80 + c81 + c82 + c79 / c95                                                                                                                                                 | #current-ratio     |
+| Financial metric        | quick ratio                 |  c80 + c81 + c82 + c79 - c80 - c81 / c95                                                                                                                                     | #quick-ratio       |
+| Financial metric        | liabilities_tot_asset       | c98 / total_asset                                                                                                                                                            | #leverage          |
+| Financial metric        | sales_tot_asset             | sales / total_asset                                                                                                                                                          | #sales-over-asset  |
+| Financial metric        | investment_tot_asset        | c84 / total_asset                                                                                                                                                            |                    |
+| Financial metric        | rd_tot_asset                | rdfee / total_asset                                                                                                                                                          |                    |
+| Financial metric        | asset_tangibility_tot_asset |  tangible / total_asset                                                                                                                                                      | #collateral        |
+| Financial metric        | cashflow_tot_asset          | cashflow / total_asset                                                                                                                                                       |                    |
+| Financial metric        | cashflow_to_tangible        | cashflow / tangible                                                                                                                                                          |                    |
+| Financial metric        | return_to_sale              | c131 / sales                                                                                                                                                                 | #return-on-sales   |
+| Financial metric        | coverage_ratio              | c131 / c125                                                                                                                                                                  | #coverage-ratio    |
+| Financial metric        | liquidity                   | cuasset - c95 / total_asset                                                                                                                                                  | #liquidity         |
+| Other variables         | labor_productivity          | sales/employ                                                                                                                                                                 |                    |
+| Other variables         | labor_capital               | employ / tangible                                                                                                                                                            |                    |
+| Other variables         | age                         | year - setup                                                                                                                                                                 |                    |
+| Other variables         | export_to_sale              |  export / sale                                                                                                                                                               |                    |
 
-![](https://drive.google.com/uc?export=view&id=1LPNhZIPkJgx0-ZsM6NLNAB6dGH9h7ELo)
 
 
 ## Example step by step
@@ -328,112 +333,6 @@ output
 
 Make sure the output is the same before and after the use of city consistent code
 
-```python
-query = """
-WITH test AS (
-SELECT 
-  year, 
-  geocode4_corr,
-  cic, 
-  SUM(output) as sum_output,
-  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_cit, 
-  SUM(c85) - SUM(c91) AS asset_tangibility_cit, 
-  CAST(
-    SUM(cuasset) AS DECIMAL(16, 5)
-  ) / NULLIF(
-    CAST(
-      SUM(c95) AS DECIMAL(16, 5)
-    ), 
-    0
-  ) AS current_ratio_cit, 
-  CAST(
-    (SUM(c79) + SUM(c80) + SUM(c81)) - SUM(cuasset) AS DECIMAL(16, 5)
-  ) / NULLIF(CAST(
-    SUM(c93) AS DECIMAL(16, 5)
-  ), 
-    0
-  ) AS cash_assets_cit, 
-  CAST(
-    SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-      SUM(c93) AS DECIMAL(16, 5)
-    ), 
-    0
-  ) AS liabilities_assets_cit, 
-  CAST(
-    SUM(c64) - SUM(c134) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-      SUM(c98) AS DECIMAL(16, 5)
-    ), 
-    0
-  ) AS return_on_asset_cit, 
-  CAST(
-    SUM(cuasset) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-      (
-        SUM(c98) - lag(
-          SUM(c98), 
-          1
-        ) over(
-          partition by geocode4_corr, 
-          cic 
-          order by 
-            geocode4_corr, 
-            cic, 
-            year
-        )
-      )/ 2 AS DECIMAL(16, 5)
-    ), 
-    0
-  ) AS sales_assets_cit 
-FROM firms_survey.asif_firms_prepared 
-INNER JOIN 
-  (
-  SELECT extra_code, geocode4_corr
-  FROM chinese_lookup.china_city_code_normalised 
-  GROUP BY extra_code, geocode4_corr
-  ) as no_dup_citycode
-  
-ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
-GROUP BY 
-  geocode4_corr, 
-  cic, 
-  year 
-)
-SELECT SUM(sum_output) as sum_output
-FROM test
-
-"""
-output_1 = s3.run_query(
-                    query=query,
-                    database=DatabaseName,
-                    s3_output=s3_output_example,
-    filename = 'example_1'
-                )
-output_1
-```
-
-```python
-query = """
-SELECT SUM(output) as sum_output
-FROM firms_survey.asif_firms_prepared 
-
-"""
-output_2 = s3.run_query(
-                    query=query,
-                    database=DatabaseName,
-                    s3_output=s3_output_example,
-    filename = 'example_1'
-                )
-output_2
-```
-
-```python
-output_1 > output_2
-```
 
 Asif felt to meet the basic accounting equation that the left part should be equal to the right part
 
@@ -523,256 +422,568 @@ pd.set_option('display.max_rows', None)
 ```
 
 ```python
-query = """
+query= """
 WITH test AS (
-SELECT *, CASE 
-WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2)
-ELSE substr(cic,1, 1) END AS indu_2,
-c98 + c99 as total_asset
-FROM firms_survey.asif_firms_prepared 
-)
-SELECT * 
-FROM (
-WITH ratio AS (
+  SELECT 
+    *, 
+    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
+      '0', 
+      substr(cic, 1, 1)
+    ) END AS indu_2, 
+    c80 + c81 + c82 + c79 as current_asset, 
+    c91 + c92 AS intangible, 
+    tofixed - cudepre  AS tangible, 
+    tofixed - cudepre + (c91 + c92) AS net_non_current, 
+    (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) - (c95 + c97 + c99) AS error, 
+    c95 + c97 as total_liabilities, 
+    CASE WHEN (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) - (c95 + c97 + c99) > 0 THEN (c95 + c97 + c99) + ABS(
+      (
+        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+      ) - (c95 + c97 + c99)
+    ) ELSE (c95 + c97 + c99) END AS total_right, 
+    CASE WHEN (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) - (c95 + c97 + c99) < 0 THEN (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) + ABS(
+      (
+        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+      ) - (c95 + c97 + c99)
+    ) ELSE (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) END AS total_asset, 
+    (c131 - c134) + cudepre as cashflow 
+  FROM 
+    firms_survey.asif_firms_prepared 
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr, 
+        province_en 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        province_en, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code 
+  WHERE 
+    c95 > 0 -- current liabilities
+    AND c97 > 0 -- long term liabilities
+    AND c98 > 0 -- total liabilities
+    AND c99 > 0 -- equity
+    AND c80 + c81 + c82 + c79 > 0 
+    AND tofixed > 0 
+    AND output > 0 
+    and employ > 0
+) 
 SELECT 
-  year, 
-  indu_2, 
-  SUM(cuasset)  as curr_asset,
-  CASE 
-  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN
-  SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99)))
-  ELSE SUM(toasset) END AS left_part,
-  
-  SUM(c95) as curr_liabilities,
-  SUM(c98) as tot_liabilites,
-  SUM(c99) as tot_equity,
-  
-  CASE 
-  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) > 0  THEN
-  (SUM(c98) + SUM(c99) + SUM(toasset) - (SUM(c98) + SUM(c99)))
-  ELSE (SUM(c98) + SUM(c99)) END AS right_part,
-  
-  SUM(toasset) - (SUM(c98) + SUM(c99)) as diff,  
-  
-  SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) as cash,
-   CAST(
-    SUM(c80) AS DECIMAL(16, 5)
-  ) / NULLIF(
-    CAST(
-      SUM(cuasset) AS DECIMAL(16, 5)
-    ), 
-    0
-  ) as pct_receivable_curasset,
-  CAST(
-    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
-  ) / NULLIF(
-    CAST(
-      SUM(cuasset) AS DECIMAL(16, 5)
-    ), 
-    0
-  ) as pct_cash_over_curasset,
-  
-  SUM(cuasset) - SUM(c95) as working_capital_it,
-  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_requirement_it,   
-  CAST(
-    SUM(cuasset) AS DECIMAL(16, 5)
-  ) / NULLIF(
-    CAST(
-      SUM(c95) AS DECIMAL(16, 5)
-    ), 
-    0
-  ) AS current_ratio_it, 
-  
-  CAST(
-    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) AS DECIMAL(16, 5)
-  ) / NULLIF(
-    CAST(
-      SUM(c95) AS DECIMAL(16, 5)
-    ), 
-    0
-  ) AS quick_ratio_it, 
+  * 
+FROM 
+  (
+    WITH ratio AS (
+      SELECT 
+        year, 
+        -- cic, 
+        indu_2, 
+        -- geocode4_corr, 
+        -- province_en, 
+        CAST(
+          SUM(output) AS DECIMAL(16, 5)
+        ) AS output, 
+        CAST(
+          SUM(sales) AS DECIMAL(16, 5)
+        ) AS sales, 
+        CAST(
+          SUM(employ) AS DECIMAL(16, 5)
+        ) AS employment, 
+        CAST(
+          SUM(captal) AS DECIMAL(16, 5)
+        ) AS capital, 
+        SUM(current_asset) AS current_asset, 
+        SUM(tofixed) AS tofixed, 
+        SUM(error) AS error, 
+        SUM(total_liabilities) AS total_liabilities, 
+        SUM(total_asset) AS total_asset, 
+        SUM(total_right) AS total_right, 
+        SUM(intangible) AS intangible, 
+        SUM(tangible) AS tangible, 
+        SUM(net_non_current) AS net_non_current, 
+        SUM(cashflow) AS cashflow, 
+        CAST(
+          SUM(c80 + c81 + c82 + c79) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(c95) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS current_ratio, 
+        CAST(
+          SUM(c80 + c81 + c82 + c79 - c80 - c81) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(c95) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS quick_ratio, 
+        CAST(
+          SUM(c98) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS liabilities_tot_asset, 
+        CAST(
+          SUM(sales) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS sales_tot_asset, 
+        CAST(
+          SUM(c84) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS investment_tot_asset, 
+        CAST(
+          SUM(rdfee) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS rd_tot_asset, 
+        CAST(
+          SUM(tangible) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) asset_tangibility_tot_asset, 
+        CAST(
+          SUM(cashflow) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS cashflow_tot_asset, 
+        CAST(
+          SUM(cashflow) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(tangible) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS cashflow_to_tangible, 
+        -- update
+        CAST(
+          SUM(c131) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(sales) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS return_to_sale, 
+        CAST(
+          SUM(c131) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(c125) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS coverage_ratio, 
+        CAST(
+          SUM(current_asset - c95) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(tangible) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS liquidity 
+      FROM 
+        test 
+      WHERE 
+        year in (
+          '2000','2001', '2002', '2003', '2004', '2005', 
+          '2006', '2007'
+        ) 
+        AND total_asset > 0 
+        AND tangible > 0 
+      GROUP BY 
+        --province_en, 
+        --geocode4_corr, 
+        -- cic,
+        indu_2, 
+        year 
+      
+    ) 
+    SELECT 
+      year, 
+      indu_2, 
+      --geocode4_corr, 
+      --province_en, 
+      output, 
+      sales, 
+      employment, 
+      capital, 
+      current_asset, 
+      tofixed, 
+      error, 
+      total_liabilities, 
+      total_asset, 
+      total_right, 
+      intangible, 
+      tangible, 
+      net_non_current, 
+      cashflow, 
+      current_ratio,
+      LAG(current_ratio, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_current_ratio,
+      quick_ratio, 
+      LAG(quick_ratio, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_quick_ratio,
+      liabilities_tot_asset, 
+      LAG(liabilities_tot_asset, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_liabilities_tot_asset,
+      sales_tot_asset,
+      LAG(sales_tot_asset, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_sales_tot_asset,
+      investment_tot_asset, 
+      rd_tot_asset, 
+      asset_tangibility_tot_asset, 
+      cashflow_tot_asset,
+      LAG(cashflow_tot_asset, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_cashflow_tot_asset,
+      cashflow_to_tangible, 
+      LAG(cashflow_to_tangible, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_cashflow_to_tangible,
+      return_to_sale, 
+      LAG(return_to_sale, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_return_to_sale,
+      coverage_ratio, 
+      liquidity 
+    FROM 
+      ratio
+    LIMIT 
+        10
+  )
+"""
+output = s3.run_query(
+                    query=query,
+                    database=DatabaseName,
+                    s3_output=s3_output_example,
+    filename = 'example_1'
+                )
+output
+```
 
-  1 - CAST(
-    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
-  ) / NULLIF(CAST(
-    SUM(c95) AS DECIMAL(16, 5)
-  ), 
-    0
-  ) AS cash_ratio_it,
-  
-  -- Need to add asset or debt when bs requirement not meet
-  CASE 
-  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN
-  CAST(
-     SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-     SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99)))  AS DECIMAL(16, 5)
-    ), 
-    0
-  ) 
-  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) > 0 THEN
-  CAST(
-     SUM(c95) + SUM(c97) + SUM(toasset) - (SUM(c98) + SUM(c99)) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-     SUM(toasset)  AS DECIMAL(16, 5)
-    ), 
-    0
-  )
-  ELSE
-  CAST(
-     SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-     SUM(toasset)  AS DECIMAL(16, 5)
-    ), 
-    0
-  )
-  END AS liabilities_assets_it, 
-
-  CASE 
-  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN
-  CAST(SUM(sales) - (SUM(c108) + SUM(c113) + SUM(c114) + SUM(c116) + SUM(c118) + SUM(c124) + SUM(wage)) AS DECIMAL(16, 5))/ 
-  NULLIF(CAST(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99)))  AS DECIMAL(16, 5)), 0) 
-  ELSE
-  CAST(SUM(sales) - (SUM(c108) + SUM(c113) + SUM(c114) + SUM(c116) + SUM(c118) + SUM(c124) + SUM(wage)) AS DECIMAL(16, 5))/ 
-  NULLIF(CAST(SUM(toasset)  AS DECIMAL(16, 5)), 0) 
-  END AS return_on_asset_it,
-  
-  CASE 
-  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN  
-  CAST(
-    SUM(sales) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
+```python
+query= """
+WITH test AS (
+  SELECT 
+    *, 
+    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
+      '0', 
+      substr(cic, 1, 1)
+    ) END AS indu_2, 
+    c80 + c81 + c82 + c79 as current_asset, 
+    c91 + c92 AS intangible, 
+    tofixed - cudepre  AS tangible, 
+    tofixed - cudepre + (c91 + c92) AS net_non_current, 
+    (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) - (c95 + c97 + c99) AS error, 
+    c95 + c97 as total_liabilities, 
+    CASE WHEN (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) - (c95 + c97 + c99) > 0 THEN (c95 + c97 + c99) + ABS(
       (
-          SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))) - lag(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))),
-          1
-        ) over(
-          partition by indu_2 
-          order by 
-            indu_2, 
-            year
-        )
-      )/ 2 AS DECIMAL(16, 5)
-    ), 
-    0
-  )
-  ELSE 
-  CAST(
-    SUM(sales) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
+        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+      ) - (c95 + c97 + c99)
+    ) ELSE (c95 + c97 + c99) END AS total_right, 
+    CASE WHEN (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) - (c95 + c97 + c99) < 0 THEN (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) + ABS(
       (
-        SUM(toasset) - lag(
-          SUM(toasset), 
-          1
-        ) over(
-          partition by indu_2 
-          order by 
-            indu_2, 
-            year
-        )
-      )/ 2 AS DECIMAL(16, 5)
-    ), 
-    0
-  )
-  
-  END AS sales_assets_it,
-  
-  CASE 
-  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN  
-  CAST(
-    SUM(sales) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))) AS DECIMAL(16, 5)), 
-    0
-  )
-  ELSE 
-  CAST(
-    SUM(sales) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-    SUM(toasset) AS DECIMAL(16, 5)), 
-    0
-  )
-  END AS sales_assets_andersen_it,
-  
-  CAST(SUM(rdfee) AS DECIMAL(16, 5))/ NULLIF(CAST(SUM(sales) AS DECIMAL(16, 5)),0) as rd_intensity_it,
-  CAST(SUM(c81)  AS DECIMAL(16, 5))/ NULLIF(CAST(SUM(sales) AS DECIMAL(16, 5)),0) as inventory_to_sales_it,
-  SUM(tofixed) - SUM(c92) AS asset_tangibility_it,
-  
-  CAST(
-      (
-        SUM(c96) - lag(
-          SUM(c96), 
-          1
-        ) over(
-          partition by indu_2 
-          order by 
-            indu_2, 
-            year
-        )
-      ) AS DECIMAL(16, 5)
-      )/
-      NULLIF(
-    CAST(
-      (
-        SUM(total_asset) - lag(
-          SUM(total_asset), 
-          1
-        ) over(
-          partition by indu_2 
-          order by 
-            indu_2, 
-            year
-        )
-      )/ 2 AS DECIMAL(16, 5)
-    ),0) as account_paybable_to_asset_it
-    
-  
-FROM test
-WHERE year in ( '2001', '2002', '2003', '2004', '2005', 
-'2006') 
-GROUP BY 
-  indu_2, 
-  year 
-  )
-  SELECT
-  year,
-  ratio.indu_2,
-  short,
-  curr_asset,
-  curr_liabilities,
-  tot_liabilites,
-  tot_equity,
-  left_part,
-  right_part,
-  diff,
-  cash,
-  pct_receivable_curasset,
-  1 - pct_cash_over_curasset as pct_non_cash_over_curasset,
-  working_capital_it AS working_capital_i,
-  working_capital_requirement_it AS working_capital_requirement_i,
-  current_ratio_it AS current_ratio_i,
-  quick_ratio_it as quick_ratio_i,
-  cash_ratio_it AS cash_ratio_i,
-  liabilities_assets_it AS liabilities_assets_i,
-  return_on_asset_it AS return_on_asset_i,
-  sales_assets_it AS sales_assets_i,
-  sales_assets_andersen_it AS sales_assets_andersen_i,
-  rd_intensity_it AS rd_intensity_i,
-  inventory_to_sales_it AS inventory_to_sales_i,
-  asset_tangibility_it AS asset_tangibility_i,
-  account_paybable_to_asset_it AS account_paybable_to_asset_i
-  FROM ratio
-  INNER JOIN (
-  SELECT cic as indu_2, short
-  FROM chinese_lookup.ind_cic_2_name
-  ) as ind
-  ON ratio.indu_2 = ind.indu_2
-  ORDER BY year, working_capital_i
+        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+      ) - (c95 + c97 + c99)
+    ) ELSE (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) END AS total_asset, 
+    (c131 - c134) + cudepre as cashflow 
+  FROM 
+    firms_survey.asif_firms_prepared 
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr, 
+        province_en 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        province_en, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code 
+  WHERE 
+    c95 > 0 -- current liabilities
+    AND c97 > 0 -- long term liabilities
+    AND c98 > 0 -- total liabilities
+    AND c99 > 0 -- equity
+    AND c80 + c81 + c82 + c79 > 0 
+    AND tofixed > 0 
+    AND output > 0 
+    and employ > 0
+) 
+SELECT 
+  * 
+FROM 
+  (
+    WITH ratio AS (
+      SELECT 
+        year, 
+        -- cic, 
+        indu_2, 
+        -- geocode4_corr, 
+        -- province_en, 
+        CAST(
+          SUM(output) AS DECIMAL(16, 5)
+        ) AS output, 
+        CAST(
+          SUM(sales) AS DECIMAL(16, 5)
+        ) AS sales, 
+        CAST(
+          SUM(employ) AS DECIMAL(16, 5)
+        ) AS employment, 
+        CAST(
+          SUM(captal) AS DECIMAL(16, 5)
+        ) AS capital, 
+        SUM(current_asset) AS current_asset, 
+        SUM(tofixed) AS tofixed, 
+        SUM(error) AS error, 
+        SUM(total_liabilities) AS total_liabilities, 
+        SUM(total_asset) AS total_asset, 
+        SUM(total_right) AS total_right, 
+        SUM(intangible) AS intangible, 
+        SUM(tangible) AS tangible, 
+        SUM(net_non_current) AS net_non_current, 
+        SUM(cashflow) AS cashflow, 
+        CAST(
+          SUM(c80 + c81 + c82 + c79) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(c95) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS current_ratio, 
+        CAST(
+          SUM(c80 + c81 + c82 + c79 - c80 - c81) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(c95) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS quick_ratio, 
+        CAST(
+          SUM(c98) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS liabilities_tot_asset, 
+        CAST(
+          SUM(sales) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS sales_tot_asset, 
+        CAST(
+          SUM(c84) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS investment_tot_asset, 
+        CAST(
+          SUM(rdfee) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS rd_tot_asset, 
+        CAST(
+          SUM(tangible) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) asset_tangibility_tot_asset, 
+        CAST(
+          SUM(cashflow) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS cashflow_tot_asset, 
+        CAST(
+          SUM(cashflow) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(tangible) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS cashflow_to_tangible, 
+        -- update
+        CAST(
+          SUM(c131) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(sales) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS return_to_sale, 
+        CAST(
+          SUM(c131) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(c125) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS coverage_ratio, 
+        CAST(
+          SUM(current_asset - c95) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(tangible) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS liquidity 
+      FROM 
+        test 
+      WHERE 
+        year in (
+          '2000','2001', '2002', '2003', '2004', '2005', 
+          '2006', '2007'
+        ) 
+        AND total_asset > 0 
+        AND tangible > 0 
+      GROUP BY 
+        --province_en, 
+        --geocode4_corr, 
+        -- cic,
+        indu_2, 
+        year 
+      
+    ) 
+    SELECT 
+      year, 
+      indu_2, 
+      --geocode4_corr, 
+      --province_en, 
+      output, 
+      sales, 
+      employment, 
+      capital, 
+      current_asset, 
+      tofixed, 
+      error, 
+      total_liabilities, 
+      total_asset, 
+      total_right, 
+      intangible, 
+      tangible, 
+      net_non_current, 
+      cashflow, 
+      current_ratio,
+      LAG(current_ratio, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_current_ratio,
+      quick_ratio, 
+      LAG(quick_ratio, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_quick_ratio,
+      liabilities_tot_asset, 
+      LAG(liabilities_tot_asset, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_liabilities_tot_asset,
+      sales_tot_asset,
+      LAG(sales_tot_asset, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_sales_tot_asset,
+      investment_tot_asset, 
+      rd_tot_asset, 
+      asset_tangibility_tot_asset, 
+      cashflow_tot_asset,
+      LAG(cashflow_tot_asset, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_cashflow_tot_asset,
+      cashflow_to_tangible, 
+      LAG(cashflow_to_tangible, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_cashflow_to_tangible,
+      return_to_sale, 
+      LAG(return_to_sale, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_return_to_sale,
+      coverage_ratio, 
+      liquidity 
+    FROM 
+      ratio
   )
 """
 output = s3.run_query(
@@ -806,664 +1017,84 @@ The table below shows the rank of variables group by three group:
     - account_paybable_to_asset_i
 
 ```python
+list(output.columns)
+```
+
+```python
 (
     output
     .loc[lambda x: x['year'].isin(['2005'])]
     .reindex(columns = 
     ['indu_2',
-     'short',
-     'curr_asset',
-     'curr_liabilities',
-     'pct_receivable_curasset',
-     'pct_non_cash_over_curasset',
-            'working_capital_i',
-            'current_ratio_i',
-     'quick_ratio_i',
-            'cash_ratio_i',
-            'liabilities_assets_i',
-            'return_on_asset_i',
-            'sales_assets_i',
-     'asset_tangibility_i',
-     'account_paybable_to_asset_i'
+     'cashflow',
+ 'current_ratio',
+ 'quick_ratio',
+ 'liabilities_tot_asset',
+ 'sales_tot_asset',
+ 'investment_tot_asset',
+ 'rd_tot_asset',
+ 'asset_tangibility_tot_asset',
+ 'cashflow_tot_asset',
+ 'cashflow_to_tangible',
+ 'return_to_sale',
+ 'coverage_ratio',
+ 'liquidity'
     ]
      )
-    .sort_values(by = ['working_capital_i'])
-    .set_index(['indu_2', 'short'])
+    .sort_values(by = ['current_ratio'])
+    .set_index(['indu_2'])
     .assign(
-        rank_rc = lambda x: x['pct_receivable_curasset'].rank().astype('int64'),
-        rank_pct_non_cash = lambda x: x['pct_non_cash_over_curasset'].rank().astype('int64'),
+        rank_cr = lambda x: x['current_ratio'].rank().astype('int64'),
+        rank_qr = lambda x: x['quick_ratio'].rank().astype('int64'),
         
-        rank_w = lambda x: x['working_capital_i'].rank().astype('int64'),
-        rank_c = lambda x: x['current_ratio_i'].rank().astype('int64'),
-        rank_q = lambda x: x['quick_ratio_i'].rank().astype('int64'),
-        rank_cash = lambda x: x['cash_ratio_i'].rank().astype('int64'),
+        rank_l = lambda x: x['liabilities_tot_asset'].rank().astype('int64'),
+        rank_s = lambda x: x['sales_tot_asset'].rank().astype('int64'),
+        rank_att = lambda x: x['asset_tangibility_tot_asset'].rank().astype('int64'),
+        rank_cta = lambda x: x['cashflow_tot_asset'].rank().astype('int64'),
         
-        rank_li = lambda x: x['liabilities_assets_i'].rank().astype('int64'),
-        rank_re = lambda x: x['return_on_asset_i'].rank().astype('int64'),
-        rank_sa = lambda x: x['sales_assets_i'].rank().astype('int64'),
-        rank_at = lambda x: x['asset_tangibility_i'].rank().astype('int64'),
-        rank_ap = lambda x: x['account_paybable_to_asset_i'].rank().astype('int64'),
+        rank_rs = lambda x: x['return_to_sale'].rank().astype('int64'),
+        rank_cra = lambda x: x['coverage_ratio'].rank().astype('int64'),
+        rank_li= lambda x: x['liquidity'].rank().astype('int64')
     )
     .style
-    .background_gradient(cmap=sns.light_palette("green", as_cmap=True), subset = ["rank_rc",'rank_pct_non_cash'])
-    .background_gradient(cmap=sns.light_palette("blue", as_cmap=True), subset = ["rank_w",'rank_c','rank_q', 'rank_cash'])
-    .background_gradient(cmap=sns.light_palette("orange", as_cmap=True), subset = ["rank_li",'rank_re', 'rank_sa', 'rank_at', 'rank_ap'])
-)
-```
-
-```python
-(
-    output
-    .loc[lambda x: x['year'].isin(['2006'])]
-    .reindex(columns = 
-    ['indu_2',
-     'short',
-     'curr_asset',
-     'curr_liabilities',
-     'pct_receivable_curasset',
-     'pct_non_cash_over_curasset',
-            'working_capital_i',
-            'current_ratio_i',
-     'quick_ratio_i',
-            'cash_ratio_i',
-            'liabilities_assets_i',
-            'return_on_asset_i',
-            'sales_assets_i',
-     'asset_tangibility_i',
-     'account_paybable_to_asset_i'
-    ]
-     )
-    .sort_values(by = ['working_capital_i'])
-    .set_index(['indu_2', 'short'])
-    .assign(
-        rank_rc = lambda x: x['pct_receivable_curasset'].rank().astype('int64'),
-        rank_pct_non_cash = lambda x: x['pct_non_cash_over_curasset'].rank().astype('int64'),
-        
-        rank_w = lambda x: x['working_capital_i'].rank().astype('int64'),
-        rank_c = lambda x: x['current_ratio_i'].rank().astype('int64'),
-        rank_q = lambda x: x['quick_ratio_i'].rank().astype('int64'),
-        rank_cash = lambda x: x['cash_ratio_i'].rank().astype('int64'),
-        
-        rank_li = lambda x: x['liabilities_assets_i'].rank().astype('int64'),
-        rank_re = lambda x: x['return_on_asset_i'].rank().astype('int64'),
-        rank_sa = lambda x: x['sales_assets_i'].rank().astype('int64'),
-        rank_at = lambda x: x['asset_tangibility_i'].rank().astype('int64'),
-        rank_ap = lambda x: x['account_paybable_to_asset_i'].rank().astype('int64'),
-    )
-    .style
-    .background_gradient(cmap=sns.light_palette("green", as_cmap=True), subset = ["rank_rc",'rank_pct_non_cash'])
-    .background_gradient(cmap=sns.light_palette("blue", as_cmap=True), subset = ["rank_w",'rank_c','rank_q', 'rank_cash'])
-    .background_gradient(cmap=sns.light_palette("orange", as_cmap=True), subset = ["rank_li",'rank_re', 'rank_sa', 'rank_at', 'rank_ap'])
-)
-```
-
-The table shows that years prior to 2004 have large missing values, as emphasided by Fan et al. So we will filter the year after 2004 included. 
-
-```python
-query = """
-WITH test AS (
-  SELECT 
-    *, 
-    CASE WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2) ELSE concat('0',substr(cic,1, 1)) END AS indu_2, 
-    c98 + c99 as total_asset 
-  FROM 
-    firms_survey.asif_firms_prepared
-) 
-SELECT 
-  * 
-FROM 
-  (
-    WITH ratio AS (
-      SELECT 
-        year, 
-        indu_2, 
-        CAST(
-    SUM(c80) AS DECIMAL(16, 5)
-  ) / NULLIF(
-    CAST(
-      SUM(cuasset) AS DECIMAL(16, 5)
-    ), 
-    0
-  ) as receivable_curasset_it,
-  
-  CAST(
-    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
-  ) / NULLIF(
-    CAST(
-      SUM(cuasset) AS DECIMAL(16, 5)
-    ), 
-    0
-  ) as cash_over_curasset_it,
-  
-  SUM(cuasset) - SUM(c95) as working_capital_it,
-  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_requirement_it,   
-  CAST(
-    SUM(cuasset) AS DECIMAL(16, 5)
-  ) / NULLIF(
-    CAST(
-      SUM(c95) AS DECIMAL(16, 5)
-    ), 
-    0
-  ) AS current_ratio_it, 
-  
-  CAST(
-    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) AS DECIMAL(16, 5)
-  ) / NULLIF(
-    CAST(
-      SUM(c95) AS DECIMAL(16, 5)
-    ), 
-    0
-  ) AS quick_ratio_it, 
-
-  1- CAST(
-    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
-  ) / NULLIF(CAST(
-    SUM(c95) AS DECIMAL(16, 5)
-  ), 
-    0
-  ) AS cash_ratio_it,
-  
-  -- Need to add asset or debt when bs requirement not meet
-  CASE 
-  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN
-  CAST(
-     SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-     SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99)))  AS DECIMAL(16, 5)
-    ), 
-    0
-  ) 
-  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) > 0 THEN
-  CAST(
-     SUM(c95) + SUM(c97) + SUM(toasset) - (SUM(c98) + SUM(c99)) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-     SUM(toasset)  AS DECIMAL(16, 5)
-    ), 
-    0
-  )
-  ELSE
-  CAST(
-     SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-     SUM(toasset)  AS DECIMAL(16, 5)
-    ), 
-    0
-  )
-  END AS liabilities_assets_it, 
-
-  CASE 
-  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN
-  CAST(SUM(sales) - (SUM(c108) + SUM(c113) + SUM(c114) + SUM(c116) + SUM(c118) + SUM(c124) + SUM(wage)) AS DECIMAL(16, 5))/ 
-  NULLIF(CAST(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99)))  AS DECIMAL(16, 5)), 0) 
-  ELSE
-  CAST(SUM(sales) - (SUM(c108) + SUM(c113) + SUM(c114) + SUM(c116) + SUM(c118) + SUM(c124) + SUM(wage)) AS DECIMAL(16, 5))/ 
-  NULLIF(CAST(SUM(toasset)  AS DECIMAL(16, 5)), 0) 
-  END AS return_on_asset_it,
-  
-  CASE 
-  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN  
-  CAST(
-    SUM(sales) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-      (
-          SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))) - lag(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))),
-          1
-        ) over(
-          partition by indu_2 
-          order by 
-            indu_2, 
-            year
-        )
-      )/ 2 AS DECIMAL(16, 5)
-    ), 
-    0
-  )
-  ELSE 
-  CAST(
-    SUM(sales) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-      (
-        SUM(toasset) - lag(
-          SUM(toasset), 
-          1
-        ) over(
-          partition by indu_2 
-          order by 
-            indu_2, 
-            year
-        )
-      )/ 2 AS DECIMAL(16, 5)
-    ), 
-    0
-  )
-  
-  END AS sales_assets_it,
-  
-  CAST(SUM(rdfee) AS DECIMAL(16, 5))/ NULLIF(CAST(SUM(sales) AS DECIMAL(16, 5)),0) as rd_intensity_it,
-  CAST(SUM(c81)  AS DECIMAL(16, 5))/ NULLIF(CAST(SUM(sales) AS DECIMAL(16, 5)),0) as inventory_to_sales_it,
-  SUM(tofixed) - SUM(c92) AS asset_tangibility_it,
-  
-  CAST(
-      (
-        SUM(c96) - lag(
-          SUM(c96), 
-          1
-        ) over(
-          partition by indu_2 
-          order by 
-            indu_2, 
-            year
-        )
-      ) AS DECIMAL(16, 5)
-      )/
-      NULLIF(
-    CAST(
-      (
-        SUM(total_asset) - lag(
-          SUM(total_asset), 
-          1
-        ) over(
-          partition by indu_2 
-          order by 
-            indu_2, 
-            year
-        )
-      )/ 2 AS DECIMAL(16, 5)
-    ),0) as account_paybable_to_asset_it
-    
-FROM test
-      WHERE 
-        year in ('2004', '2005', '2006') 
-      GROUP BY 
-        indu_2, 
-        year
-    ) 
-    SELECT 
-      * 
-    FROM 
-      (
-        WITH agg AS (
-          SELECT 
-            indu_2, 
-            'FAKE_GROUP' as fake, 
-            AVG(receivable_curasset_it) AS receivable_curasset_i, 
-            AVG(cash_over_curasset_it) AS cash_over_curasset_i, 
-            
-            AVG(working_capital_it)/1000000 AS working_capital_i, 
-            AVG(working_capital_requirement_it)/1000000 AS working_capital_requirement_i, 
-            AVG(current_ratio_it) AS current_ratio_i, 
-            AVG(quick_ratio_it) AS quick_ratio_i,
-            AVG(cash_ratio_it) AS cash_ratio_i, 
-            
-            AVG(liabilities_assets_it) AS liabilities_assets_i, 
-            AVG(return_on_asset_it) AS return_on_asset_i, 
-            AVG(sales_assets_it) AS sales_assets_i, 
-            AVG(account_paybable_to_asset_it) AS account_paybable_to_asset_i,
-            AVG(asset_tangibility_it)/1000000 AS asset_tangibility_i, 
-            
-            AVG(rd_intensity_it) AS rd_intensity_i, 
-            AVG(inventory_to_sales_it) AS inventory_to_sales_i
-
-          FROM 
-            ratio 
-          GROUP BY 
-            indu_2 
-        ) 
-        SELECT 
-          field0 AS indu_2, 
-          val_1[ 'receivable_curasset' ] AS receivable_curasset_i, 
-          val_2[ 'receivable_curasset' ] AS std_receivable_curasset_i, 
-          val_1[ 'cash_over_curasset' ] AS cash_over_curasset_i, 
-          val_2[ 'cash_over_curasset' ] AS std_cash_over_curasset_i, 
-          
-          val_1[ 'workink_capital' ] AS working_capital_i, 
-          val_2[ 'workink_capital' ] AS std_working_capital_i, 
-          val_1[ 'working_capital_requirement' ] AS working_capital_requirement_i, 
-          val_2[ 'working_capital_requirement' ] AS std_working_capital_requirement_i, 
-          val_1[ 'current_ratio' ] AS current_ratio_i, 
-          val_2[ 'current_ratio' ] AS std_current_ratio_i, 
-          val_1[ 'quick_ratio' ] AS quick_ratio_i, 
-          val_2[ 'quick_ratio' ] AS quick_ratio_i,
-          val_1[ 'cash_ratio' ] AS cash_ratio_i, 
-          val_2[ 'cash_ratio' ] AS std_cash_ratio_i, 
-          
-          val_1[ 'liabilities_assets' ] AS liabilities_assets_i, 
-          val_2[ 'liabilities_assets' ] AS std_liabilities_assets_i, 
-          val_1[ 'return_on_asset' ] AS return_on_asset_i, 
-          val_2[ 'return_on_asset' ] AS std_return_on_asset_i, 
-          val_1[ 'sales_assets' ] AS sales_assets_i, 
-          val_2[ 'sales_assets' ] AS std_sales_assets_i, 
-          val_1[ 'account_paybable_to_asset' ] AS account_paybable_to_asset_i, 
-          val_2[ 'account_paybable_to_asset' ] AS std_account_paybable_to_asset_i,
-          val_1[ 'asset_tangibility' ] AS asset_tangibility_i, 
-          val_2[ 'asset_tangibility' ] AS std_asset_tangibility_i, 
-          
-          val_1[ 'rd_intensity' ] AS rd_intensity_i, 
-          val_2[ 'rd_intensity' ] AS std_rd_intensity_i, 
-          val_1[ 'inventory_to_sales' ] AS inventory_to_sales_i, 
-          val_2[ 'inventory_to_sales' ] AS std_inventory_to_sales_i
-         
-        FROM 
-          (
-            SELECT 
-              field0, 
-              map_agg(w, field1) AS val_1, 
-              map_agg(w, field2) AS val_2 
-            FROM 
-              (
-                SELECT 
-                  w, 
-                  names.field0, 
-                  names.field1, 
-                  names.field2 
-                FROM 
-                  (
-                    SELECT 
-                      w, 
-                      zip(
-                        array_indu_2, 
-                        array_w, 
-                        transform(
-                          array_w, 
-                          x -> (x - avg)/ std_w
-                        )
-                      ) as zip_values 
-                    FROM 
-                      (
-                        SELECT 
-                          w, 
-                          avg, 
-                          array_w, 
-                          array_indu_2, 
-                          std_w 
-                        FROM 
-                        (
-                            SELECT 
-                              'receivable_curasset' as w, 
-                              AVG(receivable_curasset_i) as avg, 
-                              ARRAY_AGG(receivable_curasset_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(receivable_curasset_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                        (
-                            SELECT 
-                              'cash_over_curasset' as w, 
-                              AVG(cash_over_curasset_i) as avg, 
-                              ARRAY_AGG(cash_over_curasset_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(cash_over_curasset_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'workink_capital' as w, 
-                              AVG(working_capital_i) as avg, 
-                              ARRAY_AGG(working_capital_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(working_capital_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'working_capital_requirement' as w, 
-                              AVG(working_capital_requirement_i) as avg, 
-                              ARRAY_AGG(working_capital_requirement_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(working_capital_requirement_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'current_ratio' as w, 
-                              AVG(current_ratio_i) as avg, 
-                              ARRAY_AGG(current_ratio_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(current_ratio_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'quick_ratio' as w, 
-                              AVG(quick_ratio_i) as avg, 
-                              ARRAY_AGG(quick_ratio_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(quick_ratio_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'cash_ratio' as w, 
-                              AVG(cash_ratio_i) as avg, 
-                              ARRAY_AGG(cash_ratio_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(cash_ratio_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'liabilities_assets' as w, 
-                              AVG(liabilities_assets_i) as avg, 
-                              ARRAY_AGG(liabilities_assets_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(liabilities_assets_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'return_on_asset' as w, 
-                              AVG(return_on_asset_i) as avg, 
-                              ARRAY_AGG(return_on_asset_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(return_on_asset_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'sales_assets' as w, 
-                              AVG(sales_assets_i) as avg, 
-                              ARRAY_AGG(sales_assets_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(sales_assets_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'rd_intensity' as w, 
-                              AVG(rd_intensity_i) as avg, 
-                              ARRAY_AGG(rd_intensity_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(rd_intensity_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'inventory_to_sales' as w, 
-                              AVG(inventory_to_sales_i) as avg, 
-                              ARRAY_AGG(inventory_to_sales_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(inventory_to_sales_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'asset_tangibility' as w, 
-                              AVG(asset_tangibility_i) as avg, 
-                              ARRAY_AGG(asset_tangibility_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(asset_tangibility_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'account_paybable_to_asset' as w, 
-                              AVG(account_paybable_to_asset_i) as avg, 
-                              ARRAY_AGG(account_paybable_to_asset_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(account_paybable_to_asset_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          )
-                      )
-                  ) CROSS 
-                  JOIN UNNEST(zip_values) as t(names)
-              ) 
-            GROUP BY 
-              field0
-          )
-      )
-      ORDER BY indu_2
-  )
-"""
-output = s3.run_query(
-                    query=query,
-                    database=DatabaseName,
-                    s3_output=s3_output_example,
-    filename = 'example_3'
-                )
-(
-    output
-    #.style
-    #.format('{0:,.2f}')
-)
-```
-
-```python
-(
-    output
-    #.loc[lambda x: x['year'].isin(['2006'])]
-    .reindex(columns = 
-    ['indu_2',
-     'short',
-     'receivable_curasset_i',
-     'cash_over_curasset_i',
-     'working_capital_i',
-     'current_ratio_i',
-     'quick_ratio_i',
-     'cash_ratio_i',
-     'liabilities_assets_i',
-     'return_on_asset_i',
-     'sales_assets_i',
-     'account_paybable_to_asset_i',
-     'asset_tangibility_i',
-     'rd_intensity_i',
-     'inventory_to_sales_i'
-    ]
-     )
-    .sort_values(by = ['working_capital_i'])
-    .set_index(['indu_2', 'short'])
-    .assign(
-        rank_rc = lambda x: x['receivable_curasset_i'].rank().astype('int64'),
-        rank_pct_non_cash = lambda x: x['cash_over_curasset_i'].rank().astype('int64'),
-        
-        rank_w = lambda x: x['working_capital_i'].rank().astype('int64'),
-        rank_c = lambda x: x['current_ratio_i'].rank().astype('int64'),
-        rank_q = lambda x: x['quick_ratio_i'].rank().astype('int64'),
-        rank_cash = lambda x: x['cash_ratio_i'].rank().astype('int64'),
-        
-        rank_li = lambda x: x['liabilities_assets_i'].rank().astype('int64'),
-        rank_re = lambda x: x['return_on_asset_i'].rank().astype('int64'),
-        rank_sa = lambda x: x['sales_assets_i'].rank().astype('int64'),
-        rank_at = lambda x: x['asset_tangibility_i'].rank().astype('int64'),
-        rank_ap = lambda x: x['account_paybable_to_asset_i'].rank().astype('int64'),
-    )
-    .style
-    .background_gradient(cmap=sns.light_palette("green", as_cmap=True), subset = ["rank_rc",'rank_pct_non_cash'])
-    .background_gradient(cmap=sns.light_palette("blue", as_cmap=True), subset = ["rank_w",'rank_c','rank_q', 'rank_cash'])
-    .background_gradient(cmap=sns.light_palette("orange", as_cmap=True), subset = ["rank_li",'rank_re', 'rank_sa', 'rank_at', 'rank_ap'])
+    #.background_gradient(cmap=sns.light_palette("green", as_cmap=True), subset = ["rank_rc",'rank_pct_non_cash'])
+    #.background_gradient(cmap=sns.light_palette("blue", as_cmap=True), subset = ["rank_w",'rank_c','rank_q', 'rank_cash'])
+    #.background_gradient(cmap=sns.light_palette("orange", as_cmap=True), subset = ["rank_li",'rank_re', 'rank_sa', 'rank_at', 'rank_ap'])
 )
 ```
 
 ```python
 fig = px.parallel_coordinates(
-    output[['indu_2',
-            'receivable_curasset_i',
-     'cash_over_curasset_i',
-     'working_capital_i',
-     'current_ratio_i',
-            'quick_ratio_i',
-     'cash_ratio_i',
-     'liabilities_assets_i',
-     'return_on_asset_i',
-     'sales_assets_i',
-     'account_paybable_to_asset_i',
-     'asset_tangibility_i',
-     'rd_intensity_i',
-     'inventory_to_sales_i']].rank(),
+    (output
+    .loc[lambda x: x['year'].isin(['2005'])][['indu_2',
+            'cashflow',
+            'current_ratio',
+            'quick_ratio',
+            'liabilities_tot_asset',
+            'sales_tot_asset',
+            'investment_tot_asset',
+            'rd_tot_asset',
+            'asset_tangibility_tot_asset',
+            'cashflow_tot_asset',
+            'cashflow_to_tangible',
+            'return_to_sale',
+            'coverage_ratio',
+            'liquidity']]
+    ).rank(),
     labels={
-        "receivable_curasset_i":"receivable_curasset_i",
-        "cash_over_curasset_i":"cash_over_curasset_i",
-        "working_capital_i": "working_capital_i",
-        "working_capital_requirement_i": "working_capital_requirement_i",
-        "current_ratio_i": "current_ratio_i",
-        "quick_ratio_i": "quick_ratio_i",
-        "cash_ratio_i": "cash_ratio_i",
-        "liabilities_assets_i": "liabilities_assets_i",
-        "return_on_asset_i": "return_on_asset_i",
-        "sales_assets_i": "sales_assets_i",
-        "rd_intensity_i": "rd_intensity_i",
-        "inventory_to_sales_i": "inventory_to_sales_i",
-        "asset_tangibility_i": "asset_tangibility_i",
-        "account_paybable_to_asset_i": "account_paybable_to_asset_i",
+        "cashflow": "cashflow",
+        "current_ratio": "current_ratio",
+        "quick_ratio": "quick_ratio",
+        "liabilities_tot_asset": "liabilities_tot_asset",
+        "sales_tot_asset": "sales_tot_asset",
+        "investment_tot_asset": "investment_tot_asset",
+        "rd_tot_asset": "rd_tot_asset",
+        "asset_tangibility_tot_asset": "asset_tangibility_tot_asset",
+        "cashflow_tot_asset": "cashflow_tot_asset",
+        "cashflow_to_tangible": "cashflow_to_tangible",
+        "return_to_sale": "return_to_sale",
+        "coverage_ratio": "coverage_ratio",
+        "liquidity": "liquidity"
     },
     color_continuous_scale=px.colors.diverging.Tealrose,
     color_continuous_midpoint=2,
@@ -1475,20 +1106,24 @@ fig
 sns.set_theme(style="white")
 
 # Compute the correlation matrix
-corr = output[['indu_2',
-            'receivable_curasset_i',
-     'cash_over_curasset_i',
-     'working_capital_i',
-     'current_ratio_i',
-    'quick_ratio_i',
-     'cash_ratio_i',
-     'liabilities_assets_i',
-     'return_on_asset_i',
-     'sales_assets_i',
-     'account_paybable_to_asset_i',
-     'asset_tangibility_i',
-     'rd_intensity_i',
-     'inventory_to_sales_i']].set_index('indu_2').rank().corr()
+corr = (
+    output
+    .loc[lambda x: x['year'].isin(['2005'])]
+    [['indu_2',
+            'cashflow',
+            'current_ratio',
+            'quick_ratio',
+            'liabilities_tot_asset',
+            'sales_tot_asset',
+            'investment_tot_asset',
+            'rd_tot_asset',
+            'asset_tangibility_tot_asset',
+            'cashflow_tot_asset',
+            'cashflow_to_tangible',
+            'return_to_sale',
+            'coverage_ratio',
+            'liquidity']]
+).set_index('indu_2').rank().corr()
 
 # Generate a mask for the upper triangle
 mask = np.triu(np.ones_like(corr, dtype=bool))
@@ -1550,10 +1185,60 @@ CREATE TABLE {0}.{1} WITH (format = 'PARQUET') AS
 WITH test AS (
   SELECT 
     *, 
-    CASE WHEN LENGTH(cic) = 4 THEN substr(cic,1, 2) ELSE concat('0',substr(cic,1, 1)) END AS indu_2, 
-    c98 + c99 as total_asset 
+    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
+      '0', 
+      substr(cic, 1, 1)
+    ) END AS indu_2, 
+    c80 + c81 + c82 + c79 as current_asset, 
+    c91 + c92 AS intangible, 
+    tofixed - cudepre  AS tangible, 
+    tofixed - cudepre + (c91 + c92) AS net_non_current, 
+    (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) - (c95 + c97 + c99) AS error, 
+    c95 + c97 as total_liabilities, 
+    CASE WHEN (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) - (c95 + c97 + c99) > 0 THEN (c95 + c97 + c99) + ABS(
+      (
+        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+      ) - (c95 + c97 + c99)
+    ) ELSE (c95 + c97 + c99) END AS total_right, 
+    CASE WHEN (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) - (c95 + c97 + c99) < 0 THEN (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) + ABS(
+      (
+        c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+      ) - (c95 + c97 + c99)
+    ) ELSE (
+      c80 + c81 + c82 + c79 + tofixed - cudepre + (c91 + c92)
+    ) END AS total_asset, 
+    (c131 - c134) + cudepre as cashflow 
   FROM 
-    firms_survey.asif_firms_prepared
+    firms_survey.asif_firms_prepared 
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr, 
+        province_en 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        province_en, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code 
+  WHERE 
+    c95 > 0 -- current liabilities
+    AND c97 > 0 -- long term liabilities
+    AND c98 > 0 -- total liabilities
+    AND c99 > 0 -- equity
+    AND c80 + c81 + c82 + c79 > 0 
+    AND tofixed > 0 
+    AND output > 0 
+    and employ > 0
 ) 
 SELECT 
   * 
@@ -1562,496 +1247,214 @@ FROM
     WITH ratio AS (
       SELECT 
         year, 
+        -- cic, 
         indu_2, 
+        -- geocode4_corr, 
+        -- province_en, 
         CAST(
-    SUM(c80) AS DECIMAL(16, 5)
-  ) / NULLIF(
-    CAST(
-      SUM(cuasset) AS DECIMAL(16, 5)
-    ), 
-    0
-  ) as receivable_curasset_it,
-  
-  CAST(
-    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
-  ) / NULLIF(
-    CAST(
-      SUM(cuasset) AS DECIMAL(16, 5)
-    ), 
-    0
-  ) as cash_over_curasset_it,
-  
-  SUM(cuasset) - SUM(c95) as working_capital_it,
-  SUM(c81) + SUM(c80) - SUM(c96) AS working_capital_requirement_it,   
-  CAST(
-    SUM(cuasset) AS DECIMAL(16, 5)
-  ) / NULLIF(
-    CAST(
-      SUM(c95) AS DECIMAL(16, 5)
-    ), 
-    0
-  ) AS current_ratio_it, 
-  
-  CAST(
-    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) AS DECIMAL(16, 5)
-  ) / NULLIF(
-    CAST(
-      SUM(c95) AS DECIMAL(16, 5)
-    ), 
-    0
-  ) AS quick_ratio_it, 
-
-  CAST(
-    SUM(cuasset) - SUM(c79) - SUM(c80) - SUM(c81) - SUM(c82) AS DECIMAL(16, 5)
-  ) / NULLIF(CAST(
-    SUM(c95) AS DECIMAL(16, 5)
-  ), 
-    0
-  ) AS cash_ratio_it,
-  
-  -- Need to add asset or debt when bs requirement not meet
-  CASE 
-  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN
-  CAST(
-     SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-     SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99)))  AS DECIMAL(16, 5)
-    ), 
-    0
-  ) 
-  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) > 0 THEN
-  CAST(
-     SUM(c95) + SUM(c97) + SUM(toasset) - (SUM(c98) + SUM(c99)) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-     SUM(toasset)  AS DECIMAL(16, 5)
-    ), 
-    0
-  )
-  ELSE
-  CAST(
-     SUM(c95) + SUM(c97) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-     SUM(toasset)  AS DECIMAL(16, 5)
-    ), 
-    0
-  )
-  END AS liabilities_assets_it, 
-
-  CASE 
-  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN
-  CAST(SUM(sales) - (SUM(c108) + SUM(c113) + SUM(c114) + SUM(c116) + SUM(c118) + SUM(c124) + SUM(wage)) AS DECIMAL(16, 5))/ 
-  NULLIF(CAST(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99)))  AS DECIMAL(16, 5)), 0) 
-  ELSE
-  CAST(SUM(sales) - (SUM(c108) + SUM(c113) + SUM(c114) + SUM(c116) + SUM(c118) + SUM(c124) + SUM(wage)) AS DECIMAL(16, 5))/ 
-  NULLIF(CAST(SUM(toasset)  AS DECIMAL(16, 5)), 0) 
-  END AS return_on_asset_it,
-  
-  CASE 
-  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN  
-  CAST(
-    SUM(sales) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-      (
-          SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))) - lag(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))),
-          1
-        ) over(
-          partition by indu_2 
-          order by 
-            indu_2, 
-            year
-        )
-      )/ 2 AS DECIMAL(16, 5)
-    ), 
-    0
-  )
-  ELSE 
-  CAST(
-    SUM(sales) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-      (
-        SUM(toasset) - lag(
-          SUM(toasset), 
-          1
-        ) over(
-          partition by indu_2 
-          order by 
-            indu_2, 
-            year
-        )
-      )/ 2 AS DECIMAL(16, 5)
-    ), 
-    0
-  )
-  
-  END AS sales_assets_it,
-  
-  CASE 
-  WHEN SUM(toasset) - (SUM(c98) + SUM(c99)) < 0 THEN  
-  CAST(
-    SUM(sales) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(SUM(toasset) + ABS(SUM(toasset) - (SUM(c98) + SUM(c99))) AS DECIMAL(16, 5)), 
-    0
-  )
-  ELSE 
-  CAST(
-    SUM(sales) AS DECIMAL(16, 5)
-  )/ NULLIF(
-    CAST(
-    SUM(toasset) AS DECIMAL(16, 5)), 
-    0
-  )
-  END AS sales_assets_andersen_it,
-  
-  CAST(SUM(rdfee) AS DECIMAL(16, 5))/ NULLIF(CAST(SUM(sales) AS DECIMAL(16, 5)),0) as rd_intensity_it,
-  CAST(SUM(c81)  AS DECIMAL(16, 5))/ NULLIF(CAST(SUM(sales) AS DECIMAL(16, 5)),0) as inventory_to_sales_it,
-  SUM(tofixed) - SUM(c92) AS asset_tangibility_it,
-  
-  CAST(
-      (
-        SUM(c96) - lag(
-          SUM(c96), 
-          1
-        ) over(
-          partition by indu_2 
-          order by 
-            indu_2, 
-            year
-        )
-      ) AS DECIMAL(16, 5)
-      )/
-      NULLIF(
-    CAST(
-      (
-        SUM(total_asset) - lag(
-          SUM(total_asset), 
-          1
-        ) over(
-          partition by indu_2 
-          order by 
-            indu_2, 
-            year
-        )
-      )/ 2 AS DECIMAL(16, 5)
-    ),0) as account_paybable_to_asset_it
-    
-FROM test
+          SUM(output) AS DECIMAL(16, 5)
+        ) AS output, 
+        CAST(
+          SUM(sales) AS DECIMAL(16, 5)
+        ) AS sales, 
+        CAST(
+          SUM(employ) AS DECIMAL(16, 5)
+        ) AS employment, 
+        CAST(
+          SUM(captal) AS DECIMAL(16, 5)
+        ) AS capital, 
+        SUM(current_asset) AS current_asset, 
+        SUM(tofixed) AS tofixed, 
+        SUM(error) AS error, 
+        SUM(total_liabilities) AS total_liabilities, 
+        SUM(total_asset) AS total_asset, 
+        SUM(total_right) AS total_right, 
+        SUM(intangible) AS intangible, 
+        SUM(tangible) AS tangible, 
+        SUM(net_non_current) AS net_non_current, 
+        SUM(cashflow) AS cashflow, 
+        CAST(
+          SUM(c80 + c81 + c82 + c79) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(c95) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS current_ratio, 
+        CAST(
+          SUM(c80 + c81 + c82 + c79 - c80 - c81) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(c95) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS quick_ratio, 
+        CAST(
+          SUM(c98) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS liabilities_tot_asset, 
+        CAST(
+          SUM(sales) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS sales_tot_asset, 
+        CAST(
+          SUM(c84) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS investment_tot_asset, 
+        CAST(
+          SUM(rdfee) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS rd_tot_asset, 
+        CAST(
+          SUM(tangible) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) asset_tangibility_tot_asset, 
+        CAST(
+          SUM(cashflow) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(total_asset) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS cashflow_tot_asset, 
+        CAST(
+          SUM(cashflow) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(tangible) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS cashflow_to_tangible, 
+        -- update
+        CAST(
+          SUM(c131) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(sales) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS return_to_sale, 
+        CAST(
+          SUM(c131) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(c125) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS coverage_ratio, 
+        CAST(
+          SUM(current_asset - c95) AS DECIMAL(16, 5)
+        ) / NULLIF(
+          CAST(
+            SUM(tangible) AS DECIMAL(16, 5)
+          ), 
+          0
+        ) AS liquidity 
+      FROM 
+        test 
       WHERE 
-        year in ('2004', '2005', '2006') 
+        year in (
+          '2000','2001', '2002', '2003', '2004', '2005', 
+          '2006', '2007'
+        ) 
+        AND total_asset > 0 
+        AND tangible > 0 
       GROUP BY 
+        --province_en, 
+        --geocode4_corr, 
+        -- cic,
         indu_2, 
-        year
+        year 
+      
     ) 
     SELECT 
-      * 
+      year, 
+      indu_2, 
+      --geocode4_corr, 
+      --province_en, 
+      output, 
+      sales, 
+      employment, 
+      capital, 
+      current_asset, 
+      tofixed, 
+      error, 
+      total_liabilities, 
+      total_asset, 
+      total_right, 
+      intangible, 
+      tangible, 
+      net_non_current, 
+      cashflow, 
+      current_ratio,
+      LAG(current_ratio, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_current_ratio,
+      quick_ratio, 
+      LAG(quick_ratio, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_quick_ratio,
+      liabilities_tot_asset, 
+      LAG(liabilities_tot_asset, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_liabilities_tot_asset,
+      sales_tot_asset,
+      LAG(sales_tot_asset, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_sales_tot_asset,
+      investment_tot_asset, 
+      rd_tot_asset, 
+      asset_tangibility_tot_asset, 
+      cashflow_tot_asset,
+      LAG(cashflow_tot_asset, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_cashflow_tot_asset,
+      cashflow_to_tangible, 
+      LAG(cashflow_to_tangible, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_cashflow_to_tangible,
+      return_to_sale, 
+      LAG(return_to_sale, 1) OVER (
+        PARTITION BY indu_2 
+        ORDER BY 
+          year
+      ) as lag_return_to_sale,
+      coverage_ratio, 
+      liquidity 
     FROM 
-      (
-        WITH agg AS (
-          SELECT 
-            indu_2, 
-            'FAKE_GROUP' as fake, 
-            AVG(receivable_curasset_it) AS receivable_curasset_i, 
-            AVG(cash_over_curasset_it) AS cash_over_curasset_i, 
-            
-            AVG(working_capital_it)/1000000 AS working_capital_i, 
-            AVG(working_capital_requirement_it)/1000000 AS working_capital_requirement_i, 
-            AVG(current_ratio_it) AS current_ratio_i, 
-            AVG(quick_ratio_it) AS quick_ratio_i,
-            AVG(cash_ratio_it) AS cash_ratio_i, 
-            
-            AVG(liabilities_assets_it) AS liabilities_assets_i, 
-            AVG(return_on_asset_it) AS return_on_asset_i, 
-            AVG(sales_assets_it) AS sales_assets_i, 
-            AVG(sales_assets_andersen_it) AS sales_assets_andersen_i, 
-            AVG(account_paybable_to_asset_it) AS account_paybable_to_asset_i,
-            AVG(asset_tangibility_it)/1000000 AS asset_tangibility_i, 
-            
-            AVG(rd_intensity_it) AS rd_intensity_i, 
-            AVG(inventory_to_sales_it) AS inventory_to_sales_i
-
-          FROM 
-            ratio 
-          GROUP BY 
-            indu_2 
-        ) 
-        SELECT 
-          field0 AS indu_2, 
-          val_1[ 'receivable_curasset' ] AS receivable_curasset_i, 
-          val_2[ 'receivable_curasset' ] AS std_receivable_curasset_i, 
-          val_1[ 'cash_over_curasset' ] AS cash_over_curasset_i, 
-          val_2[ 'cash_over_curasset' ] AS std_cash_over_curasset_i, 
-          
-          val_1[ 'workink_capital' ] AS working_capital_i, 
-          val_2[ 'workink_capital' ] AS std_working_capital_i, 
-          val_1[ 'working_capital_requirement' ] AS working_capital_requirement_i, 
-          val_2[ 'working_capital_requirement' ] AS std_working_capital_requirement_i, 
-          val_1[ 'current_ratio' ] AS current_ratio_i, 
-          val_2[ 'current_ratio' ] AS std_current_ratio_i, 
-          val_1[ 'quick_ratio' ] AS quick_ratio_i, 
-          val_2[ 'quick_ratio' ] AS std_quick_ratio_i,
-          1 - val_1[ 'cash_ratio' ] AS cash_ratio_i, 
-          1 - val_2[ 'cash_ratio' ] AS std_cash_ratio_i, 
-          
-          val_1[ 'liabilities_assets' ] AS liabilities_assets_i, 
-          val_2[ 'liabilities_assets' ] AS std_liabilities_assets_i, 
-          val_1[ 'return_on_asset' ] AS return_on_asset_i, 
-          val_2[ 'return_on_asset' ] AS std_return_on_asset_i, 
-          val_1[ 'sales_assets' ] AS sales_assets_i, 
-          val_2[ 'sales_assets' ] AS std_sales_assets_i, 
-          val_1[ 'sales_assets_andersen' ] AS sales_assets_andersen_i, 
-          val_2[ 'sales_assets_andersen' ] AS std_sales_assets_andersen_i, 
-          val_1[ 'account_paybable_to_asset' ] AS account_paybable_to_asset_i, 
-          val_2[ 'account_paybable_to_asset' ] AS std_account_paybable_to_asset_i,
-          val_1[ 'asset_tangibility' ] AS asset_tangibility_i, 
-          val_2[ 'asset_tangibility' ] AS std_asset_tangibility_i, 
-          
-          val_1[ 'rd_intensity' ] AS rd_intensity_i, 
-          val_2[ 'rd_intensity' ] AS std_rd_intensity_i, 
-          val_1[ 'inventory_to_sales' ] AS inventory_to_sales_i, 
-          val_2[ 'inventory_to_sales' ] AS std_inventory_to_sales_i
-         
-        FROM 
-          (
-            SELECT 
-              field0, 
-              map_agg(w, field1) AS val_1, 
-              map_agg(w, field2) AS val_2 
-            FROM 
-              (
-                SELECT 
-                  w, 
-                  names.field0, 
-                  names.field1, 
-                  names.field2 
-                FROM 
-                  (
-                    SELECT 
-                      w, 
-                      zip(
-                        array_indu_2, 
-                        array_w, 
-                        transform(
-                          array_w, 
-                          x -> (x - avg)/ std_w
-                        )
-                      ) as zip_values 
-                    FROM 
-                      (
-                        SELECT 
-                          w, 
-                          avg, 
-                          array_w, 
-                          array_indu_2, 
-                          std_w 
-                        FROM 
-                        (
-                            SELECT 
-                              'receivable_curasset' as w, 
-                              AVG(receivable_curasset_i) as avg, 
-                              ARRAY_AGG(receivable_curasset_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(receivable_curasset_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                        (
-                            SELECT 
-                              'cash_over_curasset' as w, 
-                              AVG(cash_over_curasset_i) as avg, 
-                              ARRAY_AGG(cash_over_curasset_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(cash_over_curasset_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'workink_capital' as w, 
-                              AVG(working_capital_i) as avg, 
-                              ARRAY_AGG(working_capital_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(working_capital_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'working_capital_requirement' as w, 
-                              AVG(working_capital_requirement_i) as avg, 
-                              ARRAY_AGG(working_capital_requirement_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(working_capital_requirement_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'current_ratio' as w, 
-                              AVG(current_ratio_i) as avg, 
-                              ARRAY_AGG(current_ratio_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(current_ratio_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'quick_ratio' as w, 
-                              AVG(quick_ratio_i) as avg, 
-                              ARRAY_AGG(quick_ratio_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(quick_ratio_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'cash_ratio' as w, 
-                              AVG(cash_ratio_i) as avg, 
-                              ARRAY_AGG(cash_ratio_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(cash_ratio_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'liabilities_assets' as w, 
-                              AVG(liabilities_assets_i) as avg, 
-                              ARRAY_AGG(liabilities_assets_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(liabilities_assets_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'return_on_asset' as w, 
-                              AVG(return_on_asset_i) as avg, 
-                              ARRAY_AGG(return_on_asset_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(return_on_asset_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'sales_assets' as w, 
-                              AVG(sales_assets_i) as avg, 
-                              ARRAY_AGG(sales_assets_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(sales_assets_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          )
-                        UNION 
-                          (
-                            SELECT 
-                              'sales_assets_andersen' as w, 
-                              AVG(sales_assets_andersen_i) as avg, 
-                              ARRAY_AGG(sales_assets_andersen_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(sales_assets_andersen_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          )
-                        UNION 
-                          (
-                            SELECT 
-                              'rd_intensity' as w, 
-                              AVG(rd_intensity_i) as avg, 
-                              ARRAY_AGG(rd_intensity_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(rd_intensity_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'inventory_to_sales' as w, 
-                              AVG(inventory_to_sales_i) as avg, 
-                              ARRAY_AGG(inventory_to_sales_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(inventory_to_sales_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'asset_tangibility' as w, 
-                              AVG(asset_tangibility_i) as avg, 
-                              ARRAY_AGG(asset_tangibility_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(asset_tangibility_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          ) 
-                        UNION 
-                          (
-                            SELECT 
-                              'account_paybable_to_asset' as w, 
-                              AVG(account_paybable_to_asset_i) as avg, 
-                              ARRAY_AGG(account_paybable_to_asset_i) as array_w, 
-                              ARRAY_AGG(indu_2) as array_indu_2, 
-                              stddev(account_paybable_to_asset_i) as std_w 
-                            FROM 
-                              agg 
-                            GROUP BY 
-                              fake
-                          )
-                      )
-                  ) CROSS 
-                  JOIN UNNEST(zip_values) as t(names)
-              ) 
-            GROUP BY 
-              field0
-          )
-      )
-      ORDER BY indu_2
+      ratio
   )
 """.format(DatabaseName, table_name)
 output = s3.run_query(
@@ -2119,39 +1522,43 @@ glue.get_table_information(
 ```
 
 ```python
-schema = [{'Name': 'indu_2', 'Type': 'string', 'Comment': 'Two digits industry. If length cic equals to 3, then add 0 to indu_2'},
- {'Name': 'receivable_curasset_i', 'Type': 'double', 'Comment': '应收帐款 (c80) / cuasset'},
- {'Name': 'std_receivable_curasset_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'cash_over_curasset_i', 'Type': 'double', 'Comment': '(其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82)) /current asset'},
- {'Name': 'std_cash_over_curasset_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'working_capital_i', 'Type': 'double', 'Comment': 'cuasset- 流动负债合计 (c95)'},
- {'Name': 'std_working_capital_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'working_capital_requirement_i', 'Type': 'double', 'Comment': '存货 (c81) + 应收帐款 (c80) - 应付帐款  (c96)'},
- {'Name': 'std_working_capital_requirement_i',
-  'Type': 'double',
-  'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'current_ratio_i', 'Type': 'double', 'Comment': 'cuasset/流动负债合计 (c95)'},
- {'Name': 'std_current_ratio_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'quick_ratio_i', 'Type': 'double', 'Comment': '(cuasset -  其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81)) / 流动负债合计 (c95)'},
- {'Name': 'std_quick_ratio_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'cash_ratio_i', 'Type': 'double', 'Comment': '(1 - cuasset - 其中：短期投资 (c79) - 应收帐款 (c80) - 存货 (c81) - 其中：产成品 (c82))/ 流动负债合计 (c95)'},
- {'Name': 'std_cash_ratio_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'liabilities_assets_i', 'Type': 'double', 'Comment': '(流动负债合计 (c95) + 长期负债合计 (c97)) / toasset'},
- {'Name': 'std_liabilities_assets_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'return_on_asset_i', 'Type': 'double', 'Comment': 'sales - (主营业务成本 (c108) + 营业费用 (c113) + 管理费用 (c114) + 财产保险费 (c116) + 劳动、失业保险费 (c118)+ 财务费用 (c124) + 本年应付工资总额 (wage)) /toasset'},
- {'Name': 'std_return_on_asset_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'sales_assets_i', 'Type': 'double', 'Comment': '全年营业收入合计 (c64) /(\Delta toasset/2)'},
- {'Name': 'std_sales_assets_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'sales_assets_andersen_i', 'Type': 'double', 'Comment': 'Sales over asset'},
- {'Name': 'std_sales_assets_andersen_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'account_paybable_to_asset_i', 'Type': 'double', 'Comment': '(\Delta 应付帐款  (c96))/ (\Delta (toasset))'},
- {'Name': 'std_account_paybable_to_asset_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'asset_tangibility_i', 'Type': 'double', 'Comment': 'Total fixed assets - Intangible assets'},
- {'Name': 'std_asset_tangibility_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'rd_intensity_i', 'Type': 'double', 'Comment': 'rdfee/全年营业收入合计 (c64)'},
- {'Name': 'std_rd_intensity_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'},
- {'Name': 'inventory_to_sales_i', 'Type': 'double', 'Comment': '存货 (c81) / sales'},
- {'Name': 'std_inventory_to_sales_i', 'Type': 'double', 'Comment': 'standaridzed values (x - x mean) / std)'}]
+schema = [{'Name': 'year', 'Type': 'string', 'Comment': ''},
+ {'Name': 'indu_2', 'Type': 'string', 'Comment': '2 digits industry name'},
+ {'Name': 'output', 'Type': 'decimal(16,5)', 'Comment': 'Output'},
+ {'Name': 'sales', 'Type': 'decimal(16,5)', 'Comment': ''},
+ {'Name': 'employment', 'Type': 'decimal(16,5)', 'Comment': 'employment'},
+ {'Name': 'capital', 'Type': 'decimal(16,5)', 'Comment': 'capital'},
+ {'Name': 'current_asset', 'Type': 'bigint', 'Comment': 'current asset'},
+ {'Name': 'tofixed', 'Type': 'bigint', 'Comment': 'total fixed asset'},
+ {'Name': 'error', 'Type': 'bigint', 'Comment': 'difference between cuasset+tofixed and total liabilities +equity. Error makes the balance sheet equation right'},
+ {'Name': 'total_liabilities', 'Type': 'bigint', 'Comment': 'total adjusted liabilities'},
+ {'Name': 'total_asset', 'Type': 'bigint', 'Comment': 'total adjusted asset'},
+ {'Name': 'total_right', 'Type': 'bigint', 'Comment': 'Adjusted right part balance sheet'},
+ {'Name': 'intangible', 'Type': 'bigint', 'Comment': 'intangible asset measured as the sum of intangibles variables'},
+ {'Name': 'tangible', 'Type': 'bigint', 'Comment': 'tangible asset measured as the difference between total fixed asset minus intangible asset'},
+ {'Name': 'net_non_current', 'Type': 'bigint', 'Comment': 'total net non current asset'},
+ {'Name': 'cashflow', 'Type': 'bigint', 'Comment': 'cash flow'},
+ {'Name': 'current_ratio', 'Type': 'decimal(21,5)', 'Comment': 'current ratio cuasset/流动负债合计 (c95)'},
+ {'Name': 'lag_current_ratio', 'Type': 'decimal(21,5)', 'Comment': 'lag value of current ratio'},
+ {'Name': 'quick_ratio', 'Type': 'decimal(21,5)', 'Comment': 'quick ratio (cuasset-存货 (c81) ) / 流动负债合计 (c95)'},
+ {'Name': 'lag_quick_ratio', 'Type': 'decimal(21,5)', 'Comment': 'lag value of quick ratio'},
+ {'Name': 'liabilities_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'liabilities to total asset'},
+ {'Name': 'lag_liabilities_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'lag liabilities to total asset'},
+ {'Name': 'sales_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'sales to total asset'},
+ {'Name': 'lag_sales_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'lag sales to total asset'},
+ {'Name': 'investment_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'investment to total asset'},
+ {'Name': 'rd_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'rd to total asset'},
+ {'Name': 'asset_tangibility_tot_asset',
+  'Type': 'decimal(21,5)',
+  'Comment': ''},
+ {'Name': 'cashflow_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'asset tangibility to total asset'},
+ {'Name': 'lag_cashflow_tot_asset', 'Type': 'decimal(21,5)', 'Comment': 'lag asset tangibility to total asset'},
+ {'Name': 'cashflow_to_tangible', 'Type': 'decimal(21,5)', 'Comment': 'cashflow to total asset'},
+ {'Name': 'lag_cashflow_to_tangible', 'Type': 'decimal(21,5)', 'Comment': 'lag cashflow to total asset'},
+ {'Name': 'return_to_sale', 'Type': 'decimal(21,5)', 'Comment': 'return to sale '},
+ {'Name': 'lag_return_to_sale', 'Type': 'decimal(21,5)', 'Comment': 'lag value of return to sale'},
+ {'Name': 'coverage_ratio', 'Type': 'decimal(21,5)', 'Comment': 'net income(c131) /total interest payments'},
+ {'Name': 'liquidity', 'Type': 'decimal(21,5)', 'Comment': 'current assets-current liabilities/total assets'}]
 ```
 
 2. Provide a description
@@ -2173,6 +1580,10 @@ Compute the financial ratio by industry
 - if_final: A boolean. Indicates if the current table is the final table -> the one the model will be used to be trained
 
 ```python
+import re
+```
+
+```python
 name_json = 'parameters_ETL_Financial_dependency_pollution.json'
 path_json = os.path.join(str(Path(path).parent.parent), 'utils',name_json)
 ```
@@ -2184,7 +1595,7 @@ with open(path_json) as json_file:
 
 ```python
 partition_keys = ["indu_2"]
-filename =  "00_asif_financial_ratio.ipynb"
+notebookname =  "00_asif_financial_ratio.ipynb"
 index_final_table = []
 if_final = 'False'
 ```
@@ -2201,16 +1612,12 @@ github_url = os.path.join(
            '', re.sub(
                r".*(?={})".format(parameters['GLOBAL']['GITHUB']['repo_name'])
                , '', path))[1:],
-    re.sub('.ipynb','.md',filename)
+    re.sub('.ipynb','.md',notebookname)
 )
 github_url
 ```
 
 Grab the input name from query
-
-```python
-import re
-```
 
 ```python
 list_input = []
@@ -2500,7 +1907,7 @@ def create_report(extension = "html", keep_code = False, notebookname = None):
 ```
 
 ```python
-create_report(extension = "html", keep_code = True, notebookname =filename)
+create_report(extension = "html", keep_code = True, notebookname =notebookname)
 ```
 
 Create or update ETL
