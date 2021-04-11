@@ -65,8 +65,38 @@ schema = [
 {
     "Name": "financial_dep_china",
     "Type": "float",
-    "Comment": "Financial dependency metric"
-}
+    "Comment": "Financial dependency metric based on Chinese data"
+},
+{
+    "Name": "financial_dep_us",
+    "Type": "float",
+    "Comment": "Financial dependency metric based on US data"
+},
+{
+    "Name": "hum_cap_us",
+    "Type": "float",
+    "Comment": "Human capital metric based on US data"
+},
+{
+    "Name": "phys_cap_us",
+    "Type": "float",
+    "Comment": "Physical capital metric based on US data"
+},
+{
+    "Name": "liquidity_need_us",
+    "Type": "float",
+    "Comment": "liquidity need metric based on US data"
+},
+{
+    "Name": "rd_intensity_us",
+    "Type": "float",
+    "Comment": "RD intensity metric based on US data"
+},
+{
+    "Name": "foreign_share_us",
+    "Type": "float",
+    "Comment": "foreign share metric based on US data"
+},
 ]
 
 glue = service_glue.connect_glue(client=client)
@@ -100,8 +130,7 @@ json_etl = {
     }
 }
 
-path_to_etl = os.path.join(str(Path(path).parent.parent),
-                           'parameters_ETL_Financial_dependency_pollution.json')
+path_to_etl = os.path.join(str(Path(path).parent.parent.parent), 'utils','parameters_ETL_Financial_dependency_pollution.json')
 with open(path_to_etl) as json_file:
     parameters = json.load(json_file)
 
