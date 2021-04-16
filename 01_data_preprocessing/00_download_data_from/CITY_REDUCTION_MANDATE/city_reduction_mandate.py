@@ -90,7 +90,12 @@ schema = [
 {
     "Name": "target_reduction_so2_p",
     "Type": "float",
-    "Comment": "official province reduction mandate in percentage. From https://www.sciencedirect.com/science/article/pii/S0095069617303522#appsec1"
+    "Comment": "official province SO2 reduction mandate in percentage. From https://www.sciencedirect.com/science/article/pii/S0095069617303522#appsec1"
+},
+{
+    "Name": "target_reduction_co2_p",
+    "Type": "float",
+    "Comment": "official province COD reduction mandate in percentage. From https://www.sciencedirect.com/science/article/pii/S0095069617303522#appsec1"
 },
 {
     "Name": "ttoutput",
