@@ -44,6 +44,8 @@ var = (
         to_dataframe=True)
 )
 
+var.dtypes
+
 var.to_csv('China_cities_target_so2.csv', index = False)
 
 s3.upload_file('China_cities_target_so2.csv',
@@ -84,7 +86,13 @@ schema = [
     "Name": "so2_perc_reduction_c",
     "Type": "float",
     "Comment": "city reduction mandate in percentage"
-},{
+},
+{
+    "Name": "target_reduction_so2_p",
+    "Type": "float",
+    "Comment": "official province reduction mandate in percentage. From https://www.sciencedirect.com/science/article/pii/S0095069617303522#appsec1"
+},
+{
     "Name": "ttoutput",
     "Type": "float",
     "Comment": "total output by city"
@@ -127,8 +135,8 @@ json_etl = {
     }
 }
 
-path_to_etl = os.path.join(str(Path(path).parent.parent),
-                           'parameters_ETL_Financial_dependency_pollution.json')
+path_to_etl = os.path.join(str(Path(path).parent.parent.parent),
+                           'utils', 'parameters_ETL_Financial_dependency_pollution.json')
 with open(path_to_etl) as json_file:
     parameters = json.load(json_file)
 
