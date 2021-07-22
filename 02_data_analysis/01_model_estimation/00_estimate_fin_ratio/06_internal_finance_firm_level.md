@@ -79,8 +79,8 @@ parent_path = str(Path(path).parent.parent.parent)
 
 
 name_credential = 'financial_dep_SO2_accessKeys.csv'
-region = 'eu-west-3'
-bucket = 'datalake-datascience'
+region = 'eu-west-2'
+bucket = 'datalake-london'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 ```
 
@@ -140,7 +140,7 @@ for key, value in enumerate(schema):
 ```
 
 ```sos kernel="SoS"
-download_data = False
+download_data = True
 filename = 'df_{}_rd'.format(table)
 full_path_filename = 'SQL_OUTPUT_ATHENA/CSV/{}.csv'.format(filename)
 path_local = os.path.join(str(Path(path).parent.parent.parent), 
@@ -340,10 +340,9 @@ if add_to_dic:
 ```
 
 ```sos kernel="SoS"
-import function.latex_beautify as lb
-
-#%load_ext autoreload
-#%autoreload 2
+import sys
+sys.path.append(os.path.join(parent_path, 'utils'))
+import latex.latex_beautify as lb
 ```
 
 ```sos kernel="R"
@@ -352,7 +351,7 @@ library(tidyverse)
 library(lfe)
 #library(lazyeval)
 library('progress')
-path = "function/table_golatex.R"
+path = "../../../utils/latex/table_golatex.R"
 source(path)
 ```
 
@@ -406,14 +405,14 @@ All explanatory variables are lagged one year.
 
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}
 folder = 'Tables_0'
-table_nb = 1
+table_nb = 6
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
         os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
+#for ext in ['.txt', '.tex', '.pdf']:
+#    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+#    [os.remove(os.path.join(folder, i)) for i in x]
 ```
 
 ```sos kernel="R"
@@ -510,7 +509,7 @@ fe1 <- list(
 table_1 <- go_latex(list(
     t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7
 ),
-    title="Channel of transmission Asset accumulation",
+    title="Asset structure (tangible versus intangible) and internal finance",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
@@ -520,14 +519,14 @@ table_1 <- go_latex(list(
 ```
 
 ```sos kernel="SoS"
-tbe1  = "This table estimates eq(X). " \
-"Heteroskedasticity-robust standard errors" \
-"clustered at the firm level appear inparentheses."\
-"Dependent variables include firm's Asset tangibility over asset level and RD expenditure over asset." \
-" The later only includes year 2005 to 2007 which is the availablity of the information in the dataset." \
-" Independent variable cashflow is measured as net income + depreciation over asset;"\
-" current ratio is measured as current asset over current liabilities. " \
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+tbe1  = "This table estimates equation XX. " \
+"Dependent variable includes firm's TFP level in log. " \
+"Independent variable cash flow is measured as net income + depreciation over asset; " \
+"current ratio is measured as current asset over current liabilities. " \
+"Credit supply (all and long term) is measured by taking the average bank loan to GDP ratio by province (2001–2007). " \
+"Financial dependency is the share of capital expenditure not financed with cash flow from operations. " \
+"Heteroskedasticity-robust standard errors clustered at the firm level appear in parentheses. " \
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%. " 
 
 multicolumn ={
     'Tangible to asset': 2,
