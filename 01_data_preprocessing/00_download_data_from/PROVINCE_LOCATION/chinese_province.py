@@ -12,8 +12,8 @@ from tqdm import tqdm
 path = os.getcwd()
 parent_path = str(Path(path).parent.parent.parent)
 name_credential = 'financial_dep_SO2_accessKeys.csv'
-region = 'eu-west-3'
-bucket = 'datalake-datascience'
+region = 'eu-west-2'
+bucket = 'datalake-london'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 
 
@@ -43,6 +43,11 @@ var = (
         sheetName="provinces_location.csv",
         to_dataframe=True)
 )
+
+var.columns = map(str.lower, var.columns)
+var = var.reindex(columns  = ['province_en',
+'prov2013',  'lower_location', 'larger_location',
+       'coastal'])
 
 var.to_csv('provinces_location.csv', index = False)
 
@@ -80,8 +85,8 @@ schema = [
 ]
 
 glue = service_glue.connect_glue(client=client)
-target_S3URI = "s3://datalake-datascience/DATA/ECON/LOOKUP_DATA/CHINESE_PROVINCE_LOCATION"
-name_crawler = "crawl-province"
+target_S3URI = "s3://datalake-london/DATA/ECON/LOOKUP_DATA/CHINESE_PROVINCE_LOCATION"
+name_crawler = "crawl-industry-name"
 Role = 'arn:aws:iam::468786073381:role/AWSGlueServiceRole-crawler-datalake'
 DatabaseName = "chinese_lookup"
 TablePrefix = 'geo_'
