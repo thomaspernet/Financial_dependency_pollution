@@ -95,8 +95,8 @@ parent_path = str(Path(path).parent.parent)
 
 
 name_credential = 'financial_dep_SO2_accessKeys.csv'
-region = 'eu-west-3'
-bucket = 'datalake-datascience'
+region = 'eu-west-2'
+bucket = 'datalake-london'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 ```
 
@@ -321,6 +321,172 @@ def generate_plots(df,
 <!-- #region kernel="SoS" -->
 ## SO2
 <!-- #endregion -->
+
+<!-- #region kernel="SoS" -->
+## Plots and statistical in paper
+
+-  SO2 emission in China from 2000 to 2010
+    - Code here: https://github.com/thomaspernet/pollution_credit_constraint/blob/main/02_data_analysis/02_statistical_tables/00_final_publishable_tables_figures.md#figure-1-replicate
+- Log asset tangibility vs log SO2 emissions
+- Log of internal finance vs log SO2 emissions
+- 
+<!-- #endregion -->
+
+```sos kernel="SoS"
+sns.set_style("white")
+    ### plot 1
+sns.lmplot(x="log_asset_tangibility_tot_asset",
+           y="log_tso2",
+           data=df.loc[lambda x: 
+                      x['log_asset_tangibility_tot_asset'] > -4]
+          )
+plt.xlabel("Asset tangibility")
+plt.ylabel('SO2 emission')
+plt.savefig("Figures/FIGURE_2.png",
+            bbox_inches='tight',
+            dpi=600)
+```
+
+```sos kernel="SoS"
+fig_dims = (15, 10)
+fig, (ax1, ax2) = plt.subplots(ncols=2, sharey=False, figsize=fig_dims)
+
+sns.regplot(
+    x="log_lag_cashflow_to_tangible",
+    y="log_tso2",
+    data=(
+        df[
+            ["log_tso2", "lag_cashflow_to_tangible", "log_lag_cashflow_to_tangible"]
+        ].loc[
+            lambda x: x["lag_cashflow_to_tangible"]
+            > 0 & ~x["lag_cashflow_to_tangible"].isin([np.nan])
+        ]
+    ),
+    ax=ax1,
+)
+ax1.set_xlabel("Lag Cashflow")
+ax1.set_ylabel("SO2 emission")
+sns.regplot(
+    x="log_lag_current_ratio",
+    y="log_tso2",
+    data=(
+        df[["log_tso2", "lag_current_ratio", "log_lag_current_ratio"]].loc[
+            lambda x: x["lag_current_ratio"]
+            > 0 & ~x["lag_current_ratio"].isin([np.nan])
+        ]
+    ),
+    ax=ax2,
+)
+ax2.set_xlabel("Lag Current ratio")
+ax2.set_ylabel("SO2 emission")
+# plt.xlabel(x_title)
+#fig.suptitle('Relationship between internal finance and SO2 emission')
+plt.savefig("Figures/FIGURE_3.png",
+            bbox_inches='tight',
+            dpi=600)
+```
+
+<!-- #region kernel="SoS" -->
+Table
+<!-- #endregion -->
+
+```sos kernel="SoS"
+query = """
+SELECT 
+  year, 
+  cityen, 
+  sum_.province_en, 
+  tcz, 
+  larger_location,
+  lower_location, 
+  sum_tso2 
+FROM 
+  (
+    SELECT 
+      year, 
+      cityen, 
+      TRIM(
+        UPPER(province_en)
+      ) as province_en, 
+      tcz, 
+      SUM(tso2) as sum_tso2 
+    FROM 
+      environment.fin_dep_pollution_baseline_city 
+    GROUP BY 
+      year, 
+      cityen, 
+      province_en, 
+      tcz
+  ) as sum_ 
+  LEFT JOIN (
+    SELECT 
+      UPPER(province_en) as province_en, 
+      larger_location,
+      lower_location 
+    FROM 
+      chinese_lookup.geo_chinese_province_location
+  ) as city on sum_.province_en = city.province_en
+
+"""
+df = (
+    s3.run_query(
+    query=query,
+    database=db,
+    s3_output="SQL_OUTPUT_ATHENA",
+    filename="scatter_plot_2",  # Add filename to print dataframe
+    # destination_key="SQL_OUTPUT_ATHENA/CSV",  # Use it temporarily
+    # dtype=dtypes,
+    )
+)
+df = df.fillna("Western")
+```
+
+```sos kernel="SoS"
+df.head()
+```
+
+```sos kernel="SoS"
+df['year'].unique()
+```
+
+```sos kernel="SoS"
+df_tcz = (df
+     .assign(sum_so2 = lambda x: x['sum_tso2']/1000000000)
+ .replace({'tcz': {0: 'No TCZ', 1:'TCZ'}})
+ #.loc[lambda x: x['year'].isin([2004, 2005, 2006, 2007])]
+ .groupby(['tcz','lower_location', 'year'])[['sum_so2']]
+ .sum()
+          .assign(pct_change = lambda x: x.groupby(['tcz', "lower_location"])['sum_so2'].transform("pct_change"))
+ .reset_index()
+ #.stack()
+ #.unstack([0, 1])
+ 
+)
+df_tcz.head()
+#sns.lineplot(data=df_tcz, x="year", y="pct_change", hue="tcz")
+```
+
+```sos kernel="SoS"
+fig_dims = (15, 10)
+fig = plt.subplots(figsize=fig_dims)
+
+chart = sns.relplot(
+    data=df_tcz,
+    x="year",
+    y="pct_change",
+    hue="lower_location",
+    col = 'tcz',
+    kind="line"
+)
+chart.set_axis_labels(x_var="year", y_var="Percentage change SO2 emission")
+chart.map(plt.axhline, y=0, ls='--', c='red')
+#chart.set_xlabel("Percentage change SO2 emission")
+#chart.set_ylabel("year")
+
+plt.savefig("Figures/FIGURE_4.png",
+            bbox_inches='tight',
+            dpi=600)
+```
 
 <!-- #region kernel="SoS" -->
 ### Asset tangible

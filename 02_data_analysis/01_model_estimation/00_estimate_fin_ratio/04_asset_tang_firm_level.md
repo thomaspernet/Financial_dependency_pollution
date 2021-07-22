@@ -80,8 +80,8 @@ parent_path = str(Path(path).parent.parent.parent)
 
 
 name_credential = 'financial_dep_SO2_accessKeys.csv'
-region = 'eu-west-3'
-bucket = 'datalake-datascience'
+region = 'eu-west-2'
+bucket = 'datalake-london'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 ```
 
@@ -295,10 +295,9 @@ if add_to_dic:
 ```
 
 ```sos kernel="SoS"
-import function.latex_beautify as lb
-
-#%load_ext autoreload
-#%autoreload 2
+import sys
+sys.path.append(os.path.join(parent_path, 'utils'))
+import latex.latex_beautify as lb
 ```
 
 ```sos kernel="R"
@@ -349,14 +348,14 @@ $$
 
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}
 folder = 'Tables_0'
-table_nb = 1
+table_nb = 6
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
         os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
+#for ext in ['.txt', '.tex', '.pdf']:
+#    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+#    [os.remove(os.path.join(folder, i)) for i in x]
 ```
 
 ```sos kernel="R"
@@ -464,9 +463,9 @@ table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
         os.mkdir(folder)
-for ext in ['.txt', '.tex', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
+#for ext in ['.txt', '.tex', '.pdf']:
+#    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+#    [os.remove(os.path.join(folder, i)) for i in x]
 ```
 
 ```sos kernel="R"
