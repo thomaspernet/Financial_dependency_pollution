@@ -102,8 +102,8 @@ parent_path = str(Path(path).parent.parent)
 
 
 name_credential = 'financial_dep_SO2_accessKeys.csv'
-region = 'eu-west-3'
-bucket = 'datalake-datascience'
+region = 'eu-west-2'
+bucket = 'datalake-london'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 ```
 
@@ -1030,6 +1030,10 @@ Compute TFP using Olley and Pakes approach at the firm level
 - if_final: A boolean. Indicates if the current table is the final table -> the one the model will be used to be trained
 <!-- #endregion -->
 
+```python
+import re
+```
+
 ```python kernel="python3"
 with open(os.path.join(str(Path(path).parent.parent), 'utils','parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
@@ -1059,10 +1063,6 @@ github_url = os.path.join(
 Grab the input name from query
 
 ```python
-import re
-```
-
-```python
 list_input = []
 tables = glue.get_tables(full_output = False)
 regex_matches = re.findall(r'(?=\.).*?(?=\s)|(?=\.\").*?(?=\")', query)
@@ -1085,7 +1085,7 @@ json_etl = {
         'input': list_input,
         'target_S3URI': os.path.join('s3://', bucket, s3_output),
         'from_athena': 'True',
-        'filename': notebookname,
+        'filename': "05_tfp_computation.ipynb",
         'index_final_table' : index_final_table,
         'if_final': if_final,
         'github_url':github_url

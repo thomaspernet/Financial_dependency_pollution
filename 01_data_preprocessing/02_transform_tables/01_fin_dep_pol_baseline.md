@@ -151,8 +151,8 @@ parent_path = str(Path(path).parent.parent)
 
 
 name_credential = 'financial_dep_SO2_accessKeys.csv'
-region = 'eu-west-3'
-bucket = 'datalake-datascience'
+region = 'eu-west-2'
+bucket = 'datalake-london'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 ```
 
@@ -1108,9 +1108,9 @@ SELECT
   CASE WHEN spz IS NULL OR spz = '#N/A' THEN '0' ELSE spz END AS spz, 
   aggregate_pol.ind2, 
   CASE WHEN short IS NULL THEN 'Unknown' ELSE short END AS short, 
-  polluted_di, 
-  polluted_mi, 
-  polluted_mei, 
+  polluted_d50i,
+  polluted_d75i, 
+ polluted_mi, 
   tso2, 
   CAST(
     tso2 AS DECIMAL(16, 5)
@@ -1204,9 +1204,9 @@ FROM
   LEFT JOIN (
     SELECT 
       ind2, 
-      polluted_di, 
-      polluted_mi, 
-      polluted_mei
+      polluted_d50i,
+      polluted_d75i, 
+      polluted_mi
     FROM 
       "environment"."china_sector_pollution_threshold" 
     WHERE 

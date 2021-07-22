@@ -112,8 +112,8 @@ parent_path = str(Path(path).parent.parent)
 
 
 name_credential = 'financial_dep_SO2_accessKeys.csv'
-region = 'eu-west-3'
-bucket = 'datalake-datascience'
+region = 'eu-west-2'
+bucket = 'datalake-london'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 ```
 
@@ -970,6 +970,10 @@ if_final = 'False'
 ```
 
 ```python
+import re
+```
+
+```python
 github_url = os.path.join(
     "https://github.com/",
     parameters['GLOBAL']['GITHUB']['owner'],
@@ -984,10 +988,6 @@ github_url = os.path.join(
 ```
 
 Grab the input name from query
-
-```python
-import re
-```
 
 ```python
 list_input = []
@@ -1094,7 +1094,7 @@ You are required to define the group(s) that Athena will use to compute the dupl
 ```python
 partition_keys = ["province_en", "geocode4_corr","indu_2", "year" ]
 
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
+with open(os.path.join(str(Path(path).parent.parent),'utils', 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
 

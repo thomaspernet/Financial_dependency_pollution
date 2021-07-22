@@ -125,8 +125,8 @@ parent_path = str(Path(path).parent.parent)
 
 
 name_credential = 'financial_dep_SO2_accessKeys.csv'
-region = 'eu-west-3'
-bucket = 'datalake-datascience'
+region = 'eu-west-2'
+bucket = 'datalake-london'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 ```
 
@@ -838,7 +838,7 @@ json_etl = {
         'input': list_input,
         'target_S3URI': os.path.join('s3://', bucket, s3_output),
         'from_athena': 'True',
-        'notebookname': notebookname
+        'notebookname': notebookname,
         'github_url':''
     }
 }
@@ -936,7 +936,7 @@ You are required to define the group(s) that Athena will use to compute the dupl
 ```python
 partition_keys = ['firm', 'year']
 
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
+with open(os.path.join(str(Path(path).parent.parent),'utils', 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
 

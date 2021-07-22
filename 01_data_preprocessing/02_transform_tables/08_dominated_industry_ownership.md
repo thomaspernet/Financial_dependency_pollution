@@ -106,8 +106,8 @@ parent_path = str(Path(path).parent.parent)
 
 
 name_credential = 'financial_dep_SO2_accessKeys.csv'
-region = 'eu-west-3'
-bucket = 'datalake-datascience'
+region = 'eu-west-2'
+bucket = 'datalake-london'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 ```
 
@@ -520,12 +520,7 @@ FROM
       SELECT 
         indu_2,
         geocode4_corr,
-        -- soe_vs_pri,
-        -- output,
         map_agg(soe_vs_pri, output) AS output
-        -- map_agg(soe_vs_pri, employ) AS employ, 
-        -- map_agg(soe_vs_pri, sales) AS sales, 
-        -- map_agg(soe_vs_pri, captal) AS captal 
       FROM 
         (
           SELECT 
@@ -552,15 +547,12 @@ FROM
           .75, 
           .90, 
           .95
-          ], 
-        map_values(
-          transform_values(
-            MAP(
-              output[ 'SOE' ], output[ 'PRIVATE' ]
-            ), 
-            (k, v) -> k > v
-          )
-        )
+          ],
+            zip_with(
+              output[ 'SOE' ],
+              output[ 'PRIVATE' ],
+              (k, v) -> k > v
+           )
       ) AS dominated_output_soe
     FROM 
       mapping
@@ -767,58 +759,50 @@ FROM
         SELECT 
           *, 
           map(
-            ARRAY[.5, 
-            .75, 
-            .90, 
-            .95 ], 
-            map_values(
-              transform_values(
-                MAP(
-                  output[ 'SOE' ], output[ 'PRIVATE' ]
-                ), 
-                (k, v) -> k > v
-              )
-            )
-          ) AS dominated_output_soe, 
+        ARRAY[
+          .5, 
+          .75, 
+          .90, 
+          .95
+          ],
+            zip_with(
+              output[ 'SOE' ],
+              output[ 'PRIVATE' ],
+              (k, v) -> k > v
+           )
+      ) AS dominated_output_soe, 
           map(
             ARRAY[.5, 
             .75, 
             .90, 
             .95 ], 
-            map_values(
-              transform_values(
-                MAP(
-                  employ[ 'SOE' ], employ[ 'PRIVATE' ]
-                ), 
-                (k, v) -> k > v
-              )
-            )
+            zip_with(
+              employ[ 'SOE' ],
+              employ[ 'PRIVATE' ],
+              (k, v) -> k > v
+           )
           ) AS dominated_employment_soe, 
           map(
             ARRAY[.5, 
             .75, 
             .90, 
             .95 ], 
-            map_values(
-              transform_values(
-                MAP(sales[ 'SOE' ], sales[ 'PRIVATE' ]), 
-                (k, v) -> k > v
-              )
-            )
+            zip_with(
+              sales[ 'SOE' ],
+              sales[ 'PRIVATE' ],
+              (k, v) -> k > v
+           )
           ) AS dominated_sales_soe, 
           map(
             ARRAY[.5, 
             .75, 
             .90, 
             .95 ], 
-            map_values(
-              transform_values(
-                MAP(
-                  captal[ 'SOE' ], captal[ 'PRIVATE' ]
-                ), 
-                (k, v) -> k > v
-              )
-            )
+            zip_with(
+              captal[ 'SOE' ],
+              captal[ 'PRIVATE' ],
+              (k, v) -> k > v
+           )
           ) AS dominated_capital_soe 
         FROM 
           mapping
@@ -866,56 +850,44 @@ FROM
             .75, 
             .90, 
             .95 ], 
-            map_values(
-              transform_values(
-                MAP(
-                  output[ 'FOREIGN' ], output[ 'DOMESTIC' ]
-                ), 
-                (k, v) -> k > v
-              )
-            )
+            zip_with(
+              output[ 'FOREIGN' ],
+              output[ 'DOMESTIC' ],
+              (k, v) -> k > v
+           )
           ) AS dominated_output_for, 
           map(
             ARRAY[.5, 
             .75, 
             .90, 
             .95 ], 
-            map_values(
-              transform_values(
-                MAP(
-                  employ[ 'FOREIGN' ], employ[ 'DOMESTIC' ]
-                ), 
-                (k, v) -> k > v
-              )
-            )
+            zip_with(
+              employ[ 'FOREIGN' ],
+              employ[ 'DOMESTIC' ],
+              (k, v) -> k > v
+           )
           ) AS dominated_employment_for, 
           map(
             ARRAY[.5, 
             .75, 
             .90, 
             .95 ], 
-            map_values(
-              transform_values(
-                MAP(
-                  sales[ 'FOREIGN' ], sales[ 'DOMESTIC' ]
-                ), 
-                (k, v) -> k > v
-              )
-            )
+            zip_with(
+              sales[ 'FOREIGN' ],
+              sales[ 'DOMESTIC' ],
+              (k, v) -> k > v
+           )
           ) AS dominated_sales_for, 
           map(
             ARRAY[.5, 
             .75, 
             .90, 
             .95 ], 
-            map_values(
-              transform_values(
-                MAP(
-                  captal[ 'FOREIGN' ], captal[ 'DOMESTIC' ]
-                ), 
-                (k, v) -> k > v
-              )
-            )
+            zip_with(
+              captal[ 'FOREIGN' ],
+              captal[ 'DOMESTIC' ],
+              (k, v) -> k > v
+           )
           ) AS dominated_capital_for 
         FROM 
           mapping
@@ -1072,6 +1044,10 @@ Transform asif firms prepared data by merging china city code normalised data by
 - if_final: A boolean. Indicates if the current table is the final table -> the one the model will be used to be trained
 
 ```python
+import re
+```
+
+```python
 with open(os.path.join(str(Path(path).parent.parent), 'utils','parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
@@ -1097,10 +1073,6 @@ github_url = os.path.join(
 ```
 
 Grab the input name from query
-
-```python
-import re
-```
 
 ```python
 list_input = []
@@ -1207,7 +1179,7 @@ You are required to define the group(s) that Athena will use to compute the dupl
 ```python
 partition_keys = ['geocode4_corr', 'indu_2']
 
-with open(os.path.join(str(Path(path).parent), 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
+with open(os.path.join(str(Path(path).parent.parent),'utils', 'parameters_ETL_Financial_dependency_pollution.json')) as json_file:
     parameters = json.load(json_file)
 ```
 

@@ -107,8 +107,8 @@ parent_path = str(Path(path).parent.parent)
 
 
 name_credential = 'financial_dep_SO2_accessKeys.csv'
-region = 'eu-west-3'
-bucket = 'datalake-datascience'
+region = 'eu-west-2'
+bucket = 'datalake-london'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 ```
 
@@ -642,6 +642,10 @@ if_final = 'False'
 ```
 
 ```python
+import re
+```
+
+```python
 github_url = os.path.join(
     "https://github.com/",
     parameters['GLOBAL']['GITHUB']['owner'],
@@ -656,10 +660,6 @@ github_url = os.path.join(
 ```
 
 Grab the input name from query
-
-```python
-import re
-```
 
 ```python
 list_input = []
@@ -683,7 +683,7 @@ json_etl = {
         'input': list_input,
         'target_S3URI': os.path.join('s3://', bucket, s3_output),
         'from_athena': 'True',
-        'filename': notebookname,
+        'filename': "07_dominated_city_ownership.ipynb",
         'index_final_table' : index_final_table,
         'if_final': if_final,
         'github_url':github_url
