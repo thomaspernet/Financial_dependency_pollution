@@ -10,9 +10,9 @@ jupyter:
   kernel_info:
     name: python3
   kernelspec:
-    display_name: SoS
-    language: sos
-    name: sos
+    display_name: Python 3
+    language: python
+    name: python3
 ---
 
 <!-- #region kernel="SoS" -->
@@ -75,7 +75,7 @@ Stylised fact asset tangibility:Find stylised fact investment biased toward asse
 # Connexion server
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 from awsPy.aws_authorization import aws_connector
 from awsPy.aws_s3 import service_s3
 from awsPy.aws_glue import service_glue
@@ -86,9 +86,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import os, shutil, json
 
-import tex2pix
-from PyPDF2 import PdfFileMerger
-from wand.image import Image as WImage
+#import tex2pix
+#from PyPDF2 import PdfFileMerger
+#from wand.image import Image as WImage
 
 path = os.getcwd()
 parent_path = str(Path(path).parent.parent)
@@ -100,7 +100,7 @@ bucket = 'datalake-london'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 ```
 
-```sos kernel="SoS"
+```python kernel="SoS"
 con = aws_connector.aws_instantiate(credential = path_cred,
                                        region = region)
 client= con.client_boto()
@@ -109,7 +109,7 @@ s3 = service_s3.connect_S3(client = client,
 glue = service_glue.connect_glue(client = client) 
 ```
 
-```sos kernel="SoS"
+```python kernel="SoS"
 pandas_setting = True
 if pandas_setting:
     #cm = sns.light_palette("green", as_cmap=True)
@@ -117,7 +117,7 @@ if pandas_setting:
     pd.set_option('display.max_colwidth', None)
 ```
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}}
+```python kernel="SoS" nteract={"transient": {"deleting": false}}
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 ```
@@ -147,11 +147,11 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 3. Plot results
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 db = 'fin_dep_pollution_baseline_city'
 ```
 
-```sos kernel="SoS"
+```python kernel="SoS"
 query = """
 SELECT 
   fin_dep_pollution_baseline_city.year, 
@@ -226,7 +226,7 @@ df = (
 df.head()
 ```
 
-```sos kernel="SoS"
+```python kernel="SoS"
 df.shape
 ```
 
@@ -234,7 +234,7 @@ df.shape
 Load credit constraint
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 query_cc = """
 SELECT DISTINCT(short), AVG(credit_constraint) as credit_constraint
 FROM environment.fin_dep_pollution_baseline_city 
@@ -254,7 +254,7 @@ df_cc = (
 df_cc
 ```
 
-```sos kernel="SoS"
+```python kernel="SoS"
 def generate_plots(df, 
                    x_title = 'Asset tangibility',
                    x = 'log_asset_tangibility_tot_asset', 
@@ -332,65 +332,80 @@ def generate_plots(df,
 - 
 <!-- #endregion -->
 
-```sos kernel="SoS"
-sns.set_style("white")
-    ### plot 1
-sns.lmplot(x="log_asset_tangibility_tot_asset",
-           y="log_tso2",
-           data=df.loc[lambda x: 
-                      x['log_asset_tangibility_tot_asset'] > -4]
-          )
-plt.xlabel("Asset tangibility")
-plt.ylabel('SO2 emission')
-plt.savefig("Figures/FIGURE_2.png",
-            bbox_inches='tight',
-            dpi=600)
+```python
+from GoogleDrivePy.google_drive import connect_drive
+from GoogleDrivePy.google_authorization import authorization_service
+import seaborn as sns;
+import matplotlib.pyplot as plt
+
 ```
 
-```sos kernel="SoS"
-fig_dims = (15, 10)
-fig, (ax1, ax2) = plt.subplots(ncols=2, sharey=False, figsize=fig_dims)
+### figure 1
 
-sns.regplot(
-    x="log_lag_cashflow_to_tangible",
-    y="log_tso2",
-    data=(
-        df[
-            ["log_tso2", "lag_cashflow_to_tangible", "log_lag_cashflow_to_tangible"]
-        ].loc[
-            lambda x: x["lag_cashflow_to_tangible"]
-            > 0 & ~x["lag_cashflow_to_tangible"].isin([np.nan])
-        ]
-    ),
-    ax=ax1,
+```python
+for d in ['token.pickle', 'service.json']:
+    s3.download_file(key = "CREDS/pollution_credit_constraint/creds/{}".format(d),
+                 path_local = os.path.join(parent_path, "creds"))
+```
+
+```python
+os.path.join(
+    parent_path, "creds", "service.json")
+```
+
+```python
+auth = authorization_service.get_authorization(
+    #path_credential_gcp=os.path.join(parent_path, "creds", "service.json"),
+    path_credential_drive=os.path.join(parent_path, "creds"),
+    verbose=False,
+    # scope = ['https://www.googleapis.com/auth/spreadsheets.readonly',
+    # "https://www.googleapis.com/auth/drive"]
 )
-ax1.set_xlabel("Lag Cashflow")
-ax1.set_ylabel("SO2 emission")
-sns.regplot(
-    x="log_lag_current_ratio",
-    y="log_tso2",
-    data=(
-        df[["log_tso2", "lag_current_ratio", "log_lag_current_ratio"]].loc[
-            lambda x: x["lag_current_ratio"]
-            > 0 & ~x["lag_current_ratio"].isin([np.nan])
-        ]
-    ),
-    ax=ax2,
+gd_auth = auth.authorization_drive(path_secret=os.path.join(
+    parent_path, "creds", "credentials.json"))
+drive = connect_drive.drive_operations(gd_auth)
+```
+
+```python
+FILENAME_SPREADSHEET = "so2-emissions_china"
+spreadsheet_id = drive.find_file_id(FILENAME_SPREADSHEET, to_print=False)
+sheetName = 'so2-emissions_china.csv'
+var = (
+    drive.upload_data_from_spreadsheet(
+        sheetID=spreadsheet_id,
+        sheetName=sheetName,
+        to_dataframe=True)
+    .assign(
+    so2 = lambda x: pd.to_numeric(x['SO2(10.000 tons)'])
+    )
 )
-ax2.set_xlabel("Lag Current ratio")
-ax2.set_ylabel("SO2 emission")
-# plt.xlabel(x_title)
-#fig.suptitle('Relationship between internal finance and SO2 emission')
-plt.savefig("Figures/FIGURE_3.png",
+```
+
+```python
+fig, ax = plt.subplots(figsize=(10, 8))
+ax.plot(var['Year'], var['so2'])
+ax.axvline(x='2006', c='red')
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.annotate('Introduction of the\n 11th FYP', xy=('2006', 2600), xytext=('2008', 2600),
+            arrowprops=dict(facecolor='black', shrink=0.1),
+            )
+plt.xlabel('Year')
+# Set y-axis label
+plt.ylabel('SO2 millions tons')
+plt.xticks(rotation=30)
+plt.title('SO2 emission in China from 2000 to 2010')
+#plt.show()
+plt.savefig("Figures/FIGURE_1.png",
             bbox_inches='tight',
             dpi=600)
 ```
 
 <!-- #region kernel="SoS" -->
-Table
+### figure 2
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 query = """
 SELECT 
   year, 
@@ -428,7 +443,7 @@ FROM
   ) as city on sum_.province_en = city.province_en
 
 """
-df = (
+df_1 = (
     s3.run_query(
     query=query,
     database=db,
@@ -438,21 +453,13 @@ df = (
     # dtype=dtypes,
     )
 )
-df = df.fillna("Western")
+df_1 = df_1.fillna("Western")
 ```
 
-```sos kernel="SoS"
-df.head()
-```
-
-```sos kernel="SoS"
-df['year'].unique()
-```
-
-```sos kernel="SoS"
-df_tcz = (df
+```python kernel="SoS"
+df_tcz = (df_1
      .assign(sum_so2 = lambda x: x['sum_tso2']/1000000000)
- .replace({'tcz': {0: 'No TCZ', 1:'TCZ'}})
+ .replace({'tcz': {0: 'No TCZ cities', 1:'TCZ cities'}})
  #.loc[lambda x: x['year'].isin([2004, 2005, 2006, 2007])]
  .groupby(['tcz','lower_location', 'year'])[['sum_so2']]
  .sum()
@@ -466,10 +473,7 @@ df_tcz.head()
 #sns.lineplot(data=df_tcz, x="year", y="pct_change", hue="tcz")
 ```
 
-```sos kernel="SoS"
-fig_dims = (15, 10)
-fig = plt.subplots(figsize=fig_dims)
-
+```python kernel="SoS"
 chart = sns.relplot(
     data=df_tcz,
     x="year",
@@ -480,9 +484,68 @@ chart = sns.relplot(
 )
 chart.set_axis_labels(x_var="year", y_var="Percentage change SO2 emission")
 chart.map(plt.axhline, y=0, ls='--', c='red')
-#chart.set_xlabel("Percentage change SO2 emission")
-#chart.set_ylabel("year")
+chart.set_titles("{col_name}")
+chart._legend.set_title("Locations")
+chart.set_axis_labels(x_var="Year", y_var="Percentage change SO2")
 
+plt.savefig("Figures/FIGURE_2.png",
+            bbox_inches='tight',
+            dpi=600)
+```
+
+### figure 3
+
+```python kernel="SoS"
+sns.set_style("white")
+    ### plot 1
+sns.lmplot(x="log_asset_tangibility_tot_asset",
+           y="log_tso2",
+           data=df.loc[lambda x: 
+                      x['log_asset_tangibility_tot_asset'] > -4]
+          )
+plt.xlabel("log Asset tangibility")
+plt.ylabel('log SO2 emissions')
+plt.savefig("Figures/FIGURE_3.png",
+            bbox_inches='tight',
+            dpi=600)
+```
+
+### figure 4
+
+```python kernel="SoS"
+fig_dims = (15, 10)
+fig, (ax1, ax2) = plt.subplots(ncols=2, sharey=False, figsize=fig_dims)
+
+sns.regplot(
+    x="log_lag_cashflow_to_tangible",
+    y="log_tso2",
+    data=(
+        df[
+            ["log_tso2", "lag_cashflow_to_tangible", "log_lag_cashflow_to_tangible"]
+        ].loc[
+            lambda x: x["lag_cashflow_to_tangible"]
+            > 0 & ~x["lag_cashflow_to_tangible"].isin([np.nan])
+        ]
+    ),
+    ax=ax1,
+)
+ax1.set_xlabel("log lag Cashflow")
+ax1.set_ylabel("log SO2 emissions")
+sns.regplot(
+    x="log_lag_current_ratio",
+    y="log_tso2",
+    data=(
+        df[["log_tso2", "lag_current_ratio", "log_lag_current_ratio"]].loc[
+            lambda x: x["lag_current_ratio"]
+            > 0 & ~x["lag_current_ratio"].isin([np.nan])
+        ]
+    ),
+    ax=ax2,
+)
+ax2.set_xlabel("log lag Current ratio")
+ax2.set_ylabel("log SO2 emissions")
+# plt.xlabel(x_title)
+#fig.suptitle('Relationship between internal finance and SO2 emission')
 plt.savefig("Figures/FIGURE_4.png",
             bbox_inches='tight',
             dpi=600)
@@ -492,7 +555,7 @@ plt.savefig("Figures/FIGURE_4.png",
 ### Asset tangible
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 generate_plots(df.loc[lambda x: 
                       x['log_asset_tangibility_tot_asset'] > -6], 
                    x_title = 'Asset tangibility',
@@ -505,7 +568,7 @@ generate_plots(df.loc[lambda x:
 ### Cashflow
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 generate_plots(
     (
         df
@@ -524,7 +587,7 @@ generate_plots(
 ### Current ratio
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 generate_plots( (
         df
     .loc[
@@ -542,7 +605,7 @@ generate_plots( (
 ### Liabilities to asset
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 generate_plots((
         df
     .loc[
@@ -560,7 +623,7 @@ generate_plots((
 #### RD
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 generate_plots(df, 
                    x_title = 'R&D',
                    x = 'avg_rd', 
@@ -572,7 +635,7 @@ generate_plots(df,
 #### TFP 
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 generate_plots(df, 
                    x_title = 'TFP',
                    x = 'log_tfp_cit', 
@@ -584,7 +647,7 @@ generate_plots(df,
 ## Side by side
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 fig_dims = (15, 10)
 fig, (ax1, ax2) = plt.subplots(ncols=2, sharey=False, figsize=fig_dims)
 
@@ -628,7 +691,7 @@ fig.suptitle('Relationship between internal finance and SO2 emission')
 ### Cashflow
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 path_local = os.path.join(str(Path(path).parent.parent), 
                               "00_data_catalogue/temporary_local_data",
                          'df_asif_tfp_credit_constraint.csv')
@@ -644,7 +707,7 @@ df_tfp = (
 )
 ```
 
-```sos kernel="SoS"
+```python kernel="SoS"
 sns.lmplot(x="log_cashflow_to_tangible",
            y="log_asset_tangibility_tot_asset",
            data=df_tfp
@@ -658,7 +721,7 @@ plt.title('Relationship between {} and TFP'.format('Asset tangible'))
 ## RD
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 sns.lmplot(x="log_cashflow_to_tangible",
            y="rd_tot_asset",
            data=df_tfp.loc[lambda x: 
@@ -681,7 +744,7 @@ plt.title('Relationship between {} and RD'.format('Cashflow'))
 ### Cashflow
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 sns.lmplot(x="log_cashflow_to_tangible",
            y="log_tfp_op",
            data=df_tfp
@@ -695,7 +758,7 @@ plt.title('Relationship between {} and TFP'.format('Cashflow'))
 ## Table
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 path_local = os.path.join(str(Path(path).parent.parent), 
                               "00_data_catalogue/temporary_local_data",
                          'df_fin_dep_pollution_baseline_city.csv')
@@ -704,7 +767,7 @@ df_so2 = (
 )
 ```
 
-```sos kernel="SoS"
+```python kernel="SoS"
 df_table = pd.concat(
     [
         pd.concat(
@@ -901,11 +964,11 @@ df_latex = df_table.to_latex()
 # df_table
 ```
 
-```sos kernel="SoS"
+```python kernel="SoS"
 folder = 'Tables'
 ```
 
-```sos kernel="SoS"
+```python kernel="SoS"
 title = "Summary statistic"
 tb_note = """
 The information about the SO2 level is collected using various editions of the China Environment Statistics Yearbook and is reported in millions of tons.
@@ -920,7 +983,7 @@ Standard deviation is reported in parenthesis
 """
 ```
 
-```sos kernel="SoS"
+```python kernel="SoS"
 table_number = 1
 with open('{}/table_{}.tex'.format(folder,table_number), 'w') as fout:
     for i in range(len( df_latex)):
@@ -959,7 +1022,7 @@ resolution = 200)
 display(img)
 ```
 
-```sos kernel="SoS"
+```python kernel="SoS"
 import os
 path = os.path.join(folder)
 if os.path.exists(folder) == False:
@@ -973,7 +1036,7 @@ for ext in ['.txt', '.tex', '.pdf']:
 ### Distribution by industry
 <!-- #endregion -->
 
-```sos kernel="SoS"
+```python kernel="SoS"
 df_industry = (
     df_so2
     .assign(
@@ -1042,7 +1105,7 @@ df_latex = df_industry.to_latex()
 #df_industry
 ```
 
-```sos kernel="SoS"
+```python kernel="SoS"
 title = "Average main variables by industry"
 tb_note = """
 The information about the SO2 level is collected using various editions of the China Environment Statistics Yearbook and is reported in millions of tons.
@@ -1053,7 +1116,7 @@ Standard deviation is reported in parenthesis
 """
 ```
 
-```sos kernel="SoS"
+```python kernel="SoS"
 table_number = 1
 with open('{}/table_{}.tex'.format(folder,table_number), 'w') as fout:
     for i in range(len( df_latex)):
@@ -1092,7 +1155,7 @@ resolution = 200)
 display(img)
 ```
 
-```sos kernel="SoS"
+```python kernel="SoS"
 import os
 path = os.path.join(folder)
 if os.path.exists(folder) == False:
@@ -1106,13 +1169,13 @@ for ext in ['.txt', '.tex', '.pdf']:
 # Generate reports
 <!-- #endregion -->
 
-```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
+```python kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
 import os, time, shutil, urllib, ipykernel, json
 from pathlib import Path
 from notebook import notebookapp
 ```
 
-```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
+```python kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
 def create_report(extension = "html", keep_code = False, notebookname = None):
     """
     Create a report from the current notebook and save it in the 
@@ -1172,6 +1235,6 @@ def create_report(extension = "html", keep_code = False, notebookname = None):
     print("Report Available at this adress:\n {}".format(dest))
 ```
 
-```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
+```python kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
 create_report(extension = "html", keep_code = False, notebookname = '00_asset_tangibility_tfp.ipynb')
 ```
