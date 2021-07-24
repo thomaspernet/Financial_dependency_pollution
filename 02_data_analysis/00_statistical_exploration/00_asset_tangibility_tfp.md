@@ -376,9 +376,10 @@ var = (
         sheetName=sheetName,
         to_dataframe=True)
     .assign(
-    so2 = lambda x: pd.to_numeric(x['SO2(10.000 tons)'])
+    so2 = lambda x: (pd.to_numeric(x['SO2(10.000 tons)'])/100).round(0).astype(int)
     )
 )
+var
 ```
 
 ```python
@@ -387,18 +388,19 @@ ax.plot(var['Year'], var['so2'])
 ax.axvline(x='2006', c='red')
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
-ax.annotate('Introduction of the\n 11th FYP', xy=('2006', 2600), xytext=('2008', 2600),
+ax.annotate('Introduction of the\n 11th FYP', xy=('2006', 26), xytext=('2008', 26),
             arrowprops=dict(facecolor='black', shrink=0.1),
             )
 plt.xlabel('Year')
 # Set y-axis label
-plt.ylabel('SO2 millions tons')
+plt.ylabel('SO2 (millions tons)')
 plt.xticks(rotation=30)
-plt.title('SO2 emission in China from 2000 to 2010')
+#plt.title('SO2 emission in China from 2000 to 2010')
 #plt.show()
 plt.savefig("Figures/FIGURE_1.png",
             bbox_inches='tight',
-            dpi=600)
+            dpi=600
+           )
 ```
 
 <!-- #region kernel="SoS" -->
@@ -487,6 +489,8 @@ chart.map(plt.axhline, y=0, ls='--', c='red')
 chart.set_titles("{col_name}")
 chart._legend.set_title("Locations")
 chart.set_axis_labels(x_var="Year", y_var="Percentage change SO2")
+chart.fig.set_figwidth(10)
+chart.fig.set_figheight(8)
 
 plt.savefig("Figures/FIGURE_2.png",
             bbox_inches='tight',
@@ -498,11 +502,13 @@ plt.savefig("Figures/FIGURE_2.png",
 ```python kernel="SoS"
 sns.set_style("white")
     ### plot 1
-sns.lmplot(x="log_asset_tangibility_tot_asset",
+chart = sns.lmplot(x="log_asset_tangibility_tot_asset",
            y="log_tso2",
            data=df.loc[lambda x: 
                       x['log_asset_tangibility_tot_asset'] > -4]
           )
+chart.fig.set_figwidth(10)
+chart.fig.set_figheight(8)
 plt.xlabel("log Asset tangibility")
 plt.ylabel('log SO2 emissions')
 plt.savefig("Figures/FIGURE_3.png",
