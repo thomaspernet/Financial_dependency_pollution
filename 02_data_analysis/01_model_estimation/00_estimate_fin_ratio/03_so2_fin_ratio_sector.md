@@ -82,8 +82,8 @@ parent_path = str(Path(path).parent.parent.parent)
 
 
 name_credential = 'financial_dep_SO2_accessKeys.csv'
-region = 'eu-west-3'
-bucket = 'datalake-datascience'
+region = 'eu-west-2'
+bucket = 'datalake-london'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 ```
 
@@ -181,6 +181,10 @@ if download_data:
     )
     s3.remove_file(full_path_filename)
     df.head()
+```
+
+```sos kernel="SoS"
+df.head()
 ```
 
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}
@@ -668,7 +672,7 @@ City ownership are available for the following variables:
 
 **How is it constructed** 
 
-* city ownership public vs private
+* city ownership public vs private in 2002
   * Aggregate output by ownership and city
     * A given city will have SOE asset tangibility and PRIVATE asset tangibility [output, employment, capital and sales]
   * If asset tangibility SOE above Private then city is dominated by SOE
@@ -677,19 +681,155 @@ Notebook reference: https://github.com/thomaspernet/Financial_dependency_polluti
 <!-- #endregion -->
 
 ```sos kernel="SoS"
+query = """
+WITH test AS (
+  SELECT 
+    *,
+    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
+      '0', 
+      substr(cic, 1, 1)
+    ) END AS indu_2,
+    CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri,
+    CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
+  FROM 
+    firms_survey.asif_firms_prepared 
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+  
+) 
+SELECT year, soe, geocode4_corr, indu_2,SUM(output) as output
+FROM (
+SELECT *,
+CASE WHEN ownership in ('SOE') THEN 'SOE' ELSE 'PRIVATE' END AS soe
+FROM test 
+  )
+  GROUP BY soe, geocode4_corr, year, indu_2
+
+"""
+df = (s3.run_query(
+        query=query,
+        database=db,
+        s3_output='SQL_OUTPUT_ATHENA',
+        filename="test",  # Add filename to print dataframe
+        destination_key='SQL_OUTPUT_ATHENA/CSV',  #Use it temporarily
+        dtype = dtypes
+    )
+     )
+```
+
+```sos kernel="SoS"
+(
+    df
+    .set_index(['year','indu_2', 'soe', 'geocode4_corr'])
+    .unstack(-2)
+    .assign(
+        soe_dominated = lambda x: x[('output', 'SOE')] > x[('output', 'PRIVATE')]
+    )
+    .loc[lambda x: x['soe_dominated'].isin([True])]
+    .reset_index()
+    [['year','geocode4_corr', 'indu_2']]
+    .loc[lambda x: x['year'].isin(["2002"])]
+    #.drop_duplicates()
+    .drop(columns = ['year'])
+    .rename(columns = {'indu_2':'ind2'})
+    .to_csv('list_city_soe.csv')
+)
+```
+
+```sos kernel="SoS"
+query = """
+WITH test AS (
+  SELECT 
+    *,
+    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
+      '0', 
+      substr(cic, 1, 1)
+    ) END AS indu_2,
+    CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri,
+    CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
+  FROM 
+    firms_survey.asif_firms_prepared 
+    INNER JOIN (
+      SELECT 
+        extra_code, 
+        geocode4_corr 
+      FROM 
+        chinese_lookup.china_city_code_normalised 
+      GROUP BY 
+        extra_code, 
+        geocode4_corr
+    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
+  
+) 
+SELECT year, foreign, geocode4_corr, indu_2,SUM(output) as output
+FROM (
+SELECT *,
+CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS foreign
+FROM test 
+  )
+  GROUP BY foreign, geocode4_corr, year, indu_2
+
+"""
+df = (s3.run_query(
+        query=query,
+        database=db,
+        s3_output='SQL_OUTPUT_ATHENA',
+        filename="test",  # Add filename to print dataframe
+        destination_key='SQL_OUTPUT_ATHENA/CSV',  #Use it temporarily
+        dtype = dtypes
+    )
+     )
+```
+
+```sos kernel="SoS"
+(
+    df
+    .set_index(['year','indu_2', 'foreign', 'geocode4_corr'])
+    .unstack(-2)
+    .assign(
+        for_dominated = lambda x: x[('output', 'FOREIGN')] > x[('output', 'DOMESTIC')]
+    )
+    .loc[lambda x: x['for_dominated'].isin([True])]
+    .reset_index()
+    [['year','geocode4_corr', 'indu_2']]
+    .loc[lambda x: x['year'].isin(["2002"])]
+    #.drop_duplicates()
+    .drop(columns = ['year'])
+    .rename(columns = {'indu_2':'ind2'})
+    .to_csv('list_city_for.csv')
+)
+```
+
+```sos kernel="R"
+dim(df_final %>% right_join(read_csv('list_city_for.csv')))
+```
+
+```sos kernel="SoS"
 folder = 'Tables_0'
 table_nb = 3
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
-if os.path.exists(folder) == False:
-        os.mkdir(folder)
-for ext in ['.txt', '.pdf']:
-    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-    [os.remove(os.path.join(folder, i)) for i in x]
+#if os.path.exists(folder) == False:
+#        os.mkdir(folder)
+#for ext in ['.txt', '.pdf']:
+#    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+#    [os.remove(os.path.join(folder, i)) for i in x]
 ```
 
 ```sos kernel="R"
 %get path table
+df_soe <- df_final %>% right_join(read_csv('list_city_soe.csv'))
+df_priv <- df_final %>% left_join(read_csv('list_city_soe.csv'))
+df_for <- df_final %>% right_join(read_csv('list_city_for.csv'))
+df_dom <- df_final %>% left_join(read_csv('list_city_for.csv'))
 ### SOE vs Private
 t_0 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset) +
@@ -699,7 +839,7 @@ t_0 <- felm(log(tso2) ~
             log(lag_current_ratio) +
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset) 
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(dominated_output_soe_c == TRUE),
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_soe,
             exactDOF = TRUE)
 t_1 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset) +
@@ -709,7 +849,7 @@ t_1 <- felm(log(tso2) ~
             log(lag_current_ratio) +
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset)
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(dominated_output_soe_c == FALSE),
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_priv,
             exactDOF = TRUE)
 
 ## TFP
@@ -722,7 +862,7 @@ t_2 <- felm(log(tso2) ~
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset)  +
             log(tfp_cit)
-            | fe_t_i +fe_c_t|0 | geocode4_corr,df_final %>% filter(dominated_output_soe_c == TRUE),
+            | fe_t_i +fe_c_t|0 | geocode4_corr,df_soe,
             exactDOF = TRUE)
 t_3 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset) +
@@ -733,7 +873,7 @@ t_3 <- felm(log(tso2) ~
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset)  +
             log(tfp_cit)
-            | fe_t_i +fe_c_t|0 | geocode4_corr,df_final %>% filter(dominated_output_soe_c == FALSE),
+            | fe_t_i +fe_c_t|0 | geocode4_corr,df_priv,
             exactDOF = TRUE)
 
 ## Domestic vs Foreign
@@ -746,7 +886,7 @@ t_4 <- felm(log(tso2) ~
             log(lag_current_ratio) +
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset) 
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(dominated_output_for_c == TRUE),
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_for,
             exactDOF = TRUE)
 t_5 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset) +
@@ -756,7 +896,7 @@ t_5 <- felm(log(tso2) ~
             log(lag_current_ratio) +
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset)
-            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final %>% filter(dominated_output_for_c == FALSE),
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_dom,
             exactDOF = TRUE)
 
 ## TFP
@@ -769,7 +909,7 @@ t_6 <- felm(log(tso2) ~
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset)  +
             log(tfp_cit)
-            | fe_t_i +fe_c_t|0 | geocode4_corr,df_final %>% filter(dominated_output_for_c == TRUE),
+            | fe_t_i +fe_c_t|0 | geocode4_corr,df_for,
             exactDOF = TRUE)
 t_7 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset) +
@@ -780,7 +920,7 @@ t_7 <- felm(log(tso2) ~
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset)  +
             log(tfp_cit)
-            | fe_t_i +fe_c_t|0 | geocode4_corr,df_final %>% filter(dominated_output_for_c == FALSE),
+            | fe_t_i +fe_c_t|0 | geocode4_corr,df_dom,
             exactDOF = TRUE)
 
 dep <- "Dependent variable: SO2 emission"
