@@ -454,7 +454,7 @@ FROM
         )
         AND total_asset > 0 
         AND tangible > 0
-        AND quick_ratio > 0
+        -- AND quick_ratio > 0
         AND current_ratio > 0
         
     ) 
@@ -865,11 +865,9 @@ FROM
         AND tangible > 0
     ) 
     SELECT 
-      ratio.firm, 
+    
+    ratio.firm, 
       ratio.year, 
-      CASE WHEN ratio.year in (
-        '2001', '2002', '2003', '2004', '2005'
-      ) THEN 'FALSE' WHEN ratio.year in ('2006', '2007') THEN 'TRUE' END AS period, 
       ratio.cic, 
       ratio.indu_2, 
       CASE WHEN short IS NULL THEN 'Unknown' ELSE short END AS short, 
@@ -879,10 +877,6 @@ FROM
       CASE WHEN spz IS NULL 
       OR spz = '#N/A' THEN '0' ELSE spz END AS spz, 
       ratio.ownership, 
-      soe_vs_pri, 
-      for_vs_dom, 
-      tso2_mandate_c, 
-      in_10_000_tonnes, 
       ratio.output, 
       ratio.employment, 
       ratio.capital, 
@@ -910,7 +904,6 @@ FROM
         ORDER BY 
           ratio.year
       ) as lag_current_ratio,
-      quick_ratio, 
       liabilities_tot_asset,
       LAG(liabilities_tot_asset, 1) OVER (
         PARTITION BY ratio.firm, ratio.geocode4_corr, ratio.cic 
@@ -941,224 +934,6 @@ FROM
       labor_productivity /1000 as labor_productivity,
       labor_capital,
       age + 1 AS age,
-      CASE WHEN avg_asset_tangibility_f > avg_asset_tangibility_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_size_asset_fci, 
-      CASE WHEN avg_output_f > avg_output_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_size_output_fci, 
-      CASE WHEN avg_employment_f > avg_employment_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_employment_fci, 
-      CASE WHEN avg_capital_f > avg_capital_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_size_capital_fci, 
-      CASE WHEN avg_sales_f > avg_sales_ci THEN 'LARGE' ELSE 'SMALL' END AS avg_sales_fci, 
-      MAP(
-        ARRAY[.5, 
-        .75, 
-        .90, 
-        .95 ], 
-        zip_with(
-          transform(
-            sequence(1, 4), 
-            x -> avg_asset_tangibility_f
-          ), 
-          pct_asset_tangibility_ci, 
-          (x, y) -> x > y
-        )
-      ) AS size_asset_fci,
-      MAP(
-        ARRAY[.5, 
-        .75, 
-        .90, 
-        .95 ], 
-        zip_with(
-          transform(
-            sequence(1, 4), 
-            x -> avg_asset_tangibility_f
-          ), 
-          pct_asset_tangibility_c, 
-          (x, y) -> x > y
-        )
-      ) AS size_asset_fc, 
-      MAP(
-        ARRAY[.5, 
-        .75, 
-        .90, 
-        .95 ], 
-        zip_with(
-          transform(
-            sequence(1, 4), 
-            x -> avg_asset_tangibility_f
-          ), 
-          pct_asset_tangibility_i, 
-          (x, y) -> x > y
-        )
-      ) AS size_asset_fi,
-      MAP(
-        ARRAY[.5, 
-        .75, 
-        .90, 
-        .95 ], 
-        zip_with(
-          transform(
-            sequence(1, 4), 
-            x -> avg_output_f
-          ), 
-          pct_output_ci, 
-          (x, y) -> x > y
-        )
-      ) AS size_output_fci,
-      MAP(
-        ARRAY[.5, 
-        .75, 
-        .90, 
-        .95 ], 
-        zip_with(
-          transform(
-            sequence(1, 4), 
-            x -> avg_output_f
-          ), 
-          pct_output_c, 
-          (x, y) -> x > y
-        )
-      ) AS size_output_fc,
-      MAP(
-        ARRAY[.5, 
-        .75, 
-        .90, 
-        .95 ], 
-        zip_with(
-          transform(
-            sequence(1, 4), 
-            x -> avg_output_f
-          ), 
-          pct_output_i, 
-          (x, y) -> x > y
-        )
-      ) AS size_output_fi,
-      MAP(
-        ARRAY[.5, 
-        .75, 
-        .90, 
-        .95 ], 
-        zip_with(
-          transform(
-            sequence(1, 4), 
-            x -> avg_employment_f
-          ), 
-          pct_employment_ci, 
-          (x, y) -> x > y
-        )
-      ) AS size_employment_fci, 
-      MAP(
-        ARRAY[.5, 
-        .75, 
-        .90, 
-        .95 ], 
-        zip_with(
-          transform(
-            sequence(1, 4), 
-            x -> avg_employment_f
-          ), 
-          pct_employment_c, 
-          (x, y) -> x > y
-        )
-      ) AS size_employment_fc, 
-      MAP(
-        ARRAY[.5, 
-        .75, 
-        .90, 
-        .95 ], 
-        zip_with(
-          transform(
-            sequence(1, 4), 
-            x -> avg_employment_f
-          ), 
-          pct_employment_i, 
-          (x, y) -> x > y
-        )
-      ) AS size_employment_fi, 
-      MAP(
-        ARRAY[.5, 
-        .75, 
-        .90, 
-        .95 ], 
-        zip_with(
-          transform(
-            sequence(1, 4), 
-            x -> avg_capital_f
-          ), 
-          pct_capital_ci, 
-          (x, y) -> x > y
-        )
-      ) AS size_capital_fci, 
-      MAP(
-        ARRAY[.5, 
-        .75, 
-        .90, 
-        .95 ], 
-        zip_with(
-          transform(
-            sequence(1, 4), 
-            x -> avg_capital_f
-          ), 
-          pct_capital_c, 
-          (x, y) -> x > y
-        )
-      ) AS size_capital_fc, 
-      MAP(
-        ARRAY[.5, 
-        .75, 
-        .90, 
-        .95 ], 
-        zip_with(
-          transform(
-            sequence(1, 4), 
-            x -> avg_capital_f
-          ), 
-          pct_capital_i, 
-          (x, y) -> x > y
-        )
-      ) AS size_capital_fi, 
-      MAP(
-        ARRAY[.5, 
-        .75, 
-        .90, 
-        .95 ], 
-        zip_with(
-          transform(
-            sequence(1, 4), 
-            x -> avg_sales_f
-          ), 
-          pct_sales_ci, 
-          (x, y) -> x > y
-        )
-      ) AS size_sales_fci, 
-      MAP(
-        ARRAY[.5, 
-        .75, 
-        .90, 
-        .95 ], 
-        zip_with(
-          transform(
-            sequence(1, 4), 
-            x -> avg_sales_f
-          ), 
-          pct_sales_c, 
-          (x, y) -> x > y
-        )
-      ) AS size_sales_fc,
-      MAP(
-        ARRAY[.5, 
-        .75, 
-        .90, 
-        .95 ], 
-        zip_with(
-          transform(
-            sequence(1, 4), 
-            x -> avg_sales_f
-          ), 
-          pct_sales_i, 
-          (x, y) -> x > y
-        )
-      ) AS size_sales_fi,
-      count_ownership,
-      count_city,
-      count_industry,
       DENSE_RANK() OVER (
         ORDER BY 
           ratio.geocode4_corr, 
@@ -1174,68 +949,13 @@ FROM
           ratio.geocode4_corr, 
           ratio.year
       ) AS fe_c_t 
-    FROM 
-      ratio 
-      INNER JOIN (
-        SELECT 
-          year, 
-          geocode4_corr, 
-          provinces, 
-          cityen, 
-          indus_code AS cic, 
-          SUM(tso2) as tso2, 
-          lower_location, 
-          larger_location, 
-          coastal 
-        FROM 
-          (
-            SELECT 
-              year, 
-              provinces, 
-              citycode, 
-              geocode4_corr, 
-              china_city_sector_pollution.cityen, 
-              indus_code, 
-              tso2, 
-              lower_location, 
-              larger_location, 
-              coastal 
-            FROM 
-              environment.china_city_sector_pollution 
-              INNER JOIN (
-                SELECT 
-                  extra_code, 
-                  geocode4_corr 
-                FROM 
-                  chinese_lookup.china_city_code_normalised 
-                GROUP BY 
-                  extra_code, 
-                  geocode4_corr
-              ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code
-          ) 
-        GROUP BY 
-          year, 
-          provinces, 
-          geocode4_corr, 
-          cityen, 
-          indus_code, 
-          lower_location, 
-          larger_location, 
-          coastal
-      ) as aggregate_pol ON ratio.year = aggregate_pol.year 
-      AND ratio.geocode4_corr = aggregate_pol.geocode4_corr 
-      AND ratio.cic = aggregate_pol.cic 
-      INNER JOIN (
-        SELECT 
-          geocode4_corr, 
-          tso2_mandate_c, 
-          in_10_000_tonnes 
-        FROM 
-          policy.china_city_reduction_mandate 
-          INNER JOIN chinese_lookup.china_city_code_normalised ON china_city_reduction_mandate.citycn = china_city_code_normalised.citycn 
-        WHERE 
-          extra_code = geocode4_corr
-      ) as city_mandate ON ratio.geocode4_corr = city_mandate.geocode4_corr 
+    
+    FROM ratio
+    INNER JOIN firms_survey.asif_tfp_firm_level on 
+      ratio.firm = asif_tfp_firm_level.firm 
+      AND ratio.year = asif_tfp_firm_level.year
+      AND ratio.geocode4_corr = asif_tfp_firm_level.geocode4_corr
+      AND ratio.ownership = asif_tfp_firm_level.ownership
       LEFT JOIN policy.china_city_tcz_spz ON ratio.geocode4_corr = china_city_tcz_spz.geocode4_corr 
       LEFT JOIN chinese_lookup.ind_cic_2_name ON ratio.indu_2 = ind_cic_2_name.cic
       LEFT JOIN chinese_lookup.province_credit_constraint ON ratio.province_en = province_credit_constraint.Province
@@ -1247,181 +967,9 @@ FROM
         FROM 
           industry.china_credit_constraint
       ) as cred_constraint ON ratio.indu_2 = cred_constraint.cic 
-      LEFT JOIN (
-        SELECT 
-          -- fake, 
-          geocode4_corr, 
-          indu_2,
-          approx_percentile(
-            avg_asset_tangibility_f, ARRAY[.5, 
-            .75,.90,.95]
-          ) as pct_asset_tangibility_ci, 
-          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility_ci, 
-          approx_percentile(
-            avg_output_f, ARRAY[.5,.75,.90,.95]
-          ) as pct_output_ci, 
-          AVG(avg_output_f) AS avg_output_ci, 
-          approx_percentile(
-            avg_employment_f, ARRAY[.5,.75,.90, 
-            .95]
-          ) as pct_employment_ci, 
-          AVG(avg_employment_f) AS avg_employment_ci, 
-          approx_percentile(
-            avg_capital_f, ARRAY[.5,.75,.90, 
-            .95]
-          ) as pct_capital_ci, 
-          AVG(avg_capital_f) AS avg_capital_ci, 
-          approx_percentile(
-            avg_sales_f, ARRAY[.5,.75,.90,.95]
-          ) as pct_sales_ci, 
-          AVG(avg_sales_f) AS avg_sales_ci 
-        FROM 
-          (
-            SELECT 
-              firm, 
-              geocode4_corr,
-              indu_2,
-              -- fake, 
-              AVG(tangible) as avg_asset_tangibility_f, 
-              AVG(output) as avg_output_f, 
-              AVG(employment) as avg_employment_f, 
-              AVG(capital) as avg_capital_f, 
-              AVG(sales) as avg_sales_f 
-            FROM 
-              ratio 
-            GROUP BY 
-              -- fake, 
-              firm,
-              geocode4_corr,
-              indu_2
-          ) 
-        GROUP BY 
-          -- fake
-          geocode4_corr, 
-          indu_2
-      ) as pct_ci ON ratio.geocode4_corr = pct_ci.geocode4_corr 
-    AND ratio.indu_2 = pct_ci.indu_2
-    LEFT JOIN (
-        SELECT 
-          -- fake, 
-          geocode4_corr, 
-          approx_percentile(
-            avg_asset_tangibility_f, ARRAY[.5, 
-            .75,.90,.95]
-          ) as pct_asset_tangibility_c, 
-          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility_c, 
-          approx_percentile(
-            avg_output_f, ARRAY[.5,.75,.90,.95]
-          ) as pct_output_c, 
-          AVG(avg_output_f) AS avg_output_c, 
-          approx_percentile(
-            avg_employment_f, ARRAY[.5,.75,.90, 
-            .95]
-          ) as pct_employment_c, 
-          AVG(avg_employment_f) AS avg_employment_c, 
-          approx_percentile(
-            avg_capital_f, ARRAY[.5,.75,.90, 
-            .95]
-          ) as pct_capital_c, 
-          AVG(avg_capital_f) AS avg_capital_c, 
-          approx_percentile(
-            avg_sales_f, ARRAY[.5,.75,.90,.95]
-          ) as pct_sales_c, 
-          AVG(avg_sales_f) AS avg_sales_c
-        FROM 
-          (
-            SELECT 
-              firm, 
-              geocode4_corr,
-              -- fake, 
-              AVG(tangible) as avg_asset_tangibility_f, 
-              AVG(output) as avg_output_f, 
-              AVG(employment) as avg_employment_f, 
-              AVG(capital) as avg_capital_f, 
-              AVG(sales) as avg_sales_f 
-            FROM 
-              ratio 
-            GROUP BY 
-              -- fake, 
-              firm,
-              geocode4_corr
-          ) 
-        GROUP BY 
-          -- fake
-          geocode4_corr
-      ) as pct_c ON ratio.geocode4_corr = pct_c.geocode4_corr
-      LEFT JOIN (
-        SELECT 
-          -- fake, 
-          indu_2, 
-          approx_percentile(
-            avg_asset_tangibility_f, ARRAY[.5, 
-            .75,.90,.95]
-          ) as pct_asset_tangibility_i, 
-          AVG(avg_asset_tangibility_f) AS avg_asset_tangibility_i, 
-          approx_percentile(
-            avg_output_f, ARRAY[.5,.75,.90,.95]
-          ) as pct_output_i, 
-          AVG(avg_output_f) AS avg_output_i, 
-          approx_percentile(
-            avg_employment_f, ARRAY[.5,.75,.90, 
-            .95]
-          ) as pct_employment_i, 
-          AVG(avg_employment_f) AS avg_employment_i, 
-          approx_percentile(
-            avg_capital_f, ARRAY[.5,.75,.90, 
-            .95]
-          ) as pct_capital_i, 
-          AVG(avg_capital_f) AS avg_capital_i, 
-          approx_percentile(
-            avg_sales_f, ARRAY[.5,.75,.90,.95]
-          ) as pct_sales_i, 
-          AVG(avg_sales_f) AS avg_sales_i
-        FROM 
-          (
-            SELECT 
-              firm, 
-              indu_2,
-              -- fake, 
-              AVG(tangible) as avg_asset_tangibility_f, 
-              AVG(output) as avg_output_f, 
-              AVG(employment) as avg_employment_f, 
-              AVG(capital) as avg_capital_f, 
-              AVG(sales) as avg_sales_f 
-            FROM 
-              ratio 
-            GROUP BY 
-              -- fake, 
-              firm,
-              indu_2
-          ) 
-        GROUP BY 
-          -- fake
-          indu_2
-      ) as pct_i ON ratio.indu_2 = pct_i.indu_2 
-      INNER JOIN (
-        SELECT 
-          firm, 
-          -- fake, 
-          AVG(tangible) as avg_asset_tangibility_f,
-          AVG(output) as avg_output_f, 
-          AVG(employment) as avg_employment_f, 
-          AVG(capital) as avg_capital_f, 
-          AVG(sales) as avg_sales_f
-        FROM 
-          ratio 
-        GROUP BY 
-          -- fake, 
-          firm
-      ) as firm_avg ON ratio.firm = firm_avg.firm
-    INNER JOIN firms_survey.asif_tfp_firm_level on 
-      ratio.firm = asif_tfp_firm_level.firm 
-      AND ratio.year = asif_tfp_firm_level.year
-      AND ratio.geocode4_corr = asif_tfp_firm_level.geocode4_corr
-      AND ratio.ownership = asif_tfp_firm_level.ownership
     ORDER BY 
       year 
-  )
+      )
 """.format(DatabaseName, table_name)
 output = s3.run_query(
                     query=query,
@@ -1453,7 +1001,7 @@ WITH test AS (
 SELECT firm, COUNT(avg_size_asset_fci) AS count
 FROM (
 SELECT firm, avg_size_asset_fci,COUNT(*) AS count
-FROM "firms_survey"."asif_financial_ratio_baseline_firm" 
+FROM "firms_survey"."asif_tfp_credit_constraint" 
 GROUP BY firm, avg_size_asset_fci
   )
   GROUP BY firm
@@ -1472,29 +1020,20 @@ output = s3.run_query(
 output
 ```
 
-Number of observations per size
-
 ```python
-for i in [.5, .75, .9, .95]:
-    query_test = """
-    SELECT 
-    dominated, COUNT(*) as count
-    FROM (
-      SELECT 
-      element_at(size_asset_fci, {}) as dominated
-    FROM asif_financial_ratio_baseline_firm   
-      )
-    GROUP BY dominated
-    ORDER BY dominated
-    """.format(i)
-    output = s3.run_query(
+query_test = """
+SELECT ownership, COUNT(*) AS CNT,  COUNT(DISTINCT(firm)) as unique
+  FROM asif_tfp_credit_constraint
+  GROUP BY ownership
+  ORDER BY CNT
+"""
+output = s3.run_query(
                         query=query_test,
                         database=DatabaseName,
                         s3_output=s3_output_example,
         filename = 'count_{}'.format(table_name)
                     )
-    print("Decile {}".format(i))
-    display(output)
+output
 ```
 
 Check if the data roughly matches with the following paper: [Internal finance and growth: Microeconometric evidence on Chinese firms](https://www.sciencedirect.com/science/article/pii/S0304387810000805)
