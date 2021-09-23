@@ -774,7 +774,7 @@ if os.path.exists(folder) == False:
         os.mkdir(folder)
 
 for ext in ['table_{}.txt'.format(table_nb), 'table_{}.tex'.format(table_nb), 'table_{}.pdf'.format(table_nb)]:
-    os.remove(os.path.join(folder, ext)
+    os.remove(os.path.join(folder, ext))
 #    x = [a for a in os.listdir(folder) if a.endswith(ext)]
 #    [os.remove(os.path.join(folder, i)) for i in x]
 ```
@@ -1101,12 +1101,12 @@ if os.path.exists(folder) == False:
         os.mkdir(folder)
 
 for ext in ['table_{}.txt'.format(table_nb), 'table_{}.tex'.format(table_nb), 'table_{}.pdf'.format(table_nb)]:
-    os.remove(os.path.join(folder, ext)
+    os.remove(os.path.join(folder, ext))
 #    x = [a for a in os.listdir(folder) if a.endswith(ext)]
 #    [os.remove(os.path.join(folder, i)) for i in x]
 ```
 
-```sos kernel="SoS"
+```sos kernel="R"
 %get path table 
 ### More control
 t_0 <- felm(log(tfp_op) ~ 
@@ -1118,8 +1118,7 @@ t_0 <- felm(log(tfp_op) ~
             log(total_asset) + 
             log(age) +
             export_to_sale 
-            | firm + year + indu_2|0 | firm, df_final%>%           
-            %>% filter(ownership == 'SOE'),
+            | firm + year + indu_2|0 | firm, df_final%>% filter(ownership == 'SOE'),
             exactDOF = TRUE)
 t_1 <- felm(log(tfp_op) ~ 
             log(cashflow_to_tangible) + 
@@ -1170,8 +1169,8 @@ t_4 <- felm(log(tfp_op) ~
             log(age) +
             export_to_sale 
             | firm + year + indu_2|0 | firm, df_final%>% 
-mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))            
-            %>% filter(ownership == 'PRIVATE'),
+mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>%
+            filter(ownership == 'PRIVATE'),
             exactDOF = TRUE)
 t_5 <- felm(log(tfp_op) ~ 
             log(cashflow_to_tangible) + 
@@ -1184,8 +1183,8 @@ t_5 <- felm(log(tfp_op) ~
             export_to_sale +
             supply_all_credit
             | firm + year + indu_2|0 | firm, df_final%>% 
-mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))            
-            %>% filter(ownership == 'PRIVATE'),
+mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>%
+            filter(ownership == 'PRIVATE'),
             exactDOF = TRUE)
 t_6 <- felm(log(tfp_op) ~ 
             log(cashflow_to_tangible) + 
@@ -1198,8 +1197,8 @@ t_6 <- felm(log(tfp_op) ~
             export_to_sale +
             supply_long_term_credit 
             | firm + year + indu_2|0 | firm, df_final%>% 
-mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))            
-            %>% filter(ownership == 'PRIVATE'),
+mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>%
+            filter(ownership == 'PRIVATE'),
             exactDOF = TRUE)
 t_7 <- felm(log(tfp_op) ~ 
             log(cashflow_to_tangible) + 
@@ -1212,8 +1211,8 @@ t_7 <- felm(log(tfp_op) ~
             export_to_sale +
             credit_constraint
             | firm + year|0 | firm, df_final%>% 
-mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))            
-            %>% filter(ownership == 'PRIVATE'),
+mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>%
+            filter(ownership == 'PRIVATE'),
             exactDOF = TRUE)
 
 
@@ -2048,7 +2047,7 @@ if os.path.exists(folder) == False:
 #    [os.remove(os.path.join(folder, i)) for i in x]
 ```
 
-```sos kernel="SoS"
+```sos kernel="R"
 %get path table 
 ### More control
 t_0 <- felm(log(tfp_op) ~ 
@@ -2267,5 +2266,5 @@ def create_report(extension = "html", keep_code = False, notebookname = None):
 ```
 
 ```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
-create_report(extension = "html", keep_code = False, notebookname = "05_tfp_firm_level.ipynb")
+create_report(extension = "html", keep_code = True, notebookname = "05_tfp_firm_level.ipynb")
 ```
