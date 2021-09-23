@@ -496,9 +496,11 @@ table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
         os.mkdir(folder)
-#for ext in ['.txt', '.tex', '.pdf']:
-#    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-#    [os.remove(os.path.join(folder, i)) for i in x]
+try:
+    for ext in ['table_{}.txt'.format(table_nb), 'table_{}.tex'.format(table_nb), 'table_{}.pdf'.format(table_nb)]:
+        os.remove(os.path.join(folder, ext))
+except:
+    pass
 ```
 
 <!-- #region kernel="SoS" -->
@@ -623,9 +625,12 @@ table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
         os.mkdir(folder)
-#for ext in ['.txt', '.tex', '.pdf']:
-#    x = [a for a in os.listdir(folder) if a.endswith(ext)]
-#    [os.remove(os.path.join(folder, i)) for i in x]
+        
+try:
+    for ext in ['table_{}.txt'.format(table_nb), 'table_{}.tex'.format(table_nb), 'table_{}.pdf'.format(table_nb)]:
+        os.remove(os.path.join(folder, ext))
+except:
+    pass
 ```
 
 <!-- #region kernel="R" -->
@@ -1871,5 +1876,5 @@ def create_report(extension = "html", keep_code = False, notebookname = None):
 ```
 
 ```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
-create_report(extension = "html", keep_code = False, notebookname = "06_internal_finance_firm_level.ipynb")
+create_report(extension = "html", keep_code = True, notebookname = "06_internal_finance_firm_level.ipynb")
 ```
