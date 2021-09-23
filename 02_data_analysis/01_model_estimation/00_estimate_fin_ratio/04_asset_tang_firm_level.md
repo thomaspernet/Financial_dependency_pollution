@@ -115,7 +115,7 @@ Since we load the data as a Pandas DataFrame, we want to pass the `dtypes`. We l
 
 ```sos kernel="SoS"
 db = 'firms_survey'
-table = 'asif_financial_ratio_baseline_firm'
+table = 'asif_tfp_credit_constraint'
 ```
 
 ```sos kernel="SoS"
@@ -150,6 +150,16 @@ if download_data:
     query = """
     SELECT * 
     FROM {}.{}
+    WHERE 
+    cashflow_to_tangible > 0
+    AND current_ratio > 0
+    AND liabilities_tot_asset > 0
+    AND age > 0
+    AND year in (
+        '2001', '2002', '2003', '2004', '2005', 
+        '2006', '2007'
+      )
+    -- AND ownership not in ('COLLECTIVE')  
     """.format(db, table)
     df = (s3.run_query(
         query=query,
@@ -159,16 +169,23 @@ if download_data:
         destination_key='SQL_OUTPUT_ATHENA/CSV',  #Use it temporarily
         dtype = dtypes
     )
+          .assign(
+              ownership = lambda x: np.where(x['ownership'].isin(['COLLECTIVE']), "SOE", x['ownership']),
+          )
+          .assign(
+              ownership = lambda x: np.where(x['ownership'].isin(['HTM']), "FOREIGN", x['ownership']),
+              ownership_adjusted = lambda x: np.where(x['ownership'].isin(['PRIVATE', 'SOE', 'COLLECTIVE']), 'DOMESTIC', 'FOREIGN'),
+              fe_fo=lambda x: le.fit_transform(x["firm"].astype('str') + x['ownership'])
             )
-    s3.download_file(
-        key = full_path_filename
-    )
-    shutil.move(
-        filename + '.csv',
-        os.path.join(path_local, filename + '.csv')
-    )
-    s3.remove_file(full_path_filename)
-    df.head()
+        )
+    #s3.download_file(
+    #    key = full_path_filename
+    #)
+    #shutil.move(
+    #    filename + '.csv',
+    #    os.path.join(path_local, filename + '.csv')
+    #)
+    #s3.remove_file(full_path_filename)
 ```
 
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}

@@ -395,7 +395,7 @@ if add_to_dic:
         {
         'old':'ownership\_adjustedDOMESTIC',
         'new':'\\text{domestic}'
-        },
+        }
     ]
     
 
@@ -609,6 +609,10 @@ lb.beautify(table_number = table_nb,
 
 <!-- #region kernel="SoS" -->
 ## Table 2: Ownership structure effect
+<!-- #endregion -->
+
+<!-- #region kernel="SoS" -->
+## Private
 <!-- #endregion -->
 
 ```sos kernel="SoS"
@@ -919,10 +923,6 @@ lb.beautify(table_number = table_nb,
             resolution = 170,
             folder = folder)
 ```
-
-<!-- #region kernel="SoS" -->
-### Subset ownership
-<!-- #endregion -->
 
 ```sos kernel="SoS"
 folder = 'Tables_0'
@@ -1568,10 +1568,6 @@ lb.beautify(table_number = table_nb,
 ```
 
 <!-- #region kernel="SoS" -->
-## Table 3: city characteristic structure effect
-<!-- #endregion -->
-
-<!-- #region kernel="SoS" -->
 ### TCZ
 <!-- #endregion -->
 
@@ -1715,10 +1711,6 @@ lb.beautify(table_number = table_nb,
             resolution = 170,
             folder = folder)
 ```
-
-<!-- #region kernel="SoS" -->
-### Subset
-<!-- #endregion -->
 
 ```sos kernel="SoS"
 folder = 'Tables_0'
