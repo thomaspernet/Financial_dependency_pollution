@@ -1,0 +1,33 @@
+
+% Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
+% Date and time: Thu, Sep 23, 2021 - 12:53:15
+\begin{table}[!htbp] \centering 
+  \caption{Ownership structure effect} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}}lcccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{4}{c}{Dependent variable} \\ 
+\cline{2-5} 
+\\[-1.8ex] & (1) & (2) & (3) & (4)\\ 
+\hline \\[-1.8ex] 
+ log(cashflow\_to\_tangible) & $-$0.150$^{***}$ & 0.0003$^{***}$ & $-$0.137$^{***}$ & 0.0002 \\ 
+  & (0.002) & (0.0001) & (0.003) & (0.0001) \\ 
+  log(current\_ratio) & $-$0.023$^{***}$ & 0.0001 & $-$0.023$^{***}$ & 0.0001 \\ 
+  & (0.002) & (0.0001) & (0.003) & (0.0001) \\ 
+  log(liabilities\_tot\_asset) & $-$0.050$^{***}$ & 0.001$^{**}$ & $-$0.008 & 0.0004 \\ 
+  & (0.005) & (0.0002) & (0.007) & (0.0002) \\ 
+  log(age) & 0.021$^{***}$ & 0.0004 & 0.014$^{***}$ & $-$0.001 \\ 
+  & (0.003) & (0.001) & (0.005) & (0.001) \\ 
+  export\_to\_sale & $-$0.005 & 0.0003 & 0.011 & 0.0002 \\ 
+  & (0.006) & (0.0003) & (0.016) & (0.0003) \\ 
+ \hline \\[-1.8ex] 
+firm & Yes & Yes & Yes & Yes \\ 
+industry & Yes & Yes & Yes & Yes \\ 
+year & Yes & Yes & Yes & Yes \\ 
+Observations & 303,825 & 111,372 & 98,462 & 41,301 \\ 
+R$^{2}$ & 0.899 & 0.661 & 0.868 & 0.781 \\ 
+\hline 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 

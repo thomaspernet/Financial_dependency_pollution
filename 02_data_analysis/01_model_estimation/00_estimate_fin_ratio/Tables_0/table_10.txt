@@ -1,0 +1,37 @@
+
+% Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
+% Date and time: Thu, Sep 23, 2021 - 12:28:42
+\begin{table}[!htbp] \centering 
+  \caption{Asset structure (tangible versus intangible) and internal finance} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}}lcccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{6}{c}{Dependent variable} \\ 
+\cline{2-7} 
+\\[-1.8ex] & (1) & (2) & (3) & (4) & (5) & (6)\\ 
+\hline \\[-1.8ex] 
+ log(cashflow\_to\_tangible) & $-$0.149$^{***}$ & 0.0003$^{***}$ & $-$0.149$^{***}$ & 0.001$^{***}$ & $-$0.151$^{***}$ & 0.001$^{***}$ \\ 
+  & (0.002) & (0.0001) & (0.002) & (0.0001) & (0.002) & (0.0001) \\ 
+  log(current\_ratio) & $-$0.024$^{***}$ & 0.0001$^{*}$ & $-$0.024$^{***}$ & $-$0.00001 & $-$0.025$^{***}$ & $-$0.00002 \\ 
+  & (0.002) & (0.0001) & (0.002) & (0.00005) & (0.002) & (0.00005) \\ 
+  log(liabilities\_tot\_asset) & $-$0.040$^{***}$ & 0.0004$^{***}$ & $-$0.040$^{***}$ & $-$0.0001 & $-$0.041$^{***}$ & $-$0.0001 \\ 
+  & (0.004) & (0.0002) & (0.004) & (0.0001) & (0.004) & (0.0001) \\ 
+  log(age) & 0.019$^{***}$ & 0.00004 & 0.019$^{***}$ & 0.001$^{***}$ & 0.019$^{***}$ & 0.001$^{***}$ \\ 
+  & (0.002) & (0.0004) & (0.002) & (0.0001) & (0.002) & (0.0001) \\ 
+  export\_to\_sale & $-$0.001 & 0.0002 & $-$0.001 & $-$0.001$^{***}$ & $-$0.0004 & $-$0.001$^{***}$ \\ 
+  & (0.006) & (0.0002) & (0.006) & (0.0002) & (0.006) & (0.0002) \\ 
+  supply\_all\_credit &  &  & 1.603$^{***}$ & $-$0.003$^{***}$ &  &  \\ 
+  &  &  & (0.171) & (0.0003) &  &  \\ 
+  supply\_long\_term\_credit &  &  &  &  & 0.444$^{***}$ & $-$0.001$^{***}$ \\ 
+  &  &  &  &  & (0.046) & (0.0001) \\ 
+ \hline \\[-1.8ex] 
+firm & Yes & Yes & Yes & No & Yes & No \\ 
+industry & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+year & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Observations & 402,287 & 152,673 & 402,287 & 152,673 & 402,369 & 152,673 \\ 
+R$^{2}$ & 0.878 & 0.669 & 0.878 & 0.026 & 0.879 & 0.026 \\ 
+\hline 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
