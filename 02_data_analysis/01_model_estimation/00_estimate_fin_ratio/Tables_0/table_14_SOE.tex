@@ -1,0 +1,50 @@
+
+\documentclass[preview]{standalone} 
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs,caption,threeparttable, siunitx, adjustbox}
+
+\begin{document}% Date and time \times  Fri, Oct 01, 2021 - 09 \times 10 \times 37
+\begin{table}[!htbp] \centering 
+  \caption{Ownership structure effect} 
+\label{}
+\begin{adjustbox}{width=\textwidth, totalheight=\textheight-2\baselineskip,keepaspectratio}
+\begin{tabular}{@{\extracolsep{5pt}}lcccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{6}{c}{Dependent variable} \\ 
+\cline{2-7} 
+\\[-1.8ex] & (1) & (2) & (3) & (4) & (5) & (6)\\
+ \\[-1.8ex]& Tangible to asset & RD & Tangible to asset & RD & Tangible to asset & RD\\
+ \hline \\[-1.8ex] 
+ log(\text{cashflow}) & $-$0.113$^{***}$ & 0.0003$^{**}$ & $-$0.113$^{***}$ & 0.0005$^{***}$ & $-$0.113$^{***}$ & 0.001$^{***}$ \\ 
+  & (0.003) & (0.0001) & (0.003) & (0.0001) & (0.003) & (0.0001) \\ 
+  log(\text{current ratio}) & $-$0.017$^{***}$ & 0.00003 & $-$0.017$^{***}$ & 0.0001 & $-$0.017$^{***}$ & 0.0001 \\ 
+  & (0.003) & (0.0001) & (0.003) & (0.0001) & (0.003) & (0.0001) \\ 
+  log(\text{liabilities to asset}) & $-$0.034$^{***}$ & 0.0001 & $-$0.034$^{***}$ & 0.0001 & $-$0.034$^{***}$ & 0.0001 \\ 
+  & (0.008) & (0.0004) & (0.008) & (0.0003) & (0.008) & (0.0003) \\ 
+  log(age) & 0.016$^{***}$ & 0.0003 & 0.016$^{***}$ & 0.0005$^{***}$ & 0.016$^{***}$ & 0.0005$^{***}$ \\ 
+  & (0.005) & (0.0005) & (0.005) & (0.0001) & (0.005) & (0.0001) \\ 
+  \text{export to sale} & 0.007 & 0.001 & 0.007 & $-$0.0002 & 0.007 & $-$0.0002 \\ 
+  & (0.008) & (0.001) & (0.008) & (0.0004) & (0.008) & (0.0004) \\ 
+  \text{all credit} &  &  & 1.275$^{***}$ & $-$0.002$^{***}$ &  &  \\ 
+  &  &  & (0.324) & (0.0004) &  &  \\ 
+  \text{long term credit} &  &  &  &  & 0.282$^{***}$ & $-$0.001$^{***}$ \\ 
+  &  &  &  &  & (0.077) & (0.0001) \\ 
+ \hline \\[-1.8ex] 
+firm & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+industry & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+year & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Observations & 107,789 & 27,357 & 107,789 & 27,357 & 107,789 & 27,357 \\ 
+R$^{2}$ & 0.895 & 0.547 & 0.896 & 0.026 & 0.896 & 0.026 \\ 
+\hline 
+\hline \\[-1.8ex] 
+\end{tabular}
+\end{adjustbox}
+\begin{tablenotes} 
+ \small 
+ \item \\ 
+This table estimates eq(X). Heteroskedasticity-robust standard errorsclustered at the firm level appear inparentheses.Dependent variables include firm's TFP level  Independent variable cashflow is measured as net income + depreciation over asset; current ratio is measured as current asset over current liabilities. \sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%. 
+\end{tablenotes}
+\end{table}
+
+\end{document}
