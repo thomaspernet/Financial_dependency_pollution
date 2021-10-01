@@ -1,0 +1,51 @@
+
+\documentclass[preview]{standalone} 
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs,caption,threeparttable, siunitx, adjustbox}
+
+\begin{document}% Date and time \times  Fri, Oct 01, 2021 - 08 \times 37 \times 32
+\begin{table}[!htbp] \centering 
+  \caption{Heterogeneity effect, city ownership} 
+\label{}
+\begin{adjustbox}{width=\textwidth, totalheight=\textheight-2\baselineskip,keepaspectratio}
+\begin{tabular}{@{\extracolsep{5pt}}lcccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{8}{c}{Dependent variable: SO2 emission} \\ 
+\cline{2-9} 
+\\[-1.8ex] & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8)\\
+ \\[-1.8ex]& SOE & Private & SOE & Private & Foreign & Domestic & Foreign & Domestic\\
+ \hline \\[-1.8ex] 
+ log(\text{asset tangibility}) & 0.284$^{***}$ & 0.242$^{***}$ & 0.281$^{***}$ & 0.239$^{***}$ & 0.083 & 0.277$^{***}$ & 0.082 & 0.273$^{***}$ \\ 
+  & (0.101) & (0.053) & (0.101) & (0.053) & (0.162) & (0.046) & (0.162) & (0.046) \\ 
+  log(sales) & 0.469$^{***}$ & 0.325$^{***}$ & 0.496$^{***}$ & 0.338$^{***}$ & 0.287$^{***}$ & 0.389$^{***}$ & 0.286$^{***}$ & 0.409$^{***}$ \\ 
+  & (0.065) & (0.036) & (0.068) & (0.038) & (0.083) & (0.034) & (0.086) & (0.035) \\ 
+  log(\text{total asset}) & 0.180$^{***}$ & 0.232$^{***}$ & 0.173$^{***}$ & 0.229$^{***}$ & 0.196$^{**}$ & 0.225$^{***}$ & 0.196$^{**}$ & 0.220$^{***}$ \\ 
+  & (0.063) & (0.036) & (0.063) & (0.036) & (0.079) & (0.033) & (0.079) & (0.033) \\ 
+  log(\text{cashflow}) & 0.016 & $-$0.052$^{**}$ & 0.015 & $-$0.051$^{**}$ & $-$0.066 & $-$0.040$^{**}$ & $-$0.066 & $-$0.040$^{**}$ \\ 
+  & (0.033) & (0.021) & (0.032) & (0.021) & (0.044) & (0.019) & (0.045) & (0.019) \\ 
+  log(\text{current ratio}) & $-$0.117 & $-$0.100$^{***}$ & $-$0.120$^{*}$ & $-$0.102$^{***}$ & $-$0.133 & $-$0.096$^{***}$ & $-$0.133$^{*}$ & $-$0.099$^{***}$ \\ 
+  & (0.072) & (0.034) & (0.072) & (0.034) & (0.081) & (0.032) & (0.080) & (0.033) \\ 
+  log(\text{liabilities to asset}) & $-$0.041 & $-$0.017 & $-$0.047 & $-$0.017 & $-$0.374$^{**}$ & $-$0.005 & $-$0.374$^{**}$ & $-$0.005 \\ 
+  & (0.140) & (0.068) & (0.139) & (0.068) & (0.161) & (0.061) & (0.161) & (0.061) \\ 
+  log(\text{sales to asset}) & 0.053 & 0.022 & 0.057 & 0.023 & $-$0.038 & 0.033 & $-$0.038 & 0.034 \\ 
+  & (0.067) & (0.033) & (0.067) & (0.033) & (0.083) & (0.033) & (0.081) & (0.032) \\ 
+  log(\text{TFP}) &  &  & $-$1.163 & $-$0.597 &  &  & 0.043 & $-$0.796$^{**}$ \\ 
+  &  &  & (0.719) & (0.463) &  &  & (1.296) & (0.381) \\ 
+ \hline \\[-1.8ex] 
+industry-year & Yes & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+city-year & Yes & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Observations & 6,751 & 17,529 & 6,751 & 17,529 & 4,261 & 20,019 & 4,261 & 20,019 \\ 
+R$^{2}$ & 0.739 & 0.625 & 0.739 & 0.625 & 0.684 & 0.649 & 0.684 & 0.649 \\ 
+\hline 
+\hline \\[-1.8ex] 
+\end{tabular}
+\end{adjustbox}
+\begin{tablenotes} 
+ \small 
+ \item \\ 
+This table estimates eq(3). Heteroskedasticity-robust standard errors clustered at the city level appear inp arentheses.  Independent variable cashflow is measured as net income + depreciation over asset; current ratio is measured as current asset over current liabilities. A city is labeled with SOE (Private) if the total industrial output of SOE's (Foreign) companies exceeds the total output of Private's (Domestic)companies within city. The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets 
+\end{tablenotes}
+\end{table}
+
+\end{document}
