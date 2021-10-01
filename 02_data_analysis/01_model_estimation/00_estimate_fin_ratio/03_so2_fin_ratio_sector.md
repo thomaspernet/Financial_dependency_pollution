@@ -827,7 +827,7 @@ for v in ['output','employ', 'capital']:
 ```
 
 ```sos kernel="SoS"
-folder = 'Tables_0'
+folder = 'Tables_1'
 table_nb = 3
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
@@ -840,14 +840,17 @@ for ext in ['.txt', '.pdf']:
 
 <!-- #region kernel="SoS" -->
 Baseline: 50%
+
+Manually save and rename tex file: table_3_output_5
+
 <!-- #endregion -->
 
 ```sos kernel="R"
 %get path table
-df_soe <- df_final %>% right_join(read_csv('list_city_soe_output_0.4.csv'))
-df_priv <- df_final %>% left_join(read_csv('list_city_soe_output_0.4.csv'))
-df_for <- df_final %>% right_join(read_csv('list_city_for_output_0.4.csv'))
-df_dom <- df_final %>% left_join(read_csv('list_city_for_output_0.4.csv'))
+df_soe <- df_final %>% inner_join(read_csv('list_city_soe_employ_0.2.csv'))
+df_priv <- df_final %>% left_join(read_csv('list_city_soe_employ_0.2.csv')) %>% filter(is.na(share_soe))
+df_for <- df_final %>% inner_join(read_csv('list_city_for_employ_0.2.csv'))
+df_dom <- df_final %>% left_join(read_csv('list_city_for_employ_0.2.csv')) %>% filter(is.na(share_for))
 ### SOE vs Private
 t_0 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset) +
