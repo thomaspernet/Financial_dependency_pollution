@@ -1,0 +1,54 @@
+
+\documentclass[preview]{standalone} 
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs,caption,threeparttable, siunitx, adjustbox}
+
+\begin{document}% Date and time \times  Sun, Oct 03, 2021 - 08 \times 07 \times 50
+\begin{table}[!htbp] \centering 
+  \caption{Asset structure (\text{\text{tangible asset} asset} versus in\text{\text{tangible asset} asset}) and internal finance} 
+\label{}
+\begin{adjustbox}{width=\textwidth, totalheight=\textheight-2\baselineskip,keepaspectratio}
+\begin{tabular}{@{\extracolsep{5pt}}lcccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{8}{c}{Dependent variable} \\ 
+\cline{2-9} 
+\\[-1.8ex] & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8)\\
+ \\[-1.8ex]& Tangible to asset & RD & Tangible to asset & RD & Tangible to asset & RD & Tangible to asset & Tangible to asset\\
+ \hline \\[-1.8ex] 
+ log(\text{cashflow}) & $-$0.142$^{***}$ & 0.0001 &  &  & $-$0.142$^{***}$ & 0.0001 & $-$0.142$^{***}$ & $-$0.142$^{***}$ \\ 
+  & (0.004) & (0.0001) &  &  & (0.004) & (0.0001) & (0.004) & (0.004) \\ 
+  log(\text{current ratio}) &  &  & $-$0.019$^{***}$ & 0.0001 & $-$0.004 & 0.00004 & $-$0.004 & $-$0.004 \\ 
+  &  &  & (0.005) & (0.0001) & (0.005) & (0.0001) & (0.005) & (0.005) \\ 
+  log(\text{liabilities to asset}) & $-$0.018$^{***}$ & 0.0001 & $-$0.037$^{***}$ & 0.0001$^{**}$ & $-$0.036$^{***}$ & 0.0001$^{**}$ & $-$0.036$^{***}$ & $-$0.036$^{***}$ \\ 
+  & (0.004) & (0.0001) & (0.004) & (0.0001) & (0.004) & (0.0001) & (0.004) & (0.004) \\ 
+  log(age) & 0.018$^{***}$ & $-$0.0002$^{***}$ & 0.016$^{***}$ & $-$0.0002$^{***}$ & 0.019$^{***}$ & $-$0.0002$^{***}$ & 0.019$^{***}$ & 0.019$^{***}$ \\ 
+  & (0.003) & (0.0001) & (0.003) & (0.0001) & (0.003) & (0.0001) & (0.003) & (0.003) \\ 
+  \text{export to sale} & $-$0.002 & 0.0005$^{***}$ & $-$0.003 & 0.0005$^{***}$ & $-$0.002 & 0.0005$^{***}$ & $-$0.003 & $-$0.003 \\ 
+  & (0.006) & (0.0001) & (0.006) & (0.0001) & (0.006) & (0.0001) & (0.006) & (0.006) \\ 
+  \text{all credit} &  &  &  &  &  &  & 1.026$^{***}$ &  \\ 
+  &  &  &  &  &  &  & (0.337) &  \\ 
+  \text{long term credit} &  &  &  &  &  &  &  & 0.285$^{***}$ \\ 
+  &  &  &  &  &  &  &  & (0.076) \\ 
+  log(\text{cashflow}) \times \text{domestic} & $-$0.006 & $-$0.00003 &  &  & $-$0.005 & $-$0.00003 & $-$0.005 & $-$0.005 \\ 
+  & (0.005) & (0.0001) &  &  & (0.005) & (0.0001) & (0.005) & (0.005) \\ 
+  log(\text{current ratio}) \times \text{domestic} &  &  & $-$0.017$^{***}$ & 0.00002 & $-$0.022$^{***}$ & 0.00003 & $-$0.022$^{***}$ & $-$0.022$^{***}$ \\ 
+  &  &  & (0.006) & (0.0001) & (0.005) & (0.0001) & (0.005) & (0.005) \\ 
+ \hline \\[-1.8ex] 
+firm-ownership & Yes & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+industry & Yes & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+year & Yes & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\ 
+Observations & 402,287 & 402,287 & 402,287 & 402,287 & 402,287 & 402,287 & 402,287 & 402,287 \\ 
+R$^{2}$ & 0.892 & 1.000 & 0.878 & 1.000 & 0.893 & 1.000 & 0.893 & 0.893 \\ 
+\hline 
+\hline \\[-1.8ex] 
+\end{tabular}
+\end{adjustbox}
+\begin{tablenotes} 
+ \small 
+ \item \\ 
+This table estimates eq(X). Heteroskedasticity-robust standard errorsclustered at the firm level appear inparentheses.Dependent variables include firm's TFP level  Independent variable cashflow is measured as net income + depreciation over asset; current ratio is measured as current asset over current liabilities. \sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%. 
+\end{tablenotes}
+\end{table}
+
+\end{document}

@@ -1,0 +1,50 @@
+
+\documentclass[preview]{standalone} 
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs,caption,threeparttable, siunitx, adjustbox}
+
+\begin{document}% Date and time \times  Sun, Oct 03, 2021 - 07 \times 46 \times 32
+\begin{table}[!htbp] \centering 
+  \caption{Asset structure (\text{\text{tangible asset} asset} versus in\text{\text{tangible asset} asset}) and internal finance} 
+\label{}
+\begin{adjustbox}{width=\textwidth, totalheight=\textheight-2\baselineskip,keepaspectratio}
+\begin{tabular}{@{\extracolsep{5pt}}lcccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{4}{c}{Dependent variable} \\ 
+\cline{2-5} 
+\\[-1.8ex] & (1) & (2) & (3) & (4)\\
+ \\[-1.8ex]& Tangible to asset & RD & Tangible to asset & Tangible to asset\\
+ \hline \\[-1.8ex] 
+ log(\text{cashflow}) & $-$0.149$^{***}$ & 0.0003$^{***}$ & $-$0.149$^{***}$ & $-$0.151$^{***}$ \\ 
+  & (0.002) & (0.0001) & (0.002) & (0.002) \\ 
+  log(\text{current ratio}) & $-$0.024$^{***}$ & 0.0001$^{*}$ & $-$0.024$^{***}$ & $-$0.025$^{***}$ \\ 
+  & (0.002) & (0.0001) & (0.002) & (0.002) \\ 
+  log(\text{liabilities to asset}) & $-$0.040$^{***}$ & 0.0004$^{***}$ & $-$0.040$^{***}$ & $-$0.041$^{***}$ \\ 
+  & (0.004) & (0.0002) & (0.004) & (0.004) \\ 
+  log(age) & 0.019$^{***}$ & 0.00004 & 0.019$^{***}$ & 0.019$^{***}$ \\ 
+  & (0.002) & (0.0004) & (0.002) & (0.002) \\ 
+  \text{export to sale} & $-$0.001 & 0.0002 & $-$0.001 & $-$0.0004 \\ 
+  & (0.006) & (0.0002) & (0.006) & (0.006) \\ 
+  \text{all credit} &  &  & 1.603$^{***}$ &  \\ 
+  &  &  & (0.171) &  \\ 
+  \text{long term credit} &  &  &  & 0.444$^{***}$ \\ 
+  &  &  &  & (0.046) \\ 
+ \hline \\[-1.8ex] 
+firm & Yes & Yes & Yes &  \\ 
+industry & Yes & Yes & Yes &  \\ 
+year & Yes & Yes & Yes &  \\ 
+Observations & 402,287 & 152,673 & 402,287 & 402,369 \\ 
+R$^{2}$ & 0.878 & 0.669 & 0.878 & 0.879 \\ 
+\hline 
+\hline \\[-1.8ex] 
+\end{tabular}
+\end{adjustbox}
+\begin{tablenotes} 
+ \small 
+ \item \\ 
+This table estimates equation XX. Independent variable cash flow is measured as net income + depreciation over asset; current ratio is measured as current asset over current liabilities. Credit supply (all and long term) is measured by taking the average bank loan to GDP ratio by province (2001–2007). Financial dependency is the share of capital expenditure not financed with cash flow from operations. Heteroskedasticity-robust standard errors clustered at the firm level appear in parentheses. \sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%.  
+\end{tablenotes}
+\end{table}
+
+\end{document}
