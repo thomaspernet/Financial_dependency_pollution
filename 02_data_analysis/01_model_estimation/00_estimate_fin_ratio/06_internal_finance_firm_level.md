@@ -571,9 +571,9 @@ t_3 <- felm(log(asset_tangibility_tot_asset) ~
             
 dep <- "Dependent variable"
 fe1 <- list(
-    c("firm", "Yes", "Yes", "Yes", "No", "Yes", "No"),
-    c("industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("firm", "Yes", "Yes", "Yes"),
+    c("industry", "Yes", "Yes", "Yes"),
+    c("year", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
@@ -820,7 +820,7 @@ os.rename('Tables_1/{}.tex'.format(table), 'Tables_1/{}_SOE.tex'.format(table))
 
 ```sos kernel="SoS"
 folder = 'Tables_1'
-table_nb = 13
+table_nb = 12
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
@@ -925,7 +925,7 @@ t_7 <- felm(log(asset_tangibility_tot_asset) ~
             | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
             ownership_adjusted %in% c('DOMESTIC','FOREIGN'))%>% filter(!is.na(labor_capital)),
             exactDOF = TRUE)
-t_8 <- change_target(t_8)
+t_7 <- change_target(t_7)
 #t_9 <- felm(rd_tot_asset_trick ~
 #            log(cashflow_to_tangible)* ownership_adjusted +
 #            log(current_ratio) * ownership_adjusted+
