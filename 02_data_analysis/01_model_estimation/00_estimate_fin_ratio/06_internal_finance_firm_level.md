@@ -850,7 +850,8 @@ t_1 <- felm(rd_tot_asset_trick ~
             log(age) +
             export_to_sale 
             | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
-            ownership_adjusted %in% c('DOMESTIC','FOREIGN'))%>% filter(!is.na(labor_capital)),
+            ownership_adjusted %in% c('DOMESTIC','FOREIGN') &
+            year %in% list("2005","2006", "2007"))%>% filter(!is.na(labor_capital)),
             exactDOF = TRUE)
 
 t_2 <- felm(log(asset_tangibility_tot_asset) ~
@@ -868,7 +869,8 @@ t_3 <- felm(rd_tot_asset_trick ~
             log(age) +
             export_to_sale 
             | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
-            ownership_adjusted %in% c('DOMESTIC','FOREIGN'))%>% filter(!is.na(labor_capital)),
+            ownership_adjusted %in% c('DOMESTIC','FOREIGN') &
+            year %in% list("2005","2006", "2007"))%>% filter(!is.na(labor_capital)),
             exactDOF = TRUE)
 t_3 <- change_target(t_3)
 t_4 <- felm(log(asset_tangibility_tot_asset) ~
@@ -888,7 +890,8 @@ t_5 <- felm(rd_tot_asset_trick ~
             log(age) +
             export_to_sale 
             | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
-            ownership_adjusted %in% c('DOMESTIC','FOREIGN'))%>% filter(!is.na(labor_capital)),
+            ownership_adjusted %in% c('DOMESTIC','FOREIGN') &
+            year %in% list("2005","2006", "2007"))%>% filter(!is.na(labor_capital)),
             exactDOF = TRUE)
 t_5 <- change_target(t_5)
 
