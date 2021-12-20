@@ -2,18 +2,18 @@ import pandas as pd
 from awsPy.aws_s3 import service_s3
 from awsPy.aws_glue import service_glue
 from awsPy.aws_authorization import aws_connector
-from GoogleDrivePy.google_platform import connect_cloud_platform
+from GoogleDrivePy.google_drive import connect_drive
 from GoogleDrivePy.google_authorization import authorization_service
 from pathlib import Path
-import os
+import os, re
 import json
 from tqdm import tqdm
 # Download stata file
 path = os.getcwd()
 parent_path = str(Path(path).parent.parent.parent)
 name_credential = 'financial_dep_SO2_accessKeys.csv'
-region = 'eu-west-3'
-bucket = 'datalake-datascience'
+region = 'eu-west-2'
+bucket = 'datalake-london'
 path_cred = "{0}/creds/{1}".format(parent_path, name_credential)
 
 
@@ -27,139 +27,228 @@ s3 = service_s3.connect_S3(client=client,
 # Load schema from
 # https://docs.google.com/spreadsheets/d/1gfdmBKzZ1h93atSMFcj_6YgLxC7xX62BCxOngJwf7qE
 project = 'valid-pagoda-132423'
-gd_auth = authorization_service.get_authorization(
+auth = authorization_service.get_authorization(
     path_credential_gcp="{}/creds/service.json".format(parent_path),
     path_credential_drive="{}/creds".format(parent_path),
     verbose=False
 )
 
-gcp_auth = auth.authorization_gcp()
-gcp = connect_cloud_platform.connect_console(project = project,
-                                                 service_account = gcp_auth)
+gd_auth = auth.authorization_drive()
+drive = connect_drive.drive_operations(gd_auth)
 
-gcp.download_blob(
-bucket_name = "chinese_data",
-destination_blob_name = "Environmental_Statistics_china/Processed_",
-source_file_name = 'China_city_pollution_98_2007.gz')
+# DOWNLOAD DATA: pollution data
+# if time out, download it manually
 
-### Make sure of the content
-#pd.read_csv('China_city_pollution_98_2007.gz').head()
+FILENAME_SPREADSHEET = "pollution_city_cic4_china"
+spreadsheet_id = drive.find_file_id(FILENAME_SPREADSHEET, to_print=False)
+sheetName = 'pollution_city_cic4_china'
+var1 = (
+    drive.upload_data_from_spreadsheet(
+        sheetID=spreadsheet_id,
+        sheetName=sheetName,
+        to_dataframe=True)
+)
+input_path_1 = os.path.join(parent_path, "00_data_catalogue",
+                            "temporary_local_data", "pollution_city_cic4_china - pollution_city_cic4_china.csv")
+# DOWNLOAD DATA: equipment data
+FILENAME_DRIVE = 'thomasusepollution.dta'
+FILEID = drive.find_file_id(FILENAME_DRIVE, to_print=False)
+var = (
+    drive.download_file(
+        filename=FILENAME_DRIVE,
+        file_id=FILEID,
+        local_path=os.path.join(parent_path, "00_data_catalogue", "temporary_local_data"))
+)
+input_path_2 = os.path.join(parent_path, "00_data_catalogue",
+                            "temporary_local_data", FILENAME_DRIVE)
+# DOWNLOAD DATA: Count of firm
+FILENAME_DRIVE1 = 'thomasusepollutionfirmn.dta'
+FILEID = drive.find_file_id(FILENAME_DRIVE1, to_print=False)
+var = (
+    drive.download_file(
+        filename=FILENAME_DRIVE,
+        file_id=FILEID,
+        local_path=os.path.join(parent_path, "00_data_catalogue", "temporary_local_data"))
+)
+input_path_3 = os.path.join(parent_path, "00_data_catalogue",
+                            "temporary_local_data", FILENAME_DRIVE1)
+# Make sure of the content
+pd.read_csv(input_path_1).shape
+pd.read_stata(input_path_2).shape
+pd.read_stata(input_path_3).shape
+# Previous file
+pd.io.json.build_table_schema(pd.read_csv(input_path_1))
 
-### Save S3
-s3.upload_file('China_city_pollution_98_2007.gz', "DATA/ENVIRONMENT/CHINA/CITY_SECTOR_POLLUTION")
-os.remove('China_city_pollution_98_2007.gz')
 
+var = (
+    pd.read_csv(input_path_1,
+                dtype={
+                    "citycode": 'string',
+                    "year": 'string',
+                    "indus_code": 'string',
+                    "ind2": 'string'
+                }
+                )
+    .dropna(subset=['citycode'])
+    .merge((
+        pd.read_stata(input_path_2)
+        .dropna(subset=['citycode'])
+        .assign(
+            year=lambda x: x['year'].round().astype('int').astype('str'),
+            citycode=lambda x: x['citycode'].round().astype(
+                'int').astype('str'),
+        )
+        .reindex(columns=[
+            'year',
+            'indus_code',
+            'citycode',
+            'tlssnl',
+            'tdwastegas_equip',
+            'tdso2_equip',
+            'tfqzlssnl',
+            'ttlssnl'
+        ])
+    ))
+    .merge(
+        (
+            pd.read_stata(input_path_3)
+            .dropna(subset=['citycode'])
+            .assign(
+                year=lambda x: x['year'].round().astype('int').astype('str'),
+                citycode=lambda x: x['citycode'].round().astype(
+                    'int').astype('str'),
+            )
+            .reindex(columns=[
+                'year',
+                'citycode',
+                'indus_code',
+                'firmdum',
+                'tfirm'
+            ])
+        ), how='left')
+)
+
+
+# Brief information ...
+var.to_csv('China_city_pollution_98_2007.csv', index=False)
+s3.remove_file(
+    key="DATA/ENVIRONMENT/CHINA/CITY_SECTOR_POLLUTION/China_city_pollution_98_2007.gz")
+# Save S3
+s3.upload_file('China_city_pollution_98_2007.csv',
+               "DATA/ENVIRONMENT/CHINA/CITY_SECTOR_POLLUTION")
+
+os.remove('China_city_pollution_98_2007.csv')
+[os.remove(i) for i in [input_path_1, input_path_3, input_path_3]]
+
+pd.io.json.build_table_schema(var)
 # Craw the table
-### Schema
+# Schema
 
 schema = [
-{
-    "Name": "year",
-    "Type": "string",
-    "Comment": ""
-},
-{
-    "Name": "prov2013",
-    "Type": "string",
-    "Comment": "Province name in Chinese"
-},
-{
-    "Name": "provinces",
-    "Type": "string",
-    "Comment": "Province name in English"
-},
-{
-    "Name": "citycode",
-    "Type": "string",
-    "Comment": "citycode refers to geocode4corr"
-},
-{
-    "Name": "citycn",
-    "Type": "string",
-    "Comment": "City name in Chinese"
-},
-{
-    "Name": "cityen",
-    "Type": "string",
-    "Comment": "City name in English"
-},
-{
-    "Name": "indus_code",
-    "Type": "string",
-    "Comment": "4 digits industry code"
-},
-{
-    "Name": "ind2",
-    "Type": "string",
-    "Comment": "2 digits industry code"
-},
-{
-    "Name": "ttoutput",
-    "Type": "float",
-    "Comment": "Total output city sector"
-},
-{
-    "Name": "twaste_water",
-    "Type": "int",
-    "Comment": "Total waste water city sector"
-},
-{
-    "Name": "tcod",
-    "Type": "float",
-    "Comment": "Total COD city sector"
-},
-{
-    "Name": "tammonia_nitrogen",
-    "Type": "float",
-    "Comment": "Total Ammonia Nitrogen city sector"
-},
-{
-    "Name": "twaste_gas",
-    "Type": "int",
-    "Comment": "Total Waste gas city sector"
-},
-{
-    "Name": "tso2",
-    "Type": "int",
-    "Comment": "Total so2 city sector"
-},
-{
-    "Name": "tnox",
-    "Type": "int",
-    "Comment": "Total NOx city sector"
-},
-{
-    "Name": "tsmoke_dust",
-    "Type": "int",
-    "Comment": "Total smoke dust city sector"
-},
-{
-    "Name": "tsoot",
-    "Type": "int",
-    "Comment": "Total soot city sector"
-},
-{
-    "Name": "lower_location",
-    "Type": "string",
-    "Comment": "Location city. one of Coastal, Central, Northwest, Northeast, Southwest"
-},
-{
-    "Name": "larger_location",
-    "Type": "string",
-    "Comment": "Location city. one of Eastern, Central, Western"
-},
-{
-    "Name": "coastal",
-    "Type": "string",
-    "Comment": "City is bordered by sea or not"
-},
+    {
+        "Name": "year",
+        "Type": "string",
+        "Comment": ""
+    },
+    {
+        "Name": "prov2013",
+        "Type": "string",
+        "Comment": "Province name in Chinese"
+    },
+    {
+        "Name": "provinces",
+        "Type": "string",
+        "Comment": "Province name in English"
+    },
+    {
+        "Name": "citycode",
+        "Type": "string",
+        "Comment": "citycode refers to geocode4corr"
+    },
+    {
+        "Name": "citycn",
+        "Type": "string",
+        "Comment": "City name in Chinese"
+    },
+    {
+        "Name": "cityen",
+        "Type": "string",
+        "Comment": "City name in English"
+    },
+    {
+        "Name": "indus_code",
+        "Type": "string",
+        "Comment": "4 digits industry code"
+    },
+    {
+        "Name": "ind2",
+        "Type": "string",
+        "Comment": "2 digits industry code"
+    },
+    {
+        "Name": "ttoutput",
+        "Type": "float",
+        "Comment": "Total output city sector"
+    },
+    {
+        "Name": "twaste_water",
+        "Type": "int",
+        "Comment": "Total waste water city sector"
+    },
+    {
+        "Name": "tcod",
+        "Type": "float",
+        "Comment": "Total COD city sector"
+    },
+    {
+        "Name": "tammonia_nitrogen",
+        "Type": "float",
+        "Comment": "Total Ammonia Nitrogen city sector"
+    },
+    {
+        "Name": "twaste_gas",
+        "Type": "int",
+        "Comment": "Total Waste gas city sector"
+    },
+    {
+        "Name": "tso2",
+        "Type": "int",
+        "Comment": "Total so2 city sector"
+    },
+    {
+        "Name": "tnox",
+        "Type": "int",
+        "Comment": "Total NOx city sector"
+    },
+    {
+        "Name": "tsmoke_dust",
+        "Type": "int",
+        "Comment": "Total smoke dust city sector"
+    },
+    {
+        "Name": "tsoot",
+        "Type": "int",
+        "Comment": "Total soot city sector"
+    },
+    {'Name': 'tlssnl', 'Type': 'int', "Comment": ""},
+    {'Name': 'tdwastegas_equip', 'Type': 'int',
+        "Comment": "the number of equipment of removing wasted gas"},
+    {'Name': 'tdso2_equip', 'Type': 'int',
+        "Comment": "the number of equipment of removing so2"},
+    {'Name': 'tfqzlssnl', 'Type': 'int',
+        "Comment": "the capacity to remove wasted gas cube meter/hour"},
+    {'Name': 'ttlssnl', 'Type': 'int',
+        "Comment": "the capacity to remove so2 kilogram/hour"},
+    {'Name': 'firmdum', 'Type': 'int',
+        "Comment": "the number of firms ith equipment in city-industry-year"},
+    {'Name': 'tfirm', 'Type': 'int',
+        "Comment": "the number of firms ith equipment in city-year"}
 
 ]
 
 
-
 glue = service_glue.connect_glue(client=client)
-target_S3URI = "s3://datalake-datascience/DATA/ENVIRONMENT/CHINA/CITY_SECTOR_POLLUTION"
+target_S3URI = "s3://datalake-london/DATA/ENVIRONMENT/CHINA/CITY_SECTOR_POLLUTION"
 name_crawler = "crawl-pollution"
 Role = 'arn:aws:iam::468786073381:role/AWSGlueServiceRole-crawler-datalake'
 DatabaseName = "environment"
@@ -177,24 +266,53 @@ glue.create_table_glue(
 )
 
 # Add tp ETL parameter files
+filename = 'city_sector_pollution.py'
+path_to_etl = os.path.join(
+    str(Path(path).parent.parent.parent), 'utils', 'parameters_ETL_Financial_dependency_pollution.json')
+with open(path_to_etl) as json_file:
+    parameters = json.load(json_file)
+github_url = os.path.join(
+    "https://github.com/",
+    parameters['GLOBAL']['GITHUB']['owner'],
+    parameters['GLOBAL']['GITHUB']['repo_name'],
+    re.sub(parameters['GLOBAL']['GITHUB']['repo_name'],
+           '', re.sub(
+               r".*(?={})".format(parameters['GLOBAL']['GITHUB']['repo_name']), '', path))[1:],
+    filename
+)
+table_name = '{}{}'.format(TablePrefix, os.path.basename(target_S3URI).lower())
+description = "construct city-industry pollution china"
 json_etl = {
-    'description': 'Create China city sector pollution',
+    'description': description,
     'schema': schema,
     'partition_keys': [],
     'metadata': {
         'DatabaseName': DatabaseName,
         'TablePrefix': TablePrefix,
+        'TableName': table_name,
         'target_S3URI': target_S3URI,
-        'from_athena': 'False'
+        'from_athena': 'False',
+        'filename': filename,
+        'github_url': github_url
     }
 }
 
-path_to_etl = os.path.join(str(Path(path).parent.parent),
-                           'parameters_ETL_Financial_dependency_pollution.json')
+
 with open(path_to_etl) as json_file:
     parameters = json.load(json_file)
 
-#parameters['TABLES']['CREATION']['ALL_SCHEMA'].pop(0)
+# parameters['TABLES']['CREATION']['ALL_SCHEMA'].pop(0)
+
+index_to_remove = next(
+    (
+        index
+        for (index, d) in enumerate(parameters['TABLES']['CREATION']['ALL_SCHEMA'])
+        if d['metadata']['filename'] == filename
+    ),
+    None,
+)
+if index_to_remove != None:
+    parameters['TABLES']['CREATION']['ALL_SCHEMA'].pop(index_to_remove)
 
 parameters['TABLES']['CREATION']['ALL_SCHEMA'].append(json_etl)
 
