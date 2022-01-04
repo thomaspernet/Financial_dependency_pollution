@@ -162,48 +162,65 @@ WITH aggregate_pol AS (
   SELECT 
     year, 
     geocode4_corr, 
-    cityen, 
+    --cityen, 
     -- indus_code AS cic,
     ind2, 
     SUM(tso2) as tso2, 
-    lower_location, 
-    larger_location, 
-    coastal 
+    SUM(tlssnl) as tlssnl,
+    SUM(tdwastegas_equip) as tdwastegas_equip,
+    SUM(tdso2_equip) as tdso2_equip,
+    SUM(tfqzlssnl) as tfqzlssnl,
+    SUM(ttlssnl) as ttlssnl,
+    SUM(firmdum) as firmdum,
+    SUM(tfirm) as tfirm
+    --lower_location, 
+    --larger_location, 
+    --coastal 
   FROM 
     (
       SELECT 
         year, 
         citycode, 
         geocode4_corr, 
-        china_city_sector_pollution.cityen,
+        --cityen,
+        --china_city_sector_pollution.cityen,
         -- indus_code,
         ind2, 
         tso2, 
-        lower_location, 
-        larger_location, 
-        coastal 
+        tlssnl,
+        tdwastegas_equip,
+        tdso2_equip,
+        tfqzlssnl,
+        ttlssnl,
+        firmdum,
+        tfirm
+        -- lower_location, 
+        --larger_location, 
+        --coastal 
       FROM 
         environment.china_city_sector_pollution 
         INNER JOIN (
           SELECT 
             extra_code, 
-            geocode4_corr 
+            geocode4_corr--,
+            --cityen
           FROM 
             chinese_lookup.china_city_code_normalised 
           GROUP BY 
             extra_code, 
-            geocode4_corr
+            geocode4_corr--,
+            --cityen
         ) as no_dup_citycode ON china_city_sector_pollution.citycode = no_dup_citycode.extra_code
     ) 
   GROUP BY 
     year, 
     geocode4_corr, 
-    cityen, 
+    --cityen, 
     --indus_code,
-    ind2, 
-    lower_location, 
-    larger_location, 
-    coastal
+    ind2--, 
+    --lower_location, 
+    --larger_location, 
+    --coastal
 ) 
 SELECT 
   * 
@@ -213,15 +230,22 @@ FROM
       SELECT 
         aggregate_pol.year, 
         aggregate_pol.geocode4_corr, 
-        cityen, 
+        --cityen, 
         --aggregate_pol.cic,
         aggregate_pol.ind2, 
         tso2, 
+        tlssnl,
+        tdwastegas_equip,
+        tdso2_equip,
+        tfqzlssnl,
+        ttlssnl,
+        firmdum,
+        tfirm,
         tso2_mandate_c,
         in_10_000_tonnes
-        lower_location, 
-        larger_location, 
-        coastal 
+        --lower_location, 
+        --larger_location, 
+        --coastal 
       FROM 
         aggregate_pol 
         INNER JOIN firms_survey.asif_industry_financial_ratio_city ON 
@@ -260,69 +284,6 @@ FROM
     GROUP BY 
       CNT
   )
-"""
-output = s3.run_query(
-                    query=query,
-                    database=DatabaseName,
-                    s3_output=s3_output_example,
-    filename = 'example_1'
-                )
-output
-```
-
-### Example computation threshold mandate
-
-In the example below, we detail how to compute the average and percentile of policy mandate and compute the comparison
-
-```python
-query = """
-SELECT 
-  geocode4_corr, 
-  tso2_mandate_c, 
-  in_10_000_tonnes, 
-  tso2_mandate_c_pct, 
-  tso2_mandate_c_avg, 
-  MAP(
-    ARRAY[.5, 
-    .75, 
-    .90, 
-    .95 ], 
-    zip_with(
-      transform(
-        sequence(1, 4), 
-        x -> tso2_mandate_c
-      ), 
-      tso2_mandate_c_pct, 
-      (x, y) -> x < y
-    )
-  ) AS above_threshold_mandate, 
-  CASE WHEN tso2_mandate_c > tso2_mandate_c_avg THEN 'ABOVE' ELSE 'BELOW' END AS above_average_mandate 
-FROM 
-  (
-    (
-      SELECT 
-        'TEMP' as temp, 
-        approx_percentile(
-          tso2_mandate_c, ARRAY[.5,.75,.90, 
-          .95]
-        ) AS tso2_mandate_c_pct, 
-        AVG(tso2_mandate_c) AS tso2_mandate_c_avg 
-      FROM 
-        policy.china_city_reduction_mandate
-    ) as percentile 
-    LEFT JOIN (
-      SELECT 
-        'TEMP' as temp, 
-        citycn, 
-        tso2_mandate_c, 
-        in_10_000_tonnes 
-      FROM 
-        policy.china_city_reduction_mandate
-    ) as mandate ON percentile.temp = mandate.temp
-  ) as map_mandate
-  INNER JOIN chinese_lookup.china_city_code_normalised ON map_mandate.citycn = china_city_code_normalised.citycn 
-    WHERE 
-      extra_code = geocode4_corr
 """
 output = s3.run_query(
                     query=query,
@@ -465,13 +426,20 @@ SELECT
     year, 
     geocode4_corr, 
     province_en, 
-    cityen, 
+    --cityen, 
     -- indus_code AS cic,
     ind2, 
     SUM(tso2) as tso2, 
-    lower_location, 
-    larger_location, 
-    coastal 
+    SUM(tlssnl) as tlssnl,
+    SUM(tdwastegas_equip) as tdwastegas_equip,
+    SUM(tdso2_equip) as tdso2_equip,
+    SUM(tfqzlssnl) as tfqzlssnl,
+    SUM(ttlssnl) as ttlssnl,
+    SUM(firmdum) as firmdum,
+    SUM(tfirm) as tfirm
+    --lower_location, 
+    --larger_location, 
+    --coastal 
   FROM 
     (
       SELECT 
@@ -479,13 +447,20 @@ SELECT
         province_en, 
         citycode, 
         geocode4_corr, 
-        china_city_sector_pollution.cityen, 
+        --china_city_sector_pollution.cityen, 
         --indus_code,
         ind2,  
         tso2, 
-        lower_location, 
-        larger_location, 
-        coastal 
+        tlssnl,
+        tdwastegas_equip,
+        tdso2_equip,
+        tfqzlssnl,
+        ttlssnl,
+        firmdum,
+        tfirm
+        --lower_location, 
+        --larger_location, 
+        --coastal 
       FROM 
         environment.china_city_sector_pollution 
         INNER JOIN (
@@ -505,12 +480,12 @@ SELECT
     year, 
     province_en, 
     geocode4_corr, 
-    cityen, 
+    --cityen, 
     --indus_code,
-    ind2, 
-    lower_location, 
-    larger_location, 
-    coastal
+    ind2--, 
+    --lower_location, 
+    --larger_location, 
+    --coastal
 ) 
 SELECT 
   aggregate_pol.year, 
@@ -518,7 +493,7 @@ SELECT
     '2001', '2002', '2003', '2004', '2005'
   ) THEN 'FALSE' WHEN aggregate_pol.year in ('2006', '2007') THEN 'TRUE' END AS period, 
   aggregate_pol.province_en, 
-  cityen, 
+  --cityen, 
   aggregate_pol.geocode4_corr, 
   CASE WHEN tcz IS NULL THEN '0' ELSE tcz END AS tcz, 
   CASE WHEN spz IS NULL OR spz = '#N/A' THEN '0' ELSE spz END AS spz, 
@@ -540,6 +515,13 @@ SELECT
   polluted_d95_cit, 
   polluted_m_cit,
   tso2, 
+  tlssnl,
+  tdwastegas_equip,
+  tdso2_equip,
+  tfqzlssnl,
+  ttlssnl,
+  firmdum,
+  tfirm,
   CAST(
     tso2 AS DECIMAL(16, 5)
   ) / CAST(
@@ -576,9 +558,9 @@ SELECT
   lag_cashflow_tot_asset,
   return_to_sale,
   lag_return_to_sale,
-  lower_location, 
-  larger_location, 
-  coastal,
+  --lower_location, 
+  --larger_location, 
+  --coastal,
   dominated_output_soe_c,
   dominated_employment_soe_c,
   dominated_sales_soe_c,
@@ -1520,8 +1502,8 @@ y_var = 'tso2'
 
 ```python
 payload = {
-    "input_path": "s3://datalake-datascience/ANALYTICS/TEMPLATE_NOTEBOOKS/template_analysis_from_lambda.ipynb",
-    "output_prefix": "s3://datalake-datascience/ANALYTICS/OUTPUT/{}/".format(table_name.upper()),
+    "input_path": "s3://datalake-london/ANALYTICS/TEMPLATE_NOTEBOOKS/template_analysis_from_lambda.ipynb",
+    "output_prefix": "s3://datalake-london/ANALYTICS/OUTPUT/{}/".format(table_name.upper()),
     "parameters": {
         "region": "{}".format(region),
         "bucket": "{}".format(bucket),
@@ -1623,7 +1605,7 @@ create_report(extension = "html", keep_code = True, notebookname = "04_fin_dep_p
 ```
 
 ```python
-create_schema.create_schema(path_json, path_save_image = os.path.join(parent_path, 'utils'))
+#create_schema.create_schema(path_json, path_save_image = os.path.join(parent_path, 'utils'))
 ```
 
 ```python

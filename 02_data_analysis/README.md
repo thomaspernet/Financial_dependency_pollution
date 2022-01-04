@@ -28,3 +28,5 @@
        - [04_asset_tang_firm_level.html](https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/Reports/04_asset_tang_firm_level.html)
        - [05_tfp_firm_level.html](https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/Reports/05_tfp_firm_level.html)
        - [06_internal_finance_firm_level.html](https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/02_data_analysis/01_model_estimation/00_estimate_fin_ratio/Reports/06_internal_finance_firm_level.html)
+   - **Reports/**
+     - [history_comments.html](https://htmlpreview.github.io/?https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/02_data_analysis/01_model_estimation/Reports/history_comments.html)
