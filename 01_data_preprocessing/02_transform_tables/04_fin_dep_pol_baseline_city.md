@@ -436,7 +436,8 @@ SELECT
     SUM(tfqzlssnl) as tfqzlssnl,
     SUM(ttlssnl) as ttlssnl,
     SUM(firmdum) as firmdum,
-    SUM(tfirm) as tfirm
+    SUM(tfirm) as tfirm,
+    SUM(ttoutput) as ttoutput
     --lower_location, 
     --larger_location, 
     --coastal 
@@ -457,7 +458,8 @@ SELECT
         tfqzlssnl,
         ttlssnl,
         firmdum,
-        tfirm
+        tfirm,
+        ttoutput
         --lower_location, 
         --larger_location, 
         --coastal 
@@ -520,6 +522,7 @@ SELECT
   tdso2_equip,
   tfqzlssnl,
   ttlssnl,
+  ttoutput,
   firmdum,
   tfirm,
   CAST(
@@ -1136,7 +1139,23 @@ schema = [
     },
     {"Name": "fe_c_i", "Type": "bigint", "Comment": "City industry fixed effect"},
     {"Name": "fe_t_i", "Type": "bigint", "Comment": "year industry fixed effect"},
-    {"Name": "fe_c_t", "Type": "bigint", "Comment": "city industry fixed effect"}]
+    {"Name": "fe_c_t", "Type": "bigint", "Comment": "city industry fixed effect"},
+{'Name': 'tlssnl', 'Type': 'int', "Comment": ""},
+    {'Name': 'tdwastegas_equip', 'Type': 'int',
+        "Comment": "the number of equipment of removing wasted gas"},
+    {'Name': 'tdso2_equip', 'Type': 'int',
+        "Comment": "the number of equipment of removing so2"},
+    {'Name': 'tfqzlssnl', 'Type': 'int',
+        "Comment": "the capacity to remove wasted gas cube meter/hour"},
+    {'Name': 'ttlssnl', 'Type': 'int',
+        "Comment": "the capacity to remove so2 kilogram/hour"},
+    {'Name': 'firmdum', 'Type': 'int',
+        "Comment": "the number of firms ith equipment in city-industry-year"},
+    {'Name': 'tfirm', 'Type': 'int',
+        "Comment": "the number of firms ith equipment in city-year"},
+
+    {'Name': 'ttoutput', 'Type': 'float',
+        "Comment": "total output from pollution data"}]
 ```
 
 4. Provide a description
