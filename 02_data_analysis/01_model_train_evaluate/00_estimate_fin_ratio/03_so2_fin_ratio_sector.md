@@ -443,6 +443,20 @@ for ext in ['.txt', '.tex', '.pdf']:
 ```
 
 ```sos kernel="R"
+summary(
+    felm(log(tso2) ~ 
+            log(asset_tangibility_tot_asset) +
+            log(sales) +
+            log(total_asset) +
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) + 
+            tdso2_equip
+            | fe_t_i +fe_c_t|0 | geocode4_corr, df_final,
+            exactDOF = TRUE)
+)
+```
+
+```sos kernel="R"
 %get path table
 t_0 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset)  +
