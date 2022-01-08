@@ -126,8 +126,12 @@ var = (
                 'tfirm'
             ])
         ), how='left')
+    .assign(
+    tlssnl_output = lambda x: x['tlssnl']/x['ttoutput'],
+    tdwastegas_equip_output = lambda x: x['tdwastegas_equip']/x['ttoutput'],
+    tdso2_equip_output = lambda x: x['tdso2_equip']/x['ttoutput'],
+    )
 )
-
 
 # Brief information ...
 var.to_csv('China_city_pollution_98_2007.csv', index=False)
@@ -242,7 +246,14 @@ schema = [
     {'Name': 'firmdum', 'Type': 'int',
         "Comment": "the number of firms ith equipment in city-industry-year"},
     {'Name': 'tfirm', 'Type': 'int',
-        "Comment": "the number of firms ith equipment in city-year"}
+        "Comment": "the number of firms ith equipment in city-year"},
+
+    {'Name': 'tlssnl_output', 'Type': 'float',
+        "Comment": "the number of firms ith equipment in city-year"},
+    {'Name': 'tdwastegas_equip_output', 'Type': 'float',
+        "Comment": "the number of equipment of removing wasted gas per unit of output"},
+    {'Name': 'tdso2_equip_output', 'Type': 'float',
+        "Comment": "the number of equipment of removing so2 per unit of output"},
 
 ]
 
