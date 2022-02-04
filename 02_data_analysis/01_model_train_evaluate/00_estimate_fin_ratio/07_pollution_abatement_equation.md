@@ -126,6 +126,10 @@ for key, value in enumerate(schema):
 ```
 
 ```sos kernel="SoS"
+from sklearn.preprocessing import StandardScaler
+```
+
+```sos kernel="SoS"
 download_data = True
 filename = 'df_{}'.format(table)
 full_path_filename = 'SQL_OUTPUT_ATHENA/CSV/{}.csv'.format(filename)
@@ -159,6 +163,48 @@ if download_data:
         destination_key='SQL_OUTPUT_ATHENA/CSV',  #Use it temporarily
         dtype = dtypes
     )
+    .sort_values(by = ['geocode4_corr','ind2', 'year'])
+    .assign(
+        tso2_eq_output = lambda x: (x['tdso2_equip']+1)/(x['ttoutput']/1000),
+         tso2_eq_output_1 = lambda x: (x['tdso2_equip']+1)/(x['output']/1000),
+        lag_equipment = lambda x: x.groupby(['geocode4_corr','ind2'])['tdso2_equip'].transform("shift"),
+        gross_change = lambda x: x['tdso2_equip'] - x['lag_equipment'],
+        gross_change_output = lambda x: (x['tdso2_equip'] - x['lag_equipment'])/(x['output']/1000),
+    )
+          .assign(
+          constraint = lambda x: x['credit_constraint'] > -0.47,
+          std_eq_ind =lambda x: 
+              x.groupby(['year', 'ind2'])['tso2_eq_output_1'].transform(lambda x: (x-x.min())/(x.max()-x.min()),
+                                                                       ),
+          std_eq_c =lambda x: 
+              x.groupby(['year', 'geocode4_corr'])['tso2_eq_output_1'].transform(lambda x: (x-x.min())/(x.max()-x.min()),
+                                                                       ),
+          std_eq_year =lambda x: 
+              x.groupby(['year'])['tso2_eq_output_1'].transform(lambda x: (x-x.min())/(x.max()-x.min()),
+                                                                       ),
+          std_eq =lambda x: (x['tso2_eq_output_1']-x['tso2_eq_output_1'].min())/(
+              x['tso2_eq_output_1'].max()-x['tso2_eq_output_1'].min()),
+        
+         std_eq_ind_1 =lambda x: 
+              x.groupby(['year', 'ind2'])['tdso2_equip'].transform(lambda x: (x-x.min())/(x.max()-x.min()),
+                                                                       ),
+          std_eq_c_1 =lambda x: 
+              x.groupby(['year', 'geocode4_corr'])['tdso2_equip'].transform(lambda x: (x-x.min())/(x.max()-x.min()),
+                                                                       ),
+          std_eq_year_1 =lambda x: 
+              x.groupby(['year'])['tdso2_equip'].transform(lambda x: (x-x.min())/(x.max()-x.min()),
+                                                                       ),
+          std_eq_1 =lambda x: (x['tdso2_equip']-x['tdso2_equip'].min())/(
+              x['tdso2_equip'].max()-x['tdso2_equip'].min()),
+          pct_change_eq = lambda x: x.groupby(['geocode4_corr','ind2'])['tso2_eq_output_1'].transform('pct_change'),
+          pct_change_cash = lambda x: x.groupby(['geocode4_corr','ind2'])['lag_cashflow_to_tangible'].transform('pct_change'),
+          pct_change_curr = lambda x: x.groupby(['geocode4_corr','ind2'])['lag_current_ratio'].transform('pct_change'),
+          pct_change_cash_1 = lambda x: x.groupby(['geocode4_corr','ind2'])['cashflow_to_tangible'].transform('pct_change'),
+          pct_change_curr_1 = lambda x: x.groupby(['geocode4_corr','ind2'])['current_ratio'].transform('pct_change'),
+          pct_change_sales = lambda x: x.groupby(['geocode4_corr','ind2'])['sales'].transform('pct_change'),
+          pct_change_liabilities_tot_asset = lambda x: x.groupby(['geocode4_corr','ind2'])['liabilities_tot_asset'].transform('pct_change'),
+          pct_change_sales_tot_asset = lambda x: x.groupby(['geocode4_corr','ind2'])['sales_tot_asset'].transform('pct_change'),
+          )
             )
     s3.download_file(
         key = full_path_filename
@@ -169,6 +215,24 @@ if download_data:
     )
     s3.remove_file(full_path_filename)
     df.head()
+```
+
+```sos kernel="SoS"
+df.reindex(columns = ['geocode4_corr','ind2', 'year',
+                      'tso2_eq_output_1', 
+                      'pct_change_eq', 
+                      "std_eq_ind",
+                      "std_eq_c",
+                      "std_eq_year",
+                      'std_eq',
+                      "lag_cashflow_to_tangible",
+                      "lag_current_ratio",
+                     "pct_change_cash", 
+                     'pct_change_curr'])
+```
+
+```sos kernel="SoS"
+df.to_csv(os.path.join(path_local, filename + '.csv'))
 ```
 
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}
@@ -349,20 +413,24 @@ mutate_if(is.character, as.factor) %>%
     mutate_at(vars(starts_with("fe")), as.factor) %>%
 mutate(
     period = relevel(as.factor(period), ref='FALSE'),
+    constraint = relevel(as.factor(constraint), ref='FALSE'),
     polluted_d50i = relevel(as.factor(polluted_d50i), ref='BELOW'),
     polluted_d75i = relevel(as.factor(polluted_d75i), ref='BELOW'),
     polluted_d80i = relevel(as.factor(polluted_d80i), ref='BELOW'),
     polluted_d85i = relevel(as.factor(polluted_d85i), ref='BELOW'),
     polluted_d90i = relevel(as.factor(polluted_d90i), ref='BELOW'),
     polluted_d95i = relevel(as.factor(polluted_d95i), ref='BELOW'),
-    polluted_mi = relevel(as.factor(polluted_mi), ref='BELOW')  
+    polluted_d75_cit = relevel(as.factor(polluted_d75_cit), ref='BELOW'),
+    polluted_d80_cit = relevel(as.factor(polluted_d80_cit), ref='BELOW'),
+    polluted_d90_cit = relevel(as.factor(polluted_d90_cit), ref='BELOW'),
+    polluted_mi = relevel(as.factor(polluted_mi), ref='BELOW'),
 )
 ```
 
 <!-- #region kernel="SoS" -->
 ## Table 1: Pollution abatement channel
 
-$$\begin{aligned} \text{Equipment}{cit} &= \alpha_1 \text{Asset Tangibility}_{cit} + \alpha_2 \text{Internal finance}_{cit-1}+ \alpha_3 \text{TFP}_{cit} + \beta \text{X}_{cit} + \gamma_{it} +\gamma_{ct} + \epsilon_{cit} \end{aligned}$$
+$$\begin{aligned} \text{Equipment}_{cit} &=  \alpha_2 \text{Internal finance}_{cit-1}+\beta \text{X}_{cit} + \gamma_{it} +\gamma_{ct} + \epsilon_{cit} \end{aligned}$$
 
 The following variables are lagged:
 
@@ -371,7 +439,122 @@ The following variables are lagged:
 - sale over asset
 <!-- #endregion -->
 
-```sos kernel="SoS" nteract={"transient": {"deleting": false}}
+<!-- #region kernel="R" -->
+Is the data correct?
+<!-- #endregion -->
+
+```sos kernel="SoS"
+df.groupby(['constraint'])['ind2'].unique()
+```
+
+```sos kernel="SoS"
+(
+    df[[
+        "lag_cashflow_to_tangible",
+        "lag_current_ratio",
+        "tfqzlssnl",
+        "ttlssnl",
+        "tdwastegas_equip",
+        "tdso2_equip",
+        'tso2_eq_output',
+        'tso2_eq_output_1',
+        "std_eq_ind",
+        "std_eq_c",
+        "std_eq_year",
+        'std_eq']]
+    .describe(percentiles=[.5, .7, .8, .9, .95, .99])
+    .style
+    .format("{0:,.2f}")
+)
+```
+
+```sos kernel="SoS"
+(
+    df
+    .assign(
+            log_cash = lambda x: np.log(x['lag_cashflow_to_tangible']),
+            log_current = lambda x: np.log(x['lag_current_ratio']),
+            log_eq = lambda x: np.log(x['tdso2_equip']),
+            log_tso2_eq_output = lambda x: np.log(x['tso2_eq_output_1']),
+            log_ttlssnl = lambda x: np.log(x['ttlssnl']),
+            log_tso2 = lambda x: np.log(x['tso2'])
+               )
+    [[
+        'tso2_eq_output_1',
+        "log_cash",
+        "log_current",
+    ]]
+    #.loc[lambda x: x["tso2_eq_output_1"] > 0]
+    #.loc[lambda x: x["tso2_eq_output_1"] < 20]
+    #.loc[lambda x: x["lag_cashflow_to_tangible"] < 0.31]
+    .corr()
+)
+```
+
+<!-- #region kernel="SoS" -->
+Test on `tdso2_equip` and `tdso2_equip/output`
+<!-- #endregion -->
+
+```sos kernel="SoS"
+import seaborn as sns; sns.set_theme(color_codes=True)
+```
+
+```sos kernel="SoS"
+test = (
+    df
+    #.loc[lambda x: x['ind2'].isin([13])]
+        .assign(
+            log_cash = lambda x: np.log(x['lag_cashflow_to_tangible']),
+            log_current = lambda x: np.log(x['lag_current_ratio']),
+            log_eq = lambda x: np.log(x['tdso2_equip'] + 1),
+            log_tso2_eq_output = lambda x: np.log(x['tso2_eq_output_1']),
+            log_ttlssnl = lambda x: np.log(x['ttlssnl']),
+            log_tso2 = lambda x: np.log(x['tso2'])
+               )
+        .reindex(columns = ['year',
+                            'log_cash',
+                            'log_current',
+                            "log_ttlssnl",
+                            'log_eq',
+                            'tso2_eq_output_1',
+                            'log_tso2_eq_output',
+                            "constraint",
+                            'polluted_d75i',
+                            "log_tso2"
+                           ])
+    .loc[lambda x: x["tso2_eq_output_1"] > 0]
+    .loc[lambda x: x["tso2_eq_output_1"] < 20]
+    .sort_values(by = ['log_ttlssnl'])
+)
+sns.regplot(x="log_cash", y="log_tso2_eq_output", data=test)
+```
+
+```sos kernel="SoS"
+g = sns.FacetGrid(test, col="constraint", aspect=2, height =4)
+g.map(sns.regplot, "log_cash", "log_tso2_eq_output")
+```
+
+```sos kernel="SoS"
+g = sns.FacetGrid(test, col="polluted_d75i", aspect=2, height =4)
+g.map(sns.regplot, "log_cash", "log_tso2_eq_output")
+```
+
+```sos kernel="SoS"
+
+sns.regplot(x="log_current", y="log_tso2_eq_output", data=test)
+```
+
+```sos kernel="SoS"
+g = sns.FacetGrid(test, col="constraint", aspect=2, height =4)
+g.map(sns.regplot, "log_current", "log_tso2_eq_output")
+```
+
+```sos kernel="SoS"
+g = sns.FacetGrid(test, col="polluted_d75i", aspect=2, height =4)
+g.map(sns.regplot, "log_current", "log_tso2_eq_output")
+```
+
+```sos kernel="SoS"
 folder = 'Tables_0'
 table_nb = 1
 table = 'table_{}'.format(table_nb)
@@ -385,61 +568,59 @@ for ext in ['.txt', '.tex', '.pdf']:
 
 ```sos kernel="R"
 %get path table
-t_0 <- felm(YYY ~XXX
-            | FE|0 | CLUSTER, df_final %>% filter(XXX == 'YYY'),
+t_0 <- felm(log(tso2_eq_output_1) ~ 
+            log(lag_cashflow_to_tangible) 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final %>% filter(tso2_eq_output_1 > 0)
+         ,
             exactDOF = TRUE)
 
-t_0 <- felm(YYY ~XXX
-            | FE|0 | CLUSTER, df_final %>% filter(XXX != 'YYY'),
+t_1 <- felm(log(tso2_eq_output_1) ~ 
+            log(lag_cashflow_to_tangible) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% filter(tso2_eq_output_1 > 0)
+         ,
             exactDOF = TRUE)
 
-t_2 <- felm(kYYY ~XXX
-            | FE|0 | CLUSTER, df_final,
+t_2 <- felm(log(tso2_eq_output_1) ~ 
+            log(lag_cashflow_to_tangible) * constraint
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% filter(tso2_eq_output_1 > 0)
+         ,
             exactDOF = TRUE)
 
-t_3 <- felm(kYYY ~XXX
-            | FE|0 | CLUSTER, df_final,
+t_3 <- felm(log(tso2_eq_output_1) ~ 
+            log(lag_cashflow_to_tangible) * constraint+
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% filter(tso2_eq_output_1 > 0)
+         ,
             exactDOF = TRUE)
-            
-dep <- "Dependent variable: YYYY"
+
+dep <- "Dependent variable: pollution abattement equipment SO2"
 fe1 <- list(
-    c("XXXXX", "Yes", "Yes", "No", "No"),
-    
-    c("XXXXX", "Yes", "Yes", "No", "No"),
-    
-    c("XXXXX","Yes", "Yes", "Yes", "No"),
-    
-    c("XXXXX","No", "No", "Yes", "Yes"),
-    
-    c("XXXXX","No", "No", "Yes", "Yes"),
-    
-    c("XXXXX", "No", "No", "No", "Yes")
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
-
 table_1 <- go_latex(list(
     t_0,t_1, t_2, t_3
 ),
-    title="TITLE",
+    title="Baseline Estimate, pollution abattement equipment SO2",
     dep_var = dep,
     addFE=fe1,
     save=TRUE,
     note = FALSE,
     name=path
-) 
+)
 ```
 
 ```sos kernel="SoS"
 tbe1  = "This table estimates eq(3). " \
-"Heteroskedasticity-robust standard errors" \
-"clustered at the product level appear inparentheses."\
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets"
 "\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-#multicolumn ={
-#    'Eligible': 2,
-#    'Non-Eligible': 1,
-#    'All': 1,
-#    'All benchmark': 1,
-#}
 
 #multi_lines_dep = '(city/product/trade regime/year)'
 #new_r = ['& test1', 'test2']
@@ -451,8 +632,603 @@ lb.beautify(table_number = table_nb,
             table_nte = tbe1,
             jupyter_preview = True,
             resolution = 150,
-            folder = folder)
+           folder = folder)
 ```
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2_eq_output_1) ~ 
+            log(lag_current_ratio) 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final %>% filter(tso2_eq_output_1 >0)
+         ,
+            exactDOF = TRUE)
+
+t_1 <- felm(log(tso2_eq_output_1) ~ 
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% filter(tso2_eq_output_1 >0)
+         ,
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2_eq_output_1) ~ 
+            log(lag_current_ratio) * constraint
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% filter(tso2_eq_output_1 >0)
+         ,
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2_eq_output_1) ~ 
+            log(lag_current_ratio) * constraint+
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% filter(tso2_eq_output_1 >0),
+            exactDOF = TRUE)
+
+dep <- "Dependent variable: pollution abattement equipment SO2"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3
+),
+    title="Baseline Estimate, pollution abattement equipment SO2",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets"
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+           folder = folder)
+```
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+change_target <- function(table){
+    ## SOE
+    check_target_current_ratio <- grep("constraintTRUE:log\\(lag_current_ratio\\)", rownames(table$coef))
+    check_target_cashflow <- grep("log\\(lag_cashflow_to_tangible\\):constraintTRUE", rownames(table$coef))
+    ## foreign
+    rownames(table$coefficients)[check_target_current_ratio] <- 'log(current_ratio):constraint'
+    rownames(table$beta)[check_target_current_ratio] <- 'log(current_ratio):constraint'
+    
+    rownames(table$coefficients)[check_target_cashflow] <- 'log(lag_cashflow_to_tangible):constraint'
+    rownames(table$beta)[check_target_cashflow] <- 'log(lag_cashflow_to_tangible):constraint'
+    return (table)
+    }
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- felm(log(tso2_eq_output_1) ~ 
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final %>% filter(tso2_eq_output_1 >0)
+         ,
+            exactDOF = TRUE)
+
+t_1 <- felm(log(tso2_eq_output_1) ~ 
+            log(lag_cashflow_to_tangible) +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% filter(tso2_eq_output_1 >0)
+         ,
+            exactDOF = TRUE)
+
+t_2 <- felm(log(tso2_eq_output_1) ~ 
+            log(lag_cashflow_to_tangible)*constraint +
+            log(lag_current_ratio) *constraint 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% filter(tso2_eq_output_1 >0)
+         ,
+            exactDOF = TRUE)
+
+t_3 <- felm(log(tso2_eq_output_1) ~ 
+           log(lag_cashflow_to_tangible) *constraint +
+            log(lag_current_ratio) *constraint +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% filter(tso2_eq_output_1 >0),
+            exactDOF = TRUE)
+t_3 <- change_target(t_3)
+dep <- "Dependent variable: pollution abattement equipment SO2"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3
+),
+    title="Baseline Estimate, pollution abattement equipment SO2",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets"
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+           folder = folder)
+```
+
+<!-- #region kernel="R" -->
+### Percentage change
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- (
+    felm(pct_change_eq ~ 
+            pct_change_cash +
+         lag_equipment 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
+  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+         ,
+            exactDOF = TRUE)
+)
+
+t_1 <- (
+    felm(pct_change_eq ~ 
+            pct_change_sales +
+            pct_change_cash +
+            lag_equipment +
+            pct_change_liabilities_tot_asset +
+            pct_change_sales_tot_asset 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
+  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+         ,
+            exactDOF = TRUE)
+)
+
+t_2 <- (
+    felm(pct_change_eq ~ 
+            pct_change_cash * constraint+
+         lag_equipment 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
+  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+         ,
+            exactDOF = TRUE)
+)
+
+t_3 <- (
+    felm(pct_change_eq ~ 
+            pct_change_sales +
+            pct_change_cash* constraint +
+            lag_equipment +
+            pct_change_liabilities_tot_asset +
+            pct_change_sales_tot_asset  
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
+  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+         ,
+            exactDOF = TRUE)
+)
+
+dep <- "Dependent variable: pollution abattement equipment SO2"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3
+),
+    title="Baseline Estimate, pollution abattement equipment SO2",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets"
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+           folder = folder)
+```
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- (
+    felm(pct_change_eq ~ 
+            pct_change_curr +
+         lag_equipment 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
+  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+         ,
+            exactDOF = TRUE)
+)
+
+t_1 <- (
+    felm(pct_change_eq ~ 
+            pct_change_sales +
+            pct_change_curr +
+            lag_equipment +
+            pct_change_liabilities_tot_asset +
+            pct_change_sales_tot_asset 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
+  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+         ,
+            exactDOF = TRUE)
+)
+
+t_2 <- (
+    felm(pct_change_eq ~ 
+            pct_change_curr * constraint+
+         lag_equipment 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
+  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+         ,
+            exactDOF = TRUE)
+)
+
+t_3 <- (
+    felm(pct_change_eq ~ 
+            pct_change_sales +
+            pct_change_curr* constraint +
+            lag_equipment +
+            pct_change_liabilities_tot_asset +
+            pct_change_sales_tot_asset  
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
+  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+         ,
+            exactDOF = TRUE)
+)
+
+dep <- "Dependent variable: pollution abattement equipment SO2"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3
+),
+    title="Baseline Estimate, pollution abattement equipment SO2",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets"
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+           folder = folder)
+```
+
+<!-- #region kernel="SoS" -->
+## Gross change
+<!-- #endregion -->
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- (
+    felm(gross_change ~ 
+            lag_cashflow_to_tangible +
+         lag_equipment 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
+  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+         ,
+            exactDOF = TRUE)
+)
+
+t_1 <- (
+    felm(gross_change ~ 
+            log(sales) +
+            lag_cashflow_to_tangible +
+         lag_equipment +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
+  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+         ,
+            exactDOF = TRUE)
+)
+
+t_2 <- (
+    felm(gross_change ~ 
+            lag_cashflow_to_tangible * constraint+
+         lag_equipment 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
+  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+         ,
+            exactDOF = TRUE)
+)
+
+t_3 <- (
+    felm(gross_change ~ 
+            log(sales) +
+            lag_cashflow_to_tangible * constraint+
+         lag_equipment +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
+  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+         ,
+            exactDOF = TRUE)
+)
+
+dep <- "Dependent variable: pollution abattement equipment SO2"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3
+),
+    title="Baseline Estimate, pollution abattement equipment SO2",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets"
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+           folder = folder)
+```
+
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.tex', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+%get path table
+t_0 <- (
+    felm(gross_change ~ 
+            lag_current_ratio +
+         lag_equipment
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
+  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+         ,
+            exactDOF = TRUE)
+)
+
+t_1 <- (
+    felm(gross_change ~ 
+            log(sales) +
+            lag_current_ratio +
+         lag_equipment +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
+  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+         ,
+            exactDOF = TRUE)
+)
+
+t_2 <- (
+    felm(gross_change ~ 
+            lag_current_ratio * constraint +
+         lag_equipment 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
+  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+         ,
+            exactDOF = TRUE)
+)
+
+t_3 <- (
+    felm(gross_change ~ 
+            log(sales) +
+            lag_current_ratio * constraint+
+         lag_equipment +
+            log(lag_current_ratio) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
+  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+         ,
+            exactDOF = TRUE)
+)
+
+dep <- "Dependent variable: pollution abattement equipment SO2"
+fe1 <- list(
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+             )
+table_1 <- go_latex(list(
+    t_0,t_1, t_2, t_3
+),
+    title="Baseline Estimate, pollution abattement equipment SO2",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+)
+```
+
+```sos kernel="SoS"
+tbe1  = "This table estimates eq(3). " \
+"Heteroskedasticity-robust standard errors " \
+"clustered at the city level appear inp arentheses. "\
+" Independent variable cashflow is measured as net income + depreciation over asset;"\
+" current ratio is measured as current asset over current liabilities. " \
+"The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets"
+"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
+
+#multi_lines_dep = '(city/product/trade regime/year)'
+#new_r = ['& test1', 'test2']
+lb.beautify(table_number = table_nb,
+            #reorder_var = reorder,
+            #multi_lines_dep = multi_lines_dep,
+            #new_row= new_r,
+            #multicolumn = multicolumn,
+            table_nte = tbe1,
+            jupyter_preview = True,
+            resolution = 150,
+           folder = folder)
+```
+
+<!-- #region kernel="R" -->
+- Augmentation du cashflow finance les investissements qui réduisent les SO2, mais pas le meme résulat pour le current ratio, pourquoi? 
+- Que mesure finalement la variable equipment -> est ce que les investissments dans les technos green ne sont mesurés que par la variable equipment.
+- Est ce que les descriptives stats sont correctes?
+- interaction: industry & industry-city
+- Que mesure précisement SO2 equipment?
+<!-- #endregion -->
 
 <!-- #region kernel="SoS" nteract={"transient": {"deleting": false}} -->
 # Generate reports
@@ -470,35 +1246,11 @@ import make_toc
 import create_report
 ```
 
-```sos kernel="SoS"
+```sos kernel="python3"
 name_json = 'parameters_ETL_pollution_credit_constraint.json'
 path_json = os.path.join(str(Path(path).parent.parent), 'utils',name_json)
 ```
 
 ```sos kernel="python3" nteract={"transient": {"deleting": false}} outputExpanded=false
-create_report.create_report(extension = "html", keep_code = False, notebookname = None)
-```
-
-```sos kernel="python3"
-### Update TOC in Github
-for p in [parent_path,
-          str(Path(path).parent),
-          #os.path.join(str(Path(path).parent), "00_download_data_from"),
-          #os.path.join(str(Path(path).parent.parent), "02_data_analysis"),
-          #os.path.join(str(Path(path).parent.parent), "02_data_analysis", "00_statistical_exploration"),
-          #os.path.join(str(Path(path).parent.parent), "02_data_analysis", "01_model_estimation"),
-         ]:
-    try:
-        os.remove(os.path.join(p, 'README.md'))
-    except:
-        pass
-    path_parameter = os.path.join(parent_path,'utils', name_json)
-    md_lines =  make_toc.create_index(cwd = p, path_parameter = path_parameter)
-    md_out_fn = os.path.join(p,'README.md')
-    
-    if p == parent_path:
-    
-        make_toc.replace_index(md_out_fn, md_lines, Header = os.path.basename(p).replace('_', ' '), add_description = True, path_parameter = path_parameter)
-    else:
-        make_toc.replace_index(md_out_fn, md_lines, Header = os.path.basename(p).replace('_', ' '), add_description = False)
+create_report.create_report(extension = "html", keep_code = False, notebookname = "07_pollution_abatement_equation.ipynb")
 ```
