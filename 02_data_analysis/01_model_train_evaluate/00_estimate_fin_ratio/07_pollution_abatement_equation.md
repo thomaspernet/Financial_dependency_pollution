@@ -766,7 +766,7 @@ t_2 <- felm(log(tso2_eq_output_1) ~
             | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% filter(tso2_eq_output_1 >0)
          ,
             exactDOF = TRUE)
-
+t_2 <- change_target(t_2)
 t_3 <- felm(log(tso2_eq_output_1) ~ 
            log(lag_cashflow_to_tangible) *constraint +
             log(lag_current_ratio) *constraint +
