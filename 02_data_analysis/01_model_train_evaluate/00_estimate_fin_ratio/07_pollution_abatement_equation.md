@@ -166,7 +166,7 @@ if download_data:
     .sort_values(by = ['geocode4_corr','ind2', 'year'])
     .assign(
         tso2_eq_output = lambda x: (x['tdso2_equip']+1)/(x['ttoutput']/1000),
-         tso2_eq_output_1 = lambda x: (x['tdso2_equip']+1)/(x['output']/1000),
+        tso2_eq_output_1 = lambda x: (x['tdso2_equip']+1)/(x['output']/1000),
         lag_equipment = lambda x: x.groupby(['geocode4_corr','ind2'])['tdso2_equip'].transform("shift"),
         gross_change = lambda x: x['tdso2_equip'] - x['lag_equipment'],
         gross_change_output = lambda x: (x['tdso2_equip'] - x['lag_equipment'])/(x['output']/1000),
@@ -196,6 +196,8 @@ if download_data:
                                                                        ),
           std_eq_1 =lambda x: (x['tdso2_equip']-x['tdso2_equip'].min())/(
               x['tdso2_equip'].max()-x['tdso2_equip'].min()),
+          temp_eq = lambda x: x['tdso2_equip']+1,
+          pct_change_eq_raw = lambda x: x.groupby(['geocode4_corr','ind2'])['temp_eq'].transform('pct_change'),
           pct_change_eq = lambda x: x.groupby(['geocode4_corr','ind2'])['tso2_eq_output_1'].transform('pct_change'),
           pct_change_cash = lambda x: x.groupby(['geocode4_corr','ind2'])['lag_cashflow_to_tangible'].transform('pct_change'),
           pct_change_curr = lambda x: x.groupby(['geocode4_corr','ind2'])['lag_current_ratio'].transform('pct_change'),
@@ -227,6 +229,7 @@ df.reindex(columns = ['geocode4_corr','ind2', 'year',
                       'std_eq',
                       "lag_cashflow_to_tangible",
                       "lag_current_ratio",
+                      "pct_change_eq_raw",
                      "pct_change_cash", 
                      'pct_change_curr'])
 ```
@@ -442,10 +445,6 @@ The following variables are lagged:
 <!-- #region kernel="R" -->
 Is the data correct?
 <!-- #endregion -->
-
-```sos kernel="SoS"
-df.groupby(['constraint'])['ind2'].unique()
-```
 
 ```sos kernel="SoS"
 (
@@ -844,7 +843,7 @@ t_0 <- (
 
 t_1 <- (
     felm(pct_change_eq ~ 
-            pct_change_sales +
+            #pct_change_sales +
             pct_change_cash +
             lag_equipment +
             pct_change_liabilities_tot_asset +
@@ -867,7 +866,7 @@ t_2 <- (
 
 t_3 <- (
     felm(pct_change_eq ~ 
-            pct_change_sales +
+            #pct_change_sales +
             pct_change_cash* constraint +
             lag_equipment +
             pct_change_liabilities_tot_asset +
@@ -943,7 +942,7 @@ t_0 <- (
 
 t_1 <- (
     felm(pct_change_eq ~ 
-            pct_change_sales +
+            #pct_change_sales +
             pct_change_curr +
             lag_equipment +
             pct_change_liabilities_tot_asset +
@@ -966,7 +965,7 @@ t_2 <- (
 
 t_3 <- (
     felm(pct_change_eq ~ 
-            pct_change_sales +
+            #pct_change_sales +
             pct_change_curr* constraint +
             lag_equipment +
             pct_change_liabilities_tot_asset +
@@ -1018,6 +1017,10 @@ lb.beautify(table_number = table_nb,
 
 <!-- #region kernel="SoS" -->
 ## Gross change
+
+Gross change is calculated as follow:
+
+- equipment t - equipment t-1
 <!-- #endregion -->
 
 ```sos kernel="SoS"
@@ -1036,48 +1039,52 @@ for ext in ['.txt', '.tex', '.pdf']:
 %get path table
 t_0 <- (
     felm(gross_change ~ 
-            lag_cashflow_to_tangible +
-         lag_equipment 
+            log(lag_cashflow_to_tangible) +
+            lag_equipment 
             | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
-  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+  filter_at(vars(pct_change_eq, pct_change_cash,lag_equipment), all_vars(!is.infinite(.)))%>%
+     filter_at(vars(gross_change,pct_change_eq, pct_change_cash,lag_equipment), all_vars(!is.na(.)))
          ,
             exactDOF = TRUE)
 )
 
 t_1 <- (
     felm(gross_change ~ 
-            log(sales) +
-            lag_cashflow_to_tangible +
-         lag_equipment +
-            log(lag_current_ratio) +
+            #log(sales) +
+            log(lag_cashflow_to_tangible) +
+            lag_equipment +
+            #log(lag_current_ratio) +
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset) 
             | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
-  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+  filter_at(vars(pct_change_eq, pct_change_cash,lag_equipment), all_vars(!is.infinite(.)))%>%
+     filter_at(vars(gross_change,pct_change_eq, pct_change_cash,lag_equipment), all_vars(!is.na(.)))
          ,
             exactDOF = TRUE)
 )
 
 t_2 <- (
     felm(gross_change ~ 
-            lag_cashflow_to_tangible * constraint+
+            log(lag_cashflow_to_tangible) * constraint+
          lag_equipment 
             | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
-  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+  filter_at(vars(pct_change_eq, pct_change_cash,lag_equipment), all_vars(!is.infinite(.)))%>%
+     filter_at(vars(gross_change,pct_change_eq, pct_change_cash,lag_equipment), all_vars(!is.na(.)))
          ,
             exactDOF = TRUE)
 )
 
 t_3 <- (
     felm(gross_change ~ 
-            log(sales) +
-            lag_cashflow_to_tangible * constraint+
+            #log(sales) +
+            log(lag_cashflow_to_tangible) * constraint+
          lag_equipment +
-            log(lag_current_ratio) +
+            #log(lag_current_ratio) +
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset) 
             | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
-  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+  filter_at(vars(pct_change_eq, pct_change_cash,lag_equipment), all_vars(!is.infinite(.)))%>%
+     filter_at(vars(gross_change,pct_change_eq, pct_change_cash,lag_equipment), all_vars(!is.na(.)))
          ,
             exactDOF = TRUE)
 )
@@ -1137,48 +1144,52 @@ for ext in ['.txt', '.tex', '.pdf']:
 %get path table
 t_0 <- (
     felm(gross_change ~ 
-            lag_current_ratio +
+            log(lag_current_ratio) +
          lag_equipment
             | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
-  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+  filter_at(vars(pct_change_eq, pct_change_cash,lag_equipment), all_vars(!is.infinite(.)))%>%
+     filter_at(vars(gross_change,pct_change_eq, pct_change_cash,lag_equipment), all_vars(!is.na(.)))
          ,
             exactDOF = TRUE)
 )
 
 t_1 <- (
     felm(gross_change ~ 
-            log(sales) +
-            lag_current_ratio +
+            #log(sales) +
+            log(lag_current_ratio) +
          lag_equipment +
             log(lag_current_ratio) +
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset) 
             | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
-  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+  filter_at(vars(pct_change_eq, pct_change_cash,lag_equipment), all_vars(!is.infinite(.)))%>%
+     filter_at(vars(gross_change,pct_change_eq, pct_change_cash,lag_equipment), all_vars(!is.na(.)))
          ,
             exactDOF = TRUE)
 )
 
 t_2 <- (
     felm(gross_change ~ 
-            lag_current_ratio * constraint +
+            log(lag_current_ratio) * constraint +
          lag_equipment 
             | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
-  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+  filter_at(vars(pct_change_eq, pct_change_cash,lag_equipment), all_vars(!is.infinite(.)))%>%
+     filter_at(vars(gross_change,pct_change_eq, pct_change_cash,lag_equipment), all_vars(!is.na(.)))
          ,
             exactDOF = TRUE)
 )
 
 t_3 <- (
     felm(gross_change ~ 
-            log(sales) +
-            lag_current_ratio * constraint+
+            #log(sales) +
+            log(lag_current_ratio) * constraint+
          lag_equipment +
             log(lag_current_ratio) +
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset) 
             | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% 
-  filter_at(vars(pct_change_eq, pct_change_cash), all_vars(!is.infinite(.)))
+  filter_at(vars(pct_change_eq, pct_change_cash,lag_equipment), all_vars(!is.infinite(.)))%>%
+     filter_at(vars(gross_change,pct_change_eq, pct_change_cash,lag_equipment), all_vars(!is.na(.)))
          ,
             exactDOF = TRUE)
 )
