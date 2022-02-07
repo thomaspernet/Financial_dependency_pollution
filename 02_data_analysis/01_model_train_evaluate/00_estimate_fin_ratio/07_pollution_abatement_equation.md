@@ -455,12 +455,13 @@ Is the data correct?
         "ttlssnl",
         "tdwastegas_equip",
         "tdso2_equip",
-        'tso2_eq_output',
+        #'tso2_eq_output',
         'tso2_eq_output_1',
-        "std_eq_ind",
-        "std_eq_c",
-        "std_eq_year",
-        'std_eq']]
+        #"std_eq_ind",
+        #"std_eq_c",
+        #"std_eq_year",
+        #'std_eq'
+    ]]
     .describe(percentiles=[.5, .7, .8, .9, .95, .99])
     .style
     .format("{0:,.2f}")
