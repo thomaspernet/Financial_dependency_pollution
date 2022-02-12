@@ -1615,7 +1615,7 @@ for ext in ['.txt', '.pdf']:
 ```
 
 <!-- #region kernel="SoS" -->
-## Dummy
+## Dummy industry
 <!-- #endregion -->
 
 ```sos kernel="R"
