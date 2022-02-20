@@ -167,47 +167,9 @@ if download_data:
     .assign(
         tso2_eq_output = lambda x: (x['tdso2_equip'])/(x['output']/1000),
         tso2_eq_output_1 = lambda x: (x['tdso2_equip']+1)/(x['output']/1000),
-        lag_equipment = lambda x: x.groupby(['geocode4_corr','ind2'])['tdso2_equip'].transform("shift"),
-        gross_change = lambda x: x['tdso2_equip'] - x['lag_equipment'],
-        gross_change_output = lambda x: (x['tdso2_equip'] - x['lag_equipment'])/(x['output']/1000),
+        constraint = lambda x: x['credit_constraint'] > -0.47
     )
-          .assign(
-          constraint = lambda x: x['credit_constraint'] > -0.47,
-          std_eq_ind =lambda x: 
-              x.groupby(['year', 'ind2'])['tso2_eq_output_1'].transform(lambda x: (x-x.min())/(x.max()-x.min()),
-                                                                       ),
-          std_eq_c =lambda x: 
-              x.groupby(['year', 'geocode4_corr'])['tso2_eq_output_1'].transform(lambda x: (x-x.min())/(x.max()-x.min()),
-                                                                       ),
-          std_eq_year =lambda x: 
-              x.groupby(['year'])['tso2_eq_output_1'].transform(lambda x: (x-x.min())/(x.max()-x.min()),
-                                                                       ),
-          std_eq =lambda x: (x['tso2_eq_output_1']-x['tso2_eq_output_1'].min())/(
-              x['tso2_eq_output_1'].max()-x['tso2_eq_output_1'].min()),
-        
-         std_eq_ind_1 =lambda x: 
-              x.groupby(['year', 'ind2'])['tdso2_equip'].transform(lambda x: (x-x.min())/(x.max()-x.min()),
-                                                                       ),
-          std_eq_c_1 =lambda x: 
-              x.groupby(['year', 'geocode4_corr'])['tdso2_equip'].transform(lambda x: (x-x.min())/(x.max()-x.min()),
-                                                                       ),
-          std_eq_year_1 =lambda x: 
-              x.groupby(['year'])['tdso2_equip'].transform(lambda x: (x-x.min())/(x.max()-x.min()),
-                                                                       ),
-          std_eq_1 =lambda x: (x['tdso2_equip']-x['tdso2_equip'].min())/(
-              x['tdso2_equip'].max()-x['tdso2_equip'].min()),
-          temp_eq = lambda x: x['tdso2_equip']+1,
-          pct_change_eq_raw = lambda x: x.groupby(['geocode4_corr','ind2'])['temp_eq'].transform('pct_change'),
-          pct_change_eq = lambda x: x.groupby(['geocode4_corr','ind2'])['tso2_eq_output_1'].transform('pct_change'),
-          pct_change_cash = lambda x: x.groupby(['geocode4_corr','ind2'])['lag_cashflow_to_tangible'].transform('pct_change'),
-          pct_change_curr = lambda x: x.groupby(['geocode4_corr','ind2'])['lag_current_ratio'].transform('pct_change'),
-          pct_change_cash_1 = lambda x: x.groupby(['geocode4_corr','ind2'])['cashflow_to_tangible'].transform('pct_change'),
-          pct_change_curr_1 = lambda x: x.groupby(['geocode4_corr','ind2'])['current_ratio'].transform('pct_change'),
-          pct_change_sales = lambda x: x.groupby(['geocode4_corr','ind2'])['sales'].transform('pct_change'),
-          pct_change_liabilities_tot_asset = lambda x: x.groupby(['geocode4_corr','ind2'])['liabilities_tot_asset'].transform('pct_change'),
-          pct_change_sales_tot_asset = lambda x: x.groupby(['geocode4_corr','ind2'])['sales_tot_asset'].transform('pct_change'),
-          )
-            )
+         )
     s3.download_file(
         key = full_path_filename
     )
@@ -401,10 +363,11 @@ import latex.latex_beautify as lb
 
 ```sos kernel="R"
 options(warn=-1)
-library(tidyverse)
+library(dplyr)
 library(lfe)
 #library(lazyeval)
 library('progress')
+#library('emmeans')
 path = "../../../utils/latex/table_golatex.R"
 source(path)
 ```
@@ -585,27 +548,27 @@ change_target <- function(table){
 %get path table
 t_0 <- felm(log(tso2_eq_output_1) ~ 
             log(lag_cashflow_to_tangible) * log(total_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final %>% filter(tso2_eq_output_1 >0)
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final 
          ,
             exactDOF = TRUE)
 
 t_1 <- felm(log(tso2_eq_output_1) ~ 
             log(lag_current_ratio) * log(total_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final %>% filter(tso2_eq_output_1 >0)
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final 
          ,
             exactDOF = TRUE)
 t_2 <- felm(log(tso2_eq_output_1) ~ 
             log(lag_cashflow_to_tangible) * log(total_asset) +
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset)  
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final %>% filter(tso2_eq_output_1 >0)
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final
             )
 t_2 <- change_target(t_2)
 t_3 <- felm(log(tso2_eq_output_1) ~ 
             log(lag_current_ratio) * log(total_asset) +
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset)  
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final %>% filter(tso2_eq_output_1 >0)
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final 
             )
 t_3 <- change_target(t_3)
 
@@ -614,7 +577,7 @@ t_4 <- felm(log(tso2_eq_output_1) ~
             log(lag_current_ratio) * log(total_asset)+
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final%>% filter(tso2_eq_output_1 >0)
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final
          ,
             exactDOF = TRUE)
 t_4 <- change_target(t_4)
@@ -656,6 +619,66 @@ lb.beautify(table_number = table_nb,
             jupyter_preview = True,
             resolution = 150,
            folder = folder)
+```
+
+```sos kernel="R"
+t_2 <- felm(log(tso2_eq_output_1) ~ 
+            log(lag_cashflow_to_tangible) * log(total_asset) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)  
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final
+            )
+```
+
+```sos kernel="R"
+summary(t_2)
+```
+
+```sos kernel="R"
+summary(df_final$total_asset)
+```
+
+```sos kernel="R"
+summary(log(df_final$total_asset))
+```
+
+```sos kernel="R"
+summary(log(df_final$lag_cashflow_to_tangible))
+```
+
+```sos kernel="R"
+
+```
+
+```sos kernel="R"
+
+```
+
+<!-- #region kernel="SoS" -->
+We get the derivative of cash respect to Y as .238 cash - 0.019 cash * asset = 0 <- tells at what values of asset the equipment is equal to 0, which does not make sense. 
+
+Instead, we can compare the differential equipment acquisition based on large industries and small industries
+<!-- #endregion -->
+
+```sos kernel="SoS"
+df['total_asset'].mean()
+```
+
+```sos kernel="SoS"
+(
+    df
+    .assign(
+        rank = lambda x: x['total_asset'].rank(pct = True)
+    )
+    .reindex(columns = ['rank', 'total_asset'])
+    .sort_values(by = ['total_asset'])
+    .loc[lambda x: x['total_asset'] <= int(np.exp(.238/.019))]
+    .tail()
+)
+```
+
+```sos kernel="SoS"
+df['total_asset'].describe().reset_index().style.format("{0:,.0f}", subset = ['total_asset'])
 ```
 
 <!-- #region kernel="SoS" -->
