@@ -363,7 +363,7 @@ import latex.latex_beautify as lb
 
 ```sos kernel="R"
 options(warn=-1)
-library(dplyr)
+library(tidyverse)
 library(lfe)
 #library(lazyeval)
 library('progress')
@@ -621,6 +621,22 @@ lb.beautify(table_number = table_nb,
            folder = folder)
 ```
 
+<!-- #region kernel="R" -->
+For a continuous by continuous interaction model we can re-arrange the equation such that
+
+$$
+\hat{Y}=b_{0}+b_{2} W+\left(b_{1}+b_{3} W\right) X
+$$
+
+Rerranging the terms allows you to obtain a new simple slope of $X$ defined as $(b1 + b3W) X$, which means that the slope of $X$ depends on values of $W$.
+
+initially, but incorect
+
+We get the derivative of cash respect to Y as .238 cash - 0.019 cash * asset = 0 <- tells at what values of asset the equipment is equal to 0, which does not make sense. 
+
+Instead, we can compare the differential equipment acquisition based on large industries and small industries
+<!-- #endregion -->
+
 ```sos kernel="R"
 t_2 <- felm(log(tso2_eq_output_1) ~ 
             log(lag_cashflow_to_tangible) * log(total_asset) +
@@ -631,34 +647,48 @@ t_2 <- felm(log(tso2_eq_output_1) ~
 ```
 
 ```sos kernel="R"
-summary(t_2)
+m_lag_liabilities_tot_asset <- mean(log(df_final$lag_liabilities_tot_asset))
+m_lag_sales_tot_asset <- mean(log(df_final$lag_sales_tot_asset))
+W_low <- mean(log(df_final$total_asset)) - sd(log(df_final$total_asset))
+W_medium <-mean(log(df_final$total_asset))
+W_high <- mean(log(df_final$total_asset)) + sd(log(df_final$total_asset))
+X <- seq(min(log(df_final$lag_cashflow_to_tangible)),
+        max(log(df_final$lag_cashflow_to_tangible)),by=0.1)
 ```
 
 ```sos kernel="R"
-summary(df_final$total_asset)
+df_preds <- bind_rows(
+tibble(
+  x = X, 
+  y = #t_2$coef[3] * m_lag_liabilities_tot_asset + t_2$coef[4] *m_lag_sales_tot_asset + 
+t_2$coef[2] * W_low + (t_2$coef[1] + t_2$coef[5] * W_low) * X,
+  group = 'low'  
+),
+tibble(
+  x = X, 
+  y = #t_2$coef[3] * m_lag_liabilities_tot_asset + t_2$coef[4] * m_lag_sales_tot_asset + 
+t_2$coef[2] * W_medium + (t_2$coef[1] + t_2$coef[5] * W_medium) * X,
+  group = 'medium'  
+),
+tibble(
+  x = X, 
+  y = #t_2$coef[3] * m_lag_liabilities_tot_asset + t_2$coef[4] * m_lag_sales_tot_asset + 
+t_2$coef[2] * W_high + (t_2$coef[1] + t_2$coef[5] * W_high) * X,
+  group = 'high'  
+))
+write.csv(df_preds, 'preds.csv',row.names = FALSE)
 ```
 
-```sos kernel="R"
-summary(log(df_final$total_asset))
+```sos kernel="SoS"
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set(rc={'figure.figsize':(11.7,8.27)})
 ```
 
-```sos kernel="R"
-summary(log(df_final$lag_cashflow_to_tangible))
+```sos kernel="SoS"
+sns.lineplot(data=pd.read_csv( 'preds.csv'), x="x", y="y", hue="group")
+plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 ```
-
-```sos kernel="R"
-
-```
-
-```sos kernel="R"
-
-```
-
-<!-- #region kernel="SoS" -->
-We get the derivative of cash respect to Y as .238 cash - 0.019 cash * asset = 0 <- tells at what values of asset the equipment is equal to 0, which does not make sense. 
-
-Instead, we can compare the differential equipment acquisition based on large industries and small industries
-<!-- #endregion -->
 
 ```sos kernel="SoS"
 df['total_asset'].mean()
