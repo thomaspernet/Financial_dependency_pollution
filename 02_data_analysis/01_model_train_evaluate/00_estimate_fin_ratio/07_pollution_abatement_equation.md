@@ -167,7 +167,10 @@ if download_data:
     .assign(
         tso2_eq_output = lambda x: (x['tdso2_equip'])/(x['output']/1000),
         tso2_eq_output_1 = lambda x: (x['tdso2_equip']+1)/(x['output']/1000),
-        constraint = lambda x: x['credit_constraint'] > -0.47
+        tso2_eq_asset = lambda x: (x['tdso2_equip'])/(x['total_asset']/1000),
+        tso2_eq_asset_1 = lambda x: (x['tdso2_equip']+1)/(x['total_asset']/1000),
+        constraint = lambda x: x['credit_constraint'] > -0.44,
+        constraint_1 = lambda x: x['credit_constraint'] > -0.26
     )
          )
     s3.download_file(
@@ -198,6 +201,13 @@ df.reindex(columns = ['geocode4_corr','ind2', 'year',
 
 ```sos kernel="SoS"
 df.to_csv(os.path.join(path_local, filename + '.csv'))
+```
+
+```sos kernel="SoS"
+(
+    df[['credit_constraint', 'constraint']].drop_duplicates().sort_values(by = ['credit_constraint'])
+    .describe()
+)
 ```
 
 ```sos kernel="SoS" nteract={"transient": {"deleting": false}}
@@ -344,6 +354,14 @@ if add_to_dic:
         {
         'old':'tfp\_cit',
         'new':'\\text{TFP}'
+        },
+        {
+        'old':'industry\_size',
+        'new':'\\text{industry size}'
+        },
+        {
+        'old':'constraintTRUE',
+        'new':'\\text{constraint}'
         }
         
     ]
@@ -379,6 +397,8 @@ mutate_if(is.character, as.factor) %>%
     mutate_at(vars(starts_with("fe")), as.factor) %>%
 mutate(
     constraint = relevel(as.factor(constraint), ref='FALSE'),
+    constraint_test = relevel(as.factor(constraint), ref='TRUE'),
+    constraint_1 = relevel(as.factor(constraint_1), ref='FALSE'),
 )
 ```
 
@@ -528,196 +548,13 @@ for ext in ['.txt', '.pdf']:
     [os.remove(os.path.join(folder, i)) for i in x]
 ```
 
-```sos kernel="R"
-change_target <- function(table){
-    ## SOE
-    check_target_current_ratio <- grep("log\\(total_asset\\):log\\(lag_current_ratio\\)",
-                                       rownames(table$coef))
-    #check_target_cashflow <- grep("log\\(lag_cashflow_to_tangible\\):constraintTRUE", rownames(table$coef))
-    ## foreign
-    rownames(table$coefficients)[check_target_current_ratio] <- 'log(lag_current_ratio):log(total_asset) '
-    rownames(table$beta)[check_target_current_ratio] <- 'log(lag_current_ratio):log(total_asset) '
-    
-    #rownames(table$coefficients)[check_target_cashflow] <- 'log(lag_cashflow_to_tangible):constraint'
-    #rownames(table$beta)[check_target_cashflow] <- 'log(lag_cashflow_to_tangible):constraint'
-    return (table)
-    }
-```
-
-```sos kernel="R"
-%get path table
-t_0 <- felm(log(tso2_eq_output_1) ~ 
-            log(lag_cashflow_to_tangible) * log(total_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final 
-         ,
-            exactDOF = TRUE)
-
-t_1 <- felm(log(tso2_eq_output_1) ~ 
-            log(lag_current_ratio) * log(total_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final 
-         ,
-            exactDOF = TRUE)
-t_2 <- felm(log(tso2_eq_output_1) ~ 
-            log(lag_cashflow_to_tangible) * log(total_asset) +
-            log(lag_liabilities_tot_asset) +
-            log(lag_sales_tot_asset)  
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final
-            )
-t_2 <- change_target(t_2)
-t_3 <- felm(log(tso2_eq_output_1) ~ 
-            log(lag_current_ratio) * log(total_asset) +
-            log(lag_liabilities_tot_asset) +
-            log(lag_sales_tot_asset)  
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final 
-            )
-t_3 <- change_target(t_3)
-
-t_4 <- felm(log(tso2_eq_output_1) ~ 
-            log(lag_cashflow_to_tangible) * log(total_asset)+
-            log(lag_current_ratio) * log(total_asset)+
-            log(lag_liabilities_tot_asset) +
-            log(lag_sales_tot_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final
-         ,
-            exactDOF = TRUE)
-t_4 <- change_target(t_4)
-
-dep <- "Dependent variable: pollution abattement equipment SO2"
-fe1 <- list(
-    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
-             )
-table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4
-),
-    title="Baseline Estimate, pollution abattement equipment SO2",
-    dep_var = dep,
-    addFE=fe1,
-    save=TRUE,
-    note = FALSE,
-    name=path
-)
-```
-
 ```sos kernel="SoS"
-tbe1  = "This table estimates eq(3). " \
-"Heteroskedasticity-robust standard errors " \
-"clustered at the city level appear inp arentheses. "\
-" Independent variable cashflow is measured as net income + depreciation over asset;"\
-" current ratio is measured as current asset over current liabilities. " \
-"The following variables are lagged one year: Current Ratio, Cashflow, Liabilities/Assets, and Sales/Assets"
-"\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
-
-#multi_lines_dep = '(city/product/trade regime/year)'
-#new_r = ['& test1', 'test2']
-lb.beautify(table_number = table_nb,
-            #reorder_var = reorder,
-            #multi_lines_dep = multi_lines_dep,
-            #new_row= new_r,
-            #multicolumn = multicolumn,
-            table_nte = tbe1,
-            jupyter_preview = True,
-            resolution = 150,
-           folder = folder)
+df['lag_cashflow_to_tangible'].describe(percentiles = [.01,.03,.05,.06, .07,.08, .09,.75,.9,.95,.96,.97,.98, .99])
 ```
-
-<!-- #region kernel="R" -->
-For a continuous by continuous interaction model we can re-arrange the equation such that
-
-$$
-\hat{Y}=b_{0}+b_{2} W+\left(b_{1}+b_{3} W\right) X
-$$
-
-Rerranging the terms allows you to obtain a new simple slope of $X$ defined as $(b1 + b3W) X$, which means that the slope of $X$ depends on values of $W$.
-
-initially, but incorect
-
-We get the derivative of cash respect to Y as .238 cash - 0.019 cash * asset = 0 <- tells at what values of asset the equipment is equal to 0, which does not make sense. 
-
-Instead, we can compare the differential equipment acquisition based on large industries and small industries
-<!-- #endregion -->
-
-```sos kernel="R"
-t_2 <- felm(log(tso2_eq_output_1) ~ 
-            log(lag_cashflow_to_tangible) * log(total_asset) +
-            log(lag_liabilities_tot_asset) +
-            log(lag_sales_tot_asset)  
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final
-            )
-```
-
-```sos kernel="R"
-m_lag_liabilities_tot_asset <- mean(log(df_final$lag_liabilities_tot_asset))
-m_lag_sales_tot_asset <- mean(log(df_final$lag_sales_tot_asset))
-W_low <- mean(log(df_final$total_asset)) - sd(log(df_final$total_asset))
-W_medium <-mean(log(df_final$total_asset))
-W_high <- mean(log(df_final$total_asset)) + sd(log(df_final$total_asset))
-X <- seq(min(log(df_final$lag_cashflow_to_tangible)),
-        max(log(df_final$lag_cashflow_to_tangible)),by=0.1)
-```
-
-```sos kernel="R"
-df_preds <- bind_rows(
-tibble(
-  x = X, 
-  y = #t_2$coef[3] * m_lag_liabilities_tot_asset + t_2$coef[4] *m_lag_sales_tot_asset + 
-t_2$coef[2] * W_low + (t_2$coef[1] + t_2$coef[5] * W_low) * X,
-  group = 'low'  
-),
-tibble(
-  x = X, 
-  y = #t_2$coef[3] * m_lag_liabilities_tot_asset + t_2$coef[4] * m_lag_sales_tot_asset + 
-t_2$coef[2] * W_medium + (t_2$coef[1] + t_2$coef[5] * W_medium) * X,
-  group = 'medium'  
-),
-tibble(
-  x = X, 
-  y = #t_2$coef[3] * m_lag_liabilities_tot_asset + t_2$coef[4] * m_lag_sales_tot_asset + 
-t_2$coef[2] * W_high + (t_2$coef[1] + t_2$coef[5] * W_high) * X,
-  group = 'high'  
-))
-write.csv(df_preds, 'preds.csv',row.names = FALSE)
-```
-
-```sos kernel="SoS"
-import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set(rc={'figure.figsize':(11.7,8.27)})
-```
-
-```sos kernel="SoS"
-sns.lineplot(data=pd.read_csv( 'preds.csv'), x="x", y="y", hue="group")
-plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-```
-
-```sos kernel="SoS"
-df['total_asset'].mean()
-```
-
-```sos kernel="SoS"
-(
-    df
-    .assign(
-        rank = lambda x: x['total_asset'].rank(pct = True)
-    )
-    .reindex(columns = ['rank', 'total_asset'])
-    .sort_values(by = ['total_asset'])
-    .loc[lambda x: x['total_asset'] <= int(np.exp(.238/.019))]
-    .tail()
-)
-```
-
-```sos kernel="SoS"
-df['total_asset'].describe().reset_index().style.format("{0:,.0f}", subset = ['total_asset'])
-```
-
-<!-- #region kernel="SoS" -->
-Check without Beijing, Shanghai, Chongqing and Tianjin
-<!-- #endregion -->
 
 ```sos kernel="SoS"
 folder = 'Tables_0'
-table_nb = 2
+table_nb = 1
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
 if os.path.exists(folder) == False:
@@ -728,55 +565,197 @@ for ext in ['.txt', '.pdf']:
 ```
 
 ```sos kernel="R"
+change_target <- function(table){
+    ## SOE
+    check_target_current_ratio <- grep("log\\(total_asset\\):log\\(lag_current_ratio\\)",
+                                       rownames(table$coef))
+    
+    check_target_current_ratio_ <- grep("log\\(industry_size\\):constraintTRUE:log\\(lag_current_ratio\\)",
+                                       rownames(table$coef))
+    
+    check_target_current_ratio_1 <- grep("constraintTRUE:log\\(lag_current_ratio\\)",
+                                       rownames(table$coef))
+    
+    #log(industry_size):constraintTRUE:log(lag_current_ratio) 
+    #constraintTRUE:log(lag\_current\_ratio)
+    #check_target_cashflow <- grep("log\\(lag_cashflow_to_tangible\\):constraintTRUE", rownames(table$coef))
+    ## foreign
+    rownames(table$coefficients)[check_target_current_ratio] <- 'log(lag_current_ratio):log(total_asset)'
+    rownames(table$beta)[check_target_current_ratio] <- 'log(lag_current_ratio):log(total_asset)'
+    rownames(table$beta)[check_target_current_ratio_] <- 'log(lag_current_ratio):log(industry_size):constraint'
+    rownames(table$beta)[check_target_current_ratio_1] <- 'log(lag_current_ratio):constraint'
+    
+    #rownames(table$coefficients)[check_target_cashflow] <- 'log(lag_cashflow_to_tangible):constraint'
+    #rownames(table$beta)[check_target_cashflow] <- 'log(lag_cashflow_to_tangible):constraint'
+    return (table)
+    }
+```
+
+```sos kernel="R"
 %get path table
-t_0 <- felm(log(tso2_eq_output_1) ~ 
-            log(lag_cashflow_to_tangible) * log(total_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final %>% filter(tso2_eq_output_1 >0 &
-                   !geocode4_corr %in% c('1101', '1201', '3101', '5001'))
-         ,
-            exactDOF = TRUE)
-
-t_1 <- felm(log(tso2_eq_output_1) ~ 
-            log(lag_current_ratio) * log(total_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final %>% filter(tso2_eq_output_1 >0 &
-                   !geocode4_corr %in% c('1101', '1201', '3101', '5001'))
-         ,
-            exactDOF = TRUE)
-t_2 <- felm(log(tso2_eq_output_1) ~ 
-            log(lag_cashflow_to_tangible) * log(total_asset) +
+t_0 <- felm(tso2_eq_output ~ 
+            log(lag_cashflow_to_tangible) * constraint +
             log(lag_liabilities_tot_asset) +
-            log(lag_sales_tot_asset)  
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final %>% filter(tso2_eq_output_1 >0 &
-                   !geocode4_corr %in% c('1101', '1201', '3101', '5001'))
-            )
+            log(lag_sales_tot_asset) 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final
+             ,exactDOF = TRUE
+         )
+#t_0 <- change_target(t_0)
+
+t_1 <- felm(tso2_eq_output ~ 
+            log(lag_current_ratio) * constraint +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final
+             ,exactDOF = TRUE
+         )
+
+#t_2 <- felm(tso2_eq_output ~ 
+#            log(lag_cashflow_to_tangible) * constraint +
+#            log(lag_current_ratio) * constraint +
+#            log(lag_liabilities_tot_asset) +
+#            log(lag_sales_tot_asset) 
+#            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final
+#             ,exactDOF = TRUE
+#         )
+#### triple ASSET
+year_to_filter <- "2003"
+# sales, output, employment, total_asset
+temp <- df_final %>% filter(year == year_to_filter) %>% 
+select(geocode4_corr, ind2, total_asset) %>%
+rename(industry_size = total_asset)
+
+t_2 <- felm(tso2_eq_output ~ 
+            log(lag_cashflow_to_tangible) * constraint * log(industry_size) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,
+            df_final %>% left_join(temp) %>% 
+            mutate(industry_size= replace(industry_size, is.na(industry_size),
+                                          #FALSE
+                                          median(industry_size, na.rm=TRUE)
+                                         )
+                  )
+             ,exactDOF = TRUE
+         )
 t_2 <- change_target(t_2)
-t_3 <- felm(log(tso2_eq_output_1) ~ 
-            log(lag_current_ratio) * log(total_asset) +
+t_3 <- felm(tso2_eq_output ~ 
+            log(lag_current_ratio) * constraint * log(industry_size) +
             log(lag_liabilities_tot_asset) +
-            log(lag_sales_tot_asset)  
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final %>% filter(tso2_eq_output_1 >0 &
-                   !geocode4_corr %in% c('1101', '1201', '3101', '5001'))
-            )
+            log(lag_sales_tot_asset) 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,
+            df_final %>% left_join(temp) %>% 
+            mutate(industry_size= replace(industry_size, is.na(industry_size),
+                                          1
+                                         )
+                  )
+             ,exactDOF = TRUE
+         )
 t_3 <- change_target(t_3)
+#t_5 <- felm(tso2_eq_output ~ 
+#            log(lag_cashflow_to_tangible) * constraint * log(industry_size) +
+#            log(lag_current_ratio) * constraint * log(industry_size) +
+#            log(lag_liabilities_tot_asset) +
+#            log(lag_sales_tot_asset) 
+#            | fe_t_i + fe_c_t|0 | geocode4_corr,
+#            df_final %>% left_join(temp) %>% 
+#            mutate(industry_size= replace(industry_size, is.na(industry_size),
+#                                          1
+#                                         )
+#                  )
+#             ,exactDOF = TRUE
+#         )
+#t_5 <- change_target(t_5)
+#### SALES
+year_to_filter <- "2003"
+# sales, output, employment, total_asset
+temp <- df_final %>% filter(year == year_to_filter) %>% 
+select(geocode4_corr, ind2, sales) %>%
+rename(industry_size = sales)
 
-t_4 <- felm(log(tso2_eq_output_1) ~ 
-            log(lag_cashflow_to_tangible) * log(total_asset)+
-            log(lag_current_ratio) * log(total_asset)+
+t_4 <- felm(tso2_eq_output ~ 
+            log(lag_cashflow_to_tangible) * constraint * log(industry_size) +
             log(lag_liabilities_tot_asset) +
-            log(lag_sales_tot_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_final %>% filter(tso2_eq_output_1 >0 &
-                   !geocode4_corr %in% c('1101', '1201', '3101', '5001'))
-         ,
-            exactDOF = TRUE)
+            log(lag_sales_tot_asset) 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,
+            df_final %>% left_join(temp) %>% 
+            mutate(industry_size= replace(industry_size, is.na(industry_size),
+                                          #FALSE
+                                          median(industry_size, na.rm=TRUE)
+                                         )
+                  )
+             ,exactDOF = TRUE
+         )
 t_4 <- change_target(t_4)
+t_5 <- felm(tso2_eq_output ~ 
+            log(lag_current_ratio) * constraint * log(industry_size) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,
+            df_final %>% left_join(temp) %>% 
+            mutate(industry_size= replace(industry_size, is.na(industry_size),
+                                          1
+                                         )
+                  )
+             ,exactDOF = TRUE
+         )
+t_5 <- change_target(t_5)
 
+### Output
+year_to_filter <- "2003"
+# sales, output, employment, total_asset
+temp <- df_final %>% filter(year == year_to_filter) %>% 
+select(geocode4_corr, ind2, output) %>%
+rename(industry_size = output)
+
+t_6 <- felm(tso2_eq_output ~ 
+            log(lag_cashflow_to_tangible) * constraint * log(industry_size) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,
+            df_final %>% left_join(temp) %>% 
+            mutate(industry_size= replace(industry_size, is.na(industry_size),
+                                          #FALSE
+                                          median(industry_size, na.rm=TRUE)
+                                         )
+                  )
+             ,exactDOF = TRUE
+         )
+t_6 <- change_target(t_6)
+t_7 <- felm(tso2_eq_output ~ 
+            log(lag_current_ratio) * constraint * log(industry_size) +
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset) 
+            | fe_t_i + fe_c_t|0 | geocode4_corr,
+            df_final %>% left_join(temp) %>% 
+            mutate(industry_size= replace(industry_size, is.na(industry_size),
+                                          1
+                                         )
+                  )
+             ,exactDOF = TRUE
+         )
+t_7 <- change_target(t_7)
+#t_8 <- felm(tso2_eq_output ~ 
+#            log(lag_cashflow_to_tangible) * constraint * log(industry_size) +
+#            log(lag_current_ratio) * constraint * log(industry_size) +
+#            log(lag_liabilities_tot_asset) +
+#            log(lag_sales_tot_asset) 
+#            | fe_t_i + fe_c_t|0 | geocode4_corr,
+#            df_final %>% left_join(temp) %>% 
+#            mutate(industry_size= replace(industry_size, is.na(industry_size),
+#                                          1
+#                                         )
+#                  )
+#             ,exactDOF = TRUE
+#         )
+#t_8 <- change_target(t_8)
 dep <- "Dependent variable: pollution abattement equipment SO2"
 fe1 <- list(
-    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
-    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
+    c("industry-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4
+    t_0,t_1, t_2, t_3, t_4, t_5,t_6,t_7#,t_8
 ),
     title="Baseline Estimate, pollution abattement equipment SO2",
     dep_var = dep,
@@ -798,14 +777,20 @@ tbe1  = "This table estimates eq(3). " \
 
 #multi_lines_dep = '(city/product/trade regime/year)'
 #new_r = ['& test1', 'test2']
+multicolumn ={
+    '': 2,
+    'Total asset': 2,
+    'Sales': 2,
+    'Output': 2,
+}
 lb.beautify(table_number = table_nb,
             #reorder_var = reorder,
             #multi_lines_dep = multi_lines_dep,
             #new_row= new_r,
-            #multicolumn = multicolumn,
+            multicolumn = multicolumn,
             table_nte = tbe1,
             jupyter_preview = True,
-            resolution = 150,
+            resolution = 175,
            folder = folder)
 ```
 
