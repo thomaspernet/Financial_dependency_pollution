@@ -171,7 +171,8 @@ if download_data:
         tso2_eq_asset_1 = lambda x: (x['tdso2_equip']+1)/(x['total_asset']/1000),
         constraint = lambda x: x['credit_constraint'] > -0.44,
         constraint_1 = lambda x: x['credit_constraint'] > -0.26,
-        target = lambda x: np.where(x['tdso2_equip'] > 0, 1,0)
+        target = lambda x: np.where(x['tdso2_equip'] > 0, 1,0),
+        intensity=lambda x: x["ttlssnl"]/ x["sales"]
     )
          )
     s3.download_file(
@@ -393,6 +394,7 @@ import statsmodels.formula.api as smf
 options(warn=-1)
 library(tidyverse)
 library(lfe)
+library(fixest)
 #library(lazyeval)
 library('progress')
 #library('emmeans')
@@ -470,7 +472,7 @@ for ext in ['.txt', '.pdf']:
 
 ```sos kernel="R"
 #library(alpaca)
-library(fixest)
+
 #library(texreg)
 ```
 
@@ -482,7 +484,7 @@ library(fixest)
 t_0 = fepois(
     tdso2_equip ~ 
             log(cashflow_to_tangible) +
-            log(current_ratio) +
+            #log(current_ratio) +
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset)+
             log(total_asset)
@@ -508,6 +510,15 @@ t_2 <- fepois(tdso2_equip ~
 
 t_3 <- fepois(tdso2_equip ~ 
             log(cashflow_to_tangible) * log(total_asset)+
+            #log(current_ratio) * log(total_asset)+
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)+
+            log(total_asset)
+            | fe_t_i + fe_c_t,df_final
+    )
+
+t_4 <- fepois(tdso2_equip ~ 
+            #log(cashflow_to_tangible) * log(total_asset)+
             log(current_ratio) * log(total_asset)+
             log(lag_liabilities_tot_asset) +
             log(lag_sales_tot_asset)+
@@ -515,24 +526,25 @@ t_3 <- fepois(tdso2_equip ~
             | fe_t_i + fe_c_t,df_final
     )
 
-table_1 <- texreg(
-    list(
-    t_0,t_1, t_2, t_3
+t_5 <- fepois(tdso2_equip ~ 
+            log(cashflow_to_tangible) * log(total_asset)+
+            log(current_ratio) * log(total_asset)+
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)+
+            log(total_asset)
+            | fe_t_i + fe_c_t,df_final
     )
-    )
-summary(t_3,
-        ssc = ssc(adj = FALSE, cluster.adj = FALSE),
-        vcov = "iid"
-        #cluster = "geocode4_corr"
-       )
+
 ```
 
 ```sos kernel="R"
-#etable( t_0,t_1, t_2, t_3,
+#print(etable( t_0,t_1, t_2, t_3,t_4,t_5,
 #         vcov = "iid",
-#       headers = c("1", "2", "3", "4"),
-#       tex = TRUE       
-#      )
+#       headers = c("1", "2", "3", "4", "4","5"),
+#       tex = TRUE,
+#       digits = 3,
+#      digits.stats = 3
+#      ))
 ```
 
 <!-- #region kernel="SoS" -->
