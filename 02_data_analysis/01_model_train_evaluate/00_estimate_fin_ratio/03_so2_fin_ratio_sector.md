@@ -633,6 +633,18 @@ sns.lmplot(
 df[['sales','total_asset','tso2_eq_output_1']].corr()
 ```
 
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
 ```sos kernel="R"
 %get path table
 t_0 <- felm(log(tso2) ~ 
@@ -704,7 +716,8 @@ fe1 <- list(
     c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5
+    #t_0,t_1,
+    t_2, t_3, t_4, t_5
 ),
     title="Baseline Estimate, determinant of SO2 emission",
     dep_var = dep,
@@ -824,7 +837,8 @@ fe1 <- list(
     c("city-year", "Yes", "Yes", "Yes", "Yes")
              )
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3
+    #t_0,t_1,
+    t_2, t_3
 ),
     title="determinant of SO2 emission, polluted vs no polluted sectors",
     dep_var = dep,
@@ -845,7 +859,9 @@ tbe1  = "This table estimates eq(3). " \
 "\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%."
 
 #multi_lines_dep = '(city/product/trade regime/year)'
-new_r = ['& Above', 'Below','Above', 'Below']
+new_r = ['& Above', 'Below',
+        # 'Above', 'Below'
+        ]
 lb.beautify(table_number = table_nb,
             #reorder_var = reorder,
             #multi_lines_dep = multi_lines_dep,
@@ -1024,7 +1040,7 @@ for v in ['output','employ', 'capital']:
 ```
 
 ```sos kernel="SoS"
-folder = 'Tables_1'
+folder = 'Tables_0'
 table_nb = 3
 table = 'table_{}'.format(table_nb)
 path = os.path.join(folder, table + '.txt')
@@ -1040,14 +1056,17 @@ Baseline: 50%
 
 Manually save and rename tex file: table_3_output_5
 
+- Output -> main text
+- employ -> in appendix
+
 <!-- #endregion -->
 
 ```sos kernel="R"
 %get path table
-df_soe <- df_final %>% inner_join(read_csv('list_city_soe_output_0.5.csv'))
-df_priv <- df_final %>% left_join(read_csv('list_city_soe_output_0.5.csv')) %>% filter(is.na(share_soe))
-df_for <- df_final %>% inner_join(read_csv('list_city_for_output_0.5.csv'))
-df_dom <- df_final %>% left_join(read_csv('list_city_for_output_0.5.csv')) %>% filter(is.na(share_for))
+df_soe <- df_final %>% inner_join(read_csv('list_city_soe_employ_0.3.csv'))
+df_priv <- df_final %>% left_join(read_csv('list_city_soe_employ_0.3.csv')) %>% filter(is.na(share_soe))
+df_for <- df_final %>% inner_join(read_csv('list_city_for_employ_0.3.csv'))
+df_dom <- df_final %>% left_join(read_csv('list_city_for_employ_0.3.csv')) %>% filter(is.na(share_for))
 ### SOE vs Private
 t_0 <- felm(log(tso2) ~ 
             log(asset_tangibility_tot_asset) +
@@ -1313,7 +1332,10 @@ fe1 <- list(
     c("city-year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3, t_4, t_5, t_6, t_7
+    #t_0,t_1,
+    t_2, t_3,
+    #t_4, t_5,
+    t_6, t_7
 ),
     title="Heterogeneity effect, environmental and industrial policies",
     dep_var = dep,
@@ -1339,7 +1361,11 @@ tbe1  = "This table estimates eq(3). " \
 "\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%." 
 
 #multi_lines_dep = '(city/product/trade regime/year)'
-new_r = ['& TCZ', 'No TCZ', 'TCZ', 'No TCZ', 'SPZ', 'No SPZ','SPZ', 'No SPZ']
+new_r = ['& TCZ', 'No TCZ', 
+         #'TCZ', 'No TCZ',
+         'SPZ', 'No SPZ',
+         #'SPZ', 'No SPZ'
+        ]
 lb.beautify(table_number = table_nb,
             #reorder_var = reorder,
             #multi_lines_dep = multi_lines_dep,
