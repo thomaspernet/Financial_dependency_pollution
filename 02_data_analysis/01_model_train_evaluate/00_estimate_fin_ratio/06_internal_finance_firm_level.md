@@ -453,9 +453,9 @@ source(path)
 query = """
 SELECT year,
 province_en, 
-total_short_term/total_gdp as short_term_loan,
-total_bank_loan/total_gdp as all_loan,
-total_long_term_loan/total_gdp as long_term_loan
+1/(total_short_term/total_gdp) as short_term_loan,
+1/(total_bank_loan/total_gdp) as all_loan,
+1/(total_long_term_loan/total_gdp) as long_term_loan
 FROM "almanac_bank_china"."province_loan_and_credit" 
 """
 df_loan = (
