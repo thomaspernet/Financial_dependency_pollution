@@ -411,6 +411,18 @@ if add_to_dic:
         {
         'old':'ownership\_adjustedDOMESTIC',
         'new':'\\text{domestic}'
+        },
+        {
+        'old':'all_loan',
+        'new':'\\text{all credit}'
+        },
+        {
+        'old':'short_term_loan',
+        'new':'\\text{short term credit}'
+        },
+        {
+        'old':'long_term_loan',
+        'new':'\\text{long term credit}'
         }
         
     ]
@@ -437,6 +449,31 @@ path = "../../../utils/latex/table_golatex.R"
 source(path)
 ```
 
+```sos kernel="SoS"
+query = """
+SELECT year,
+province_en, 
+total_short_term/total_gdp as short_term_loan,
+total_bank_loan/total_gdp as all_loan,
+total_long_term_loan/total_gdp as long_term_loan
+FROM "almanac_bank_china"."province_loan_and_credit" 
+"""
+df_loan = (
+    s3.run_query(
+        query=query,
+        database=db,
+        s3_output='SQL_OUTPUT_ATHENA',
+        filename='loan',  # Add filename to print dataframe
+        destination_key='SQL_OUTPUT_ATHENA/CSV',  #Use it temporarily
+    )
+    .to_csv('temp_loan.csv', index = False)
+)
+```
+
+<!-- #region kernel="SoS" -->
+Use short/long term by year instead of average over time
+<!-- #endregion -->
+
 ```sos kernel="R"
 %get df_path
 df_final <- read_csv(df_path) %>%
@@ -447,7 +484,7 @@ mutate(
     #soe_vs_pri = relevel(as.factor(soe_vs_pri), ref='SOE')
     ownership = relevel(as.factor(ownership), ref='SOE'),
     ownership_adjusted = relevel(as.factor(ownership_adjusted), ref='FOREIGN')
-)
+) %>% left_join(read_csv('temp_loan.csv'))
 dim(df_final)
 ```
 
@@ -534,50 +571,50 @@ t_2 <- felm(log(asset_tangibility_tot_asset) ~
             log(liabilities_tot_asset) +
             log(age) +
             export_to_sale +
-            supply_all_credit
+            all_loan
             | firm + year + indu_2|0 | firm,df_final%>% filter(!is.na(labor_capital)),
             exactDOF = TRUE)
 
-#t_3 <- felm(rd_tot_asset_trick ~
-#            log(cashflow_to_tangible) +
-#            log(current_ratio) +
-#            log(liabilities_tot_asset) +
-#            log(age) +
-#            export_to_sale +
-#            supply_all_credit
-#            |firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007"))%>% filter(!is.na(labor_capital)),
-#            exactDOF = TRUE)
-
-## LT credit
-t_3 <- felm(log(asset_tangibility_tot_asset) ~
+t_3 <- felm(rd_tot_asset_trick ~
             log(cashflow_to_tangible) +
             log(current_ratio) +
             log(liabilities_tot_asset) +
             log(age) +
             export_to_sale +
-            supply_long_term_credit
-            | firm + year + indu_2|0 | firm,df_final,
+            all_loan
+            |firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007"))%>% filter(!is.na(labor_capital)),
             exactDOF = TRUE)
 
-#t_5 <- felm(rd_tot_asset_trick ~
-#            log(cashflow_to_tangible) +
-#            log(current_ratio) +
-#            log(liabilities_tot_asset) +
-#            log(age) +
-#            export_to_sale +
-#            supply_long_term_credit
-#            |firm + year + indu_2|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007"))%>% filter(!is.na(labor_capital)),
-#            exactDOF = TRUE)
+## LT credit
+t_4 <- felm(log(asset_tangibility_tot_asset) ~
+            log(cashflow_to_tangible) +
+            log(current_ratio) +
+            log(liabilities_tot_asset) +
+            log(age) +
+            export_to_sale +
+            long_term_loan
+            | firm + year + indu_2|0 | firm,df_final%>% filter(!is.na(labor_capital)),
+            exactDOF = TRUE)
+
+t_5 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible) +
+            log(current_ratio) +
+            log(liabilities_tot_asset) +
+            log(age) +
+            export_to_sale +
+            long_term_loan
+            |firm + indu_2 + year|0 | firm,df_final %>% filter(year %in% list("2005","2006", "2007"))%>% filter(!is.na(labor_capital)),
+            exactDOF = TRUE)
             
 dep <- "Dependent variable"
 fe1 <- list(
-    c("firm", "Yes", "Yes", "Yes"),
-    c("industry", "Yes", "Yes", "Yes"),
-    c("year", "Yes", "Yes", "Yes")
+    c("firm", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("industry", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes"),
+    c("year", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
 table_1 <- go_latex(list(
-    t_0,t_1, t_2, t_3#, t_4, t_5
+    t_0,t_1, t_2, t_3, t_4, t_5
 ),
     title="Asset structure (tangible versus intangible) and internal finance",
     dep_var = dep,
@@ -598,7 +635,7 @@ tbe1  = "This table estimates equation XX. " \
 "\sym{*} Significance at the 10\%, \sym{**} Significance at the 5\%, \sym{***} Significance at the 1\%. " 
 
 #multi_lines_dep = '(city/product/trade regime/year)'
-new_r = ['& Tangible to asset', 'RD', 'Tangible to asset', 'Tangible to asset']
+new_r = ['& Tangible to asset', 'RD', 'Tangible to asset', 'RD', 'Tangible to asset', 'RD']
 lb.beautify(table_number = table_nb,
             #reorder_var = reorder,
             #multi_lines_dep = multi_lines_dep,
@@ -641,48 +678,48 @@ except:
 
 ```sos kernel="R"
 %get path table
-t_0 <- felm(log(asset_tangibility_tot_asset) ~
-            log(cashflow_to_tangible) * ownership+
-            log(liabilities_tot_asset) +
-            log(age) +
-            export_to_sale 
-            | fe_fo + year + indu_2|0 | firm,df_final %>%
-            mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>% filter(
-            ownership %in% c('SOE','PRIVATE'))%>% filter(!is.na(labor_capital)),
-            exactDOF = TRUE)
+#t_0 <- felm(log(asset_tangibility_tot_asset) ~
+#            log(cashflow_to_tangible) * ownership+
+#            log(liabilities_tot_asset) +
+#            log(age) +
+#            export_to_sale 
+#            | fe_fo + year + indu_2|0 | firm,df_final %>%
+#            mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>% filter(
+#            ownership %in% c('SOE','PRIVATE'))%>% filter(!is.na(labor_capital)),
+#            exactDOF = TRUE)
 
-t_1 <- felm(rd_tot_asset_trick ~
-            log(cashflow_to_tangible)* ownership +
-            log(liabilities_tot_asset) +
-            log(age) +
-            export_to_sale 
-            | fe_fo + year + indu_2|0 | firm,df_final %>%
-            mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>% filter(
-                year %in% list("2005","2006", "2007") & 
-            ownership %in% c('SOE','PRIVATE'))%>% filter(!is.na(labor_capital)),
-            exactDOF = TRUE)
+#t_1 <- felm(rd_tot_asset_trick ~
+#            log(cashflow_to_tangible)* ownership +
+#            log(liabilities_tot_asset) +
+#            log(age) +
+#            export_to_sale 
+#            | fe_fo + year + indu_2|0 | firm,df_final %>%
+#            mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>% filter(
+#                year %in% list("2005","2006", "2007") & 
+#            ownership %in% c('SOE','PRIVATE'))%>% filter(!is.na(labor_capital)),
+#            exactDOF = TRUE)
 
-t_2 <- felm(log(asset_tangibility_tot_asset) ~
-            log(current_ratio) * ownership+
-            log(liabilities_tot_asset) +
-            log(age) +
-            export_to_sale 
-            | fe_fo + year + indu_2|0 | firm,df_final %>%
-            mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>% filter(
-            ownership %in% c('SOE','PRIVATE'))%>% filter(!is.na(labor_capital)),
-            exactDOF = TRUE)
-t_2 <- change_target(t_2)
-t_3 <- felm(rd_tot_asset_trick ~
-            log(current_ratio) * ownership+
-            log(liabilities_tot_asset) +
-            log(age) +
-            export_to_sale 
-            | fe_fo + year + indu_2|0 | firm,df_final %>%
-            mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>% filter(
-                year %in% list("2005","2006", "2007") & 
-            ownership %in% c('SOE','PRIVATE'))%>% filter(!is.na(labor_capital)),
-            exactDOF = TRUE)
-t_3 <- change_target(t_3)
+#t_2 <- felm(log(asset_tangibility_tot_asset) ~
+#            log(current_ratio) * ownership+
+#            log(liabilities_tot_asset) +
+#            log(age) +
+#            export_to_sale 
+#            | fe_fo + year + indu_2|0 | firm,df_final %>%
+#            mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>% filter(
+#            ownership %in% c('SOE','PRIVATE'))%>% filter(!is.na(labor_capital)),
+#            exactDOF = TRUE)
+#t_2 <- change_target(t_2)
+#t_3 <- felm(rd_tot_asset_trick ~
+#            log(current_ratio) * ownership+
+#            log(liabilities_tot_asset) +
+#            log(age) +
+#            export_to_sale 
+#            | fe_fo + year + indu_2|0 | firm,df_final %>%
+#            mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>% filter(
+#                year %in% list("2005","2006", "2007") & 
+#            ownership %in% c('SOE','PRIVATE'))%>% filter(!is.na(labor_capital)),
+#            exactDOF = TRUE)
+#t_3 <- change_target(t_3)
 t_4 <- felm(log(asset_tangibility_tot_asset) ~
             log(cashflow_to_tangible) * ownership+
             log(current_ratio) * ownership+
@@ -714,50 +751,50 @@ t_6 <- felm(log(asset_tangibility_tot_asset) ~
             log(liabilities_tot_asset) +
             log(age) +
             export_to_sale +
-            supply_all_credit
+            all_loan
             | fe_fo + year + indu_2|0 | firm,df_final %>%
             mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>% filter(
             ownership %in% c('SOE','PRIVATE'))%>% filter(!is.na(labor_capital)),
             exactDOF = TRUE)
 t_6 <- change_target(t_6)
-#t_7 <- felm(rd_tot_asset_trick ~
-#            log(cashflow_to_tangible)* ownership +
-#            log(current_ratio) * ownership+
-#            log(liabilities_tot_asset) +
-#           log(age) +
-#            export_to_sale +
-#            supply_all_credit
-#            | fe_fo + year + indu_2|0 | firm,df_final %>%
-#            mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>% filter(
-#                year %in% list("2005","2006", "2007") & 
-#            ownership %in% c('SOE','PRIVATE'))%>% filter(!is.na(labor_capital)),
-#            exactDOF = TRUE)
-#t_7 <- change_target(t_7)
-t_7 <- felm(log(asset_tangibility_tot_asset) ~
+t_7 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible)* ownership +
+            log(current_ratio) * ownership+
+            log(liabilities_tot_asset) +
+           log(age) +
+            export_to_sale +
+            all_loan
+            | fe_fo + year + indu_2|0 | firm,df_final %>%
+            mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>% filter(
+                year %in% list("2005","2006", "2007") & 
+            ownership %in% c('SOE','PRIVATE'))%>% filter(!is.na(labor_capital)),
+            exactDOF = TRUE)
+t_7 <- change_target(t_7)
+t_8 <- felm(log(asset_tangibility_tot_asset) ~
             log(cashflow_to_tangible) * ownership+
             log(current_ratio) * ownership+
             log(liabilities_tot_asset) +
             log(age) +
             export_to_sale +
-            supply_long_term_credit
+            long_term_loan
             | fe_fo + year + indu_2|0 | firm,df_final %>%
             mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>% filter(
             ownership %in% c('SOE','PRIVATE'))%>% filter(!is.na(labor_capital)),
             exactDOF = TRUE)
-t_7 <- change_target(t_7)
-#t_9 <- felm(rd_tot_asset_trick ~
-#            log(cashflow_to_tangible)* ownership +
-#           log(current_ratio) * ownership+
-#            log(liabilities_tot_asset) +
-#            log(age) +
-#            export_to_sale +
-#            supply_long_term_credit
-#            | fe_fo + year + indu_2|0 | firm,df_final %>%
-#            mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>% filter(
-#                year %in% list("2005","2006", "2007") & 
-#            ownership %in% c('SOE','PRIVATE'))%>% filter(!is.na(labor_capital)),
-#            exactDOF = TRUE)
-#t_9 <- change_target(t_9)
+t_8 <- change_target(t_8)
+t_9 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible)* ownership +
+           log(current_ratio) * ownership+
+            log(liabilities_tot_asset) +
+            log(age) +
+            export_to_sale +
+            long_term_loan
+            | fe_fo + year + indu_2|0 | firm,df_final %>%
+            mutate(ownership = replace(ownership, ownership %in% c('FOREIGN', 'HTM'), 'PRIVATE'))%>% filter(
+                year %in% list("2005","2006", "2007") & 
+            ownership %in% c('SOE','PRIVATE'))%>% filter(!is.na(labor_capital)),
+            exactDOF = TRUE)
+t_9 <- change_target(t_9)
 
 dep <- "Dependent variable"
 fe1 <- list(
@@ -767,7 +804,8 @@ fe1 <- list(
              )
 
 table_1 <- go_latex(list(
-    t_0, t_1, t_2, t_3, t_4,t_5, t_6, t_7#, t_8, t_9
+    #t_0, t_1, t_2, t_3, 
+    t_4,t_5, t_6, t_7, t_8, t_9
 ),
     title="Asset structure (tangible versus intangible) and internal finance",
     dep_var = dep,
@@ -795,8 +833,7 @@ reorder = {
 }
 
 #multi_lines_dep = '(city/product/trade regime/year)'
-new_r = ['& Tangible to asset', 'RD', 'Tangible to asset', 'RD', 'Tangible to asset', 'RD',
-        'Tangible to asset', 'Tangible to asset']
+new_r = ['& Tangible to asset', 'RD', 'Tangible to asset', 'RD', 'Tangible to asset', 'RD']
 lb.beautify(table_number = table_nb,
             #reorder_var = reorder,
             #multi_lines_dep = multi_lines_dep,
@@ -835,44 +872,44 @@ except:
 
 ```sos kernel="R"
 %get path table
-t_0 <- felm(log(asset_tangibility_tot_asset) ~
-            log(cashflow_to_tangible) * ownership_adjusted+
-            log(liabilities_tot_asset) +
-            log(age) +
-            export_to_sale 
-            | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
-            ownership_adjusted %in% c('DOMESTIC','FOREIGN'))%>% filter(!is.na(labor_capital)),
-            exactDOF = TRUE)
+#t_0 <- felm(log(asset_tangibility_tot_asset) ~
+#            log(cashflow_to_tangible) * ownership_adjusted+
+#            log(liabilities_tot_asset) +
+#            log(age) +
+#            export_to_sale 
+#            | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
+#            ownership_adjusted %in% c('DOMESTIC','FOREIGN'))%>% filter(!is.na(labor_capital)),
+#            exactDOF = TRUE)
 
-t_1 <- felm(rd_tot_asset_trick ~
-            log(cashflow_to_tangible)* ownership_adjusted +
-            log(liabilities_tot_asset) +
-            log(age) +
-            export_to_sale 
-            | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
-            ownership_adjusted %in% c('DOMESTIC','FOREIGN') &
-            year %in% list("2005","2006", "2007"))%>% filter(!is.na(labor_capital)),
-            exactDOF = TRUE)
+#t_1 <- felm(rd_tot_asset_trick ~
+#            log(cashflow_to_tangible)* ownership_adjusted +
+#            log(liabilities_tot_asset) +
+#            log(age) +
+#            export_to_sale 
+#            | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
+#            ownership_adjusted %in% c('DOMESTIC','FOREIGN') &
+#            year %in% list("2005","2006", "2007"))%>% filter(!is.na(labor_capital)),
+#            exactDOF = TRUE)
 
-t_2 <- felm(log(asset_tangibility_tot_asset) ~
-            log(current_ratio) * ownership_adjusted+
-            log(liabilities_tot_asset) +
-            log(age) +
-            export_to_sale 
-            | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
-            ownership_adjusted %in% c('DOMESTIC','FOREIGN'))%>% filter(!is.na(labor_capital)),
-            exactDOF = TRUE)
-t_2 <- change_target(t_2)
-t_3 <- felm(rd_tot_asset_trick ~
-            log(current_ratio) * ownership_adjusted+
-            log(liabilities_tot_asset) +
-            log(age) +
-            export_to_sale 
-            | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
-            ownership_adjusted %in% c('DOMESTIC','FOREIGN') &
-            year %in% list("2005","2006", "2007"))%>% filter(!is.na(labor_capital)),
-            exactDOF = TRUE)
-t_3 <- change_target(t_3)
+#t_2 <- felm(log(asset_tangibility_tot_asset) ~
+#            log(current_ratio) * ownership_adjusted+
+#            log(liabilities_tot_asset) +
+#            log(age) +
+#            export_to_sale 
+#            | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
+#            ownership_adjusted %in% c('DOMESTIC','FOREIGN'))%>% filter(!is.na(labor_capital)),
+#            exactDOF = TRUE)
+#t_2 <- change_target(t_2)
+#t_3 <- felm(rd_tot_asset_trick ~
+#            log(current_ratio) * ownership_adjusted+
+#            log(liabilities_tot_asset) +
+#            log(age) +
+#            export_to_sale 
+#            | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
+#            ownership_adjusted %in% c('DOMESTIC','FOREIGN') &
+#            year %in% list("2005","2006", "2007"))%>% filter(!is.na(labor_capital)),
+#            exactDOF = TRUE)
+#t_3 <- change_target(t_3)
 t_4 <- felm(log(asset_tangibility_tot_asset) ~
             log(cashflow_to_tangible) * ownership_adjusted+
             log(current_ratio) * ownership_adjusted+
@@ -902,44 +939,46 @@ t_6 <- felm(log(asset_tangibility_tot_asset) ~
             log(liabilities_tot_asset) +
             log(age) +
             export_to_sale +
-            supply_all_credit
+            all_loan
             | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
             ownership_adjusted %in% c('DOMESTIC','FOREIGN'))%>% filter(!is.na(labor_capital)),
             exactDOF = TRUE)
 t_6 <- change_target(t_6)
-#t_7 <- felm(rd_tot_asset_trick ~
-#            log(cashflow_to_tangible)* ownership_adjusted +
-#            log(current_ratio) * ownership_adjusted+
-#            log(liabilities_tot_asset) +
-#            log(age) +
-#            export_to_sale +
-#            supply_all_credit
-#            | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
-#            ownership_adjusted %in% c('DOMESTIC','FOREIGN'))%>% filter(!is.na(labor_capital)),
-#            exactDOF = TRUE)
-#t_7 <- change_target(t_7)
-t_7 <- felm(log(asset_tangibility_tot_asset) ~
+t_7 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible)* ownership_adjusted +
+            log(current_ratio) * ownership_adjusted+
+            log(liabilities_tot_asset) +
+            log(age) +
+            export_to_sale +
+            all_loan
+            | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
+            ownership_adjusted %in% c('DOMESTIC','FOREIGN') &
+            year %in% list("2005","2006", "2007"))%>% filter(!is.na(labor_capital)),
+            exactDOF = TRUE)
+t_7 <- change_target(t_7)
+t_8 <- felm(log(asset_tangibility_tot_asset) ~
             log(cashflow_to_tangible) * ownership_adjusted+
             log(current_ratio) * ownership_adjusted+
             log(liabilities_tot_asset) +
             log(age) +
             export_to_sale +
-            supply_long_term_credit
+            long_term_loan
             | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
             ownership_adjusted %in% c('DOMESTIC','FOREIGN'))%>% filter(!is.na(labor_capital)),
             exactDOF = TRUE)
-t_7 <- change_target(t_7)
-#t_9 <- felm(rd_tot_asset_trick ~
-#            log(cashflow_to_tangible)* ownership_adjusted +
-#            log(current_ratio) * ownership_adjusted+
-#            log(liabilities_tot_asset) +
-#            log(age) +
-#            export_to_sale +
-#            supply_long_term_credit
-#            | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
-#           ownership_adjusted %in% c('DOMESTIC','FOREIGN'))%>% filter(!is.na(labor_capital)),
-#            exactDOF = TRUE)
-#t_9 <- change_target(t_9)
+t_8 <- change_target(t_8)
+t_9 <- felm(rd_tot_asset_trick ~
+            log(cashflow_to_tangible)* ownership_adjusted +
+            log(current_ratio) * ownership_adjusted+
+            log(liabilities_tot_asset) +
+            log(age) +
+            export_to_sale +
+            long_term_loan
+            | fe_fo + year + indu_2|0 | firm,df_final %>% filter(
+            ownership_adjusted %in% c('DOMESTIC','FOREIGN') &
+            year %in% list("2005","2006", "2007"))%>% filter(!is.na(labor_capital)),
+            exactDOF = TRUE)
+t_9 <- change_target(t_9)
 
 dep <- "Dependent variable"
 fe1 <- list(
@@ -949,7 +988,8 @@ fe1 <- list(
              )
 
 table_1 <- go_latex(list(
-    t_0, t_1, t_2, t_3, t_4,t_5, t_6, t_7#, t_8, t_9
+    #t_0, t_1, t_2, t_3, 
+    t_4,t_5, t_6, t_7, t_8, t_9
 ),
     title="Asset structure (tangible versus intangible) and internal finance",
     dep_var = dep,
@@ -977,7 +1017,7 @@ multicolumn ={
 
 #multi_lines_dep = '(city/product/trade regime/year)'
 new_r = ['& Tangible to asset', 'RD', 'Tangible to asset', 'RD', 'Tangible to asset', 'RD',
-        'Tangible to asset', 'Tangible to asset']
+        'Tangible to asset', 'RD']
 lb.beautify(table_number = table_nb,
             #reorder_var = reorder,
             #multi_lines_dep = multi_lines_dep,

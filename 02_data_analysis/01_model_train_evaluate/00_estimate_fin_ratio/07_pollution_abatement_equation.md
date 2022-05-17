@@ -481,23 +481,23 @@ for ext in ['.txt', '.pdf']:
 <!-- #endregion -->
 
 ```sos kernel="R"
-t_0 = fepois(
-    tdso2_equip ~ 
-            log(cashflow_to_tangible) +
-            #log(current_ratio) +
-            log(lag_liabilities_tot_asset) +
-            log(lag_sales_tot_asset)+
-            log(total_asset)
-            | fe_t_i + fe_c_t,df_final
-)
-t_1 <- fepois(tdso2_equip ~ 
-            #log(cashflow_to_tangible)+
-            log(current_ratio) +
-            log(lag_liabilities_tot_asset) +
-            log(lag_sales_tot_asset)+
-            log(total_asset)
-            | fe_t_i + fe_c_t,df_final
-    )
+#t_0 = fepois(
+#    tdso2_equip ~ 
+#            log(cashflow_to_tangible) +
+#            #log(current_ratio) +
+#            log(lag_liabilities_tot_asset) +
+#            log(lag_sales_tot_asset)+
+#            log(total_asset)
+#            | fe_t_i + fe_c_t,df_final
+#)
+#t_1 <- fepois(tdso2_equip ~ 
+#            #log(cashflow_to_tangible)+
+#            log(current_ratio) +
+#            log(lag_liabilities_tot_asset) +
+#            log(lag_sales_tot_asset)+
+#            log(total_asset)
+#            | fe_t_i + fe_c_t,df_final
+#    )
 
 t_2 <- fepois(tdso2_equip ~ 
             log(cashflow_to_tangible)+
@@ -538,13 +538,14 @@ t_5 <- fepois(tdso2_equip ~
 ```
 
 ```sos kernel="R"
-#print(etable( t_0,t_1, t_2, t_3,t_4,t_5,
-#         vcov = "iid",
-#       headers = c("1", "2", "3", "4", "4","5"),
-#       tex = TRUE,
-#       digits = 3,
-#      digits.stats = 3
-#      ))
+print(etable(# t_0,t_1, 
+             t_2, t_3,t_4,t_5,
+         vcov = "iid",
+       headers = c("1", "2", "3", "4"),
+       tex = TRUE,
+       digits = 3,
+      digits.stats = 3
+      ))
 ```
 
 <!-- #region kernel="SoS" -->
