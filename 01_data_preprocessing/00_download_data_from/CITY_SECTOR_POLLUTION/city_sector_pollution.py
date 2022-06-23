@@ -66,16 +66,29 @@ FILENAME_DRIVE1 = 'thomasusepollutionfirmn.dta'
 FILEID = drive.find_file_id(FILENAME_DRIVE1, to_print=False)
 var = (
     drive.download_file(
-        filename=FILENAME_DRIVE,
+        filename=FILENAME_DRIVE1,
         file_id=FILEID,
         local_path=os.path.join(parent_path, "00_data_catalogue", "temporary_local_data"))
 )
 input_path_3 = os.path.join(parent_path, "00_data_catalogue",
                             "temporary_local_data", FILENAME_DRIVE1)
+
+#### DOWNLOAD WASTE WATER equipment
+FILENAME_DRIVE2 = 'thomasusepollution_062022.dta'
+FILEID = drive.find_file_id(FILENAME_DRIVE2, to_print=False)
+var = (
+    drive.download_file(
+        filename=FILENAME_DRIVE2,
+        file_id=FILEID,
+        local_path=os.path.join(parent_path, "00_data_catalogue", "temporary_local_data"))
+)
+input_path_4 = os.path.join(parent_path, "00_data_catalogue",
+                            "temporary_local_data", FILENAME_DRIVE2)
 # Make sure of the content
 pd.read_csv(input_path_1).shape
 pd.read_stata(input_path_2).shape
 pd.read_stata(input_path_3).shape
+pd.read_stata(input_path_4).shape
 # Previous file
 pd.io.json.build_table_schema(pd.read_csv(input_path_1))
 
@@ -131,7 +144,26 @@ var = (
     tdwastegas_equip_output = lambda x: x['tdwastegas_equip']/x['ttoutput'],
     tdso2_equip_output = lambda x: x['tdso2_equip']/x['ttoutput'],
     )
+    .merge(
+    (
+        pd.read_stata(input_path_4)
+        .dropna(subset=['citycode'])
+        .assign(
+            year=lambda x: x['year'].round().astype('int').astype('str'),
+            citycode=lambda x: x['citycode'].round().astype(
+                'int').astype('str'),
+        )
+        .reindex(columns=[
+            'year', 'indus_code', 'citycode',
+           'total_industrialwater_used', 'total_freshwater_used',
+           'total_repeatedwater_used', 'total_coal_used', 'trlmxf', 'tylmxf',
+           'clean_gas_used', 'dwastewater_equip', 'tfszlssnl', 'tfszlssfee'
+        ])
+    ), how = 'left'
+    )
 )
+
+var.head()
 
 # Brief information ...
 var.to_csv('China_city_pollution_98_2007.csv', index=False)
@@ -142,7 +174,7 @@ s3.upload_file('China_city_pollution_98_2007.csv',
                "DATA/ENVIRONMENT/CHINA/CITY_SECTOR_POLLUTION")
 
 os.remove('China_city_pollution_98_2007.csv')
-[os.remove(i) for i in [input_path_1, input_path_3, input_path_3]]
+[os.remove(i) for i in [input_path_1, input_path_2, input_path_3, input_path_4]]
 
 pd.io.json.build_table_schema(var)
 # Craw the table
