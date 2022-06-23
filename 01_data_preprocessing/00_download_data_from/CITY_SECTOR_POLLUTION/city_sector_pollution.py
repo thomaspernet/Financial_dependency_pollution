@@ -163,8 +163,6 @@ var = (
     )
 )
 
-var.head()
-
 # Brief information ...
 var.to_csv('China_city_pollution_98_2007.csv', index=False)
 s3.remove_file(
@@ -179,6 +177,10 @@ os.remove('China_city_pollution_98_2007.csv')
 pd.io.json.build_table_schema(var)
 # Craw the table
 # Schema
+#for i in pd.io.json.build_table_schema(var)['fields']:
+#    if i['type'] in ['number', 'integer']:
+#        i['type'] = 'int'
+#    print("{},".format({'Name':i['name'], 'Type':i['type'],'Comment':''}))
 
 schema = [
     {
@@ -286,9 +288,20 @@ schema = [
         "Comment": "the number of equipment of removing wasted gas per unit of output"},
     {'Name': 'tdso2_equip_output', 'Type': 'float',
         "Comment": "the number of equipment of removing so2 per unit of output"},
-
+    {'Name': 'tdwastegas_equip_output', 'Type': 'int', 'Comment': ''},
+{'Name': 'tdso2_equip_output', 'Type': 'int', 'Comment': ''},
+{'Name': 'total_industrialwater_used', 'Type': 'int', 'Comment': 'total industrial water used'},
+{'Name': 'total_freshwater_used', 'Type': 'int', 'Comment': 'total fresh water used'},
+{'Name': 'total_repeatedwater_used', 'Type': 'int', 'Comment': 'total repeated water used'},
+{'Name': 'total_coal_used', 'Type': 'int', 'Comment': 'total coal used'},
+{'Name': 'trlmxf', 'Type': 'int', 'Comment': 'the consumption of fuel coal'},
+{'Name': 'tylmxf', 'Type': 'int', 'Comment': 'the consumption of raw coal'},
+{'Name': 'clean_gas_used', 'Type': 'int', 'Comment': 'clean gas used'},
+{'Name': 'dwastewater_equip', 'Type': 'int', 'Comment': 'waste water equipment'},
+{'Name': 'tfszlssnl', 'Type': 'int', 'Comment': 'the capacity to remove wasted water ton/day'},
+{'Name': 'tfszlssfee', 'Type': 'int', 'Comment': 'the expense to remove wasted water ton/day'}
 ]
-
+#pd.read_stata(input_path_4, iterator = True).variable_labels()
 
 glue = service_glue.connect_glue(client=client)
 target_S3URI = "s3://datalake-london/DATA/ENVIRONMENT/CHINA/CITY_SECTOR_POLLUTION"
