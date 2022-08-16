@@ -481,6 +481,28 @@ for ext in ['.txt', '.pdf']:
 <!-- #endregion -->
 
 ```sos kernel="R"
+change_target <- function(table){
+    ## SOE
+    check_target_current_ratio_soe <- grep("log\\(cashflow_to_tangible\\):d_credit_constraintABOVE", rownames(table$coef))
+    check_target_liabilities_soe <- grep("d_credit_constraintABOVE:log\\(current_ratio\\)", rownames(table$coef))
+
+
+    
+    if (length(check_target_liabilities_soe) !=0) {
+    ## SOE
+    rownames(table$coefficients)[check_target_current_ratio_soe] <- 'log(current_ratio):credit_constraint'
+    rownames(table$beta)[check_target_current_ratio_soe] <- 'log(current_ratio):credit_constraint'
+    rownames(table$coefficients)[check_target_liabilities_soe] <- 'log(liabilities_tot_asset):credit_constraint'
+    rownames(table$beta)[check_target_liabilities_soe] <- 'log(liabilities_tot_asset):credit_constraint'
+        
+    
+    }
+    
+    return (table)
+}
+```
+
+```sos kernel="R"
 #t_0 = fepois(
 #    tdso2_equip ~ 
 #            log(cashflow_to_tangible) +
@@ -535,265 +557,59 @@ t_5 <- fepois(tdso2_equip ~
             | fe_t_i + fe_c_t,df_final
     )
 
+t_6 <- fepois(tdso2_equip ~ 
+            log(cashflow_to_tangible) * d_credit_constraint+
+            #log(current_ratio) * d_credit_constraint+
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)+
+            log(total_asset)
+            | fe_t_i + fe_c_t,df_final %>%
+               mutate(d_credit_constraint = ifelse(credit_constraint > -.47, "ABOVE","BELOW"))%>%
+             mutate(
+                 d_credit_constraint = relevel(as.factor(d_credit_constraint), ref='BELOW')
+             )#,
+              # vcov = "iid"
+    )
+t_6 <- change_target(t_6)
+t_7 <- fepois(tdso2_equip ~ 
+            #log(cashflow_to_tangible) * d_credit_constraint+
+            log(current_ratio) * d_credit_constraint+
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)+
+            log(total_asset)
+            | fe_t_i + fe_c_t,df_final %>%
+               mutate(d_credit_constraint = ifelse(credit_constraint > -.47, "ABOVE","BELOW"))%>%
+             mutate(
+                 d_credit_constraint = relevel(as.factor(d_credit_constraint), ref='BELOW')
+             )#,
+              # vcov = "iid"
+    )
+t_7 <- change_target(t_7)
+t_8 <- fepois(tdso2_equip ~ 
+            log(cashflow_to_tangible) * d_credit_constraint+
+            log(current_ratio) * d_credit_constraint+
+            log(lag_liabilities_tot_asset) +
+            log(lag_sales_tot_asset)+
+            log(total_asset)
+            | fe_t_i + fe_c_t,df_final %>%
+               mutate(d_credit_constraint = ifelse(credit_constraint > -.47, "ABOVE","BELOW"))%>%
+             mutate(
+                 d_credit_constraint = relevel(as.factor(d_credit_constraint), ref='BELOW')
+             )#,
+              # vcov = "iid"
+    )
+t_8 <- change_target(t_8)
 ```
 
 ```sos kernel="R"
 print(etable(# t_0,t_1, 
-             t_2, t_3,t_4,t_5,
+             t_2, t_3,t_4,t_5,t_6, t_7, t_8,
          vcov = "iid",
-       headers = c("1", "2", "3", "4"),
+       headers = c("1", "2", "3", "4", "5", "6", "7"),
        tex = TRUE,
        digits = 3,
       digits.stats = 3
       ))
-```
-
-<!-- #region kernel="SoS" -->
-# SOE vs Private
-
-City ownership are available for the following variables:
-
-- output
-- capital
-- employment
-- sales
-
-**How is it constructed** 
-
-* city ownership public vs private in 2002
-  * Aggregate output by ownership and city
-    * A given city will have SOE asset tangibility and PRIVATE asset tangibility [output, employment, capital and sales]
-  * If asset tangibility SOE above Private then city is dominated by SOE
-  
-Notebook reference: https://github.com/thomaspernet/Financial_dependency_pollution/blob/master/01_data_preprocessing/02_transform_tables/07_dominated_city_ownership.md
-<!-- #endregion -->
-
-```sos kernel="SoS"
-query = """
-WITH test AS (
-  SELECT 
-    *,
-    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
-      '0', 
-      substr(cic, 1, 1)
-    ) END AS indu_2,
-    CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri,
-    CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
-  FROM 
-    firms_survey.asif_firms_prepared 
-    INNER JOIN (
-      SELECT 
-        extra_code, 
-        geocode4_corr 
-      FROM 
-        chinese_lookup.china_city_code_normalised 
-      GROUP BY 
-        extra_code, 
-        geocode4_corr
-    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
-  
-) 
-SELECT year, soe, geocode4_corr, indu_2,SUM(output) as output, SUM(employ) as employ, SUM(captal) as capital
-FROM (
-SELECT *,
-CASE WHEN ownership in ('SOE') THEN 'SOE' ELSE 'PRIVATE' END AS soe
-FROM test 
-  )
-  GROUP BY soe, geocode4_corr, year, indu_2
-"""
-df = (s3.run_query(
-        query=query,
-        database=db,
-        s3_output='SQL_OUTPUT_ATHENA',
-        filename="test",  # Add filename to print dataframe
-        destination_key='SQL_OUTPUT_ATHENA/CSV',  #Use it temporarily
-        dtype = dtypes
-    )
-     )
-```
-
-<!-- #region kernel="SoS" -->
-Dirty code
-<!-- #endregion -->
-
-```sos kernel="SoS"
-import janitor
-```
-
-```sos kernel="SoS"
-for v in ['output','employ', 'capital']:
-    for t in [.5, .4, .3, .2, .1]:
-        df_ = (
-            df
-            .set_index(['year','indu_2', 'soe', 'geocode4_corr'])
-            .unstack(-2)
-            .assign(
-                soe_dominated = lambda x: x[(v, 'SOE')] > x[(v, 'PRIVATE')],
-                share_soe = lambda x: x[(v, 'SOE')] / (x[(v, 'SOE')] + x[(v, 'PRIVATE')])
-            )
-            #.loc[lambda x: x['soe_dominated'].isin([True])]
-            .collapse_levels("_")
-            .reset_index()
-            [['year','geocode4_corr', 'indu_2', "soe_dominated", 
-             'share_soe'
-             ]]
-            .loc[lambda x: x['year'].isin(["2002"])]
-            .drop(columns = ['year'])
-            .rename(columns = {'indu_2':'ind2'})
-            .loc[lambda x: x['share_soe']> t]
-            #.groupby(['soe_dominated'])
-            #.agg({'share_soe':'describe'})
-            .to_csv('list_city_soe_{}_{}.csv'.format(v, t), index = False)
-        )
-```
-
-```sos kernel="SoS"
-query = """
-WITH test AS (
-  SELECT 
-    *,
-    CASE WHEN LENGTH(cic) = 4 THEN substr(cic, 1, 2) ELSE concat(
-      '0', 
-      substr(cic, 1, 1)
-    ) END AS indu_2,
-    CASE WHEN ownership = 'SOE' THEN 'SOE' ELSE 'PRIVATE' END AS soe_vs_pri,
-    CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS for_vs_dom 
-  FROM 
-    firms_survey.asif_firms_prepared 
-    INNER JOIN (
-      SELECT 
-        extra_code, 
-        geocode4_corr 
-      FROM 
-        chinese_lookup.china_city_code_normalised 
-      GROUP BY 
-        extra_code, 
-        geocode4_corr
-    ) as no_dup_citycode ON asif_firms_prepared.citycode = no_dup_citycode.extra_code
-  
-) 
-SELECT year, foreign, geocode4_corr, indu_2,SUM(output) as output, SUM(employ) as employ, SUM(captal) as capital
-FROM (
-SELECT *,
-CASE WHEN ownership in ('HTM', 'FOREIGN') THEN 'FOREIGN' ELSE 'DOMESTIC' END AS foreign
-FROM test 
-  )
-  GROUP BY foreign, geocode4_corr, year, indu_2
-
-"""
-df = (s3.run_query(
-        query=query,
-        database=db,
-        s3_output='SQL_OUTPUT_ATHENA',
-        filename="test",  # Add filename to print dataframe
-        destination_key='SQL_OUTPUT_ATHENA/CSV',  #Use it temporarily
-        dtype = dtypes
-    )
-     )
-```
-
-```sos kernel="SoS"
-for v in ['output','employ', 'capital']:
-    for t in [.5, .4, .3, .2, .1]:
-        (
-            df
-            .set_index(['year','indu_2', 'foreign', 'geocode4_corr'])
-            .unstack(-2)
-            .assign(
-                for_dominated = lambda x: x[(v, 'FOREIGN')] > x[(v, 'DOMESTIC')],
-                share_for = lambda x: x[(v, 'FOREIGN')] / (x[(v, 'FOREIGN')] + x[(v, 'DOMESTIC')])
-            )
-            .collapse_levels("_")
-            .reset_index()
-            [['year','geocode4_corr', 'indu_2', "for_dominated", 
-             'share_for'
-             ]]
-            .loc[lambda x: x['year'].isin(["2002"])]
-            .drop(columns = ['year'])
-            .rename(columns = {'indu_2':'ind2'})
-            .loc[lambda x: x['share_for']> t]
-            #.groupby(['soe_dominated'])
-            #.agg({'share_soe':'describe'})
-            .to_csv('list_city_for_{}_{}.csv'.format(v, t), index = False)
-        )
-```
-
-<!-- #region kernel="SoS" -->
-In the paper, only output is reported:
-
-- 50%, 40% and 30% 
-<!-- #endregion -->
-
-```sos kernel="R"
-%get path table
-df_soe <- df_final %>% inner_join(read_csv('list_city_soe_output_0.5.csv'))
-df_priv <- df_final %>% left_join(read_csv('list_city_soe_output_0.5.csv')) %>% filter(is.na(share_soe))
-df_for <- df_final %>% inner_join(read_csv('list_city_for_output_0.5.csv'))
-df_dom <- df_final %>% left_join(read_csv('list_city_for_output_0.5.csv')) %>% filter(is.na(share_for))
-
-#### SOE
-t_0 <- feglm(tdso2_equip ~ 
-            log(cashflow_to_tangible)+
-            log(current_ratio) +
-            log(lag_liabilities_tot_asset) +
-            log(lag_sales_tot_asset)+
-            log(total_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_soe 
-               ,
-         poisson(link = "log")
-    )
-
-#### PRIVATE
-t_1 <- feglm(tdso2_equip ~ 
-            log(cashflow_to_tangible)+
-            log(current_ratio) +
-            log(lag_liabilities_tot_asset) +
-            log(lag_sales_tot_asset)+
-            log(total_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_priv 
-               ,
-         poisson(link = "log")
-    )
-
-#### FOREIGN
-t_2 <- feglm(tdso2_equip ~ 
-            log(cashflow_to_tangible)+
-            log(current_ratio) +
-            log(lag_liabilities_tot_asset) +
-            log(lag_sales_tot_asset)+
-            log(total_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_for 
-               ,
-         poisson(link = "log")
-    )
-
-#### DOMESTIC
-t_3 <- feglm(tdso2_equip ~ 
-            log(cashflow_to_tangible)+
-            log(current_ratio) +
-            log(lag_liabilities_tot_asset) +
-            log(lag_sales_tot_asset)+
-            log(total_asset)
-            | fe_t_i + fe_c_t|0 | geocode4_corr,df_dom 
-               ,
-         poisson(link = "log")
-    )
-```
-
-```sos kernel="R"
-summary(t_0)
-```
-
-```sos kernel="R"
-summary(t_1)
-```
-
-```sos kernel="R"
-summary(t_2)
-```
-
-```sos kernel="R"
-summary(t_3)
 ```
 
 <!-- #region kernel="SoS" nteract={"transient": {"deleting": false}} -->
