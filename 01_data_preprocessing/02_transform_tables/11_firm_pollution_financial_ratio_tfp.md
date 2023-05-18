@@ -387,11 +387,11 @@ FROM
   and test.geocode4_corr = tfp_table.geocode4_corr 
   and test.year = tfp_table.year 
 WHERE 
-  test.year in (
-    '2000', '2001', '2002', '2003', '2004', 
-    '2005', '2006', '2007'
-  ) 
-  AND total_asset > 0 
+  --test.year in (
+  --  '2000', '2001', '2002', '2003', '2004', 
+  --  '2005', '2006', '2007'
+  --) AND
+  total_asset > 0 
   AND tangible > 0
 """.format(DatabaseName, table_name)
 output = s3.run_query(
