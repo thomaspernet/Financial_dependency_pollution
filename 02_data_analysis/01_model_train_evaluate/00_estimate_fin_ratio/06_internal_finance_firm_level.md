@@ -545,36 +545,7 @@ Need to add `%>% filter(!is.na(labor_capital))` to have the same number of obser
 <!-- #endregion -->
 
 ```sos kernel="R"
-change_target <- function(table){
-    ## SOE
-    check_target_current_ratio_soe <- grep("log\\(cashflow_to_tangible\\):d_credit_constraintBELOW", rownames(table$coef))
-    check_target_liabilities_soe <- grep("log\\(current_ratio\\):d_credit_constraint1ABOVE", rownames(table$coef))
-    
-    check_target_current_ratio_soe1 <- grep("log\\(cashflow_to_tangible\\):d_credit_constraintABOVE", rownames(table$coef))
-    check_target_liabilities_soe1 <- grep("d_credit_constraintABOVE:log\\(current_ratio\\)", rownames(table$coef))
 
-
-    
-    if (length(check_target_current_ratio_soe) !=0) {
-    ## SOE
-    rownames(table$coefficients)[check_target_current_ratio_soe] <- 'log(current_ratio):credit_constraint'
-    rownames(table$beta)[check_target_current_ratio_soe] <- 'log(current_ratio):credit_constraint'
-    rownames(table$coefficients)[check_target_liabilities_soe] <- 'log(liabilities_tot_asset):credit_constraint'
-    rownames(table$beta)[check_target_liabilities_soe] <- 'log(liabilities_tot_asset):credit_constraint'
-        
-    
-    }
-    
-    if (length(check_target_current_ratio_soe1) !=0) {
-        rownames(table$coefficients)[check_target_current_ratio_soe1] <- 'log(current_ratio):credit_constraint'
-    rownames(table$beta)[check_target_current_ratio_soe1] <- 'log(current_ratio):credit_constraint'
-    rownames(table$coefficients)[check_target_liabilities_soe1] <- 'log(liabilities_tot_asset):credit_constraint'
-    rownames(table$beta)[check_target_liabilities_soe1] <- 'log(liabilities_tot_asset):credit_constraint'
-        }
-    
-
-    return (table)
-}
 ```
 
 ```sos kernel="R"
@@ -715,6 +686,39 @@ try:
         os.remove(os.path.join(folder, ext))
 except:
     pass
+```
+
+```sos kernel="R"
+change_target <- function(table){
+    ## SOE
+    check_target_current_ratio_soe <- grep("log\\(cashflow_to_tangible\\):d_credit_constraintBELOW", rownames(table$coef))
+    check_target_liabilities_soe <- grep("log\\(current_ratio\\):d_credit_constraint1ABOVE", rownames(table$coef))
+    
+    #check_target_current_ratio_soe1 <- grep("log\\(cashflow_to_tangible\\):d_credit_constraintABOVE", rownames(table$coef))
+    #check_target_liabilities_soe1 <- grep("d_credit_constraintABOVE:log\\(current_ratio\\)", rownames(table$coef))
+
+
+    
+    if (length(check_target_current_ratio_soe) !=0) {
+    ## SOE
+    rownames(table$coefficients)[check_target_current_ratio_soe] <- 'log(current_ratio):credit_constraint'
+    rownames(table$beta)[check_target_current_ratio_soe] <- 'log(current_ratio):credit_constraint'
+    rownames(table$coefficients)[check_target_liabilities_soe] <- 'log(cashflow):credit_constraint'
+    rownames(table$beta)[check_target_liabilities_soe] <- 'log(cashflow):credit_constraint'
+        
+    
+    }
+    
+    #if (length(check_target_current_ratio_soe1) !=0) {
+    #    rownames(table$coefficients)[check_target_current_ratio_soe1] <- 'log(current_ratio):credit_constraint'
+    #rownames(table$beta)[check_target_current_ratio_soe1] <- 'log(current_ratio):credit_constraint'
+    #rownames(table$coefficients)[check_target_liabilities_soe1] <- 'log(cashflow):credit_constraint'
+    #rownames(table$beta)[check_target_liabilities_soe1] <- 'log(cashflow):credit_constraint'
+    #    }
+    
+
+    return (table)
+}
 ```
 
 ```sos kernel="R"

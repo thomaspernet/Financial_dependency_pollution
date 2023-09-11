@@ -1163,6 +1163,18 @@ lb.beautify(table_number = table_nb,
            folder = folder)
 ```
 
+```sos kernel="SoS"
+folder = 'Tables_0'
+table_nb = 1
+table = 'table_{}'.format(table_nb)
+path = os.path.join(folder, table + '.txt')
+if os.path.exists(folder) == False:
+        os.mkdir(folder)
+for ext in ['.txt', '.pdf']:
+    x = [a for a in os.listdir(folder) if a.endswith(ext)]
+    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
 ```sos kernel="R"
 %get path table
 #t_0 <- felm(log(tso2) ~ 
@@ -1584,7 +1596,7 @@ Manually save and rename tex file: table_3_output_5
 ```sos kernel="R"
 %get path table
 df_soe <- df_final %>% inner_join(read_csv('list_city_soe_output_0.3.csv'))
-df_priv <- df_final %>% left_join(read_csv('list_city_soe_output_0.3.csv')) %>% filter(is.na(share_soe))
+df_priv <- df_final%>% left_join(read_csv('list_city_soe_output_0.3.csv')) %>% filter(is.na(share_soe))
 df_for <- df_final %>% inner_join(read_csv('list_city_for_output_0.3.csv'))
 df_dom <- df_final %>% left_join(read_csv('list_city_for_output_0.3.csv')) %>% filter(is.na(share_for))
 ### SOE vs Private

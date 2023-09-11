@@ -514,28 +514,6 @@ for ext in ['.txt', '.pdf']:
 ```
 
 ```sos kernel="R"
-change_target <- function(table){
-    ## SOE
-    check_target_current_ratio_soe <- grep("log\\(cashflow_to_tangible\\):d_credit_constraintABOVE", rownames(table$coef))
-    check_target_liabilities_soe <- grep("d_credit_constraintABOVE:log\\(current_ratio\\)", rownames(table$coef))
-
-
-    
-    if (length(check_target_liabilities_soe) !=0) {
-    ## SOE
-    rownames(table$coefficients)[check_target_current_ratio_soe] <- 'log(current_ratio):credit_constraint'
-    rownames(table$beta)[check_target_current_ratio_soe] <- 'log(current_ratio):credit_constraint'
-    rownames(table$coefficients)[check_target_liabilities_soe] <- 'log(liabilities_tot_asset):credit_constraint'
-    rownames(table$beta)[check_target_liabilities_soe] <- 'log(liabilities_tot_asset):credit_constraint'
-        
-    
-    }
-    
-    return (table)
-}
-```
-
-```sos kernel="R"
 %get path table 
 ###
 t_2 <- felm(log(tfp_op) ~ 
@@ -642,6 +620,26 @@ for ext in ['.txt', '.pdf']:
 ```
 
 ```sos kernel="R"
+change_target <- function(table){
+    ## SOE
+    check_target_current_ratio_soe <- grep("log\\(cashflow_to_tangible\\):d_credit_constraintABOVE", rownames(table$coef))
+    check_target_liabilities_soe <- grep("d_credit_constraintABOVE:log\\(current_ratio\\)", rownames(table$coef))
+
+
+    
+    if (length(check_target_liabilities_soe) !=0) {
+    ## SOE
+    rownames(table$coefficients)[check_target_current_ratio_soe] <- 'log(current_ratio):credit_constraint'
+    rownames(table$beta)[check_target_current_ratio_soe] <- 'log(current_ratio):credit_constraint'
+    rownames(table$coefficients)[check_target_liabilities_soe] <- 'log(cashflow):credit_constraint'
+    rownames(table$beta)[check_target_liabilities_soe] <- 'log(cashflow):credit_constraint'
+    }
+    
+    return (table)
+}
+```
+
+```sos kernel="R"
 %get path table 
 t_2 <- felm(log(tfp_op) ~ 
             log(cashflow_to_tangible) *d_credit_constraint+ 
@@ -695,6 +693,20 @@ fe1 <- list(
     c("year", "Yes", "Yes", "Yes", "Yes", "Yes")
              )
 
+table_1 <- go_latex(list(
+    #t_0, t_1, 
+    t_2, t_3, t_4#,t_5
+),
+    title="Baseline effect of internal finance on firm TFP",
+    dep_var = dep,
+    addFE=fe1,
+    save=TRUE,
+    note = FALSE,
+    name=path
+) 
+```
+
+```sos kernel="R"
 table_1 <- go_latex(list(
     #t_0, t_1, 
     t_2, t_3, t_4#,t_5

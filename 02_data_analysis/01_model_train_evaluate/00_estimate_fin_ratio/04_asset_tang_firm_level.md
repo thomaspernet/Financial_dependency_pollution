@@ -315,6 +315,9 @@ if add_to_dic:
 import sys
 sys.path.append(os.path.join(parent_path, 'utils'))
 import latex.latex_beautify as lb
+
+#%load_ext autoreload
+#%autoreload 2
 ```
 
 ```sos kernel="R"
@@ -323,7 +326,7 @@ library(tidyverse)
 library(lfe)
 #library(lazyeval)
 library('progress')
-path = "function/table_golatex.R"
+path = "../../../utils/latex/table_golatex.R"
 source(path)
 ```
 
@@ -331,13 +334,17 @@ source(path)
 %get df_path
 df_final <- read_csv(df_path) %>%
 mutate_if(is.character, as.factor) %>%
-    mutate_at(vars(starts_with("fe")), as.factor) %>%
-mutate(
-    period = relevel(as.factor(period), ref='FALSE'),
-    soe_vs_pri = relevel(as.factor(soe_vs_pri), ref='SOE'),
+    mutate_at(vars(starts_with("fe")), as.factor) #%>%
+#mutate(
+    #period = relevel(as.factor(period), ref='FALSE'),
+    #soe_vs_pri = relevel(as.factor(soe_vs_pri), ref='SOE'),
     #size_percentile = quantile(employment, c(0.75)),
     #d_size_percentile = ifelse(employment > size_percentile, "LARGE", "SMALL"),
-)
+#)
+```
+
+```sos kernel="R"
+df_final
 ```
 
 <!-- #region kernel="SoS" -->
@@ -373,6 +380,17 @@ if os.path.exists(folder) == False:
 #for ext in ['.txt', '.tex', '.pdf']:
 #    x = [a for a in os.listdir(folder) if a.endswith(ext)]
 #    [os.remove(os.path.join(folder, i)) for i in x]
+```
+
+```sos kernel="R"
+summary(felm(log(asset_tangibility_tot_asset) ~ log(current_ratio) +
+            log(cashflow_tot_asset) +
+            log(liabilities_tot_asset)
+            | firm + fe_t_i|0 | firm, df_final %>%filter(asset_tangibility_tot_asset >0)
+             %>%filter(current_ratio >0)
+             %>%filter(cashflow_tot_asset >0)
+             %>%filter(liabilities_tot_asset >0),
+            exactDOF = TRUE))
 ```
 
 ```sos kernel="R"
